@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.4 2004/12/05 06:17:22 mthuurne Exp $
+$Id: ChangeLog,v 1.6 2004/12/07 20:34:24 mthuurne Exp $
+
+2004-12-07 Albert Beevendorp
+    * fixed order of memory mapper blocks.
+    * Implemented subrom search routine.
 
 2004-12-05 Maarten ter Huurne <maarten@treewalker.org>
     * Implemented searching for expanded slots.
