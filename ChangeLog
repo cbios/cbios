@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.80 2005/01/04 03:34:10 mthuurne Exp $
+$Id: ChangeLog,v 1.81 2005/01/04 14:57:08 bifimsx Exp $
 
 2005-01-04 Albert Beevendorp
     * Fixed TOTEXT
@@ -11,6 +11,7 @@ $Id: ChangeLog,v 1.80 2005/01/04 03:34:10 mthuurne Exp $
       Note that the escape sequences are all ignored at the moment.
     * Implemented ESC-A (cursor up) in CHPUT.
     * Fixed POSIT: row and column were swapped.
+    * Implemented BREAKX.
 
 2005-01-03 Albert Beevendorp
     * Added conditional compilation for subrom search

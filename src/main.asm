@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.70 2005/01/04 14:56:29 bifimsx Exp $
+; $Id: main.asm,v 1.71 2005/01/04 15:06:25 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2819,21 +2819,28 @@ qinlin_text:    db      "QINLIN",0
 
 ;--------------------------------
 ; $00B7 BREAKX
-; Function : Tests status of CTRL-STOP
-; Output   : C-flag set when pressed
-; Registers: AF
-; Remark   : It is allowed to call this routine with interrupts disabled
-; NOTE: this implementation is still a stub!
+; Tests status of CTRL-STOP.
+; This routine reads the keyboard status from the hardware, so its result
+; will be accurate even if interrupts have been disabled for a while.
+; Output:  CF set if CTRL-STOP is pressed
+; Changes: AF
 breakx:
-                push    hl
-                push    af
-                ld      hl,breakx_text
-                call    print_debug
-                pop     af
-                pop     hl
-                and     a       ; reset C-flag
+                in      a,(GIO_REGS)
+                and     $F0
+                or      $06
+                out     (GIO_REGS),a
+                in      a,(KBD_STAT)
+                and     $02             ; check CTRL, also resets CF
+                ret     nz
+                in      a,(GIO_REGS)
+                and     $F0
+                or      $07
+                out     (GIO_REGS),a
+                in      a,(KBD_STAT)
+                and     $10             ; check STOP, also resets CF
+                ret     nz
+                scf
                 ret
-breakx_text:    db      "BREAKX",0
 
 ;--------------------------------
 ; $00BA ISCNTC
