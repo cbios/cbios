@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.69 2005/01/01 05:29:59 ccfg Exp $
+$Id: ChangeLog,v 1.70 2005/01/01 22:46:00 mthuurne Exp $
+
+2005-01-02 Albert Beevendorp
+    * adjusted make.bat to compile the version dependent ROMs
+    * updated blueMSX, NLMSX and RuMSX configurations
 
 2005-01-01 Maarten ter Huurne <maarten@treewalker.org>
     * Create different ROMs for MSX1, MSX2 and MSX2+.
