@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.79 2005/01/08 07:48:00 ccfg Exp $
+; $Id: main.asm,v 1.80 2005/01/08 13:11:54 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2661,7 +2661,7 @@ chput_escape:                           ; A = escape state (ESCCNT)
                 cp      'l'
                 jr      z,chput_escape_erase_line
                 cp      'M'
-                jr      z,chput_escape_delete_line
+                jp      z,chput_escape_delete_line
 
 chput_escape_exit:
                 ld      a,d
@@ -2776,12 +2776,12 @@ chput_escape_erase_line:
                 call    chput_erase
                 pop     af
                 ld      (CSRX),a
-                jr      chput_escape_exit
+                jp      chput_escape_exit
 
 ; Delete a line and scroll the rest of the screen up.
 chput_escape_delete_line:
                 ; TODO: Implement.
-                jr      chput_escape_exit
+                jp      chput_escape_exit
 
 ; Erase to end of line.
 chput_erase:

@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.93 2005/01/08 07:47:59 ccfg Exp $
+$Id: ChangeLog,v 1.94 2005/01/08 13:11:53 ccfg Exp $
+
+2005-01-08 Albert Beevendorp
+    * turned a few relative jumps into absolute jumps in CHPUT to fix
+      compilation errors
 
 2005-01-08 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented control codes in CHPUT.
