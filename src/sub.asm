@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.31 2005/01/04 18:17:31 bifimsx Exp $
+; $Id: sub.asm,v 1.32 2005/01/05 09:31:53 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -371,27 +371,27 @@ VDP:            equ     V9938
                 ei
                 jp      bltvm
 
-; $0199 BLTMV Copy from Memory to VRAM
+; $0199 BLTMV Copy from VRAM to Memory
                 ds      $0199 - $,$C9
                 ei
                 jp      bltmv
 
-; $019D BLTVD Copy from Memory to VRAM
+; $019D BLTVD Copy from Diskfile to VRAM
                 ds      $019D - $,$C9
                 ei
                 jp      bltvd
 
-; $01A1 BLTDV Copy from Memory to VRAM
+; $01A1 BLTDV Copy from VRAM to Diskfile
                 ds      $01A1 - $,$C9
                 ei
                 jp      bltdv
 
-; $01A5 BLTMD Copy from Memory to VRAM
+; $01A5 BLTMD Copy from Diskfile to Memory
                 ds      $01A5 - $,$C9
                 ei
                 jp      bltmd
 
-; $01A9 BLTDM Copy from Memory to VRAM
+; $01A9 BLTDM Copy from Memory to Diskfile
                 ds      $01A9 - $,$C9
                 ei
                 jp      bltdm
@@ -802,10 +802,12 @@ exec_cmd:
                 bit     0,a
                 jr      nz,exec_cmd
 
-                ld      bc,32 *256+ 17
-                call    wrtvdp
-
                 di
+                ld      a,32
+                out     (VDP_ADDR),a
+                ld      a,128+ 17
+                out     (VDP_ADDR),a
+
                 ld      bc,14 *256+ VDP_REGS
                 ld      hl,SX
                 otir
@@ -827,6 +829,7 @@ blt_clip:
                 ld      a,(SCRMOD)
                 and     6                       ; SCREEN 6 or 7
                 cp      6
+                ld      a,(SCRMOD)
                 jr      nz,blt_clip_x           ; SCREEN 5 or 8 => X-max = 256
                 inc     h                       ; x-max = 512
 blt_clip_x:
@@ -888,7 +891,7 @@ bltvm:
                 ret     c
 
                 cp      8
-                ld      de,1 *256+ 0            ; D = number of pixels in a byte
+                ld      de,1 *256+ 8            ; D = number of pixels in a byte
                 jr      z,bltvm_cont            ; E = number of bits per pixel (shift)
                 cp      6
                 ld      de,4 *256+ 2
@@ -896,11 +899,19 @@ bltvm:
                 ld      de,2 *256+ 4
 
 bltvm_cont:
-                ld      a,(hl)                  ; read first value to write
-                inc     hl
+                ld      c,(hl)                  ; read first value to write
+                xor     a
+                ld      b,e                     ; number of bits per pixel
+bltvm_1stcol:
+                rl      c                       ; shift bits into A
+                rla
+                djnz    bltvm_1stcol
+
                 ld      (CDUMMY),a              ; store first byte
 
-                push    af
+                ld      b,d                     ; number of pixels
+                dec     b                       ; first color was just done
+                push    bc
                 push    hl
                 call    exec_cmd
 
@@ -909,12 +920,16 @@ bltvm_cont:
                 or      $b0                     ; LMMC
                 out     (c),a
                 ei
-                pop     hl
 
-                ld      bc,$AD +256* 17
-                call    wrtvdp
-                pop     af
-                ld      c,a
+                ld      a,128+ 44
+                di
+                out     (VDP_ADDR),a
+                ld      a,128+ 17
+                out     (VDP_ADDR),a
+                ei
+
+                pop     hl
+                pop     bc
 
 bltvm_loop:
                 ld      a,2
@@ -925,7 +940,6 @@ bltvm_loop:
                 jr      z,bltvm_loop
 
 bltvm_byte:
-                ld      b,d                     ; number of pixels
                 push    bc
                 xor     a
                 ld      b,e                     ; number of bits per pixel
@@ -934,11 +948,15 @@ bltvm_pixel:
                 rla
                 djnz    bltvm_pixel
                 out     (VDP_REGS),a            ; write pixel color
+                ld      a,c
                 pop     bc
+                ld      c,a
                 djnz    bltvm_byte              ; until the complete byte is done
 
-                ld      c,(hl)                  ; get the next byte
                 inc     hl
+                ld      c,(hl)                  ; get the next byte
+
+                ld      b,d                     ; number of pixels
                 jr      bltvm_loop
 
 ;-------------------------------------
