@@ -1,12 +1,12 @@
-$Id: ChangeLog,v 1.28 2004/12/22 12:29:29 andete Exp $
+$Id: ChangeLog,v 1.29 2004/12/22 15:30:08 bifimsx Exp $
 
 2004-12-22 Albert Beevendorp
     * Implemented REDCLK and WRTCLK routines
     * fixed minor bug in INIPLT and RSTPLT
 
 2004-12-22 Joost Yervante Damad <joost@lumatec.be>
-    * fill in missing systemvars and documentation for systemvars (WIP)
-		- MSX1 screen parameter area done
+    * fill in missing systemvars and documentation for systemvars
+		- finished, but alot of variables are still undocumented
 
 2004-12-22 Albert Beevendorp
     * Implemented REDCLK and WRTCLK routines

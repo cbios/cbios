@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.14 2004/12/22 13:16:56 andete Exp $
+; $Id: systemvars.asm,v 1.15 2004/12/22 19:56:26 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -467,57 +467,172 @@ RNDX:           equ     $F857
 ; filesystem work area
 ; --------------------
 
+MAXFIL:         equ     $F85F
+FILTAB:         equ     $F860
+NULBUF:         equ     $F862
+PTRFIL:         equ     $F864
+RUNFLG:         equ     $F866
+FILNAM:         equ     $F867
+FILNM2:         equ     $F871
+NLONLY:         equ     $F87C
+SAVEND:         equ     $F87D
+FNKSTR:         equ     $F87F
+
 ; ------------------------
 ; screen routine work area
 ; ------------------------
 
+CGPPNT:         equ     $F91F
 NAMBAS:         equ     $F922
 CGPBAS:         equ     $F924
 PATBAS:         equ     $F926
 ATRBAS:         equ     $F928
+CLOC:           equ     $F92A
+CMASK:          equ     $F92C
+MINDEL:         equ     $F92D
+MAXDEL:         equ     $F92F
+ASPECT:         equ     $F931
+CENCNT:         equ     $F933
+CLINEF:         equ     $F935
+CNPNTS:         equ     $F936
+CPLOTF:         equ     $F938
+CPCNT:          equ     $F939
+CPCNT8:         equ     $F93B
+CRCSUM:         equ     $F93D
+CSTCNT:         equ     $F93F
+CSCLXY:         equ     $F941
+CSAVEA:         equ     $F942
+CSAVEM:         equ     $F944
+CXOFF:          equ     $F945
+CYOFF:          equ     $F947
+LOHMSK:         equ     $F949
+LOHDIR:         equ     $F94A
+LOHADR:         equ     $F94B
+LOHCNT:         equ     $F94D
+SKPCNT:         equ     $F94F
+MOVCNT:         equ     $F951
+PDIREC:         equ     $F953
+LFPROG:         equ     $F954
+RTPROG:         equ     $F955
+MCLTAB:         equ     $F956
+MCLFLG:         equ     $F958
 
-; --------------------------------------
+; ------------------------------------------
 ; work area for sound and queueing and RS232
-; --------------------------------------
+; ------------------------------------------
 
-; in the MSX2, the RS232 addresses are used for other purposes
+; in the MSX2, the RS232 addresses are used for VDP purposes
 
+QUETAB:         equ     $F959
+QUEBAK:         equ     $F971
+VOICAQ:         equ     $F975
+VOICBQ:         equ     $F9F5
+VOICCQ:         equ     $FA75
+
+; FAF5-FB34: queue for RS232
+RS2IQ:          equ     $FAF5
+
+; in MSX2 the content of RS2IQ is used differently:
 DPPAGE:         equ     $FAF5           ; Display page (SCR5+)
 ACPAGE:         equ     $FAF6           ; Active page (SCR5+)
-
+AVCSAV:         equ     $FAF7
 EXBRSA:         equ     $FAF8           ; サブロム位置
+CHRCNT:         equ     $FAF9
+ROMA:           equ     $FAFA
+MODE:           equ     $FAFC
+;Reserved       equ     $FAFD
+XSAVE:          equ     $FAFE
+YSAVE:          equ     $FB00
+LOGOPR:         equ     $FB02
+; end of MSX2 only usage of RS2IQ
+
+PRSCNT:         equ     $FB35
+SAVSP:          equ     $FB36
+VOICEN:         equ     $FB38
+SAVVOL:         equ     $FB39
+MCLLEN:         equ     $FB3B
+MCLPTR:         equ     $FB3C
+QUEUEN:         equ     $FB3E
+PLYCNT:         equ     $FB40
+VCBA:           equ     $FB41
+VCBB:           equ     $FB66
+VCBC:           equ     $FB8B
 
 ; -----------------------------------------------
 ; settings for screen editor and interrupt system
 ; -----------------------------------------------
 
+ENSTOP:         equ     $FBB0
+BASROM:         equ     $FBB1
+LINTTB:         equ     $FBB2
+FSTPOS:         equ     $FBCA
+CODSAV:         equ     $FBCC
+FNKSWI:         equ     $FBCD
+FNKFLG:         equ     $FBCE
+ONGSBF:         equ     $FBD8
 CLIKFL:         equ     $FBD9
 OLDKEY:         equ     $FBDA
 NEWKEY:         equ     $FBE5
 KEYBUF:         equ     $FBF0
-
+; LIMPNT: something about "key buffer pointer"
 LIMPNT:         equ     $FC17           ; キーバッファへのポインタ
 LINWRK:         equ     $FC18           ; 40桁分のバッファ
-
 BOTTOM:         equ     $FC48
 HIMEM:          equ     $FC4A
-
-ESCCNT:         equ     $FCA7           ; ESC用カウンタ.
-
-EXP_TBL:        equ     $FCC1           ; スロット情報テーブル
-SLT_TBL:        equ     $FCC5           ; スロット情報
-
+TRPTBL:         equ     $FC4C
+RTYCNT:         equ     $FC9A
+INTFLG:         equ     $FC9B
+PADY:           equ     $FC9C
+PADX:           equ     $FC9D
 JIFFY:          equ     $FC9E           ; timer counter
+INTVAL:         equ     $FCA0
+INTCNT:         equ     $FCA2
+LOWLIM:         equ     $FCA4
+WINWID:         equ     $FCA5
+GRPHED:         equ     $FCA6
+ESCCNT:         equ     $FCA7           ; ESC用カウンタ.
+INSFLG:         equ     $FCA8
+CSRSW:          equ     $FCA9
+CSTYLE:         equ     $FCAA
+CAPST:          equ     $FCAB
+KANAST:         equ     $FCAC
+KANAMD:         equ     $FCAD
+
+; ----
+; misc
+; ----
+
+FLBMEM:         equ     $FCAE
 SCRMOD:         equ     $FCAF
+OLDSRC:         equ     $FCB0
+CASPRV:         equ     $FCB1
+BRDATR:         equ     $FCB2
+GXPOS:          equ     $FCB3
+GYPOS:          equ     $FCB5
+GRPACX:         equ     $FCB7
+GRPACY:         equ     $FCB9
+DRWFLG:         equ     $FCBB
+DRWANG:         equ     $FCBD
+RUNBNF:         equ     $FCBE
+SAVENT:         equ     $FCBF
 
 ; ---------------------------
 ; storage of slot information
 ; ---------------------------
 
+EXPTBL:         equ     $FCC1
+EXP_TBL:        equ     $FCC1           ; スロット情報テーブル
+SLTTBL:         equ     $FCC5
+SLT_TBL:        equ     $FCC5           ; スロット情報
+SLTATR:         equ     $FCC9
+SLTWRK:         equ     $FD09
+
 ; ------------------------------
 ; storage of ROM-page parameters
 ; ------------------------------
 
+PROCNM:         equ     $FD89
+DEVICE:         equ     $FD99
 ; ------------
 ; system hooks
 ; ------------
@@ -528,16 +643,22 @@ SCRMOD:         equ     $FCAF
 ; storage of VDP8-23
 ; ------------------
 
+; FFE7-FFF6: storage of VDP 8-23
 RG8SAV:         equ     $FFE7
 
 ; ----------------------
 ; extra slot information
 ; ----------------------
 
+; FFF7: slot address of main-rom
+;?????:         equ     $FFF7
+
 ; ---------------------------
 ; subslot switching addresses
 ; ---------------------------
 
+; FFFF: subslot switching address
+;?????:         equ     $FFFF
 ; -------
 ; the end
 ; -------
