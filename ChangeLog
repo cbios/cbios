@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.109 2005/01/20 19:08:16 bifimsx Exp $
+$Id: ChangeLog,v 1.110 2005/02/06 03:06:25 mthuurne Exp $
 
 2005-02-05 Maarten ter Huurne <maarten@treewalker.org>
     * Workaround for buggy cartridge boot code: HALT just before calling
@@ -6,6 +6,8 @@ $Id: ChangeLog,v 1.109 2005/01/20 19:08:16 bifimsx Exp $
       Fixes hang of Koronis Rift.
     * Rewrite VDP control registers in CHGMOD.
       Fixes title screen garbage sprites of Hole in One Special.
+    * Corrected the value written to the VDP regs for sprite attribute and
+      pattern base addresses in SCREEN 7 and 8.
 
 2005-01-20 Albert Beevendorp
     * moved logo plot code from main.asm to logo.asm

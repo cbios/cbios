@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.49 2005/01/14 15:27:58 ccfg Exp $
+; $Id: video.asm,v 1.50 2005/02/06 03:06:09 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1487,13 +1487,13 @@ init_sc7:
                 call    wrtvdp          ; write VDP R#2
 
                 ; Set sprite attribute table base.
-                ld      bc,$EF05        ; B = $EF, C = 5
+                ld      bc,$F705        ; B = $F7, C = 5
                 call    wrtvdp          ; write VDP R#5
-                ld      bc,$000B        ; B = $00, C = 11
+                ld      bc,$010B        ; B = $01, C = 11
                 call    wrtvdp          ; write VDP R#11
 
                 ; Set sprite pattern table base.
-                ld      bc,$0F06        ; B = $0F, C = 6
+                ld      bc,$1E06        ; B = $1E, C = 6
                 call    wrtvdp          ; write VDP R#6
 
                 ld      a,(RG8SAV+9-8)
@@ -1547,13 +1547,13 @@ init_sc8:
                 call    wrtvdp          ; write VDP R#2
 
                 ; Set sprite attribute table base.
-                ld      bc,$EF05        ; B = $EF, C = 5
+                ld      bc,$F705        ; B = $F7, C = 5
                 call    wrtvdp          ; write VDP R#5
-                ld      bc,$000B        ; B = $00, C = 11
+                ld      bc,$010B        ; B = $01, C = 11
                 call    wrtvdp          ; write VDP R#11
 
                 ; Set sprite pattern table base.
-                ld      bc,$0F06        ; B = $0F, C = 6
+                ld      bc,$1E06        ; B = $1E, C = 6
                 call    wrtvdp          ; write VDP R#6
 
                 ld      a,(RG8SAV+9-8)
