@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.22 2004/12/28 16:30:05 mthuurne Exp $
+; $Id: sub.asm,v 1.23 2004/12/28 20:08:20 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -642,7 +642,7 @@ bltmv:
                 pop     af
                 pop     hl
                 ret
-bltmv_text:    db      "BLTMV",0
+bltmv_text:     db      "BLTMV",0
 
 ;-------------------------------------
 ; $019D BLTVD
@@ -660,7 +660,7 @@ bltvd:
                 pop     af
                 pop     hl
                 ret
-bltvd_text:    db      "BLTVD",0
+bltvd_text:     db      "BLTVD",0
 
 ;-------------------------------------
 ; $01A1 BLTDV
@@ -678,7 +678,7 @@ bltdv:
                 pop     af
                 pop     hl
                 ret
-bltdv_text:    db      "BLTDV",0
+bltdv_text:     db      "BLTDV",0
 
 ;-------------------------------------
 ; $01A5 BLTMD
@@ -696,7 +696,7 @@ bltmd:
                 pop     af
                 pop     hl
                 ret
-bltmd_text:    db      "BLTMD",0
+bltmd_text:     db      "BLTMD",0
 
 ;-------------------------------------
 ; $01A9 BLTDM
@@ -714,7 +714,7 @@ bltdm:
                 pop     af
                 pop     hl
                 ret
-bltdm_text:    db      "BLTDM",0
+bltdm_text:     db      "BLTDM",0
 
 ;-------------------------------------
 ; $01AD NEWPAD
