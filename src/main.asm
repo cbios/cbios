@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.93 2005/02/06 03:05:16 mthuurne Exp $
+; $Id: main.asm,v 1.94 2005/02/06 19:14:19 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -3654,6 +3654,9 @@ lp_strprn:
                 jp      hang_up_mode
 
 
+                ds      $1bbf - $
+                include "font.asm"
+
 ;------------------------------------
 ; disk routine
 ;------------------------------------
@@ -3877,9 +3880,6 @@ vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84
                 db      $F5,$87,$00,$40
 
-
-                ds      $1bbf - $
-                include "font.asm"
 
                 include "logo.asm"
 ; ????
