@@ -1,4 +1,4 @@
-; $Id$
+; $Id: util.asm,v 1.1 2004/12/19 03:44:38 mthuurne Exp $
 ; C-BIOS utility routines
 ;
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
@@ -28,7 +28,7 @@
 ; Generic routine that implements a jump table.
 ; Input:   HL = address of jump table
 ;          A  = index in table
-; Changes: HL, BC (these are changed *before* jumping)
+; Changes: F, HL, BC (these are changed *before* jumping)
 jump_table:
                 ld      c,a
                 ld      b,0
