@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.24 2005/01/09 02:33:42 mthuurne Exp $
+; $Id: systemvars.asm,v 1.25 2005/01/15 00:01:01 ccfg Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -8,6 +8,7 @@
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2005 Jussi Pitk舅en.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -662,11 +663,31 @@ SAVENT:         equ     $FCBF
 ; storage of slot information
 ; ---------------------------
 
+; FCC1-FCC4: Information for each primary slot. The most significant bit is
+; set if the primary slot is found to be expanded.
 EXPTBL:         equ     $FCC1
 EXP_TBL:        equ     $FCC1           ; スロット情報テーブル
+
+; FCC5-FCC8: Duplicate the contents of the four possible secondary slot
+; registers.
 SLTTBL:         equ     $FCC5
 SLT_TBL:        equ     $FCC5           ; スロット情報
+
+; FCC9-FD08: Information for any extension ROMs found during the power-up
+; ROM search.
+; FCC9-FCCC: primary slot 0, secondary slot 0
+; FCCD-FCD0: primary slot 0, secondary slot 1
+; FCD1-FCD4: primary slot 0, secondary slot 2
+; FCD5-FCD8: primary slot 0, secondary slot 3
+; FCD9-FCE8: primary slot 1
+; FCE9-FCF8: primary slot 2
+; FCF9-FD08: primary slot 3
+; The information is stored as below.
+; bit 7 (set): BASIC program
+; bit 6 (set): device handler
+; bit 5 (set): statement handler
 SLTATR:         equ     $FCC9
+
 SLTWRK:         equ     $FD09
 
 ; ------------------------------
