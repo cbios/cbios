@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.35 2005/01/02 12:48:58 ccfg Exp $
+; $Id: video.asm,v 1.36 2005/01/03 00:07:17 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -7,6 +7,7 @@
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions

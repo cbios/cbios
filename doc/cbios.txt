@@ -1,4 +1,4 @@
-$Id: cbios.txt,v 1.3 2004/12/18 18:51:33 mthuurne Exp $
+$Id: cbios.txt,v 1.4 2004/12/24 00:46:00 mthuurne Exp $
 
 C-BIOS 0.19
 ===========
@@ -23,6 +23,7 @@ Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004 Patrick van Arkel.  All rights reserved.
 Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.63 2005/01/02 12:48:55 ccfg Exp $
+; $Id: main.asm,v 1.64 2005/01/02 23:47:41 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -7,6 +7,7 @@
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
+; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
