@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.3 2004/12/05 04:46:20 mthuurne Exp $
+$Id: ChangeLog,v 1.4 2004/12/05 06:17:22 mthuurne Exp $
+
+2004-12-05 Maarten ter Huurne <maarten@treewalker.org>
+    * Implemented searching for expanded slots.
+      EXPTBL is now filled correctly.
 
 2004-12-04 Maarten ter Huurne <maarten@treewalker.org>
     * Split off system variable and hook declarations into separate sources.

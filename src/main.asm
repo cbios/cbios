@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.8 2004/12/05 06:13:09 mthuurne Exp $
+; $Id: main.asm,v 1.9 2004/12/05 15:22:34 bifimsx Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -369,17 +369,6 @@ ram_ok:
                 ld      a,e
                 ld      (hl),a          ; 拡張スロット
 
-                and     $0C
-
-                in      a,(PSL_STAT)
-                and     $03
-                or      $80
-                ld      (EXP_TBL),a     ; MAIN-ROMの位置
-                and     $80
-                ld      (EXP_TBL+1),a
-                ld      (EXP_TBL+2),a
-                ld      (EXP_TBL+3),a
-
 ; you can write the memory.
 
 ;----------------------
@@ -391,6 +380,7 @@ ram_ok:
 
                 call    init_ram
 
+                call    check_expanded                                
                 call    chksubpos
                 call    check_rom
 
@@ -874,7 +864,67 @@ init_ram:
                 ld      a,$08
                 ld      (RG8SAV),a
 
+                ret
 
+;----------------------
+; Check which slots are expanded.
+; Initialises EXP_TBL for all 4 slots.
+check_expanded:
+                ; Prepare to iterate over slots [0..3].
+                di
+                ld      hl,EXP_TBL
+                in      a,(PSL_STAT)
+                ld      d,a             ; D = saved value from port $A8
+                and     $3F
+                ld      c,a
+check_expanded_lp:
+                out     (PSL_STAT),a
+                ld      a,(SSL_REGS)
+                cpl
+                ld      e,a             ; E = saved SSL value
+
+                ; Test whether $0x is read back as complement.
+                and     $0F
+                ld      (SSL_REGS),a
+                ld      b,a
+                ld      a,(SSL_REGS)
+                cpl
+                cp      b
+                jr      nz,check_expanded_not
+
+                ; Test whether $5x is read back as complement.
+                ld      a,e
+                and     $0F
+                or      $50
+                ld      (SSL_REGS),a
+                ld      b,a
+                ld      a,(SSL_REGS)
+                cpl
+                cp      b
+                jr      nz,check_expanded_not
+
+                ; SSL register present -> slot expanded.
+                ld      b,$80
+                ld      a,e             
+                jr      check_expanded_next
+check_expanded_not:
+                ; SSL register present -> slot expanded.
+                ld      b,$00
+                ld      a,e             ; E = saved SSL value
+                cpl                     ; not SSL -> back to original
+check_expanded_next:
+                ld      (SSL_REGS),a
+                ld      a,d             ; D = saved value from port $A8
+                out     (PSL_STAT),a
+                ld      (hl),b
+                inc     hl
+                ; Next slot.
+                ld      a,c
+                add     a,$40
+                ld      c,a
+                jr      nc,check_expanded_lp
+
+                ei
                 ret
 
 ;----------------------
