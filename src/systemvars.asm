@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.20 2004/12/28 08:13:50 bifimsx Exp $
+; $Id: systemvars.asm,v 1.21 2004/12/28 19:08:43 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -158,7 +158,9 @@ CSRY:           equ     $F3DC
 ; starts to count at 1 for the leftmost column
 CSRX:           equ     $F3DD
 
-; F3DE: function key definition shown: 0: no, >0: yes
+; F3DE: function key definition shown: 0: no, -1: yes
+; Note: MSX BIOS will mess up end-of-screen if this variable contains
+;       something other than $00 or $FF.
 CNSDFG:         equ     $F3DE
 
 ; F3DF-D3E6: storage for the last written value towards VDP registers 0 till 7
@@ -561,6 +563,8 @@ YSAVE:          equ     $FB00
 LOGOPR:         equ     $FB02
 ; end of MSX2 only usage of RS2IQ
 
+DRVINF:         equ     $FB21
+
 PRSCNT:         equ     $FB35
 SAVSP:          equ     $FB36
 VOICEN:         equ     $FB38
@@ -605,7 +609,18 @@ INTCNT:         equ     $FCA2
 LOWLIM:         equ     $FCA4
 WINWID:         equ     $FCA5
 GRPHED:         equ     $FCA6
-ESCCNT:         equ     $FCA7           ; ESC用カウンタ.
+
+; FCA7 ESCCNT State of a state machine that handles the printing of escape
+; sequences. A subset of the VT52 escape sequences is supported.
+; values:
+; $00: not inside an escape sequence
+; $01: seen <ESC>x
+; $02: seen <ESC>y
+; $03: seen <ESC>Y<row>
+; $04: seen <ESC>Y
+; $FF: seen <ESC>
+ESCCNT:         equ     $FCA7
+
 INSFLG:         equ     $FCA8
 CSRSW:          equ     $FCA9
 CSTYLE:         equ     $FCAA
