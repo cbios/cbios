@@ -1,7 +1,7 @@
-; $Id: main.asm,v 1.95 2005/02/06 20:51:47 bifimsx Exp $
+; $Id: main.asm,v 1.97 2005/02/15 22:32:00 BouKiCHi Exp $
 ; C-BIOS main ROM
 ;
-; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
@@ -34,17 +34,17 @@
                 include "hooks.asm"
 
 ;-----------------
-; デバッグルーチン用メモリ
+; A memory address for debug
 ;-----------------
 
-DISPADDR:       equ     $E010           ; ダンプアドレス用メモリ
+DISPADDR:       equ     $E010           ; Memory for dump routine
 LASTSTAC:       equ     $E000
 SP_REGS:        equ     $E002
 
 COMPILE_FONT:   equ     YES
 
 ;---------------------
-; jump table
+; Jump table
 ;---------------------
 
 ; $0000 CHKRAM
@@ -52,7 +52,7 @@ COMPILE_FONT:   equ     YES
                 di
                 jp      chkram
 
-;フォントへのポインタ
+; Pointer to font
 ; $0004 CGTABL  Base address of the MSX character set in ROM
                 ds      $0004 - $
                 dw      B_Font
@@ -60,15 +60,15 @@ COMPILE_FONT:   equ     YES
                 ds      $0006 - $
 
 ; $0006 VDP.DR  Base port address for VDP data read
-vdp_dr:         db      VDP_DATA        ; VDP読み出しポート
+vdp_dr:         db      VDP_DATA        ; VDP read port
 ; $0007 VDP.WR  Base port address for VDP data write
-vdp_dw:         db      VDP_DATA        ; VDP書き込みポート
+vdp_dw:         db      VDP_DATA        ; VDP write port
 
 ; $0008 SYNCHR
                 ds      $0008 - $
                 jp      synchr
 
-; $000C RDSLT    任意スロットからのメモリ読み込み
+; $000C RDSLT   Read memory from an optional slot
                 ds      $000C - $
                 jp      rdslt
 
@@ -76,7 +76,7 @@ vdp_dw:         db      VDP_DATA        ; VDP書き込みポート
                 ds      $0010 - $
                 jp      chrgtr
 
-; $0014 WRSLT    任意スロットへのメモリ書き込み
+; $0014 WRSLT   Write memory to an optional slot
                 ds      $0014 - $
                 jp      wrslt
 
@@ -88,11 +88,11 @@ vdp_dw:         db      VDP_DATA        ; VDP書き込みポート
                 ds      $001C - $
                 jp      calslt
 
-; $0020 DCOMPR   HLとDEの比較
+; $0020 DCOMPR  Compare HL to DE
                 ds      $0020 - $
                 jp      dcompr
 
-; $0024 ENASLT   スロットの変更
+; $0024 ENASLT  Change slot
                 ds      $0024 - $
                 jp      enaslt
 
@@ -123,7 +123,7 @@ idbyt2:
 ;                   0 = Japanese, 1 = International
                 db      $11 ; ?? TODO Dutch MSX value: $11
 
-; $002D version ID等
+; $002D Version ID
 romid:
                 ds      $002D - $
 ; version ID
@@ -152,15 +152,15 @@ romid:
 ; Reserved
                 db      0
 
-; $0030 CALLF    インタースロット呼び出し(RST30h版)
+; $0030 CALLF    Call interslot routine(RST30h version)
                 ds      $0030 - $
                 jp      callf
 
-; $0038 KEYINT   割り込みルーチン(RST38,VBlank,Timer...)
+; $0038 KEYINT   Interrupt routines(RST38,VBlank,Timer...)
                 ds      $0038 - $
                 jp      keyint
 
-; $003B INITIO   I/Oの初期化
+; $003B INITIO  Initialize I/O
                 ds      $003B - $
                 jp      initio
 
@@ -168,11 +168,11 @@ romid:
                 ds      $003E - $
                 jp      inifnk
 
-; $0041 DISSCR   スクリーンを表示させない。
+; $0041 DISSCR  Don't make to display screen
                 ds      $0041 - $
                 jp      disscr
 
-; $0044 ENASCR   スクリーンを表示させる。
+; $0044 ENASCR  Make to display screen
                 ds      $0044 - $
                 jp      enascr
 
@@ -196,7 +196,7 @@ romid:
                 ds      $0050 - $
                 jp      setrd
 
-; $0053 SETWRT  .. VRAM書き込みアドレスの設定
+; $0053 SETWRT  .. set an address of writting VRAM
                 ds      $0053 - $
                 jp      setwrt
 ; $0056 FILVRM
@@ -209,7 +209,7 @@ romid:
                 ds      $005C - $
                 jp      ldirvm          ; Memory -> VRAM
 
-; $005F CHGMOD VDPスクリーンモードの変更
+; $005F CHGMOD Change VDP screen mode
                 ds      $005F - $
                 jp      chgmod
 
@@ -217,23 +217,23 @@ romid:
                 ds      $0062 - $
                 jp      chgclr
 
-; $0066 NMI .. NMI割り込み
+; $0066 NMI .. NMI interrupt
                 ds      $0066 - $
                 jp      nmi
 
-; $0069 CLRSPR  .. スプライトを消去。
+; $0069 CLRSPR  .. clear sprites
                 ds      $0069 - $
                 jp      clrspr
 
-; $006C INITXT   画面をTEXT1モードに初期化。
+; $006C INITXT  Initialize display to mode TEXT1
                 ds      $006C - $
                 jp      initxt
 
-; $006F INIT32   画面をGRAPHIC1モードに初期化。
+; $006F INIT32  Initialize display to mode GRAPHIC1
                 ds      $006F - $
                 jp      init32
 
-; $0072 INITGRP  画面をGRAPHIC2モードに初期化。
+; $0072 INITGRP Initialize display to mode GRAPHIC2
                 ds      $0072 - $
                 jp      inigrp
 
@@ -273,7 +273,7 @@ romid:
                 ds      $008D - $
                 jp      grpprt
 
-; $0090 GICINI   音源ICの初期化
+; $0090 GICINI  initialize sound IC
                 ds      $0090 - $
                 jp      gicini
 ; $0093 WRTPSG
@@ -291,11 +291,11 @@ romid:
                 ds      $009C - $
                 jp      chsns
 
-; $009F CHGET .. キーバッファからデータを得る
+; $009F CHGET .. Get data from keyboard buffer
                 ds      $009F - $
                 jp      chget
 
-; $00A2 CHPUT .. ディスプレイのキャラクタを出力する。
+; $00A2 CHPUT .. Output charactor to display
                 ds      $00A2 - $
                 jp      chput
 
@@ -363,11 +363,11 @@ romid:
                 ds      $00D2 - $
                 jp      totext
 
-; $00D5 GTSTCK .. ジョイスティック情報を得る。
+; $00D5 GTSTCK .. Get joystick infomation
                 ds      $00D5 - $
                 jp      gtstck
 
-; $00D8 GTTRIG .. トリガー情報を得る。
+; $00D8 GTTRIG .. Get trigger infomation
                 ds      $00D8 - $
                 jp      gttrig
 
@@ -495,19 +495,19 @@ romid:
                 ds      $0135 - $
                 jp      chgsnd
 
-; $0138 RSLREG プライマリスロットの情報を読み出す
+; $0138 RSLREG  Read infomation of primary slot
                 ds      $0138 - $
                 jp      rslreg
 
-; $013B WSLREG プライマリスロットに情報を書き込む。
+; $013B WSLREG  Write infomation to primary slot
                 ds      $013B - $
                 jp      wslreg
 
-; $013E RDVDP    VDPステータスの読み出し
+; $013E RDVDP   Read VDP status
                 ds      $013E - $
                 jp      rdvdp
 
-; $0141 SNSMAT   キーマトリクスを得る
+; $0141 SNSMAT  Get key matrix
                 ds      $0141 - $
                 jp      snsmat
 
@@ -535,11 +535,11 @@ romid:
                 ds      $0153 - $
                 jp      getvc2
 
-; $0156 KILBUF   キーボードバッファをクリアする
+; $0156 KILBUF  Clear keyboard buffer
                 ds      $0156 - $
                 jp      kilbuf
 
-; $0159 CALBAS   ベーシックインタプリタを呼び出す。
+; $0159 CALBAS  Call BASIC interpreter
                 ds      $0159 - $
                 jp      calbas
 
@@ -600,7 +600,7 @@ romid:
 ; $0189 PCMREC
 
 ; -------------------
-; start up code（リセット時に呼び出される）
+; start up code（call this one when reset)
 ; -------------------
 
                 ds      $0200 - $
@@ -615,7 +615,7 @@ romid:
 ; Registers: All
 ; Remark   : After this, a jump must be made to INIT, for further initialisation.
 chkram:
-;デバッグ用
+;for debug
 ;                ex      (sp),hl
 ;                ld      (LASTSTAC),hl
 ;
@@ -625,13 +625,14 @@ chkram:
 ;
 ;                ld      hl,$F300
 
-; インターフェースを初期化する。
+;Initialize interface
+
                 ld      a,$82
                 out     (PPI_REGS),a
                 ld      a,$50
                 out     (GIO_REGS),a
 
-;メモリバンクを初期化する。
+;Initialize memory bank
                 xor     a
                 out     (MAP_REG4),a
                 inc     a
@@ -641,10 +642,10 @@ chkram:
                 inc     a
                 out     (MAP_REG1),a
 
-; memory check, 選択スロットをメモリに書き込む。
+; memory check, Write selected slot to memory
 ; C = primary, B = secondary.
                 ld      bc,$0303
-chk_wrt_ram:               ; ページ３のRAMをチェックする。
+chk_wrt_ram:               ; Check page3 RAM
                 in      a,(PSL_STAT)
                 and     $3F
                 ld      e,a
@@ -686,16 +687,16 @@ cant_wrt:
 
 ram_ok:
                 ld      hl,SLT_TBL + 3
-                ld      (hl),e          ; 拡張スロット
+                ld      (hl),e          ; Expanded slot
 
-; you can write the memory.
+; Yes,You can write the memory after the routine.
 
 ;----------------------
-; user interface
+; User interface
 ;----------------------
 
                 ld      hl,$F300
-                ld      sp,hl           ; スタックを$F300に。
+                ld      sp,hl           ; set $F300 to stack pointer
 
                 call    init_ram
 
@@ -722,7 +723,7 @@ ram_ok:
                 call    start_cartprog
 
 ;----------------------
-;カートリッジを実行する
+;Execute program in the cartridge
 ;----------------------
 
 start_game:
@@ -771,12 +772,12 @@ start_game:
                 jp      c,p0_run        ; I can't return anymore!
 
 
-                ld      hl,($4002)      ; カートリッジ開始アドレス。
-                jp      (hl)            ; 実行...
+                ld      hl,($4002)      ; A start address of the cartridge
+                jp      (hl)            ; Execute...
 
 p3_run:
-                ld      hl,($8002)      ; カートリッジ開始アドレス。
-                jp      (hl)            ; 実行...
+                ld      hl,($8002)      ; A start address of the cartridge
+                jp      (hl)            ; Execute..
 
 boot_stage2:
                 ; Set up hooks and system vars so NMS8250 disk ROM will try
@@ -880,18 +881,18 @@ hyper_p0_jump_end:      equ     $
 
 
 ;-------------------------------
-; 情報表示
+; Display infomation
 ;-------------------------------
 disp_info:
 
-; シフトキーが押されていればdebug_modeへ。
+; Go to debug_mode if pressed shift key
 ;
                 ld      a,$06
                 call    snsmat
                 bit     0,a
                 jp      z,debug_mode
 
-; プログラム情報の表示
+; Display program infomation
 
                 call    init32
 
@@ -933,8 +934,7 @@ disp_info:
 
 ;----------------------------
 start_cartprog:
-; スロット上にカートリッジが存在したなら、
-; そのスロットのプログラムを実行する。
+; If a cartridge exist in the slot,execute program in the slot
 
                 ld      hl,$0112
                 call    posit
@@ -1046,7 +1046,7 @@ sh_debug:
                 ld      (LASTSTAC),hl
 
 debug_mode:
-                ; リターンコードをフックに埋め込む。
+                ; Sink a return code into hooks
                 ld      a,$C9
                 ld      (H_KEYI),a
                 ld      (H_TIMI),a
@@ -1058,7 +1058,7 @@ debug_mode:
                 ld      a,1
                 ld      (CSRY),a
 
-                ld      hl,$4000        ; ページ1から表示する。
+                ld      hl,$4000        ; display from page1
                 ld      (DISPADDR),hl
 
                 ld      ix,(LASTSTAC)
@@ -1076,7 +1076,7 @@ loop_dump:
 
 
 ;-----------------
-; ダンプ用ルーチン
+; routines for dump
 ;-----------------
 
 disp_dump:
@@ -1110,7 +1110,7 @@ d16_lp:
                 ret
 
 ;-------------------------
-; キーループ用ウェイト
+; wait for key loop
 dump_keywait:
 
                 ld      e,$02
@@ -1203,11 +1203,11 @@ on_start:
                 jp      start_game
 
 ;------------------------
-; RAMの初期化
+; Initialize RAM
 
 init_ram:
 
-; ワークエリア初期化。
+; Initialize workarea
                 ld      a,$00
                 ld      hl,$F380
                 ld      (hl),a
@@ -1215,7 +1215,7 @@ init_ram:
                 ld      bc,$0C7D
                 ldir
 
-; initialize hook area with C9 (assembler code for ret)
+; initialize hook area with $C9 (assembler code for ret)
                 ld      a,$C9           ; ret code
                 ld      hl,H_KEYI
                 ld      (hl),a
@@ -1223,7 +1223,7 @@ init_ram:
                 ld      bc,$024D        ; shouldn't this be $0235 ?
                 ldir
 
-;キーマトリクスの初期化。
+; Initialize key matrix
                 ld      a,$FF
                 ld      hl,OLDKEY
                 ld      (hl),a
@@ -1231,7 +1231,7 @@ init_ram:
                 ld      bc,21
                 ldir
 
-;キーバッファの初期化。
+; Initialize Key buffer
                 ld      a,$00
                 ld      hl,KEYBUF
                 ld      (hl),a
@@ -1246,35 +1246,35 @@ init_ram:
                 ld      bc,15
                 ldir
 
-;アドレスポインタを設定。
+; Set address pointer
                 ld      hl,KEYBUF
                 ld      (PUTPNT),hl
                 ld      (GETPNT),hl
 
                 ld      hl,$8000
-                ld      (BOTTOM),hl     ; ページ1,2はROM。ページ3,4はRAM.
+                ld      (BOTTOM),hl     ; Page1 and 2 is ROM,Page3 and 4 is RAM.
 
                 ; I don't know exactly what is stored between $F168 and $F380,
                 ; but the disk ROM needs some space there, so I'll just
                 ; reserve all of it.
                 ld      hl,$F168
-                ld      (HIMEM),hl      ; 使用可能メモリの上限
-                ld      (STKTOP),hl     ; BASICスタックの位置
+                ld      (HIMEM),hl      ; limit of usable memory
+                ld      (STKTOP),hl     ; position of BASIC stack
 
-;RDPRIMをRAMに転送する.
+;Transmit RDPRIM to RAM.
 
                 ld      hl,m_rdprim
                 ld      de,$F380
                 ld      bc,m_prim_end-m_rdprim
                 ldir
 
-; screen 0 テーブルの初期化。
+; Initialize table of screen 0
                 ld      hl,$0000
                 ld      (TXTNAM),hl
                 ld      hl,$0800
                 ld      (TXTCGP),hl
 
-; screen 1 テーブルの初期化。
+; Initialize table of screen 1
                 ld      hl,$1800
                 ld      (T32NAM),hl
                 ld      hl,$2000
@@ -1286,7 +1286,8 @@ init_ram:
                 ld      hl,$3800
                 ld      (T32PAT),hl
 
-; screen 2 テーブルの初期化
+; Initialize table of screen 2
+
                 ld      hl,$1800
                 ld      (GRPNAM),hl
                 ld      hl,$2000
@@ -1298,7 +1299,7 @@ init_ram:
                 ld      hl,$3800
                 ld      (GRPPAT),hl
 
-; screen 3 テーブルの初期化
+; Initialize table fo screen 3
                 ld      hl,$0800
                 ld      (MLTNAM),hl
                 ld      hl,$0000
@@ -1308,7 +1309,7 @@ init_ram:
                 ld      hl,$3800
                 ld      (MLTPAT),hl
 
-; その他の設定。
+; other settings
                 ld      a,39
                 ld      (LINL40),a
                 ld      a,32            ; Set to 29 after splash screen.
@@ -1401,7 +1402,7 @@ check_expanded_next:
 
         IF VDP != TMS99X8
 ;----------------------
-;サブロム位置の検出
+;Detect position of subrom
 chksubpos:
 
                 ld      bc,$0400
@@ -1474,7 +1475,7 @@ rd_subpos:
 
 ;------------------------
 ;
-;レジスタの表示
+;Display register ( for debug )
 ;
 dbg_reg:
                 push    ix
@@ -1506,7 +1507,7 @@ dbg_loop:
                 jr      nz,dbg_loop
                 pop     ix
                 push    ix
-                jp      prn_hex ; レジスタPCの表示
+                jp      prn_hex ; display Reg.PC
 
 
 ;------------------------
@@ -1549,10 +1550,10 @@ reg_lp:
 
 ;------------------------
 vout_hex16:
-;16bit幅の16進数表示。
+;Display 16bit hex number
 ;IX = number
 ;dest = BC,HL,AF
-                ; RegB上位4bit
+                ; RegB upper 4bit
                 ld      hl,hex_tbl
                 push    ix
                 pop     bc
@@ -1571,7 +1572,7 @@ vout_hex16:
                 call    chput
 
 
-                ; RegB下位4bit
+                ; RegB lower 4bit
                 ld      hl,hex_tbl
                 push    ix
                 pop     bc
@@ -1585,7 +1586,7 @@ vout_hex16:
                 ld      a,(hl)
                 call    chput
 
-                ; RegC上位4bit
+                ; RegC upper 4bit
                 ld      hl,hex_tbl
                 push    ix
                 pop     bc
@@ -1603,7 +1604,7 @@ vout_hex16:
                 ld      a,(hl)
                 call    chput
 
-                ; RegC 下位 4bit
+                ; RegC lower 4bit
                 ld      hl,hex_tbl
                 push    ix
                 pop     bc
@@ -1621,12 +1622,12 @@ vout_hex16:
 
 ;------------------------
 vout_hex8:
-;8bit幅の16進数表示。
+;display 8bit-width hex
 ;A = 数値
 ;dest = BC,HL,AF
-                push    af ; このスタックは下位4bitのために使う。
+                push    af ; the stack will use lower 4bit
 
-                ; RegA 上位 4bit
+                ; RegA upper 4bit
 
                 ld      hl,hex_tbl
                 rlca
@@ -1643,7 +1644,7 @@ vout_hex8:
 
                 pop     af
 
-                ; RegA 下位 4bit
+                ; RegA lower 4bit
                 ld      hl,hex_tbl
 
                 and     $0F
@@ -1658,8 +1659,8 @@ vout_hex8:
 
 ;------------------------
 ; wait routine
-;注意、このルーチン呼び出しの際は常にEIであること。
-; B = ループ回数
+; caution,already EI when call the rouine
+; B = frequency of loop
 wait_b:
                 halt
                 djnz    wait_b
@@ -1667,9 +1668,9 @@ wait_b:
 
 ;------------------------
 ; wait routine
-;注意、このルーチン呼び出しの際は常にEIであること。
-; in .... B = ループ回数
-; out ... A = キーマトリクスの７番目。
+; caution,already EI when call the rouine
+; in .... B = loop frequency
+; out ... A = 7th of keymatrix
 ; dest .. RegC
 wait_key07:
                 ld      c,$FF
@@ -1684,7 +1685,7 @@ wk07_lp:
 
 ;------------------------
 ;prn_text
-; HL = 文字列
+; HL = string
 
 prn_text:
 prn_str_disp:
@@ -1889,7 +1890,7 @@ curs2hl_mult_skip:
 
 
 ;---------------------------
-; サブルーチン
+; Subroutines
 ;---------------------------
 
 ; the extensive descriptions were taken with permission from http://map.tni.nl/
@@ -1964,8 +1965,8 @@ isflio:
 
 
 ;--------------------------------
-; 0020h DCOMPR　16ビット比較
-; in .. hl,de= 数値
+; 0020h DCOMPR　Comparison 16bit
+; in .. hl,de= the number
 dcompr:
                 ld      a,h
                 cp      d
@@ -2986,7 +2987,7 @@ stmotr_set:     out     (GIO_REGS),a
                 ret
 
 ;--------------------------------
-; $0090 GICINI  音源IC初期化
+; $0090 GICINI  Initialize Sound IC
 ; Function : Initialises PSG and sets initial value for the PLAY statement
 ; Registers: All
 gicini:
@@ -3023,7 +3024,7 @@ wrtpsg:
                 ei
                 pop     af
 
-;サウンドモード用
+;for sound player mode
 ;                push    af
 ;                push    de
 ;                ld      d,a
@@ -3449,7 +3450,7 @@ kilbuf:
 ;------------------
 
 keyint:
-;デバッグ用
+;for debug
 ;                push    hl
 ;                ld  hl,$3232
 ;                ex (sp),hl
@@ -3471,7 +3472,7 @@ keyint:
                 in      a,(VDP_STAT)
                 or      a
                 jp      p,int_end
-                ld      (STATFL),a      ; ステータス保存
+                ld      (STATFL),a      ; save status
 
                 call    H_TIMI
 
@@ -3519,13 +3520,13 @@ int_end:
                 ret
 
 ;--------------------------------
-; 0066h NMI割り込み
+; 0066h NMI interrupt
 nmi:
                 call    H_NMI
                 retn
 
 ;--------------------------------
-; キーボード入力をバッファに取り込む
+; Get buffer from keyboard input
 key_in:
                 in      a,(GIO_REGS)
                 and     $F0
@@ -3677,7 +3678,7 @@ calbas:
 calbas_text:    db      "CALBAS",0
 
 ;------------------------------------
-;エラー表示
+;Display error
 ;in DE= message address
 
 print_error:
@@ -3759,7 +3760,7 @@ disk_intr:
                 jp      c,disk_error
                 ld      hl,($C00B)
 
-                ; sector size / 0x20(ファイル構造体)
+                ; sector size / 0x20(file structure)
 
                 ld      b,5
 shift_adr:
