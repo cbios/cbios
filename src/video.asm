@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.3 2004/12/10 01:51:15 mthuurne Exp $
+; $Id: video.asm,v 1.4 2004/12/10 07:30:02 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -313,7 +313,7 @@ init_txt:
                 ld      hl,$0800
                 ld      (CGPBAS),hl
 
-                ld      a,39
+                ld      a,(LINL40)
                 ld      (LINLEN),a
 
                 ret
@@ -421,7 +421,7 @@ tcol_lp:
 ;                ld      (CSRY),a
 ;                ld      (CSRX),a
 
-                ld      a,29
+                ld      a,(LINL32)
                 ld      (LINLEN),a
 
                 ret
@@ -686,7 +686,7 @@ init_vdp:
 
                 ld      bc,$0000        ; R#0
                 call    wrt_vdp
-                ld      bc,$7001        ; R#1
+                ld      bc,$6001        ; R#1
                 call    wrt_vdp
                 ld      bc,$0002        ; R#2
                 call    wrt_vdp
@@ -695,7 +695,7 @@ init_vdp:
                 ld      bc,$0104        ; R#4
                 call    wrt_vdp
 
-                call    clr_text40
+                call    clr_text32
 
                 ld      a ,$00
                 ld      hl,$0800

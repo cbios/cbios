@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.13 2004/12/10 01:51:15 mthuurne Exp $
+; $Id: main.asm,v 1.14 2004/12/10 18:24:51 manuelbi Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -313,6 +313,7 @@ romid:
 
                 include "debug.asm"
                 include "video.asm"
+                include "logo.asm"
 
 soft_reset:
 ;デバッグ用
@@ -429,25 +430,21 @@ ram_ok:
 ;----------------------
 
 start_game:
-                in      a,(PSL_STAT)
-                rrca
-                rrca
-                and     $03
-                cp      $03
-                jr      z,dont_chgscr
+                ld      a,29
+                ld      (LINL32),a
                 ld      a,$01
                 call    chgmod
-dont_chgscr:
+
                 ld      hl,stack_error
                 push    hl
+
                 ld      a,($4000)
                 cp      'A'
                 jr      nz,p3_run
                 ld      hl,($4002)      ; カートリッジ開始アドレス。
-                jr      prg_jumper
+                jp      (hl)            ; 実行...
 p3_run:
                 ld      hl,($8002)      ; カートリッジ開始アドレス。
-prg_jumper:
                 jp      (hl)            ; 実行...
 
 
@@ -465,20 +462,81 @@ disp_info:
 
 ; プログラム情報の表示
 
-                ld      hl,str_proginfo ; HL = 文字列アドレス
+                call    init_txt32
+
+                ; Print program info.
+                ld      hl,$0101
+                call    curxy
+                ld      hl,str_proginfo
                 call    prn_text
 
-                ld      a,($4000)
-                cp      'A'
-                ret     z
-                ld      a,($8000)
-                cp      'A'
-                ret     z
+                ; Upload pattern table.
+                ld      hl,(CGPBAS)
+                ld      bc,8 * logo_patoffset
+                add     hl,bc
+                ex      de,hl
+                ld      hl,logo_patterns
+                ld      bc,8 * logo_npatterns
+                call    vdp_data_rep
 
-                ld      hl,str_nocart
-                call    prn_text
+                ; Upload colour table.
+                ld      hl,(T32COL)
+                ld      bc,logo_patoffset / 8
+                add     hl,bc
+                call    vdp_setwrt
+                ld      b,10
+                ld      a,$F1
+plot_logo_col:
+                out     (VDP_DATA),a
+                djnz    plot_logo_col
+                ld      a,$E1
+                out     (VDP_DATA),a
+                ld      a,$E1
+                out     (VDP_DATA),a
 
-                jp      hang_up_mode
+                ; Upload name table.
+                ld      hl,(NAMBAS)
+                ld      bc,logo_namoffset
+                add     hl,bc
+                ex      de,hl
+                ld      hl,logo_names
+                ld      b,logo_namheight
+plot_logo_nam:
+                push    bc
+                push    hl
+                push    de
+                ld      bc,logo_namwidth
+                call    vdp_data_rep
+                pop     hl              ; value of DE
+                ld      bc,32
+                add     hl,bc
+                ex      de,hl
+                pop     hl              ; value of HL
+                ld      bc,logo_namwidth
+                add     hl,bc
+                pop     bc
+                djnz    plot_logo_nam
+
+                ; Select 16x16 sprites.
+                ld      a,(RG1SAV)
+                or      $02
+                ld      b,a
+                ld      c,$01
+                call    wrt_vdp
+
+                ; Upload sprite pattern table.
+                ld      hl,logo_spritepat
+                ld      de,(PATBAS)
+                ld      bc,32
+                call    vdp_data_rep
+
+                ; Upload sprite attribute table.
+                ld      hl,logo_spriteattr
+                ld      de,(ATRBAS)
+                ld      bc,8
+                call    vdp_data_rep
+
+                ret
 
 
 ;----------------------------
@@ -486,6 +544,22 @@ start_cartprog:
 ; スロット上にカートリッジが存在したなら、
 ; そのスロットのプログラムを実行する。
 
+                ld      hl,$1201
+                call    curxy
+
+                ld      a,($4000)
+                cp      'A'
+                jr      z,start_cartprog_found
+                ld      a,($8000)
+                cp      'A'
+                jr      z,start_cartprog_found
+
+                ld      hl,str_nocart
+                call    prn_text
+
+                jp      hang_up_mode
+
+start_cartprog_found:
                 ld      hl,str_slot
                 call    prn_text
 
@@ -493,42 +567,28 @@ start_cartprog:
                 rrca
                 rrca
                 and     $03
-
                 ld      d,$00
                 ld      e,a
-                push    de
-
-                call    vout_hex8
-                call    vout_hyphen
-
-                pop     de
+                add     a,'0'
+                call    ch_put
+                ld      hl,EXP_TBL
+                add     hl,de
+                bit     7,(hl)
+                jr      z,start_cartprog_notexp
+                ld      a,'.'
+                call    ch_put
                 ld      hl,SLT_TBL
                 add     hl,de
                 ld      a,(hl)
                 rrca
                 rrca
                 and     $03
-                call    vout_hex8
+                add     a,'0'
+                call    ch_put
+start_cartprog_notexp:
 
-;デバッグと動作チェック
-
-;                call    check_sum
-
-;                ld      a,(SMOD_TSTSND)
-;                or      a
-;                jr      z,stst_skip
-
-;サウンドモード用
-;                ld      hl,str_canstst
-;                call    prn_text
-
-stst_skip:
                 ld      b,120           ; 2sec wait (1 = 1/60sec)
                 call    wait_key07      ; wait routine
-
-;サウンドモード用
-;                bit     7,a
-;                call    z,sound_mode
 
                 bit     5,a
                 jp      z,sh_keyboard
@@ -540,11 +600,6 @@ stst_skip:
 
                 ld      hl,str_run
                 call    prn_text
-
-                call    dbg_reg
-
-                ld      b,60            ; 1sec
-                call    wait_b
 
                 ret
 
@@ -868,10 +923,10 @@ init_ram:
 ; その他の設定。
                 ld      a,39
                 ld      (LINL40),a
-                ld      a,29
+                ld      a,32            ; Set to 29 after splash screen.
                 ld      (LINL32),a
-;                ld      a,29
-                ld      a,39
+                ;TODO: Rely on call to INIT32 instead.
+                ld      a,(LINL32)
                 ld      (LINLEN),a
                 ld      a,24
                 ld      (CRTCNT),a
@@ -1214,13 +1269,6 @@ vout_hex8:
                 call    ch_put
 
                 ret
-
-;------------------------------
-vout_hyphen:
-                ld      a,'-'
-                call    ch_put
-                ret
-
 
 ;------------------------
 ; ウェイトルーチン
@@ -2751,20 +2799,12 @@ disk_error:
 ;---------------------------------
 
 str_proginfo:
-                ;       [0123456789012345678901234567890123456789]
-                db      "C-BIOS ver 0.17",$0D,$0A
-                db      "Copyright (C) 2002-2003 BouKiCHi",$0D,$0A
-                db      "Copyright (C) 2003 Reikan",$0D,$0A
-                db      "Copyright (C) 2004 C-BIOS Team",$0D,$0A
-                db      "(See http://cbios.sf.net/)",$0D,$0A
-                db      $00
+                ;       [01234567890123456789012345678901]
+                db      "C-BIOS 0.18         cbios.sf.net",$00
 
 str_slot:
-                db      $0D,$0A,"Slot:",$00
-str_chksum:
-                db      $0D,$0A,"CheckSum:",$00
-str_isgame:
-                db      " Game:",$00
+                ;       [01234567890123456789012345678901]
+                db      "Cartridge found in slot: ",$00
 
 ;-------------------------------------
 ;エラーメッセージ
@@ -2823,18 +2863,12 @@ str_de_oe:
 str_nocart:
                 ;       [0123456789012345678901234567890123456789]
                 db      $0D,$0A
-                db      "        Cartridge not found.",$00
+                db      "No cartridge found.",$00
 
 str_run:
                 ;       [0123456789012345678901234567890123456789]
                 db      $0D,$0A,$0D,$0A
-                db      "           Starting...",$00
-
-str_s_test:
-                ;       [0123456789012345678901234567890123456789]
-                db      $0D,$0A,$0D,$0A
-                db      "           SOUND TEST MODE",$00
-
+                db      "Starting...",$00
 
 hex_tbl:
                 db      "0123456789ABCDEF",$00
