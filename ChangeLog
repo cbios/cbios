@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.84 2005/01/05 09:07:17 ccfg Exp $
+$Id: ChangeLog,v 1.85 2005/01/05 09:38:20 bifimsx Exp $
 
 2005-01-05 Albert Beevendorp
     * Added GRPPRT, GETPAT
@@ -10,6 +10,7 @@ $Id: ChangeLog,v 1.84 2005/01/05 09:07:17 ccfg Exp $
     * Rewrote adr_sft, renamed to set_base_address.
     * Fixed SETTXT to set the base address registers correctly.
     * Modified SETT32, SETGRP and init_sc4 to use set_base_address.
+    * Disable screen at the start of initialization routines.
 
 2005-01-04 Albert Beevendorp
     * Fixed TOTEXT

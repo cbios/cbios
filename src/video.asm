@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.41 2005/01/05 09:35:40 bifimsx Exp $
+; $Id: video.asm,v 1.42 2005/01/05 09:39:25 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -442,6 +442,9 @@ clrspr_attr_8:
 ; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
 ; Registers: All
 initxt:
+                ; Disable video output.
+                call    disscr
+
                 ; New screen mode.
                 ld      a,$00
                 ld      (SCRMOD),a
@@ -495,6 +498,9 @@ initxt_width40:
 ; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
 ; Registers: All
 init32:
+                ; Disable video output.
+                call    disscr
+
                 ld      a,$01           ; SCREEN1
                 ld      (SCRMOD),a
                 ld      (OLDSCR),a
@@ -536,6 +542,9 @@ init32:
 ; Output   : NAMBAS-ATRBAS, SCRMOD
 ; Registers: All
 inigrp:
+                ; Disable video output.
+                call    disscr
+
                 ld      a,$02
                 ld      (SCRMOD),a
 
@@ -1120,6 +1129,9 @@ init_font:
 ; Initialise SCREEN4 (graphic 3).
 init_sc4:
 ; TODO: Try to reduce code duplication from inigrp.
+                ; Disable video output.
+                call    disscr
+
                 ld      a,$04
                 ld      (SCRMOD),a
 
@@ -1204,6 +1216,9 @@ sc4atr:         dw      $1E00
 ;------------------------------
 ;screen 5ÇÃèâä˙âª.
 init_sc5:
+                ; Disable video output.
+                call    disscr
+
                 ld      a,$05
                 ld      (SCRMOD),a
 
@@ -1264,6 +1279,9 @@ init_sc5:
 ;------------------------------
 ; Initialise SCREEN6 (graphic 5).
 init_sc6:
+                ; Disable video output.
+                call    disscr
+
                 ld      a,$06
                 ld      (SCRMOD),a
 
@@ -1324,6 +1342,9 @@ init_sc6:
 ;------------------------------
 ; Initialise SCREEN7 (graphic 6).
 init_sc7:
+                ; Disable video output.
+                call    disscr
+
                 ld      a,$07
                 ld      (SCRMOD),a
 
@@ -1382,6 +1403,9 @@ init_sc7:
 ;------------------------------
 ; Initialise SCREEN8 (graphic 7).
 init_sc8:
+                ; Disable video output.
+                call    disscr
+
                 ld      a,$08
                 ld      (SCRMOD),a
 
