@@ -56,10 +56,10 @@ install: build
 	dh_installdirs
 	# copy rom files
 	cp -f derived/bin/*.rom $(CURDIR)/debian/tmp/usr/share/cbios
-	# copy config files for other emulators
-	cp -rf configs/NLMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
-	cp -rf configs/RuMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
-	cp -rf configs/blueMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
+	# copy config files for other emulators # currently not done!
+	# cp -rf configs/NLMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
+	# cp -rf configs/RuMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
+	# cp -rf configs/blueMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
 	# prepare for openMSX specially
 	cp -rf configs/openMSX/* $(CURDIR)/debian/tmp/usr/share/openmsx/machines
 	ln -s ../../../../cbios/cbios_main.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX1/roms/cbios_main.rom

@@ -1,6 +1,7 @@
 cbios (0.18-2) unstable; urgency=low
 
-  * 0.18 upstream release
+  * 0.18 upstream release (Closes: #286947)
+  * do not install config files for other emulators
  
  -- Joost Yervante Damad <joost@lumatec.be>  Sat, 18 Dec 2004 21:05:43 +0100
 
