@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.24 2004/12/21 06:48:39 bifimsx Exp $
+$Id: ChangeLog,v 1.25 2004/12/21 08:01:34 bifimsx Exp $
+
+2004-12-21 Joost Yervante Damad <joost@lumatec.be>
+    * order systemvars in systemvars.asm by address
 
 2004-12-21 Albert Beevendorp
     * Implemented INIPLT, RSTPLT and GETPLT routines

@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.2 2004/12/19 11:23:53 manuelbi Exp $
+; $Id: systemvars.asm,v 1.3 2004/12/21 02:06:16 mthuurne Exp $
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -26,21 +26,16 @@
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
 
-STKTOP:         equ     $F674
 
-EXP_TBL:        equ     $FCC1           ; スロット情報テーブル
-SLT_TBL:        equ     $FCC5           ; スロット情報
 
-EXBRSA:         equ     $FAF8           ; サブロム位置
 
 ;----------------------------------------------
 ; ワークエリア
 
-GRPNAM:         equ     $F3C7           ; Screen2 Name
-GRPCOL:         equ     $F3C9           ; Screen2 Color
-GRPCGP:         equ     $F3CB           ; Screen2 CG pattern
-GRPATR:         equ     $F3CD           ; Screen2 Attribute
-GRPPAT:         equ     $F3CF           ; Screen2 Sprite pattern
+LINL40:         equ     $F3AE
+LINL32:         equ     $F3AF
+LINLEN:         equ     $F3B0           ; 行数.
+CRTCNT:         equ     $F3B1           ; 画面の桁数
 
 TXTNAM:         equ     $F3B3
 TXTCOL:         equ     $F3B5
@@ -53,11 +48,11 @@ T32COL:         equ     $F3BF
 T32CGP:         equ     $F3C1
 T32ATR:         equ     $F3C3
 T32PAT:         equ     $F3C5
-
-NAMBAS:         equ     $F922
-CGPBAS:         equ     $F924
-PATBAS:         equ     $F926
-ATRBAS:         equ     $F928
+GRPNAM:         equ     $F3C7           ; Screen2 Name
+GRPCOL:         equ     $F3C9           ; Screen2 Color
+GRPCGP:         equ     $F3CB           ; Screen2 CG pattern
+GRPATR:         equ     $F3CD           ; Screen2 Attribute
+GRPPAT:         equ     $F3CF           ; Screen2 Sprite pattern
 
 MLTNAM:         equ     $F3D2           ; Screen3 Name
 MLTCOL:         equ     $F3D4           ; Screen3 Color
@@ -66,6 +61,8 @@ MLTATR:         equ     $F3D8           ; Screen3 Attribute
 MLTPAT:         equ     $F3DA           ; Screen3 Sprite pattern
 
 CLIKSW:         equ     $F3DB           ; Key Click.
+CSRY:           equ     $F3DC           ; カーソール位置(Y座標)
+CSRX:           equ     $F3DD           ; カーソール位置(X座標)
 
 RG0SAV:         equ     $F3DF
 RG1SAV:         equ     $F3E0
@@ -76,22 +73,16 @@ RG5SAV:         equ     $F3E4
 RG6SAV:         equ     $F3E5
 RG7SAV:         equ     $F3E6
 STATFL:         equ     $F3E7
-RG8SAV:         equ     $FFE7
-
-CLIKFL:         equ     $FBD9
-OLDKEY:         equ     $FBDA
-NEWKEY:         equ     $FBE5
-KEYBUF:         equ     $FBF0
 
 PUTPNT:         equ     $F3F8           ; キーバッファへのポインタ
 GETPNT:         equ     $F3FA           ; キーバッファへのポインタ
-LIMPNT:         equ     $FC17           ; キーバッファへのポインタ
 
-BOTTOM:         equ     $FC48
-HIMEM:          equ     $FC4A
+STKTOP:         equ     $F674
 
-JIFFY:          equ     $FC9E           ; timer counter
-SCRMOD:         equ     $FCAF
+NAMBAS:         equ     $F922
+CGPBAS:         equ     $F924
+PATBAS:         equ     $F926
+ATRBAS:         equ     $F928
 
 FORCLR:         equ     $F3E9
 BAKCLR:         equ     $F3EA
@@ -99,18 +90,34 @@ BDRCLR:         equ     $F3EB
 
 PSG_DBG:        equ     $F3EC           ; デバッグ用フラグ
 
-CSRY:           equ     $F3DC           ; カーソール位置(Y座標)
-CSRX:           equ     $F3DD           ; カーソール位置(X座標)
-
-LINL40:         equ     $F3AE
-LINL32:         equ     $F3AF
-LINLEN:         equ     $F3B0           ; 行数.
-CRTCNT:         equ     $F3B1           ; 画面の桁数
-
 DPPAGE:         equ     $FAF5           ; Display page (SCR5+)
 ACPAGE:         equ     $FAF6           ; Active page (SCR5+)
 
+EXBRSA:         equ     $FAF8           ; サブロム位置
+
+CLIKFL:         equ     $FBD9
+OLDKEY:         equ     $FBDA
+NEWKEY:         equ     $FBE5
+KEYBUF:         equ     $FBF0
+
+LIMPNT:         equ     $FC17           ; キーバッファへのポインタ
 LINWRK:         equ     $FC18           ; 40桁分のバッファ
 
+BOTTOM:         equ     $FC48
+HIMEM:          equ     $FC4A
+
 ESCCNT:         equ     $FCA7           ; ESC用カウンタ.
+
+EXP_TBL:        equ     $FCC1           ; スロット情報テーブル
+SLT_TBL:        equ     $FCC5           ; スロット情報
+
+JIFFY:          equ     $FC9E           ; timer counter
+SCRMOD:         equ     $FCAF
+
+RG8SAV:         equ     $FFE7
+
+
+
+
+
 
