@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.55 2004/12/29 16:54:11 bifimsx Exp $
+$Id: ChangeLog,v 1.56 2004/12/29 17:10:19 bifimsx Exp $
+
+2004-12-29 Maarten ter Huurne <maarten@treewalker.org>
+    * Fixed register trashing by RDSLT and WRSLT.
 
 2004-12-29 Albert Beevendorp
     * Changed detection order of NSETRD and NSETWR

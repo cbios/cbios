@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.44 2004/12/29 13:44:42 andete Exp $
+; $Id: main.asm,v 1.45 2004/12/29 14:38:29 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -68,7 +68,6 @@ wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
                 jp      synchr
 
 ; $000C RDSLT    任意スロットからのメモリ読み込み
-
                 ds      $000C - $
                 jp      rdslt
 
@@ -1751,48 +1750,57 @@ synchr_text:    db      "SYNCHR",0
 
 ;-------------------------------------
 ; 000Ch RDSLT
-; in ..  A = slot ID , HL = address
+; Reads a value from an address in another slot.
+; Input:   A  = slot ID: E000SSPP
+;          HL = address to read
+; Output:  A  = value read
+;          Interrupts disabled.
+; Changes: F, C, DE
 rdslt:
+                push    bc
                 push    hl
                 push    af
                 ld      d,a             ; init D in case call is not made
                 and     a               ; expanded slot?
+                di
                 call    m,select_subslot
                 pop     af
                 pop     hl
-                push    de              ; D = slot ID, E = saved SSL
 
-                push    hl
-                push    af
+                push    hl              ; HL = address
+                push    de              ; D = slot ID, E = saved SSL
+                push    hl              ; HL = address
+                push    af              ; A = slot ID
                 ld      a,h
                 rlca
                 rlca
-                and     $03             ; アドレス上位2bit
-
-                ld      l,a             ; L=シフトナンバー
+                and     $03
+                ld      l,a             ; L = page number
+                
                 ld      b,a
-
                 ld      a,$FC
                 call    rdsft
-                ld      e,a             ; E= mask
-                ld      b,l             ; B=シフトナンバー
-                pop     af
+                ld      e,a             ; E = mask (shifted)
+                ld      b,l             ; B = page number
+                pop     af              ; A = slot ID
                 and     $03
                 call    rdsft
-                ld      b,a             ; B=シフトしたスロット番号
+                ld      b,a             ; B = primary slot (shifted)
                 in      a,(PSL_STAT)
-                ld      d,a             ; D=前のプライマリスロット
+                ld      d,a             ; D = primary slot select for restore
                 and     e
-                or      b               ; スロットを変更する
-                pop     hl
+                or      b               ; A = primary slot select for read
+                pop     hl              ; HL = address
 
                 call    rdprim
                 ld      a,e
                 pop     de              ; D = slot ID, E = saved SSL
-                push    af
+                push    af              ; A = value read
                 bit     7,d             ; expanded slot?
                 call    nz,restore_subslot
-                pop     af
+                pop     af              ; A = value read
+                pop     hl              ; HL = address
+                pop     bc
                 ret
 
 rdsft:
@@ -1828,48 +1836,54 @@ chrgtr:
 chrgtr_text:    db      "CHRGTR",0
 
 ;-------------------------------------
-; 0014h WRSLT
-; in ..  A = slot ID , HL = address
+; $0014 WRSLT
+; Writes a value to an address in another slot.
+; Input:   A  = slot ID: E000SSPP
+;          HL = address to write
+;          E  = value to write
+; Output:  Interrupts disabled.
+; Changes: AF, BC, D
 wrslt:
                 push    hl
                 ld      d,a             ; D = slot ID
                 push    de
                 and     a               ; expanded slot?
+                di
                 call    m,select_subslot
                 pop     bc              ; B = slot ID, C = data
                 pop     hl
                 push    de              ; D = slot ID, E = saved SSL
 
-                push    hl
+                push    hl              ; HL = address
                 ld      a,h
                 rlca
                 rlca
-                and     $03             ; アドレス上位 2bit
+                and     $03
+                ld      l,a             ; L = page number
 
-                ld      l,a             ; L=シフト番号
-                ld      b,a
-
+                ld      b,a             ; B = page number
                 ld      a,$FC
                 call    rdsft
-                ld      e,a             ; E=mask
-                ld      b,l             ; B=シフトナンバー
+                ld      e,a             ; E = mask (shifted)
+
+                ld      b,l             ; B = page number
                 ld      a,d
                 and     $03             ; A = 000000PP
                 call    rdsft
-                ld      b,a             ; B=シフトされたスロット
+                ld      b,a             ; B = primary slot (shifted)
                 in      a,(PSL_STAT)
-                ld      d,a             ; D=前のプライマリスロット
+                ld      d,a             ; D = primary slot select for restore
                 and     e
-                or      b               ; スロットを変更する
-                pop     hl
+                or      b               ; A = primary slot select for write
+                pop     hl              ; HL = address
                 ld      e,c             ; E = data
                 call    wrprim
 
                 pop     de              ; D = slot ID, E = saved SSL
-                push    af
+                push    hl              ; HL = address
                 bit     7,d             ; expanded slot?
                 call    nz,restore_subslot
-                pop     af
+                pop     hl
                 ret
 
 ;-------------------------------------
