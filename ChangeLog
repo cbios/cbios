@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.82 2005/01/04 15:57:19 mthuurne Exp $
+$Id: ChangeLog,v 1.83 2005/01/04 18:18:00 bifimsx Exp $
+
+2005-01-05 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Rewrote adr_sft, renamed to set_base_address.
+    * Fixed SETTXT to set the base address registers correctly.
+    * Modified SETT32, SETGRP and init_sc4 to use set_base_address.
 
 2005-01-04 Albert Beevendorp
     * Fixed TOTEXT

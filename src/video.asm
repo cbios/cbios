@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.38 2005/01/03 05:46:30 mthuurne Exp $
+; $Id: video.asm,v 1.39 2005/01/03 07:39:57 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -587,7 +587,6 @@ inimlt_text:    db      "SCREEN3",0
 ; Function : Switches to VDP in SCREEN 0 mode
 ; Input    : TXTNAM, TXTCGP
 ; Registers: All
-; TODO:      Make use of the inputs; see setgrp.
 settxt:
         IF VDP != TMS99X8
                 ld      a,(LINLEN)
@@ -608,11 +607,20 @@ settxt:
                 inc     c
                 call    wrtvdp          ; write VDP R#1
 
-                ld      bc,$0104        ; R#4 PatGenTBLaddr=$0800
-                call    wrtvdp          ; write VDP R#4
+                ; Set the VDP base address registers. This works because
+                ; TXTNAM, TXTCOL and TXTCGP are in same order as the VDP
+                ; base address registers.
+                ld      de,TXTNAM
+                ld      c,2
 
-                ld      bc,$0002        ; R#2 PatNamTBLaddr=$0000
-                call    wrtvdp          ; write VDP R#2
+                xor     a
+                call    set_base_address
+                inc     de              ; Skip TXTCOL.
+                inc     de
+                inc     c
+                xor     a
+                call    set_base_address
+
                 ret
 
 ; Switches VDP to TEXT2 mode (SCREEN 0, WIDTH 80).
@@ -646,10 +654,9 @@ settxt80:
 
 ;------------------------------
 ; $007B SETT32
-; Function : Schakelt VDP in SCREEN 1 modus
-; Input    : T32NAM, T32CGP, T32COL, T32ATR, T32PAT
+; Function : Switches VDP to SCREEN 1 mode
+; Input    : T32NAM, T32COL, T32CGP, T32ATR, T32PAT
 ; Registers: All
-; TODO:      Try to reduce code duplication; see setgrp.
 sett32:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
@@ -663,58 +670,29 @@ sett32:
                 inc     c
                 call    wrtvdp          ; write VDP R#1
 
-                ld      hl,(T32NAM)
-                ld      a,h
-                rrca
-                rrca
-                and     $3F
-                ld      b,a
+                ; Set the base address registers. This works because T32NAM,
+                ; T32COL, T32CGP, T32ATR and T32PAT are in same order as the
+                ; VDP base address registers.
+                ld      de,T32NAM
                 ld      c,2
-                call    wrtvdp          ; write VDP R#2
 
-                ld      hl,(T32COL)
-                ld      b,2
-tcol_lp:
                 xor     a
-                rl      l
-                rl      h
-                djnz    tcol_lp
-                ld      b,h
-                ld      c,3
-                call    wrtvdp          ; write VDP R#3
+                call    set_base_address
+                xor     a
+                call    set_base_address
+                xor     a
+                call    set_base_address
+                xor     a
+                call    set_base_address
+                xor     a
+                call    set_base_address
 
-                ld      hl,(T32CGP)
-                ld      a,h
-                rrca
-                rrca
-                rrca
-                and     $1F
-                ld      b,a
-                ld      c,4
-                call    wrtvdp          ; write VDP R#4
-
-                ld      hl,(T32ATR)
-                rl      l
-                rl      h
-                ld      b,h
-                ld      c,5
-                call    wrtvdp          ; write VDP R#5
-
-                ld      hl,(T32PAT)
-                ld      a,h
-                rrca
-                rrca
-                rrca
-                and     $1F
-                ld      b,a
-                ld      c,6
-                call    wrtvdp          ; write VDP R#6
                 ret
 
 ;------------------------------
 ; $007E SETGRP
 ; Function : Switches VDP to SCREEN 2 mode
-; Input:     GRPNAM, GRPCGP, GRPCOL, GRPATR, GRPPAT
+; Input:     GRPNAM, GRPCOL, GRPCGP, GRPATR, GRPPAT
 ; Registers: All
 setgrp:
                 ld      a,(RG0SAV)
@@ -730,55 +708,23 @@ setgrp:
                 inc     c
                 call    wrtvdp          ; write VDP R#1
 
-                ld      hl,GRPNAM
-                ld      de,$7F03
-                push    ix
-                ld      ix,shift_tbl
-                ld      c,2             ; C = VDP R#
+                ; Set the base address registers. This works because GRPNAM,
+                ; GRPCOL, GRPCGP, GRPATR and GRPPAT are in same order as the
+                ; VDP base address registers.
+                ld      de,GRPNAM
+                ld      c,2
 
-                xor     a               ; data=0
-                call    adr_sft         ; R#2: GRPNAM
-                ld      a,d             ; data=D
-                call    adr_sft         ; R#3: GRPCOL
-                ld      a,e             ; data=E
-                call    adr_sft         ; R#4: GRPCGP
-                xor     a               ; data=0
-                call    adr_sft         ; R#5: GRPATR
-                xor     a               ; data=0
-                call    adr_sft         ; R#6: GRPPAT
-                pop     ix
-                ret
+                xor     a
+                call    set_base_address
+                ld      a,$7F
+                call    set_base_address
+                ld      a,$03
+                call    set_base_address
+                xor     a
+                call    set_base_address
+                xor     a
+                call    set_base_address
 
-shift_tbl:
-                db      $06,$0A,$05,$09,$05
-
-; HL = table address
-adr_sft:
-                push    hl
-                push    af
-                ld      b,(ix+0)
-                inc     ix
-
-                ; HL <- (HL)
-                ld      a,(hl)
-                inc     hl
-                ld      h,(hl)
-                ld      l,a
-sft_lp:
-                add     hl,hl
-                adc     a,a
-                djnz    sft_lp
-                ld      h,a             ; H = シフトしたHLの上位。
-                pop     af
-
-                or      h
-                ld      b,a
-
-                call    wrtvdp
-                pop     hl
-                inc     hl
-                inc     hl
-                inc     c
                 ret
 
 ;------------------------------
@@ -790,6 +736,57 @@ setmlt:
                 ld      hl,setmlt_text
                 jp      print_debug
 setmlt_text:    db      "SETMLT",0
+
+;------------------------------
+; Get an address from a base address table, convert it into a register value,
+; and set the corresponding VDP base address register.
+; Input:     DE = pointer to a base address table
+;             C = VDP base address register
+;             A = OR-mask over the converted address
+; Output:    DE = DE + 2
+;             C =  C + 1
+; Changes:   AF, B, HL
+set_base_address:
+                push    de
+                push    af
+
+                ; Get the shift value.
+                ld      hl,set_base_address_table
+                ld      b,0
+                add     hl,bc
+                ld      b,(hl)
+
+                ; Get the address from (HL) to HL.
+                ex      de,hl
+                ld      a,(hl)
+                inc     hl
+                ld      h,(hl)
+                ld      l,a
+
+                ; Shift it to left in register A. After this A contains the
+                ; converted address.
+set_base_address_loop:
+                add     hl,hl
+                adc     a,a
+                djnz    set_base_address_loop
+                ld      b,a
+
+                ; Set the base address register.
+                pop     af
+                or      b
+                ld      b,a
+                call    wrtvdp
+
+                ; Increase pointer and register number.
+                pop     de
+                inc     de
+                inc     de
+                inc     c
+
+                ret
+
+set_base_address_table:
+                db      $00,$00,$06,$0A,$05,$09,$05
 
 ;------------------------------
 ; $0084 CALPAT
@@ -1120,29 +1117,11 @@ init_font:
 ;------------------------------
 ; Initialise SCREEN4 (graphic 3).
 init_sc4:
-; TODO: Try to reduce code duplication from inimlt.
+; TODO: Try to reduce code duplication from inigrp.
                 ld      a,$04
                 ld      (SCRMOD),a
 
                 call    chgclr
-
-                ld      a,(RG0SAV)
-                and     $F1             ; MASK 11110001
-                or      $04             ; M4 = 1
-                ld      b,a
-                ld      c,0
-                call    wrtvdp          ; write VDP R#0
-
-                ld      a,(RG1SAV)
-                and     $E7             ; MASK 11100111
-                ld      b,a
-                inc     c
-                call    wrtvdp          ; write VDP R#1
-
-                ; TODO: This should be done for SCREEN2 as well,
-                ;       but on MSX1 this reg doesn't exist.
-                ld      bc,$000E        ; B = $00, C = 14
-                call    wrtvdp          ; VDP R#14
 
                 ld      hl,(GRPNAM)
                 ld      (NAMBAS),hl
@@ -1164,25 +1143,39 @@ init_sc4_lp:
                 ld      hl,(GRPPAT)
                 ld      (PATBAS),hl
 
-                ld      hl,GRPNAM
-                ld      de,$7F03
-                push    ix
-                ld      ix,shift_tbl
-                ld      c,2             ; C = VDP R#
+                ld      a,(RG0SAV)
+                and     $F1             ; MASK 11110001
+                or      $04             ; M4 = 1
+                ld      b,a
+                ld      c,0
+                call    wrtvdp          ; write VDP R#0
 
-                xor     a               ; data=0
-                call    adr_sft         ; R#2: GRPNAM
-                ld      a,d             ; data=D
-                call    adr_sft         ; R#3: GRPCOL
-                ld      a,e             ; data=E
-                call    adr_sft         ; R#4: GRPCGP
-                ld      hl,sc4atr
-                ld      a,$03           ; data=xxxxxx11
-                call    adr_sft         ; R#5: Sprite attribute table.
-                ld      hl,GRPPAT
-                xor     a               ; data=0
-                call    adr_sft         ; R#6: GRPPAT
-                pop     ix
+                ld      a,(RG1SAV)
+                and     $E7             ; MASK 11100111
+                ld      b,a
+                inc     c
+                call    wrtvdp          ; write VDP R#1
+
+                ; TODO: This should be done for SCREEN2 as well,
+                ;       but on MSX1 this reg doesn't exist.
+                ld      bc,$000E        ; B = $00, C = 14
+                call    wrtvdp          ; VDP R#14
+
+                ; Set the VDP base address registers.
+                ld      de,GRPNAM
+                ld      c,2
+
+                xor     a
+                call    set_base_address
+                ld      a,$7F
+                call    set_base_address
+                ld      a,$03
+                call    set_base_address
+                ld      de,sc4atr
+                ld      a,$03
+                call    set_base_address
+                xor     a
+                call    set_base_address
 
                 ld      a,(RG8SAV+9-8)
                 and     $7F             ; 192 lines mode
