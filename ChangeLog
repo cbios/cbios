@@ -1,8 +1,10 @@
-$Id: ChangeLog,v 1.60 2004/12/30 08:41:07 andete Exp $
+$Id: ChangeLog,v 1.61 2004/12/30 08:49:50 andete Exp $
 
 2004-12-30 Joost Yervante Damad <joost@lumatec.be>
     * fix inconsistent naming
     * replace calls to dcompr with rst $20
+    * stubbed INIFNK
+    * SNSMAT stores BC, it's only allowed to change AF
 
 2004-12-29 Manuel Bilderbeek <manuel@msxnet.org>
     * Replaced the font with a new font donated by Eric Boon. Thanks a lot!

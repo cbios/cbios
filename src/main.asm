@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.49 2004/12/30 08:49:51 andete Exp $
+; $Id: main.asm,v 1.50 2004/12/30 09:15:30 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -146,9 +146,11 @@ romid:
 
 ; $003B INITIO   I/Oの初期化
                 ds      $003B - $
-                jp      initio 
+                jp      initio
 
-; $003E INIFNK  ; TODO stub
+; $003E INIFNK
+                ds      $003E - $
+                jp      inifnk
 
 ; $0041 DISSCR   スクリーンを表示させない。
                 ds      $0041 - $
@@ -347,11 +349,11 @@ romid:
 
 ; $00D5 GTSTCK .. ジョイスティック情報を得る。
                 ds      $00D5 - $
-                jp      in_joy
+                jp      gtstck
 
 ; $00D8 GTTRIG .. トリガー情報を得る。
                 ds      $00D8 - $
-                jp      in_trig
+                jp      gttrig
 
 ; $00E1 TAPION
                 ds      $00E1 - $
@@ -380,29 +382,26 @@ romid:
 ; $00F3 STMOTR
                 ds      $00F3 - $
                 jp      stmotr
-                
+
 ; $0135 CHGSND
                 ds      $0135 - $
                 jp      chgsnd
 
-; $0138 RDSLTREG プライマリスロットの情報を読み出す
-;g_slotreg
+; $0138 RSLREG プライマリスロットの情報を読み出す
                 ds      $0138 - $
-                jp      get_slotreg
+                jp      rslreg
 
-; $013B WRSLTREG プライマリスロットに情報を書き込む。
-;s_slotreg
+; $013B WSLREG プライマリスロットに情報を書き込む。
                 ds      $013B - $
-                jp      set_slotreg
+                jp      wslreg
 
 ; $013E RDVDP    VDPステータスの読み出し
                 ds      $013E - $
-                jp      vdp_stat_in
+                jp      rdvdp
 
 ; $0141 SNSMAT   キーマトリクスを得る
-;snsmat
                 ds      $0141 - $
-                jp      in_keyboard
+                jp      snsmat
 
 ; $0144 PHYDIO
                 ds      $0144 - $
@@ -422,7 +421,7 @@ romid:
 
 ; $0159 CALBAS   ベーシックインタプリタを呼び出す。
                 ds      $0159 - $
-                jp      call_basic_intr
+                jp      calbas
 
 ; $015C SUBROM   Calls a routine in the subrom.
                 ds      $015C - $
@@ -616,7 +615,7 @@ disp_info:
 ; シフトキーが押されていればdebug_modeへ。
 ;
                 ld      a,$06
-                call    in_keyboard
+                call    snsmat
                 bit     0,a
                 jp      z,debug_mode
 
@@ -723,7 +722,7 @@ start_cartprog_found:
                 ld      hl,str_slot
                 call    prn_text
 
-                call    get_slotreg
+                call    rslreg
                 rrca
                 rrca
                 and     $03
@@ -887,7 +886,7 @@ dump_keywait:
                 ld      d,a
 
                 ld      a,$08
-                call    in_keyboard
+                call    snsmat
 
                 cp      d
                 jr      z,dumpkey_loop
@@ -901,7 +900,7 @@ dumpkey_loop:
                 ld      d,a
 
                 ld      a,$08
-                call    in_keyboard
+                call    snsmat
 
                 dec     e
                 jr      z,skip_kchk
@@ -911,7 +910,7 @@ dumpkey_loop:
 skip_kchk:
                 push    af
                 ld      a,$06
-                call    in_keyboard
+                call    snsmat
                 bit     0,a
                 jr      nz,norm
                 ld      iy,$1000
@@ -933,7 +932,7 @@ bit_chk:
                 ld      ($E008),a
 
                 ld      a,$07
-                call    in_keyboard
+                call    snsmat
 
                 bit     1,a
                 jr      z,on_start
@@ -1553,7 +1552,7 @@ p3_chk:
                 ret
 
 page_set0:
-                call    get_slotreg
+                call    rslreg
                 ld      c,a
                 and     $3F             ; 00111111
                 ld      b,a
@@ -1896,8 +1895,13 @@ outdo:
                 jp      chput
 
 ;-------------------------------------
-; 001Ch CALSLT(暫定的な関数)
-; in .. IYh(スロット番号),(IX)
+; $001C CALSLT
+; Function : Executes inter-slot call.
+; Input    : IY - High byte with input for A in RDSLT
+;            IX - The address that will be called
+; Remark   : Variables can never be given in alternative registers
+;            of the Z-80 or IX and IY
+
 calslt:
                 ex      af,af'
                 exx
@@ -2166,6 +2170,21 @@ initio:
                 pop     hl
                 ret
 initio_text:    db      "INITIO",0
+
+;--------------------------------
+; $003E INIFNK
+; Function : Initialises the contents of the function keys
+; Registers: All
+;NOTE: this implementation is still a stub!
+inifnk:
+                push    hl
+                push    af
+                ld      hl,inifnk_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+inifnk_text:    db      "INIFNK",0
 
 ;--------------------------------
 ; $0099 STRTMS
@@ -2933,34 +2952,52 @@ chgsnd_write:
                 ret
 
 ;--------------------------------
-get_slotreg:
+; $0138 RSLREG
+; Function : Reads the primary slot register
+; Output   : A  - for the value which was read
+;            33221100
+;            ||||||- Pagina 0 (#0000-#3FFF)
+;            ||||--- Pagina 1 (#4000-#7FFF)
+;            ||----- Pagina 2 (#8000-#BFFF)
+;            ------- Pagina 3 (#C000-#FFFF)
+; Registers: A
+rslreg:
                 in      a,(PSL_STAT)
                 ret
 
 ;--------------------------------
-set_slotreg:
+; $013B WSLREG
+; Function : Writes value to the primary slot register
+; Input    : A  - value value to (see RSLREG)
+wslreg:
                 out     (PSL_STAT),a
                 ret
 
 ;--------------------------------
-; 013Eh
-vdp_stat_in:
+; $013E RDVDP
+; Function : Reads VDP status register
+; Output   : A  - Value which was read
+; Registers: A
+rdvdp:
                 in      a,(VDP_STAT)
                 ret
 
 ;--------------------------------
 ;0141h SNSMAT
-; in a = キーボードマトリクス行数
-;dest AF,C,EI
-
-in_keyboard:
+; Function : Returns the value of the specified line from the keyboard matrix
+; Input    : A  - for the specified line
+; Output   : A  - for data (the bit corresponding to the pressed key will be 0)
+; Registers: AF
+snsmat:
                 di
+                push bc
                 ld      c,a
                 in      a,(GIO_REGS)
                 and     $F0
                 or      c
                 out     (GIO_REGS),a
                 in      a,(KBD_STAT)
+                pop bc
                 ei
                 ret
 
@@ -2991,16 +3028,18 @@ format:
                 ret
 
 ;--------------------------------
-;00D5h GTSTCK
-; a = InID...
-; dest AF,BC,EI
-in_joy:
+; $00D5 GTSTCK
+; Function : Returns the joystick status
+; Input    : A  - Joystick number to test (0 = cursors, 1 = port 1, 2 = port 2)
+; Output   : A  - Direction
+; Registers: All
+gtstck:
                 push    bc
                 cp      $00
                 jr      nz,joy_stc1
 
                 ld      a,$08
-                call    in_keyboard
+                call    snsmat
                 rrca
                 rrca
                 rrca
@@ -3080,17 +3119,24 @@ joypos_kbd_tbl:
 
 
 ;--------------------------------
-;00D8h GTTRIG
-;dest AF,BC,EI
-;
-
-in_trig:
+; $00D8 GTTRIG
+; Function : Returns current trigger status
+; Input    : A  - trigger button to test
+;            0 = spacebar
+;            1 = port 1, button A
+;            2 = port 2, button A
+;            3 = port 1, button B
+;            4 = port 2, button B
+; Output   : A  - #00 trigger button not pressed
+;                 #FF trigger button pressed
+; Registers: All
+gttrig:
                 cp      $00
                 jr      z,kbd_spc
                 jr      joy_trig
 kbd_spc:
                 ld      a,$08
-                call    in_keyboard
+                call    snsmat
                 and     $01
                 jr      z,spc_on
                 jr      spc_off
@@ -3180,7 +3226,7 @@ keyint:
 
                 xor     a
                 ld      (CLIKFL),a
-                call    in_trig
+                call    gttrig
                 cpl
                 and     $01
                 ld      ($F3E8),a
@@ -3310,18 +3356,34 @@ ki_end:
 
 
 ;--------------------------------
-; 015Ch Calls a routine in the subrom.
-; Input:   IX = call adress, must also be pushed on top of the stack
-; Changes: IY, shadow registers
+; $015C SUBROM
+; Function : Calls a routine in SUB-ROM
+; Input    : IX - Address of routine in SUB-ROM
+; Output   : Depends on the routine
+; Registers: Alternative registers, IY
+; Remark   : Use of EXTROM or CALSLT is more convenient.
+;            In IX a extra value to the routine can be given by first
+;            PUSH'ing it to the stack.
 subrom:
                 ; TODO: What is that "IX on top of the stack" thing?
+                ; JYD: I think it means that you can do this:
+                ; ld ix, <some value>
+                ; push ix
+                ; ld ix, <address>
+                ; call SUBROM
+                ; and the switching to subrom is done with other regs to
+                ; allow IX to be used in the target subroutine
                 ret
 
 
 ;--------------------------------
-; 015Fh Calls a routine in the subrom.
-; Input:   IX = call adress
-; Changes: IY, shadow registers
+; $015F EXTROM
+; Function : Calls a routine in SUB-ROM. Most common way
+; Input    : IX - Address of routine in SUB-ROM
+; Output   : Depends on the routine
+; Registers: Alternative registers, IY
+; Remark   : Use: LD IX,address
+;                 CALL EXTROM
 extrom:
                 ex      af,af'
                 ld      a,(EXBRSA)
@@ -3445,7 +3507,7 @@ restore_subslot:
 
 hang_up_mode:
                 ld      a,$06
-                call    in_keyboard
+                call    snsmat
                 bit     0,a
                 jp      z,debug_mode
 
@@ -3493,8 +3555,12 @@ stack_error:
                 jp      print_error
 
 ;------------------------------------
-;ベーシック呼び出し
-call_basic_intr:
+; $0159 CALBAS
+; Function : Executes inter-slot call to the routine in BASIC interpreter
+; Input    : IX - for the calling address
+; Output   : Depends on the called routine
+; Registers: Depends on the called routine
+calbas:
                 push    hl
                 push    af
                 ld      hl,calbas_text
