@@ -1,4 +1,12 @@
-$Id: ChangeLog,v 1.30 2004/12/22 20:42:38 andete Exp $
+$Id: ChangeLog,v 1.31 2004/12/22 21:23:34 andete Exp $
+
+2004-12-22 Maarten ter Huurne <maarten@treewalker.org>
+    * Added main rom entry points for INIMLT and GRPPRT.
+    * Added sub rom entry points for INITXT, INIT32, INIGRP, INIMLT, CHGCLR
+      and WRTVDP.
+    * Added stubs for SETTXT, SETT32, SETGRP, SETMLT, CALPAT, CALATR and
+      GSPSIZ. Note: the old SETGRP code implemented the wrong interface.
+    * Moved GRPPRT stub from "sub.asm" to "video.asm".
 
 2004-12-22 Albert Beevendorp
     * Implemented REDCLK and WRTCLK routines
@@ -6,12 +14,8 @@ $Id: ChangeLog,v 1.30 2004/12/22 20:42:38 andete Exp $
 
 2004-12-22 Joost Yervante Damad <joost@lumatec.be>
     * fill in missing systemvars and documentation for systemvars
-		- finished, but alot of variables are still undocumented
-	* stubbed BEEP, CLS and STRTMS
-
-2004-12-22 Albert Beevendorp
-    * Implemented REDCLK and WRTCLK routines
-    * fixed minor bug in INIPLT and RSTPLT
+        - finished, but alot of variables are still undocumented
+    * stubbed BEEP, CLS and STRTMS
 
 2004-12-21 Joost Yervante Damad <joost@lumatec.be>
     * order systemvars in systemvars.asm by address

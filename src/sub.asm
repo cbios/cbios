@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.15 2004/12/22 15:28:25 bifimsx Exp $
+; $Id: sub.asm,v 1.16 2004/12/22 21:11:14 manuelbi Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -51,12 +51,12 @@
                 call    H_NMI
                 retn
 
-; 0085h DOGRPH  ƒ‰ƒCƒ“•`‰æ
+; $0085 DOGRPH  ƒ‰ƒCƒ“•`‰æ
                 ds      $0085 - $,$C9
                 ei
                 jp      dogrph
 
-; 0089h GRPPRT
+; $0089 GRPPRT
                 ds      $0089 - $,$C9
                 ei
                 jp      grpprt
@@ -66,10 +66,60 @@
                 ei
                 jp      chgmod
 
+; $00D5 INITXT Set VDP for 40x24 text mode (SCREEN0).
+                ds      $00D5 - $,$C9
+                ei
+                jp      init_txt
+
+; $00D9 INIT32 Set VDP for 32x24 text mode (SCREEN1).
+                ds      $00D9 - $,$C9
+                ei
+                jp      init_txt32
+
+; $00DD INIGRP Set VDP for graphics mode (SCREEN2).
+                ds      $00DD - $,$C9
+                ei
+                jp      init_grp
+
+; $00E1 INIMLT Set VDP for multicolour mode (SCREEN3).
+                ds      $00E1 - $,$C9
+                ei
+                jp      init_mlt
+
+; $00E5 SETTXT Set VDP for 40x24 text mode (SCREEN0).
+                ds      $00E5 - $,$C9
+                ei
+                jp      set_txt
+
+; $00E9 SETT32 Set VDP for 32x24 text mode (SCREEN1).
+                ds      $00E9 - $,$C9
+                ei
+                jp      set_txt32
+
+; $00ED SETGRP Set VDP for graphics mode (SCREEN2).
+                ds      $00ED - $,$C9
+                ei
+                jp      set_grp
+
+; $00F1 SETMLT Set VDP for multicolour mode (SCREEN3).
+                ds      $00F1 - $,$C9
+                ei
+                jp      set_mlt
+
 ; $00F5 CLRSPR Clear sprites.
                 ds      $00F5 - $,$C9
                 ei
                 jp      clrspr
+
+; $0111 CHGCLR Change colours.
+                ds      $0111 - $,$C9
+                ei
+                jp      chgclr
+
+; $012D WRTVDP Write to VDP register.
+                ds      $012D - $,$C9
+                ei
+                jp      wrt_vdp
 
 ; $0131 VDPSTA Read VDP status register.
                 ds      $0131 - $,$C9
@@ -81,37 +131,37 @@
                 ei
                 jp      setpag
 
-; 0141h INIPLT
+; $0141 INIPLT
                 ds      $0141 - $,$C9
                 ei
                 jp      iniplt
 
-; 0145h RSTPLT
+; $0145 RSTPLT
                 ds      $0145 - $,$C9
                 ei
                 jp      rstplt
 
-; 0149h GETPLT
+; $0149 GETPLT
                 ds      $0149 - $,$C9
                 ei
                 jp      getplt
 
-; 0149D SETPLT
+; $014D SETPLT
                 ds      $014D - $,$C9
                 ei
                 jp      setplt
 
-; 017Dh BEEP
+; $017D BEEP
                 ds      $017D - $,$C9
                 ei
                 jp      beep
 
-; 0181h PROMPT
+; $0181 PROMPT
                 ds      $0181 - $,$C9
                 ei
                 jp      prompt
 
-; 01ADh NEWPAD
+; $01AD NEWPAD
                 ds      $01AD - $,$C9
                 ei
                 jp      newpad
@@ -121,17 +171,17 @@
                 ei
                 jp      chgmdp
 
-; 01BDh KNJPRT
+; $01BD KNJPRT
                 ds      $01BD - $,$C9
                 ei
                 jp      knjprt
 
-; 01F5h REDCLK
+; $01F5 REDCLK
                 ds      $01F5 - $,$C9
                 ei
                 jp      redclk
 
-; 01F9h WRTCLK
+; $01F9 WRTCLK
                 ds      $01F9 - $,$C9
                 ei
                 jp      wrtclk
@@ -161,23 +211,6 @@ dogrph:
                 pop     hl
                 ret
 dogrph_text:    db      "DOGRPH",0
-
-;-------------------------------------
-; $0089h GRPPRT
-; Function:  Places a character on graphic screen
-; Input:     A  - Character
-;            ATRBYT for attribute
-;            LOGOPR for logical operator
-; NOTE: this implementation is still a stub!
-grpprt:
-                push    hl
-                push    af
-                ld      hl,grpprt_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-grpprt_text:    db      "GRPPRT",0
 
 ;-------------------------------------
 ; $013D SETPAG

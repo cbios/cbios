@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.13 2004/12/21 03:32:20 mthuurne Exp $
+; $Id: video.asm,v 1.14 2004/12/22 21:11:14 manuelbi Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -339,32 +339,25 @@ clrspr_col_skip:
                 ret
 
 ;--------------------------------
-;006Ch INITXT
+; $006C INITXT
 init_txt:
                 ld      a,$00
                 ld      (SCRMOD),a
 
                 call    clr_text40
-
-                in      a,(VDP_STAT)    ; reset Latch
                 call    chgclr
 
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
-
-                ld      b,a             ; B = R#0 data
+                ld      b,a
                 ld      c,0
-
                 call    wrt_vdp         ; write VDP R#0
-
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 or      $10
-
-                ld      b,a             ; B = R#1 data
+                ld      b,a
                 inc     c
-
                 call    wrt_vdp         ; write VDP R#1
 
                 ld      bc,$0104        ; R#4 PatGenTBLaddr=$0800
@@ -372,8 +365,6 @@ init_txt:
 
                 ld      bc,$0002        ; R#2 PatNamTBLaddr=$0000
                 call    wrt_vdp         ; write VDP R#2
-
-                in      a,(VDP_STAT)    ; reset Latch
 
                 ld      hl,B_Font
                 ld      de,(TXTCGP)
@@ -391,26 +382,23 @@ init_txt:
                 ret
 
 ;--------------------------------
-;006Fh INIT32
+; $006F INIT32
 init_txt32:
                 ld      a,$01           ; SCREEN1
                 ld      (SCRMOD),a
 
                 call    clr_text32
-
                 call    chgclr
 
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
-
-                ld      b,a             ; B = R#0 data
+                ld      b,a
                 ld      c,0
                 call    wrt_vdp         ; write VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
-
-                ld      b,a             ; B = R#1 data
+                ld      b,a
                 inc     c
                 call    wrt_vdp         ; write VDP R#1
 
@@ -428,7 +416,6 @@ init_txt32:
                 rrca
                 rrca
                 and     $3F
-
                 ld      b,a
                 ld      c,2
                 call    wrt_vdp         ; write VDP R#2
@@ -441,9 +428,7 @@ tcol_lp:
                 rl      l
                 rl      h
                 djnz    tcol_lp
-                ld      a,h
-
-                ld      b,a
+                ld      b,h
                 ld      c,3
                 call    wrt_vdp         ; write VDP R#3
 
@@ -453,7 +438,6 @@ tcol_lp:
                 rrca
                 rrca
                 and     $1F
-
                 ld      b,a
                 ld      c,4
                 call    wrt_vdp         ; write VDP R#4
@@ -461,9 +445,7 @@ tcol_lp:
                 ld      hl,(T32ATR)
                 rl      l
                 rl      h
-                ld      a,h
-
-                ld      b,a
+                ld      b,h
                 ld      c,5
                 call    wrt_vdp         ; write VDP R#5
 
@@ -476,8 +458,6 @@ tcol_lp:
                 ld      b,a
                 ld      c,6
                 call    wrt_vdp         ; write VDP R#6
-
-                in      a,(VDP_STAT)    ; reset Latch
 
                 ld      hl,B_Font
                 ld      de,(T32CGP)
@@ -492,41 +472,36 @@ tcol_lp:
                 ret
 
 ;--------------------------------
-;0072h INIGRP
+; $0072 INIGRP
 init_grp:
                 ld      a,$02
                 ld      (SCRMOD),a
-
-                in      a,(VDP_STAT)    ; reset Latch
 
                 call    chgclr
 
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 or      2               ; M3 = 1
-
-                ld      b,a             ; B = R#0 data
+                ld      b,a
                 ld      c,0
-
                 call    wrt_vdp         ; write VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
-
-                ld      b,a             ; B = R#1 data
+                ld      b,a
                 inc     c
-
                 call    wrt_vdp         ; write VDP R#1
 
                 ld      hl,(GRPNAM)
+                ld      (NAMBAS),hl
                 call    vdp_setwrt
                 ld      b,3
                 xor     a
-ig_loop:
+init_grp_lp:
                 out     (VDP_DATA),a
                 inc     a
-                jr      nz,ig_loop
-                djnz    ig_loop
+                jr      nz,init_grp_lp
+                djnz    init_grp_lp
 
                 ld      hl,(GRPATR)
                 ld      (ATRBAS),hl
@@ -536,16 +511,6 @@ ig_loop:
 
                 ld      hl,GRPNAM
                 ld      de,$7F03
-                call    set_grp
-
-                call    clrspr_spritemode1
-                call    enascr
-                ret
-
-; HL = table address
-; B  = DATA , C = VDP R#
-; DE = VDPDATA
-set_grp:
                 push    ix
                 ld      ix,shift_tbl
                 ld      c,2             ; C = VDP R#
@@ -561,14 +526,15 @@ set_grp:
                 xor     a               ; data=0
                 call    adr_sft
                 pop     ix
+
+                call    clrspr_spritemode1
+                call    enascr
                 ret
 
 shift_tbl:
                 db      $06,$0A,$05,$09,$05
 
-;
-;HL = table address
-;
+; HL = table address
 adr_sft:
                 push    hl
                 push    af
@@ -596,6 +562,95 @@ sft_lp:
                 inc     hl
                 inc     c
                 ret
+
+;------------------------------
+; $0075 INIMLT
+; Initialise SCREEN3 (multi-colour mode).
+init_mlt:
+                ld      hl,init_mlt_text
+                jp      print_debug
+init_mlt_text:  db      "SCREEN3",0
+
+;------------------------------
+; $0078 SETTXT
+set_txt:
+                ld      hl,set_txt_text
+                jp      print_debug
+set_txt_text:  db      "SETTXT",0
+
+;------------------------------
+; $007B SETT32
+set_txt32:
+                ld      hl,set_txt32_text
+                jp      print_debug
+set_txt32_text: db      "SETT32",0
+
+;------------------------------
+; $00ED SETGRP
+set_grp:
+                ld      hl,set_grp_text
+                jp      print_debug
+set_grp_text:   db      "SETGRP",0
+
+;------------------------------
+; $00F1 SETMLT
+set_mlt:
+                ld      hl,set_mlt_text
+                jp      print_debug
+set_mlt_text:   db      "SETMLT",0
+
+;------------------------------
+; $0084 CALPAT
+calpat:
+                push    hl
+                push    af
+                ld      hl,calpat_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+calpat_text:    db      "CALPAT",0
+
+;------------------------------
+; $0087 CALATR
+calatr:
+                push    hl
+                push    af
+                ld      hl,calatr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+calatr_text:    db      "CALATR",0
+
+;------------------------------
+; $008A GSPSIZ
+gspsiz:
+                push    hl
+                push    af
+                ld      hl,gspsiz_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+gspsiz_text:    db      "GSPSIZ",0
+
+;------------------------------
+; $008D GRPPRT
+; Function:  Places a character on graphic screen
+; Input:     A  - Character
+;            ATRBYT for attribute
+;            LOGOPR for logical operator
+; NOTE: this implementation is still a stub!
+grpprt:
+                push    hl
+                push    af
+                ld      hl,grpprt_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+grpprt_text:    db      "GRPPRT",0
 
 ;--------------------------------
 ; 0165h CHKNEW
@@ -858,14 +913,7 @@ clr_text32:
                 ret
 
 ;------------------------------
-; Initialise SCREEN3 (multi-colour mode).
-init_mlt:
-                ld      hl,init_mlt_text
-                jp      print_debug
-init_mlt_text:  db      "SCREEN3",0
-
-;------------------------------
-; Initialise SCREEN4 (graphics 3).
+; Initialise SCREEN4 (graphic 3).
 init_sc4:
                 ld      hl,init_sc4_text
                 jp      print_debug
@@ -930,14 +978,14 @@ init_sc5:
                 ret
 
 ;------------------------------
-; Initialise SCREEN6 (graphics 5).
+; Initialise SCREEN6 (graphic 5).
 init_sc6:
                 ld      hl,init_sc6_text
                 jp      print_debug
 init_sc6_text:  db      "SCREEN6",0
 
 ;------------------------------
-;VDPをスクリーン7で初期化する。
+; Initialise SCREEN7 (graphic 6).
 init_sc7:
                 ld      a,$07
                 ld      (SCRMOD),a
@@ -995,7 +1043,7 @@ init_sc7:
                 ret
 
 ;------------------------------
-; Initialise SCREEN8 (graphics 7).
+; Initialise SCREEN8 (graphic 7).
 init_sc8:
                 ld      a,$08
                 ld      (SCRMOD),a

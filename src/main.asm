@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.27 2004/12/22 21:11:13 manuelbi Exp $
+; $Id: main.asm,v 1.28 2004/12/22 21:23:34 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -221,13 +221,44 @@ romid:
                 jp      init_txt32
 
 ;0072h INITGRP  âÊñ ÇGRAPHIC2ÉÇÅ[ÉhÇ…èâä˙âªÅB
-
                 ds      $0072 - $
                 jp      init_grp
 
-;007Eh SETGRP
+; $0075 INIMLT
+                ds      $0075 - $
+                jp      init_mlt
+
+; $0078 SETTXT
+                ds      $0078 - $
+                jp      set_txt
+
+; $007B SETT32
+                ds      $007B - $
+                jp      set_txt32
+
+; $007E SETGRP
                 ds      $007E - $
                 jp      set_grp
+
+; $0081 SETMLT
+                ds      $0081 - $
+                jp      set_mlt
+
+; $0084 CALPAT
+                ds      $0084 - $
+                jp      calpat
+
+; $0087 CALATR
+                ds      $0087 - $
+                jp      calatr
+
+; $008A GSPSIZ
+                ds      $008A - $
+                jp      gspsiz
+
+; $008D GRPPRT
+                ds      $008D - $
+                jp      grpprt
 
 ;0090h GICINI   âπåπICÇÃèâä˙âª
                 ds      $0090 - $
