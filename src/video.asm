@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.53 2005/02/07 00:39:08 mthuurne Exp $
+; $Id: video.asm,v 1.54 2005/02/07 01:27:30 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -199,11 +199,13 @@ filvrm:
                 ld      c,a
                 inc     c
                 pop     af
+                di
 filvrm_lp:
                 out     (VDP_DATA),a
                 djnz    filvrm_lp
                 dec     c
                 jr      nz,filvrm_lp
+                ei
                 ret
 
 ;--------------------------------
@@ -233,10 +235,12 @@ ldirmv_cont:
                 ld      b,c
                 inc     a
                 ld      c,VDP_DATA
+                di
 ldirmv_lp:
                 inir
                 dec     a
                 jr      nz,ldirmv_lp
+                ei
                 ret
 
 ;--------------------------------
@@ -267,10 +271,12 @@ ldirvm_cont:
                 ld      b,c
                 inc     a
                 ld      c,VDP_DATA
+                di
 ldirvm_lp:
                 otir
                 dec     a
                 jr      nz,ldirvm_lp
+                ei
                 ; Note: Without this, Quinpl shows glitches.
                 ; TODO: Investigate why.
                 ex      de,hl
@@ -471,6 +477,7 @@ clrspr_attr_spritemode_start:
                 ld      a,(FORCLR)
                 ld      d,a
                 ld      bc,$2000        ; B = 32 = counter, C = pattern index
+                di
 clrspr_attr_lp:
                 ld      a,e
                 out     (VDP_DATA),a    ; Y coordinate
@@ -488,6 +495,7 @@ clrspr_attr_8:
                 ld      a,d
                 out     (VDP_DATA),a    ; color
                 djnz    clrspr_attr_lp
+                ei
                 ret
 
 ;--------------------------------
@@ -614,11 +622,13 @@ inigrp:
                 call    setwrt
                 ld      b,3
                 xor     a
+                di
 inigrp_lp:
                 out     (VDP_DATA),a
                 inc     a
                 jr      nz,inigrp_lp
                 djnz    inigrp_lp
+                ei
 
                 ld      hl,(GRPCGP)
                 ld      (CGPBAS),hl
@@ -659,6 +669,7 @@ inimlt:
                 call    setwrt
                 xor     a
                 ld      c,6
+                di
 inimlt_loop1:
                 push    af
                 ld      e,4
@@ -676,6 +687,7 @@ inimlt_loop3:
                 add     a,32
                 dec     c
                 jr      nz,inimlt_loop1
+                ei
 
                 ld      hl,(MLTCGP)
                 ld      (CGPBAS),hl
@@ -1027,11 +1039,13 @@ bigfil:
                 ld      c,a
                 inc     c
                 pop     af
+                di
 bigfil_lp:
                 out     (VDP_DATA),a
                 djnz    bigfil_lp
                 dec     c
                 jr      nz,bigfil_lp
+                ei
                 ret
 
 ;--------------------------------
@@ -1278,11 +1292,13 @@ init_sc4:
                 call    setwrt
                 ld      b,3
                 xor     a
+                di
 init_sc4_lp:
                 out     (VDP_DATA),a
                 inc     a
                 jr      nz,init_sc4_lp
                 djnz    init_sc4_lp
+                ei
 
                 ld      hl,(GRPCGP)
                 ld      (CGPBAS),hl
