@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.36 2004/12/28 15:01:49 mthuurne Exp $
+; $Id: main.asm,v 1.37 2004/12/28 19:08:42 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -558,6 +558,13 @@ ram_ok:
 ;----------------------
 
 start_game:
+                ; Select 8x8 sprites, the logo needed them to be 16x16.
+                ld      a,(RG1SAV)
+                and     $FD
+                ld      b,a
+                ld      c,$01
+                call    wrt_vdp
+
                 ld      a,29
                 ld      (LINL32),a
                 ld      a,$01
