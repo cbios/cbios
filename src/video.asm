@@ -1,4 +1,4 @@
-; $Id$
+; $Id: video.asm,v 1.1 2004/12/05 06:13:09 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -521,6 +521,16 @@ sft_lp:
                 inc     hl
                 inc     hl
                 inc     c
+                ret
+
+;--------------------------------
+; 0165h CHKNEW
+; Is the current screen mode a bitmap mode?
+; Output:  Carry flag set if current screen mode is SCREEN 5 or higher.
+; Changes: AF
+chknew:
+                ld      a,(SCRMOD)
+                cp      5
                 ret
 
 ;--------------------

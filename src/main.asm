@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.10 2004/12/06 01:25:09 mthuurne Exp $
+; $Id: main.asm,v 1.11 2004/12/07 16:41:47 bifimsx Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -281,6 +281,9 @@ romid:
                 ds      $015F - $
                 jp      extrom
 
+;0165h CHKNEW   Is the current screen mode a bitmap mode?
+                ds      $0165 - $
+                jp      chknew
 
 ; -------------------
 ; スタートアップコード（リセット時に呼び出される）
