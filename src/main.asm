@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.56 2004/12/30 14:35:40 andete Exp $
+; $Id: main.asm,v 1.57 2004/12/30 15:17:58 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -618,6 +618,8 @@ start_game:
 
                 ld      hl,stack_error
                 push    hl
+                ld      hl,boot_stage2
+                push    hl
 
                 ; MSX BIOS starts cartridges using inter-slot call,
                 ; so interrupts are disabled when cartridge code starts.
@@ -641,6 +643,40 @@ p3_run:
                 ld      hl,($8002)      ; カートリッジ開始アドレス。
                 jp      (hl)            ; 実行...
 
+boot_stage2:
+                ; Set up hooks and system vars so NMS8250 disk ROM will try
+                ; to load and execute the boot sector.
+                ld      a,1
+                ld      (DEVICE),a
+                xor     a
+                ld      ($FB29),a
+
+                ; Select RAM in page 2.
+                ; This assumes the same slot used for page 3 also has RAM in
+                ; slot 2.
+                in      a,(PSL_STAT)
+                and     $CF
+                ld      c,a
+                rrca
+                rrca
+                and     $30
+                or      c
+                out     (PSL_STAT),a
+                ld      a,(SSL_REGS)
+                cpl
+                and     $CF
+                ld      c,a
+                rrca
+                rrca
+                and     $30
+                or      c
+                ld      (SSL_REGS),a
+
+                ; This is the hook the disk ROM uses for booting.
+                call    H_RUNC
+
+                ; We couldn't boot anything, instead show disk contents.
+                jp      disk_intr
 
 ;-------------------------------
 ; 情報表示
@@ -1060,11 +1096,6 @@ init_ram:
                 ld      (HIMEM),hl      ; 使用可能メモリの上限
 
                 ld      (STKTOP),hl     ; BASICスタックの位置
-
-                ld      hl,disk_intr
-                ld      a,$C3
-                ld      (H_STKE),a
-                ld      (H_STKE+1),hl
 
 ;RDPRIMをRAMに転送する.
 
@@ -3524,18 +3555,7 @@ restore_subslot:
                 ret
 
 
-;-------------------
-                ds      $3000 - $
-
-                ld      a,$82
-                out     (PPI_REGS),a
-
-                ld      a,$C9
-                ld      (H_KEYI),a
-                ld      (H_TIMI),a
-
-                ei
-
+;------------------------------------
 hang_up_mode:
                 ld      a,$06
                 call    snsmat
@@ -3546,41 +3566,9 @@ hang_up_mode:
 
                 jr      hang_up_mode
 
-                ds      $3020 - $
+;------------------------------------
+; Called if the stack underflows.
 stack_error:
-                ; Set up hooks and system vars so NMS8250 disk ROM will try
-                ; to load and execute the boot sector.
-                ld      a,$C9
-                ld      (H_STKE),a
-                ld      a,1
-                ld      (DEVICE),a
-                xor     a
-                ld      ($FB29),a
-
-                ; Select RAM in page 2.
-                ; This assumes the same slot used for page 3 also has RAM in
-                ; slot 2.
-                in      a,(PSL_STAT)
-                and     $CF
-                ld      c,a
-                rrca
-                rrca
-                and     $30
-                or      c
-                out     (PSL_STAT),a
-                ld      a,(SSL_REGS)
-                cpl
-                and     $CF
-                ld      c,a
-                rrca
-                rrca
-                and     $30
-                or      c
-                ld      (SSL_REGS),a
-
-                ; This is the hook the disk ROM uses for booting.
-                call    H_RUNC
-
                 call    H_STKE
                 ld      de,str_stack_error
                 jp      print_error
