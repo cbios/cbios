@@ -1,9 +1,9 @@
-; $Id: sub.asm,v 1.29 2005/01/02 12:48:58 ccfg Exp $
+; $Id: sub.asm,v 1.30 2005/01/03 00:17:46 ccfg Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
-; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
@@ -854,18 +854,71 @@ bltvm_pixel:
 ; $0199 BLTMV
 ; Function:  Copy from VRAM to RAM
 ; Input:     SX, SY, NX, NY, ARG_, L_OP
+;            DX = address of screen data in RAM
 ;            NX and NY are written to screen data in RAM
 ; Registers: All
-; NOTE: this implementation is still a stub!
 bltmv:
+                ld      hl,(DX)
+                ld      bc,(NX)
+                ld      de,(NY)
+                ld      (hl),c                  ; write NX to screen data
+                inc     hl
+                ld      (hl),b
+                inc     hl
+                ld      (hl),e                  ; write NY to screen data
+                inc     hl
+                ld      (hl),d
+                inc     hl
+
+                call    blt_clip
+                ret     c
+
+                cp      8
+                ld      de,1 *256+ 0            ; D = number of pixels in a byte
+                jr      z,bltmv_cont            ; E = number of bits per pixel (shift)
+                cp      6
+                ld      de,4 *256+ 2
+                jr      z,bltmv_cont
+                ld      de,2 *256+ 4
+
+bltmv_cont:
                 push    hl
-                push    af
-                ld      hl,bltmv_text
-                call    print_debug
-                pop     af
+                call    exec_cmd
+
+                ld      a,(hl)
+                and     15
+                or      $a0                     ; LMCM
+                out     (c),a
+                ei
                 pop     hl
-                ret
-bltmv_text:     db      "BLTMV",0
+                ld      b,d
+                ld      c,0
+bltmv_byte:
+                ld      a,2
+                call    vdpsta
+                bit     7,a                     ; transmit ready?
+                jr      z,bltmv_end
+
+                push    bc
+                ld      a,7
+                call    vdpsta
+                ld      b,e
+bltmv_pixel:
+                rlc     c
+                djnz    bltmv_pixel
+                or      c
+                pop     bc
+                ld      c,a
+                djnz    bltmv_byte
+                ld      (hl),c
+                inc     hl
+                ld      c,0
+bltmv_end:
+                ld      a,2
+                call    vdpsta
+                bit     0,a                     ; end of command?
+                ret     z
+                jr      bltmv_byte
 
 ;-------------------------------------
 ; $019D BLTVD

@@ -1,9 +1,10 @@
-$Id: ChangeLog,v 1.81 2005/01/04 14:57:08 bifimsx Exp $
+$Id: ChangeLog,v 1.82 2005/01/04 15:57:19 mthuurne Exp $
 
 2005-01-04 Albert Beevendorp
     * Fixed TOTEXT
     * Added CHGCAP
     * Added STMOTR
+    * Added BLTMV
 
 2005-01-04 Maarten ter Huurne <maarten@treewalker.org>
     * Recognise escape sequences in CHPUT.
