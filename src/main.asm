@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.76 2005/01/08 05:01:22 ccfg Exp $
+; $Id: main.asm,v 1.77 2005/01/08 05:33:55 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2750,12 +2750,15 @@ chput_escape_left:
 
 ; Clear screen and set cursor to home.
 chput_escape_cls:
-                ; TODO: Implement.
-                jr      chput_escape_exit
+                push    bc
+                call    cls
+                pop     bc
+                jr      chput_escape_home
 
 ; Set cursor to home (top left).
 chput_escape_home:
-                ; TODO: Implement.
+                ld      hl,$0101
+                call    posit
                 jr      chput_escape_exit
 
 ; Erase to end of screen.

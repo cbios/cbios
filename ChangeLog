@@ -1,8 +1,10 @@
-$Id: ChangeLog,v 1.90 2005/01/08 05:01:22 ccfg Exp $
+$Id: ChangeLog,v 1.91 2005/01/08 05:33:52 ccfg Exp $
 
 2005-01-08 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented control codes in CHPUT.
-    * Implemented ESC-B, ESC-C and ESC-D in CHPUT.
+    * Implemented ESC-B, ESC-C and ESC-D (cursor down, right and left) in
+      CHPUT.
+    * Implemented ESC-E, ESC-j and ESC-H (clear screen and cursor home).
 
 2005-01-07 Maarten ter Huurne <maarten@treewalker.org>
     * First implementation steps towards a disk ROM.
