@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.20 2004/12/28 15:31:00 bifimsx Exp $
+; $Id: sub.asm,v 1.21 2004/12/28 15:32:53 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -187,27 +187,27 @@
                 jp      bltvm
 
 ; $0199 BLTMV Copy from Memory to VRAM
-                ds      $0195 - $,$C9
+                ds      $0199 - $,$C9
                 ei
                 jp      bltmv
 
 ; $019D BLTVD Copy from Memory to VRAM
-                ds      $0195 - $,$C9
+                ds      $019D - $,$C9
                 ei
                 jp      bltvd
 
 ; $01A1 BLTDV Copy from Memory to VRAM
-                ds      $0195 - $,$C9
+                ds      $01A1 - $,$C9
                 ei
                 jp      bltdv
 
 ; $01A5 BLTMD Copy from Memory to VRAM
-                ds      $0195 - $,$C9
+                ds      $01A5 - $,$C9
                 ei
                 jp      bltmd
 
 ; $01A9 BLTDM Copy from Memory to VRAM
-                ds      $0195 - $,$C9
+                ds      $01A9 - $,$C9
                 ei
                 jp      bltdm
 
