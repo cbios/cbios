@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.42 2004/12/29 11:17:28 andete Exp $
+; $Id: main.asm,v 1.43 2004/12/29 12:03:07 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2463,26 +2463,27 @@ lptstt_text:      db      "LPTSTT",0
 ;       if byte is graphical extension  high    high    extension code
 ;       GRPHED is updated
 ; Registers: AF
-; TODO: this subroutine could probably be a little smaller
+; Note: this implementation is untested!
 cnvchr:
                 push bc
                 ld      b,a
-                ; was the previous byte the extension byte?
+                                        ; was the previous byte the extension byte?
                 ld      a,(GRPHED)
                 and     a
-                jr      nz, cnvchr_ext
-                ; no
-                ; is the current one an extension byte?
                 ld      a,b
+                jr      nz, cnvchr_ext
+                                        ; no
+                                        ; is the current one an extension byte?
                 dec     a
                 jr      nz, cnvchr_noext
-cnvchr_curext:  ; yes
+cnvchr_curext:                          ; yes
                 ld      a,b
                 and     a               ; reset C-flag
                 ld      (GRPHED), A
                 pop     bc
                 ret
-cnvchr_noext:   ; current code is no extension code, and there was no extension byte
+cnvchr_noext:                           ; current code is no extension code,
+                                        ; and there was no extension byte
                 xor     a               ; resets Z-flag also
                 ld      (GRPHED), A
 cnvchr_noext2:
@@ -2490,21 +2491,20 @@ cnvchr_noext2:
                 scf                     ; set C-flag
                 pop     bc
                 ret
-cnvchr_ext:     ; previous code was extension byte
-                ; is the current one an extension byte?
-                ld      a,b
+cnvchr_ext:                             ; previous code was extension byte
+                                        ; is the current one an extension byte?
                 dec     a
                 jr      z, cnvchr_curext
-                ; previous was extension, current one is not
+                                        ; previous was extension, current one is not
                 xor     a
                 ld      (GRPHED),a
                 ld      a,b
-                ; is byte between $40 and $5f ?
+                                        ; is byte between $40 and $5f ?
                 sub     $40
                 jr      c, cnvchr_noext2
                 cp      $20
                 jr      nc, cnvchr_noext2
-                ; yes, then correct value is in A
+                                        ; yes, then correct value is in A
                 cp      a               ; set Z-flag
                 scf                     ; set C-flag
                 pop     bc
