@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.39 2005/01/03 07:39:57 bifimsx Exp $
+; $Id: video.asm,v 1.40 2005/01/05 09:07:18 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1581,16 +1581,30 @@ cls_bitmap_ce:
 ; Registers: All
 ; Remark   : Same as routine in MSX1-BIOS, but there it doesn't exist as
 ;            a BIOS-call
-;NOTE: this implementation is still a stub!
+; NOTE: it currently lacks reading from a slot when called from subrom
 getpat:
+                ld      bc,(CGPNT+1)
+                ld      l,a
+                ld      h,0
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                add     hl,bc
+                ld      b,8
+                ld      de,PATWRK
+getpat_loop:    push    bc
+                push    de
                 push    hl
-                push    af
-                ld      hl,getpat_text
-                call    print_debug
-                pop     af
+                ld      a,(CGPNT)
+                ;call    rdslt
                 pop     hl
+                pop     de
+                pop     bc
+                ld      (de),a
+                inc     de
+                inc     hl
+                djnz    getpat_loop
                 ret
-getpat_text:    db      "GETPAT",0
 
 ;--------------------------------
 ; $00FC RIGHTC
