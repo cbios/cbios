@@ -1,4 +1,10 @@
-$Id: ChangeLog,v 1.7 2004/12/10 06:41:18 mthuurne Exp $
+$Id: ChangeLog,v 1.8 2004/12/10 07:30:01 mthuurne Exp $
+
+2004-12-11 Maarten ter Huurne <maarten@treewalker.org>
+    * Added support for Pasmo in the Makefile. You can select an assembler by
+      setting "Z80_ASSEMBLER" to "pasmo" or "sjasm".
+    * Added graphical logo to splash screen.
+      Thanks to Patrick van Arkel (Vampier) for drawing the logo.
 
 2004-12-10 Maarten ter Huurne <maarten@treewalker.org>
     * Made the MSX1 VRAM transfer routines faster.
