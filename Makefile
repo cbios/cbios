@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.3 2004/12/11 04:37:54 mthuurne Exp $
+# $Id: Makefile,v 1.4 2004/12/13 01:21:22 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
 #Z80_ASSEMBLER?=sjasm
 
 PACKAGE:=cbios
-VERSION:=0.18
+VERSION:=0.19
 PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
 ROMS:=main sub
@@ -52,7 +52,9 @@ clean:
 dist: all
 	@rm -rf derived/dist
 	@mkdir -p derived/dist/$(PACKAGE_FULL)
-	@find . -type f '!' -path '*/CVS/*' '!' -path '*/derived/*' '!' -name '.*' \
+	@find . -type f '!' -path '*/CVS/*' \
+		'!' -path './derived/*' '!' -path './debian/*' \
+		'!' -name '.*' \
 		-exec cp --parents "{}" derived/dist/$(PACKAGE_FULL) ';'
 	@find configs/openMSX/* -maxdepth 0 -type d '!' -name 'CVS' \
 		-exec mkdir "derived/dist/$(PACKAGE_FULL)/{}/roms" ';'
