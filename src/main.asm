@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.55 2004/12/30 14:09:58 andete Exp $
+; $Id: main.asm,v 1.56 2004/12/30 14:35:40 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -627,6 +627,10 @@ start_game:
 
                 ; TODO: also support cartridges that have their rom located
                 ; in slot 0; for example the game "Beam Rider"
+                ; TODO: if game ends up being a BASIC program, display an error!
+                ; TODO: support multiple ROMS
+                ; TODO: use a different text for initialising the disk ROM (not "cartridge found")
+                ; TODO: it should set up the related system vars properly
 
                 ld      a,($4000)
                 cp      'A'
