@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.39 2004/12/29 03:23:08 mthuurne Exp $
+; $Id: main.asm,v 1.40 2004/12/29 03:53:48 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -82,7 +82,7 @@ wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
 
 ;0018h OUTDO
                 ds      $0018 - $
-                jp      ch_put
+                jp      outdo
 
 ;001Ch CALSLT   inter slot call routine
 calslt:
@@ -283,8 +283,14 @@ romid:
                 ds      $00A2 - $
                 jp      ch_put
 
-;00A5h LPTOUT
-;00A8h LPTSST
+; $00A5 LPTOUT
+                ds      $00A5 - $
+                jp lptout
+
+; $00A8 LPTSTT
+                ds      $00A8 - $
+                jp lptstt
+
 ;00ABh CNVCHR
 ;00AEh PINLIN
 ;00B1h INLIN
@@ -382,6 +388,14 @@ romid:
 ;0144h PHYDIO
                 ds      $0144 - $
                 jp      phydio
+
+; $0147 FORMAT
+                ds      $0147 - $
+                jp      format
+
+; $014A ISFLIO
+                ds      $014A - $
+                jp      isflio
 
 ;0156h KILBUF   キーボードバッファをクリアする
                 ds      $0156 - $
@@ -1782,7 +1796,9 @@ rdsft_lp:
 ;           Z  - flag set if it's the end of the statement
 ;Registers: AF, HL
 ;NOTE: this implementation is still a stub!
+;TODO: call H_CHRG
 chrgtr:
+;               call    H_CHRG
                 push    hl
                 push    af
                 ld      hl,chrgtr_text
@@ -1836,6 +1852,15 @@ wrslt:
                 pop     af
                 ret
 
+; ----------------------------
+; $0018 OUTDO
+; Function : Output to current outputchannel (printer, diskfile, etc.)
+; Input    : A  - PRTFIL, PRTFLG
+; Remark   : Used in basic, in ML it's pretty difficult
+; TODO     : call H_OUTD
+outdo:
+;                call H_OUTD
+                jp      ch_put
 
 ;-------------------------------------
 ; 001Ch CALSLT(暫定的な関数)
@@ -1901,6 +1926,19 @@ cal_slt_restore:
 ; Done:
                 ex      af,af'
                 exx
+                ret
+
+;--------------------------------
+; $001A ISFLIO
+; Function : Tests if I/O to device is taking place
+; Output   : A  - #00 if not taking place
+;             not #00 if taking place
+; Registers: AF
+; TODO: call H_ISFL
+isflio:
+;                call    H_ISFL
+                ld      a,(PTRFIL)
+                and     a               ; adjust flags
                 ret
 
 
@@ -2337,11 +2375,53 @@ scroll_n1:
                 pop     af
                 ret
 
+
+;--------------------------------
+; $00A5 LPTOUT
+; Function : Sends one character to printer
+; Input    : A  - ASCII-code of character to send
+; Output   : C-flag set if failed
+; Registers: F
+; NOTE: this implementation is still a stub!
+;       currently it always claims success
+; TODO: call H_LPTO
+lptout:
+;               call    H_LPTO
+                push    hl
+                push    af
+                ld      hl,lptout_text
+                call    print_debug
+                pop     af
+                pop     hl
+                and     a       ; always state success
+                ret
+lptout_text:      db      "LPTOUT",0
+
+;--------------------------------
+; $00A8 LPTSTT
+; Function : Tests printer status
+; Output   : A  - #FF and Z-flag reset if printer is ready
+;                 #00 and Z-flag set if not ready
+; Registers: AF
+; NOTE: this implementation is still a stub!
+;       currently printer is always ready
+; TODO: call H_LPTS
+lptstt:
+;               call    H_LPTS
+                push    hl
+                ld      hl,lptstt_text
+                call    print_debug
+                pop     hl
+                ld      a,1     ; just always state
+                and     a       ; printer is ready
+                ret
+lptstt_text:      db      "LPTSTT",0
+
 ;--------------------------------
 ; $00C0 BEEP
 ; Function : play a short beep, and reset sound system via GICINI
 ; Registers: All
-;NOTE: this implementation is still a stub!
+; NOTE: this implementation is still a stub!
 beep:
 ; Note: Called by CHPUT; if you need to change more regs than AF, HL, DE, BC
 ;       then update CHPUT.
@@ -2673,7 +2753,9 @@ in_keyboard:
 ;           execution address which was in HL must be at the last stack address
 ;           By the way: In minimum configuration only a HOOK is available
 ;NOTE: this implementation is still a stub!
+;TODO: call H_PHYD
 phydio:
+;               call    H_PHYD
                 push    hl
                 push    af
                 ld      hl,phydio_text
@@ -2682,6 +2764,22 @@ phydio:
                 pop     hl
                 ret
 phydio_text:    db      "PHYDIO",0
+
+; $0014A FORMAT
+; Function : Initialises mass-storage media like formatting of diskettes
+; Registers: All
+; Remark   : In minimum configuration only a HOOK is available
+;TODO: call H_FORM
+format:
+;               call    H_FORM
+                push    hl
+                push    af
+                ld      hl,format_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+format_text:    db      "FORMAT",0
 
 ;--------------------------------
 ;00D5h GTSTCK
