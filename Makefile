@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.6 2004/12/26 21:42:51 bifimsx Exp $
+# $Id: Makefile,v 1.7 2004/12/30 18:47:12 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -8,7 +8,7 @@ PACKAGE:=cbios
 VERSION:=0.19
 PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
-ROMS:=main sub music disk
+ROMS:=main_msx1 main_msx2 sub music disk
 ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # Mark all logical targets as such.

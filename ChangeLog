@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.68 2004/12/31 19:19:57 bifimsx Exp $
+$Id: ChangeLog,v 1.69 2005/01/01 05:29:59 ccfg Exp $
+
+2005-01-01 Maarten ter Huurne <maarten@treewalker.org>
+    * Create different ROMs for MSX1, MSX2 and MSX2+.
+    * Added openMSX configuration for MSX2+ (thanks to Manuel).
 
 2005-01-01 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Added stubs for some missing entries in main.asm.
