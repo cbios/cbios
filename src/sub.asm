@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.35 2005/01/09 19:19:34 bifimsx Exp $
+; $Id: sub.asm,v 1.36 2005/01/13 16:02:28 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -944,7 +944,6 @@ bltvm_1stcol:
                 and     15
                 or      $b0                     ; LMMC
                 out     (c),a
-                ;ei
 
                 ld      a,128+ 44
                 out     (VDP_ADDR),a
@@ -975,11 +974,6 @@ bltvm_pixel:
                 djnz    bltvm_pixel
 
                 out     (VDP_REGS),a            ; write pixel color
-                ;di
-                ;out     (VDP_ADDR),a            ; write pixel color
-                ;ld      a,128+ 44
-                ;out     (VDP_ADDR),a
-                ;ei
 
                 ld      a,c
                 pop     bc
