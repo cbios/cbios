@@ -1,9 +1,11 @@
-$Id: ChangeLog,v 1.78 2005/01/03 09:47:04 bifimsx Exp $
+$Id: ChangeLog,v 1.79 2005/01/04 02:52:38 mthuurne Exp $
 
 2005-01-04 Maarten ter Huurne <maarten@treewalker.org>
     * Recognise escape sequences in CHPUT.
       This eliminates the garbage printed on DOS prompts.
       Note that the escape sequences are all ignored at the moment.
+    * Implemented ESC-A (cursor up) in CHPUT.
+    * Fixed POSIT: row and column were swapped.
 
 2005-01-03 Albert Beevendorp
     * Added conditional compilation for subrom search

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.67 2005/01/03 07:35:24 bifimsx Exp $
+; $Id: main.asm,v 1.68 2005/01/04 02:52:38 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -341,9 +341,9 @@ romid:
                 ds      $00C3 - $
                 jp      cls
 
-; $00C6 POSIT .. カーソル移動。
+; $00C6 POSIT
                 ds      $00C6 - $
-                jp      curxy
+                jp      posit
 
 ; $00C9 FNKSB
                 ds      $00C9 - $
@@ -818,7 +818,7 @@ disp_info:
 
                 ; Print program info.
                 ld      hl,$0101
-                call    curxy
+                call    posit
                 ld      hl,str_proginfo
                 call    prn_text
 
@@ -896,8 +896,8 @@ start_cartprog:
 ; スロット上にカートリッジが存在したなら、
 ; そのスロットのプログラムを実行する。
 
-                ld      hl,$1201
-                call    curxy
+                ld      hl,$0112
+                call    posit
 
                 ld      a,($4000)
                 cp      'A'
@@ -2563,8 +2563,10 @@ chput_escape:                           ; A = escape state (ESCCNT)
                 ld      d,4
                 cp      'Y'
                 jr      z,chput_escape_exit
-                ; TODO: Implement.
                 ld      d,0
+                cp      'A'
+                jr      z,chput_escape_up
+                ; TODO: Implement other sequences.
 chput_escape_exit:
                 ld      a,d
                 ld      (ESCCNT),a
@@ -2593,6 +2595,12 @@ chput_escape_locate2:
                 ; Seen: <ESC>Y<row>
                 pop     af
                 ; TODO: Implement.
+                jr      chput_escape_exit
+
+chput_escape_up:
+                ld      hl,(CSRY)
+                dec     l
+                call    nz,posit
                 jr      chput_escape_exit
 
 ; scroll routine
@@ -2871,13 +2879,14 @@ beep:
 beep_text:      db      "BEEP",0
 
 ;--------------------------------
-;00C6h  カーソルを設定する
-;in ... RegH = X, RegL = Y
-curxy:
-                ld      a,h
-                ld      (CSRY),a
-                ld      a,l
-                ld      (CSRX),a
+; $00C6 POSIT
+; Sets cursor position.
+; Input:   H = column
+;          L = row
+; Changes: AF
+posit:
+                ; Note: this works because CSRX == CSRY + 1
+                ld      (CSRY),hl
                 ret
 
 ;--------------------------------
