@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.18 2004/12/25 20:03:37 bifimsx Exp $
+; $Id: sub.asm,v 1.19 2004/12/28 08:13:50 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -480,12 +480,20 @@ setscr:
 setscr_text:    db      "SETSCR",0
 
 ;
-; internal wait for VDP command to end
+; internal, wait for VDP command to end
 ;
-wait_ce:        ld      a,2
+exec_cmd:
+                ld      a,2
                 call    vdpsta
                 bit     0,a
                 jr      nz,wait_ce
+
+                ld      bc,32 *256+ 17
+                call    wrt_vdp
+
+                ld      bc,15 *256+ VDP_REGS
+                ld      hl,SX
+                otir
                 ret
 
 ;-------------------------------------
@@ -494,20 +502,15 @@ wait_ce:        ld      a,2
 ; Input:     SX, SY, DX, DY, NX, NY, ARG_, L_OP
 ; Registers: All
 bltvv:
-                call    wait_ce
+                call    chknew                  ; SCREEN 5 or higher?
+                ret     c
 
                 ld      a,(L_OP)
                 and     15
-                or      $90
+                or      $90                     ; LMMM
                 ld      (L_OP),a
 
-                ld      bc,32 *256+ 17
-                call    wrt_vdp
-
-                ld      bc,15 *256+ $9B
-                ld      hl,SX
-                otir
-                ret
+                jp      exec_cmd
 
 ;-------------------------------------
 ; $0195 BLTVM
@@ -516,16 +519,75 @@ bltvv:
 ;            DX, DY, NX, NY, ARG_, L_OP
 ;            NX and NY are required in screen data in RAM
 ; Registers: All
-; NOTE: this implementation is still a stub!
 bltvm:
-                push    hl
+                call    chknew                  ; SCREEN 5 or higher?
+                ret     c
+
+                cp      8
+                ld      de,1 *256+ 0            ; D = number of pixels in a byte
+                jr      z,bltvm_cont            ; E = number of bits per pixel (shift)
+                cp      6
+                ld      de,4 *256+ 2
+                jr      z,bltvm_cont
+                ld      de,2 *256+ 4
+
+bltvm_cont:
+                ld      a,(L_OP)
+                and     15
+                or      $b0                     ; LMMC
+                ld      (L_OP),a
+
+                ld      hl,(SX)
+                ld      c,(hl)                  ; read NX from screen data to BC
+                inc     hl
+                ld      b,(hl)
+                inc     hl
+                ld      (NX),bc                 ; store NX
+
+                ld      c,(hl)                  ; read NY from screen data to BC
+                inc     hl
+                ld      b,(hl)
+                inc     hl
+                ld      (NY),bc                 ; store NY
+
+                ld      a,(hl)                  ; read first value to write
+                inc     hl
+                ld      (CDUMMY),a              ; store first byte
+
                 push    af
-                ld      hl,bltvm_text
-                call    print_debug
-                pop     af
+                push    hl
+                call    exec_cmd
                 pop     hl
-                ret
-bltvm_text:    db      "BLTVM",0
+
+                ld      bc,$AD +256* 17
+                call    wrt_vdp
+                pop     af
+                ld      c,a
+
+bltvm_loop:
+                ld      a,2
+                call    vdpsta
+                bit     0,a                     ; end of command?
+                ret     z
+                bit     7,a                     ; transmit ready?
+                jr      z,bltvm_loop
+
+bltvm_byte:
+                ld      b,d                     ; number of pixels
+                push    bc
+                xor     a
+                ld      b,e                     ; number of bits per pixel
+bltvm_pixel:
+                rl      c                       ; shift bits into A
+                rla
+                djnz    bltvm_pixel
+                out     (VDP_REGS),a            ; write pixel color
+                pop     bc
+                djnz    bltvm_byte              ; until the complete byte is done
+
+                ld      c,(hl)                  ; get the next byte
+                inc     hl
+                jr      bltvm_loop
 
 ;-------------------------------------
 ; $0199 BLTMV
