@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.37 2004/12/28 19:08:42 andete Exp $
+; $Id: main.asm,v 1.38 2004/12/29 03:18:20 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -356,15 +356,6 @@ romid:
                 ds      $00F3 - $
                 jp      stmotr
                 
-;012Dh WRTVDP .. VDPレジスタの値を変更する
-                ds      $012D - $
-                ret
-
-;0131h VDPSTA .. VDPステータスを読み出す
-;vdpsta
-                ds      $0131 - $
-                ret
-
 ;0135h CHGSND
                 ds      $0135 - $
                 jp      chgsnd
@@ -2166,8 +2157,9 @@ get_ch:
                 ret
 
 ;--------------------------------
-;00A2h  CHPUT
-;in ... A = character code
+; $00A2 CHPUT
+; Input:   A = character code
+; Changes: none
 ch_put:
                 push    de
                 push    af
@@ -2185,6 +2177,8 @@ scr_txt_mode:
                 push    af
 
                 ; CTRL code
+                cp      $07
+                jp      z,chput_beep
                 cp      $08
                 jp      z,back_spc
                 cp      $0D
@@ -2208,6 +2202,7 @@ scr_txt_mode:
                 inc     a
 chput_ret:
                 ld      (CSRX),a
+chput_exit:
                 pop     af
                 pop     de
                 ret
@@ -2234,26 +2229,30 @@ set_curs:
                 ex      de,hl
                 ret
 
+chput_beep:
+                push    hl
+                push    bc
+                call    beep
+                pop     bc
+                pop     hl
+                jr      chput_exit
+
 back_spc:
                 ld      a,(CSRX)
                 cp      2
-                jr      c,skip_bs
+                jr      c,chput_exit
                 dec     a
                 ld      (CSRX),a
                 call    set_curs
                 xor     a
                 out     (VDP_DATA),a
-skip_bs:
-                pop     af
-                pop     de
-                ret
+                jr      chput_exit
+
 ; 0Dh CR
 ctrl_cr:
                 ld      a,1
                 ld      (CSRX),a
-                pop     af
-                pop     de
-                ret
+                jr      chput_exit
 
 ; 0Ah LF  line feed
 ctrl_lf:
@@ -2264,14 +2263,10 @@ ctrl_lf:
                 jr      nc,lf_scroll
                 inc     a
                 ld      (CSRY),a
-                pop     af
-                pop     de
-                ret
+                jr      chput_exit
 lf_scroll:
                 call    scroll_txt
-                pop     af
-                pop     de
-                ret
+                jr      chput_exit
 
 ; scroll routine
 scroll_txt:
@@ -2344,6 +2339,8 @@ scroll_n1:
 ; Registers: All
 ;NOTE: this implementation is still a stub!
 beep:
+; Note: Called by CHPUT; if you need to change more regs than AF, HL, DE, BC
+;       then update CHPUT.
                 push    hl
                 push    af
                 ld      hl,beep_text
