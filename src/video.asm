@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.29 2004/12/30 13:09:12 andete Exp $
+; $Id: video.asm,v 1.30 2004/12/31 17:52:39 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -374,7 +374,7 @@ clrspr_attr_spritemode_start:
                 ; TODO: On MSX2, call nsetwr instead.
                 ;       Before that is possible, we should split MSX1 and MSX2
                 ;       into separate ROMs, because nsetwr writes to R#14,
-                ;       which does not exist and therefore wraps to R#6.
+                ;       which doesn't exist on MSX1 and therefore wraps to R#6.
                 call    setwrt
                 ld      a,(FORCLR)
                 ld      d,a
@@ -1370,16 +1370,10 @@ cls:
                 ret     nz
                 push    hl
                 ld      a,(SCRMOD)
-                ld      c,a
-                ld      b,0
                 ld      hl,cls_table
-                add     hl,bc
-                add     hl,bc
-                ld      a,(hl)
-                inc     hl
-                ld      h,(hl)
-                ld      l,a
-                jp      (hl)
+                call    jump_table
+                pop     hl
+                ret
 cls_table:
                 dw      cls_screen0
                 dw      cls_screen1
@@ -1503,7 +1497,6 @@ cls_bitmap_ce:
                 ld      hl,SX
                 otir
                 ei
-                pop     hl
                 ret
 
 ; $0105 GETPAT
