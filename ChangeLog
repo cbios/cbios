@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.50 2004/12/29 03:54:40 mthuurne Exp $
+$Id: ChangeLog,v 1.51 2004/12/29 10:01:45 andete Exp $
 
 2004-12-29 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Select 8x8 sprites before running a ROM. Fixes American Truck.
@@ -9,6 +9,10 @@ $Id: ChangeLog,v 1.50 2004/12/29 03:54:40 mthuurne Exp $
 	* implement ISFLIO; with call to H_ISFL in comments
 	* implement FORMAT stub; with call to H_FORM in comments
 	* stubs for LPTOUT and LPTSTT with commented hooks
+	* implemented CNVCHR
+	* stubs for PINLIN, INLIN, QINLIN with commented hooks
+	* stubs for BREAKX, ISCNTC
+	* implemented CKCNTC
 
 2004-12-28 Albert Beevendorp
     * Added clipping to BLTVV and BLTVM

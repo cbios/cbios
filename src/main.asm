@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.40 2004/12/29 03:53:48 mthuurne Exp $
+; $Id: main.asm,v 1.41 2004/12/29 10:01:46 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -285,20 +285,41 @@ romid:
 
 ; $00A5 LPTOUT
                 ds      $00A5 - $
-                jp lptout
+                jp      lptout
 
 ; $00A8 LPTSTT
                 ds      $00A8 - $
-                jp lptstt
+                jp      lptstt
 
-;00ABh CNVCHR
-;00AEh PINLIN
-;00B1h INLIN
-;00B4h QINLIN
-;00B7h BREAKX
-;00BAh ISCNTC
-;00BDh CKCNTC
-;00C0h BEEP
+; $00AB CNVCHR
+                ds      $00AB - $
+                jp      cnvchr
+
+; $00AE PINLIN
+                ds      $00AE - $
+                jp      pinlin
+
+; $00B1 INLIN
+                ds      $00B1 - $
+                jp      inlin
+
+; $00B4 QINLIN
+                ds      $00B4 - $
+                jp      qinlin
+
+; $00B7 BREAKX
+                ds      $00B7 - $
+                jp      breakx
+
+; $00BA ISCNTC
+                ds      $00BA - $
+                jp      iscntc
+
+; $00BD CKCNTC
+                ds      $00AB - $
+                jp      ckcntc
+
+; $00C0 BEEP
                 ds      $00C0 - $
                 jp      beep
 
@@ -2165,7 +2186,12 @@ no_chr:
 
 ;--------------------------------
 ; $009F CHGET
+; Function : One character input (waiting)
+; Output   : A  - ASCII-code of the input character
+; Registers: AF
+; TODO:    : call H_CHGE
 ch_get:
+;               call H_CHGE
                 ld      a,$00
                 push    hl
                 push    de
@@ -2418,6 +2444,166 @@ lptstt:
 lptstt_text:      db      "LPTSTT",0
 
 ;--------------------------------
+; $00AB CNVCHR
+; Function : tests for the graphic header and transforms the code
+; Input    : A  - charactercode
+;            GRPHED(FCA6): indicates if previous char was an extension code
+; Output:                               C-flag  Z-flag  A
+;       if byte is extension byte       low     -       1
+;       if byte is normal ASCII         high    low     ASCII code
+;       if byte is graphical extension  high    high    extension code
+;       GRPHED is updated
+; Registers: AF
+; TODO: this subroutine could probably be a little smaller
+cnvchr:
+                push bc
+                ld      b,a
+                ; was the previous byte the extension byte?
+                ld      a,(GRPHED)
+                and     a
+                jr      nz, cnvchr_ext
+                ; no
+                ; is the current one an extension byte?
+                ld      a,b
+                dec     a
+                jr      nz, cnvchr_noext
+cnvchr_curext:  ; yes
+                ld      a,b
+                and     a               ; reset C-flag
+                ld      (GRPHED), A
+                pop     bc
+                ret
+cnvchr_noext:   ; current code is no extension code, and there was no extension byte
+                xor     a               ; resets Z-flag also
+                ld      (GRPHED), A
+cnvchr_noext2:
+                ld      a,b
+                scf                     ; set C-flag
+                pop     bc
+                ret
+cnvchr_ext:     ; previous code was extension byte
+                ; is the current one an extension byte?
+                ld      a,b
+                dec     a
+                jr      z, cnvchr_curext
+                ; previous was extension, current one is not
+                xor     a
+                ld      (GRPHED),a
+                ld      a,b
+                ; is byte between $40 and $5f ?
+                sub     $40
+                jr      c, cnvchr_noext2
+                cp      $20
+                jr      nc, cnvchr_noext2
+                ; yes, then correct value is in A
+                cp      a               ; set Z-flag
+                scf                     ; set C-flag
+                pop     bc
+                ret
+
+;--------------------------------
+; $00AE PINLIN
+; Function : Stores in the specified buffer the character codes input until the return
+;           key or STOP key is pressed
+; Output   : HL - for the starting address of the buffer -1
+;            C-flag set when it ends with the STOP key
+; Registers: All
+; NOTE: this implementation is still a stub!
+; TODO: call H_PINL
+pinlin:
+;               call    H_PINL
+                push    hl
+                push    af
+                ld      hl,pinlin_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+pinlin_text:    db      "PINLIN",0
+
+;--------------------------------
+; $00B1 INLIN
+; Function : Same as PINLIN except that AUGFLG (#F6AA) is set
+; Output   : HL - for the starting address of the buffer -1
+;            C-flag set when it ends with the STOP key
+; Registers: All
+; NOTE: this implementation is still a stub!
+; TODO: call H_INLI
+inlin:
+;               call    H_INLI
+                push    hl
+                push    af
+                ld      hl,inlin_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+inlin_text:     db      "INLIN",0
+
+;--------------------------------
+; $00B4 QINLIN
+; Function : Prints a questionmark and one space and then calls INLIN
+; Output   : HL - for the starting address of the buffer -1
+;            C-flag set when it ends with the STOP key
+; Registers: All
+; NOTE: this implementation is still a stub!
+; TODO: call H_QINL
+qinlin:
+;               call    H_QINL
+                push    hl
+                push    af
+                ld      hl,qinlin_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+qinlin_text:    db      "QINLIN",0
+
+;--------------------------------
+; $00B7 BREAKX
+; Function : Tests status of CTRL-STOP
+; Output   : C-flag set when pressed
+; Registers: AF
+; Remark   : It is allowed to call this routine with interrupts disabled
+; NOTE: this implementation is still a stub!
+breakx:
+                push    hl
+                push    af
+                ld      hl,breakx_text
+                call    print_debug
+                pop     af
+                pop     hl
+                and     a       ; reset C-flag
+                ret
+breakx_text:    db      "BREAKX",0
+
+;--------------------------------
+; $00BA ISCNTC
+; Function: Test status of STOP or CTRL-STOP; if BASIC is in a ROM (see BASROM),
+;           then check for STOP or CTRL-STOP is not done. Otherways:
+;       INTLFLG: 0 => no action
+;       INTLFLG: 3 => CTRL-STOP pressed => break program, if "STOP-interrupts not on"??
+;       INTLFLG: 4 => STOP pressed => wait in ISCNTC till stop pressed again
+; Input: INTFLG, BASROM
+; Registers: AF
+; NOTE: this implementation is still a stub!
+iscntc:
+                push    hl
+                push    af
+                ld      hl,iscntc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+iscntc_text:    db      "ISCNTC",0
+
+;--------------------------------
+; $00BD CKCNTC
+; Function : Same as ISCNTC. used in Basic
+ckcntc:
+                jp      iscntc
+
+;--------------------------------
 ; $00C0 BEEP
 ; Function : play a short beep, and reset sound system via GICINI
 ; Registers: All
@@ -2466,7 +2652,9 @@ fnksb_text:     db      "FNKSB",0
 ; Erase function key display.
 ; Changes: all
 ; NOTE: This implementation is still a stub!
+; TODO: call H_ERAF
 erafnk:
+;               call    H_ERAF
                 push    hl
                 push    af
                 ld      hl,erafnk_text
@@ -2481,7 +2669,9 @@ erafnk_text:    db      "ERAFNK",0
 ; Display function keys.
 ; Changes: all
 ; NOTE: This implementation is still a stub!
+; TODO: call H_DSPF
 dspfnk:
+;               call    H_DSPF
                 push    hl
                 push    af
                 ld      hl,dspfnk_text
