@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.72 2005/01/02 11:28:13 andete Exp $
+$Id: ChangeLog,v 1.73 2005/01/02 12:48:54 ccfg Exp $
+
+2005-01-03 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Fixed a text scrolling bug in CHPUT.
 
 2005-01-02 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Added stubs for `Graphic routines'. All MSX1 BIOS routines are now

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.62 2005/01/02 11:28:19 andete Exp $
+; $Id: main.asm,v 1.63 2005/01/02 12:48:55 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2457,22 +2457,21 @@ get_ch:
 ; Input:   A = character code
 ; Changes: none
 chput:
-                push    de
                 push    af
                 ld      a,(SCRMOD)
-                ld      e,a
-                ld      a,1
-                cp      e
-                jr      nc,scr_txt_mode
+                cp      2
+                jr      c,scr_txt_mode
                 pop     af
-                pop     de
                 ret
 
 scr_txt_mode:
                 pop     af
+                push    de
                 push    af
 
                 ; CTRL code
+                cp      $00
+                jp      z,chput_exit
                 cp      $07
                 jp      z,chput_beep
                 cp      $08
@@ -2483,7 +2482,6 @@ scr_txt_mode:
                 jp      z,ctrl_lf
 
                 ; Charactor code
-
                 call    set_curs
                 pop     af
                 push    af
@@ -2508,7 +2506,6 @@ chput_nx:
                 ld      a,(CSRY)
                 cp      e
                 jr      nc,chput_scrll
-                ld      a,(CSRY)
                 inc     a
                 ld      (CSRY),a
                 ld      a,1
@@ -2600,6 +2597,7 @@ scr_loop:
                 pop     de
                 pop     hl
 
+                and     a
                 sbc     hl,bc
 
                 ex      de,hl           ; DE = VRAM,HL = RAM
