@@ -1,0 +1,39 @@
+$Id$
+
+Building C-BIOS From Source
+===========================
+
+First, get a Z80 assembler. The following assemblers can build C-BIOS without
+requiring modifications to the source code:
+  * Pasmo   -  http://www.arrakis.es/~ninsesabe/pasmo/
+  * SjASM   -  http://www.xl2s.tk/
+  * tniASM  -  http://www.tni.nl/products/tniasm.html
+All three of them work on Windows, Pasmo and SjASM work on Linux too and
+probably on other Unix-like systems as well.
+
+Building with Pasmo:
+Run "make".
+You should have GNU Make or something similar enough installed on your machine.
+Or if you use Windows and do not want to install Make, you can adapt "make.bat"
+manually.
+
+Building with SjASM:
+Define Z80_ASSEMBLER=sjasm in your environment, or edit the assembler selection
+at the very top of the Makefile. Then run "make".
+You should have GNU Make or something similar enough installed on your machine.
+Or if you use Windows and do not want to install Make, you can adapt "make.bat"
+manually.
+
+Building with tniASM:
+Run "make.bat".
+
+The produced ROM files are located in the directory "derived/bin", which will
+be automatically created. You can find symbol listings in "derived/lst", they
+are useful for debugging.
+
+To test C-BIOS, you can use the supplied emulator configurations in the
+"configs" directory.
+
+If you have made interesting improvements to C-BIOS, please tell us about them.
+
+http://cbios.sourceforge.net/
