@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.22 2004/12/28 19:08:43 andete Exp $
+; $Id: video.asm,v 1.23 2004/12/29 16:53:42 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1168,9 +1168,60 @@ init_sc5:
 ;------------------------------
 ; Initialise SCREEN6 (graphic 5).
 init_sc6:
-                ld      hl,init_sc6_text
-                jp      print_debug
-init_sc6_text:  db      "SCREEN6",0
+                ld      a,$06
+                ld      (SCRMOD),a
+
+                in      a,(VDP_STAT)    ; latch reset
+
+                call    chgclr
+
+                ld      a,(RG0SAV)
+                and     $F1             ; MASK 11110001
+                or      $08             ; M5 = 1
+                ld      b,a             ; B = R#0 data
+                ld      c,0
+                call    wrt_vdp         ; VDP R#0
+
+                ld      a,(RG1SAV)
+                and     $E7             ; MASK 11100111
+                ld      b,a
+                inc     c
+                call    wrt_vdp         ; VDP R#1
+
+                ld      hl,$0000
+                ld      (NAMBAS),hl
+                ld      hl,$7800
+                ld      (PATBAS),hl
+                ld      hl,$7600
+                ld      (ATRBAS),hl
+
+                ; TODO: Perform "SET PAGE 0,0" instead?
+                ld      bc,$1F02        ; B = $1F, C = 2
+                call    wrt_vdp         ; VDP R#2
+
+                ; Set sprite attribute table base.
+                ld      bc,$EF05        ; B = $EF, C = 5
+                call    wrt_vdp         ; VDP R#5
+                ld      bc,$000B        ; B = $00, C = 11
+                call    wrt_vdp         ; VDP R#11
+
+                ; Set sprite pattern table base.
+                ld      bc,$0F06        ; B = $0F, C = 6
+                call    wrt_vdp         ; VDP R#6
+
+                ld      a,(RG8SAV+9-8)
+                or      $80             ; 212 lines mode
+                ld      b,a
+                ld      c,9
+                call    wrt_vdp         ; VDP R#9
+
+                ; Turn off page blinking.
+                ld      bc,$000D
+                call    wrt_vdp         ; VDP R#13
+
+                call    clrspr_attr_spritemode2
+                call    cls_screen6
+                jp      enascr
 
 ;------------------------------
 ; Initialise SCREEN7 (graphic 6).

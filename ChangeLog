@@ -1,8 +1,10 @@
-$Id: ChangeLog,v 1.54 2004/12/29 14:49:22 andete Exp $
+$Id: ChangeLog,v 1.55 2004/12/29 16:54:11 bifimsx Exp $
 
 2004-12-29 Albert Beevendorp
     * Changed detection order of NSETRD and NSETWR
       Fixes graphical glitches in 1942
+    * Added SCREEN 6
+      Fixes graphical glitches in Arkanoid 2 VS modes
 
 2004-12-29 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Select 8x8 sprites before running a ROM. Fixes American Truck.
