@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.5 2004/12/24 00:56:49 mthuurne Exp $
+# $Id: Makefile,v 1.6 2004/12/26 21:42:51 bifimsx Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -9,8 +9,7 @@ VERSION:=0.19
 PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
 ROMS:=main sub music disk
-ROMS_FULLPATH:=$(addprefix derived/bin/cbios_,$(addsuffix .rom,$(ROMS)))
-DEPS_FULLPATH:=$(addprefix derived/dep/,$(addsuffix .dep,$(ROMS)))
+ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # Mark all logical targets as such.
 .PHONY: all dist clean
@@ -22,29 +21,37 @@ ifeq ($(Z80_ASSEMBLER),sjasm)
 .DELETE_ON_ERROR: $(ROMS_FULLPATH)
 endif
 
-derived/bin/cbios_%.rom: src/%.asm
-	@echo "Assembling: $<"
+derived/bin/cbios_%.rom: vdep/%.asm
+	@echo "Assembling: $(<:vdep/%=src/%)"
 	@mkdir -p $(@D)
 	@mkdir -p derived/lst
 ifeq ($(Z80_ASSEMBLER),sjasm)
-	@sjasm -l $< $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+	@sjasm -l $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 ifeq ($(Z80_ASSEMBLER),pasmo)
-	@pasmo -I $(<D) $< $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+	@pasmo -I src $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 
-# Include dependency files.
+# Include main dependency files.
+-include $(ROMS:%=derived/dep/%.dep)
+
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
-  -include $(DEPS_FULLPATH)
-endif
-
+# Incremental build -> create dependency files.
 derived/dep/%.dep: src/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)
-	@echo "$(<:src/%.asm=derived/bin/cbios_%.rom): \\" > $@
-	@sed -n '/include/s/^[\t ]*include[\t ]*"\(.*\)".*$$/  src\/\1 \\/p' \
+	@echo "INCLUDES:=" > $@
+	@sed -n '/include/s/^[\t ]*include[\t ]*"\(.*\)".*$$/INCLUDES+=\1/p' \
 		< $< >> $@
-	@echo "  $<" >> $@
+	@echo ".SECONDARY: $(<:src/%=vdep/%)" >> $@
+	@echo "$(<:src/%=vdep/%): $< \$$(INCLUDES:%=vdep/%)" >> $@
+	@echo "ifneq (\$$(INCLUDES),)" >> $@
+	@echo "-include \$$(INCLUDES:%.asm=derived/dep/%.dep)" >> $@
+	@echo "endif" >> $@
+else
+# Clean build -> treat all dependencies as outdated.
+.PHONY: $(ROMS:%=vdep/%.asm)
+endif
 
 clean:
 	@rm -rf derived
