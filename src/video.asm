@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.9 2004/12/19 02:59:19 mthuurne Exp $
+; $Id: video.asm,v 1.10 2004/12/19 03:47:35 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -56,7 +56,7 @@ enascr:
 ;--------------------------------
 wrt_vdp:
 ; 0047h WRTVDP
-;in:B = VDP データ , C = レジスタ番号
+;in:B = VDP data , C = レジスタ番号
 ; dest af,b
                 push    hl
                 di
@@ -136,7 +136,7 @@ vdp_setwrt:
 
 ;--------------------------------
 ;0056h fill VRAM
-;HL = VRAM アドレス, BC = 長さ , A = データ
+;HL = VRAM address, BC = 長さ , A = data
 vdp_fillmem:
                 push    af
                 call    vdp_setwrt
@@ -530,7 +530,7 @@ ig_loop:
                 call    enascr
                 ret
 
-; HL = テーブルアドレス
+; HL = table address
 ; B  = DATA , C = VDP R#
 ; DE = VDPDATA
 set_grp:
@@ -555,7 +555,7 @@ shift_tbl:
                 db      $06,$0A,$05,$09,$05
 
 ;
-;HL = テーブルアドレス
+;HL = table address
 ;
 adr_sft:
                 push    hl
@@ -824,7 +824,7 @@ init_sc5:
                 ld      a,$05
                 ld      (SCRMOD),a
 
-                in      a,(VDP_STAT)    ; ラッチリセット
+                in      a,(VDP_STAT)    ; latch reset
 
                 call    chgclr
 
@@ -941,7 +941,7 @@ init_sc7:
                 ld      a,$07
                 ld      (SCRMOD),a
 
-                in      a,(VDP_STAT)    ; ラッチのリセット
+                in      a,(VDP_STAT)    ; reset latch 
 
                 call    chgclr
 

@@ -1,4 +1,4 @@
-; $Id$
+; $Id: hardware.asm,v 1.1 2004/12/05 05:59:38 mthuurne Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -29,27 +29,27 @@
 ;---------------------------------------------------
 ; I/Oとフックの定義
 
-PRN_STAT:       equ     $90             ; プリンタのステータス
+PRN_STAT:       equ     $90             ; printer status
 VDP_RP:         equ     $98             ; VDPポート読み出し
-VDP_STAT:       equ     $99             ; VDPステータス、ラッチリセット。
-PSL_STAT:       equ     $A8             ; スロットステータス
-KBD_STAT:       equ     $A9             ; キーボードステータス
+VDP_STAT:       equ     $99             ; VDP status, ラッチリセット。
+PSL_STAT:       equ     $A8             ; slot status
+KBD_STAT:       equ     $A9             ; keyboard status
 GIO_REGS:       equ     $AA             ; 総合IOレジスタ
-PPI_REGS:       equ     $AB             ; PPIレジスタ
+PPI_REGS:       equ     $AB             ; PPI register
 
 PSG_REGS:       equ     $A0             ; PSGレジスタ番号
-PSG_DATA:       equ     $A1             ; PSGデータ
-PSG_STAT:       equ     $A2             ; PSGステータス
+PSG_DATA:       equ     $A1             ; PSG data
+PSG_STAT:       equ     $A2             ; PSG status
 
-MAP_REG1:       equ     $FC             ; RAMマッパー 0000h-3FFFh
-MAP_REG2:       equ     $FD             ; RAMマッパー 4000h-7FFFh
-MAP_REG3:       equ     $FE             ; RAMマッパー 8000h-BFFFh
-MAP_REG4:       equ     $FF             ; RAMマッパー C000h-FFFFh
+MAP_REG1:       equ     $FC             ; RAM mapperー 0000h-3FFFh
+MAP_REG2:       equ     $FD             ; RAM mapperー 4000h-7FFFh
+MAP_REG3:       equ     $FE             ; RAM mapperー 8000h-BFFFh
+MAP_REG4:       equ     $FF             ; RAM mapperー C000h-FFFFh
 
 VDP_DATA:       equ     $98             ; VDPデータ書き込み
-VDP_ADDR:       equ     $99             ; VDPアドレス
-VDP_PALT:       equ     $9A             ; VDPパレットラッチ
-VDP_REGS:       equ     $9B             ; VDPレジスタアクセス
+VDP_ADDR:       equ     $99             ; VDP address
+VDP_PALT:       equ     $9A             ; VDP palette latch
+VDP_REGS:       equ     $9B             ; VDP register access
 
 SSL_REGS:       equ     $FFFF           ; 拡張スロット選択レジスタ
 

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.19 2004/12/18 17:28:27 mthuurne Exp $
+; $Id: main.asm,v 1.20 2004/12/19 03:44:38 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -40,7 +40,7 @@ LASTSTAC:       equ     $E000
 SP_REGS:        equ     $E002
 
 ;---------------------
-; ジャンプテーブル
+; jump table
 ;---------------------
 
 ;0000h CHKRAM
@@ -82,7 +82,7 @@ chrgtb:
                 ds      $0018 - $
                 jp      ch_put
 
-;001Ch CALSLT   インタースロットコールルーチン
+;001Ch CALSLT   inter slot call routine
 calslt:
                 ds      $001C - $
                 jp      cal_slt
@@ -102,7 +102,7 @@ dcompr:
                 ds      $0028 - $
                 ret
 
-;002D バージョンID等
+;002D version ID等
 romid:
                 ds      $002D - $
 ; version ID
@@ -131,7 +131,7 @@ romid:
                 jp      enascr
 
 ;---------------
-;VDPルーチン
+;VDP routines
 ;---------------
 
 ;0047h WRTVDP
@@ -206,7 +206,7 @@ romid:
                 ds      $0096 - $
                 jp      sound_stat
 
-;009Ch CHSNS  .. キーバッファのチェック
+;009Ch CHSNS  .. check key buffer
                 ds      $009C - $
                 jp      ch_sns
 
@@ -307,7 +307,7 @@ romid:
                 jp      nwrvrm
 
 ; -------------------
-; スタートアップコード（リセット時に呼び出される）
+; start up code（リセット時に呼び出される）
 ; -------------------
 
                 ds      $0200 - $
@@ -344,8 +344,8 @@ soft_reset:
                 inc     a
                 out     (MAP_REG1),a
 
-;メモリチェック、選択スロットをメモリに書き込む。
-; C = プライマリ,B = セカンダリ。
+; memory check, 選択スロットをメモリに書き込む。
+; C = primary, B = secondary.
                 ld      bc,$0303
 chk_wrt_ram:               ; ページ３のRAMをチェックする。
                 in      a,(PSL_STAT)
@@ -399,7 +399,7 @@ ram_ok:
 ; you can write the memory.
 
 ;----------------------
-;ユーザーインターフェース
+; user interface
 ;----------------------
 
                 ld      hl,$F300
@@ -606,9 +606,9 @@ start_cartprog_notexp:
                 ret
 
 ; ------
-; BIOSデバッグルーチン
+; BIOS debug routine
 ; ------
-; HL ... NEWKEYのアドレス .
+; HL ... address of NEWKEY.
 ;
 sh_keyboard:
                 call    init_vdp
@@ -1273,7 +1273,7 @@ vout_hex8:
                 ret
 
 ;------------------------
-; ウェイトルーチン
+; wait routine
 ;注意、このルーチン呼び出しの際は常にEIであること。
 ; B = ループ回数
 wait_b:
@@ -1282,7 +1282,7 @@ wait_b:
                 ret
 
 ;------------------------
-; ウェイトルーチン
+; wait routine
 ;注意、このルーチン呼び出しの際は常にEIであること。
 ; in .... B = ループ回数
 ; out ... A = キーマトリクスの７番目。
@@ -1429,7 +1429,7 @@ page_set0:
 ;-------------------------------------
 ;カーソルをRegDEに変換する。
 ;-------------------------------------
-;out.. DE = VRAMアドレス
+;out.. DE = VRAM address
 curs2de:
                 push    af
                 push    bc
@@ -1564,7 +1564,7 @@ cl_jp:          equ     rdprim+(m_cl_jp-m_rdprim)
 ; サブルーチン
 ;---------------------------
 ; 000Ch RDSLT
-; in ..  A = スロットID , HL = アドレス
+; in ..  A = slot ID , HL = address
 rdslt:
                 push    hl
                 push    af
@@ -1587,7 +1587,7 @@ rdslt:
 
                 ld      a,$FC
                 call    rdsft
-                ld      e,a             ; E= マスク
+                ld      e,a             ; E= mask
                 ld      b,l             ; B=シフトナンバー
                 pop     af
                 and     $03
@@ -1619,7 +1619,7 @@ rdsft_lp:
                 ret
 
 ; 0014h WRSLT
-; in ..  A = スロットID , HL = アドレス
+; in ..  A = slot ID , HL = address
 wrslt:
                 push    hl
                 ld      d,a             ; D = slot ID
@@ -1641,7 +1641,7 @@ wrslt:
 
                 ld      a,$FC
                 call    rdsft
-                ld      e,a             ; E=マスク
+                ld      e,a             ; E=mask
                 ld      b,l             ; B=シフトナンバー
                 ld      a,d
                 and     $03             ; A = 000000PP
@@ -1744,7 +1744,7 @@ wordcomp:
 
 ;--------------------------------
 ; 0024h ENASLT
-; in .. hl=アドレス,a=スロット番号
+; in .. hl=address, a=slot番号
 ; A = FxxxEESS
 ; RegA 詳細
 ; F = 拡張スロットのフラグ
@@ -1943,7 +1943,7 @@ get_ch:
                 ret
 ;-----------------------------------
 ;00A2h  CHPUT
-;in ... A = キャラクタコード
+;in ... A = character code
 ch_put:
                 push    de
                 push    af
@@ -2031,7 +2031,7 @@ ctrl_cr:
                 pop     de
                 ret
 
-; 0Ah LF  ラインフィード
+; 0Ah LF  line feed
 ctrl_lf:
                 ld      a,(CRTCNT)
                 ld      e,a
@@ -2049,7 +2049,7 @@ lf_scroll:
                 pop     de
                 ret
 
-; スクロールルーチン
+; scroll routine
 scroll_txt:
                 push    af
                 push    bc
@@ -2486,7 +2486,7 @@ key_in_lp:
                 ret
 
 ;--------------------------------
-; キーコードチェックルーチン
+; key code check routine
 ; 割り込みから呼び出される。
 ;
 key_chk:
@@ -2711,7 +2711,7 @@ call_basic_intr:
 
 ;------------------------------------
 ;エラー表示
-;in DE=メッセージのアドレス。
+;in DE= message address
 
 print_error:
                 in      a,(VDP_STAT) ; reset Latch
@@ -2768,7 +2768,7 @@ lp_strprn:
 
 
 ;------------------------------------
-;ディスクルーチン
+; disk routine
 ;------------------------------------
 
 DISKIO:         equ     $4010
@@ -2787,7 +2787,7 @@ disk_intr:
                 jp      c,disk_error
                 ld      hl,($C00B)
 
-                ; セクターサイズ / 0x20(ファイル構造体)
+                ; sector size / 0x20(ファイル構造体)
 
                 ld      b,5
 shift_adr:
@@ -2876,7 +2876,7 @@ disk_error:
 
 
 ;---------------------------------
-;システムメッセージ
+; system messages
 ;---------------------------------
 
 str_proginfo:
@@ -2888,7 +2888,7 @@ str_slot:
                 db      "Cartridge found in slot: ",$00
 
 ;-------------------------------------
-;エラーメッセージ
+; error messages
 str_error_prompt:
 ;
                 db      "ERROR:",$00
@@ -2898,7 +2898,7 @@ str_memory_err:
 
 str_no_basic_intr:
 ;
-                db      "CALLED NO EXISTANCE BASIC.",$00
+                db      "CALLED NON EXISTING BASIC.",$00
 
 str_disk:
 ;
@@ -2956,7 +2956,7 @@ hex_tbl:
 reg_tbl:
                 db      "PC: IY: IX: HL: DE: BC: AF: ",$00
 
-;スキャンコードテーブル
+; scan code table
 scode_tbl:
                 db      "01234567"                      ;00
                 db      "89-^",$5C,"@[;"                ;01 ($5C = backslash)

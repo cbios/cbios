@@ -1,4 +1,4 @@
-; $Id$
+; $Id: systemvars.asm,v 1.1 2004/12/04 03:56:01 mthuurne Exp $
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -87,7 +87,7 @@ LIMPNT:         equ     $FC17           ; キーバッファへのポインタ
 BOTTOM:         equ     $FC48
 HIMEM:          equ     $FC4A
 
-JIFFY:          equ     $FC9E           ; タイマーカウンタ
+JIFFY:          equ     $FC9E           ; timer counter
 SCRMOD:         equ     $FCAF
 
 FORCLR:         equ     $F3E9

@@ -1,4 +1,4 @@
-; $Id$
+; $Id: hooks.asm,v 1.1 2004/12/04 03:56:01 mthuurne Exp $
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -28,6 +28,6 @@
 
 H_KEYI:         equ     $FD9A           ; キーボード割り込みフック
 H_TIMI:         equ     $FD9F           ; タイマー割り込みフック
-H_NMI:          equ     $FDD6           ; NMIフック
+H_NMI:          equ     $FDD6           ; NMI hook
 H_STKE:         equ     $FEDA           ; スタックエラーフック
 
