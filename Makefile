@@ -1,11 +1,11 @@
-# $Id: Makefile,v 1.8 2005/01/01 22:46:03 mthuurne Exp $
+# $Id: Makefile,v 1.9 2005/01/01 22:47:18 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
 #Z80_ASSEMBLER?=sjasm
 
 PACKAGE:=cbios
-VERSION:=0.19
+VERSION:=0.20
 PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
 ROMS:=main_msx1 main_msx2 main_msx2+ sub music disk
