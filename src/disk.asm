@@ -1,4 +1,4 @@
-; $Id: disk.asm,v 1.3 2005/01/08 01:07:44 mthuurne Exp $
+; $Id: disk.asm,v 1.4 2005/01/08 03:37:27 mthuurne Exp $
 ; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
@@ -28,6 +28,8 @@
                 include "hooks.asm"
                 include "systemvars.asm"
                 include "hardware.asm"
+
+enaslt:         equ     $0024
 
 ; Disk Transfer Area.
 DTA_ADDR:       equ     $F23D
@@ -203,7 +205,7 @@ dskio_drive_ok:
                 pop     af
 
                 ; Read or write?
-                jr      c,dskio_write
+                jp      c,dskio_write
 
 dskio_read_loop:
                 push    de
@@ -217,8 +219,21 @@ dskio_read_loop:
                 call    dskio_done
                 ret
 
+; Load 1 sector.
+; Input:   HL = address to load to
+;          DE = sector number
+; Output:  HL = updated address to load to
+; Changes: AF, DE, BC
+; TODO: Loading will fail if a sector is loaded across a page boundary.
+;       Probably the only decent way to fix this is loading to a RAM buffer
+;       and LDIR-ing in two steps.
 load_sector:
-                ; TODO: Support loading to page 1.
+                ld      a,h
+                cp      $40
+                jr      c,load_sector_skip
+                cp      $80
+                jr      c,load_sector_page1
+load_sector_skip:
                 ex      de,hl           ; DE = address to load to
                 add     hl,hl           ; HL = sectornr * 2
                 ld      b,l
@@ -239,6 +254,77 @@ load_sector:
                 ex      de,hl           ; HL = updated address to load to
                 ld      a,1
                 ld      ($6000),a
+                ret
+
+; Load 1 sector to an address in page 1.
+load_sector_page1:
+                ; TODO: Determine slot currently active in page 2.
+                ld      a,$8B           ; slot 3.2 (RAM)
+                push    af
+                ; Select disk ROM in page 2.
+                push    hl
+                push    de
+                call    dskslt
+                push    af
+                ld      h,$80
+                call    enaslt
+                ; MegaROM bank 0 and 1.
+                xor     a
+                ld      ($8000),a
+                inc     a
+                ld      ($A000),a
+                pop     af
+                pop     de
+                pop     hl
+                ; Call routine which runs in page 2.
+                call    load_sector_page1_high + $4000
+                ; Restore slot in page 2.
+                pop     af
+                push    hl
+                ld      h,$80
+                call    enaslt
+                pop     hl
+                ret
+
+load_sector_page1_high:
+                push    af              ; A = disk ROM slot
+                push    hl
+                push    de
+                ; Select RAM in page 1.
+                ; Note that this will only allow loading into the primary
+                ; mapper; does the MSX disk ROM have the same limitation?
+                ; If not, how does it know which slot to load to?
+                ; TODO: Use RAM slot from $F342.
+                ld      a,$8B           ; slot 3.2
+                ld      h,$40
+                call    enaslt
+                pop     hl              ; HL = sector number
+                pop     de              ; DE = address to load to
+                add     hl,hl           ; HL = sectornr * 2
+                ld      b,l
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                ld      a,h
+                add     a,2
+                ld      ($A000),a       ; page nr
+                ld      a,b
+                and     $1F
+                ld      b,a
+                ld      c,0             ; BC = offset in page
+                ld      hl,$A000
+                add     hl,bc
+                ld      bc,$0200        ; 512 bytes per sector
+                ldir
+                ex      de,hl           ; HL = updated address to load to
+                ld      a,1
+                ld      ($A000),a
+                ; Restore disk ROM in page 1.
+                pop     af
+                push    hl
+                ld      h,$40
+                call    enaslt
+                pop     hl
                 ret
 
 dskio_write:

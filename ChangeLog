@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.94 2005/01/08 13:11:53 ccfg Exp $
+$Id: ChangeLog,v 1.95 2005/01/08 13:31:22 bifimsx Exp $
+
+2005-01-08 Maarten ter Huurne <maarten@treewalker.org>
+    * Added support for loading to page 1.
 
 2005-01-08 Albert Beevendorp
     * turned a few relative jumps into absolute jumps in CHPUT to fix
