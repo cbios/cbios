@@ -1,6 +1,19 @@
+cbios (0.19-2) unstable; urgency=low
+
+  * Close ITP (Closes: #286947)
+  * implemented remarks from  Goedson Paixao:
+        - manpage removed in clean target
+        - removed unneeded comments in debian/rules
+        - removed the commented calls do dh_*
+        - building.txt should not be part of the docs installed.
+        - Clarify debian/copyright file
+        - add build-depends on docbook-to-man
+ 
+ -- Joost Yervante Damad <joost@lumatec.be>  Sat, 25 Dec 2004 09:05:32 +0100
+
 cbios (0.19-1) unstable; urgency=low
 
-  * 0.19 upstream release (Closes: #286947)
+  * 0.19 upstream release
  
  -- Joost Yervante Damad <joost@lumatec.be>  Fri, 24 Dec 2004 08:54:39 +0100
 

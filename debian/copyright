@@ -26,8 +26,3 @@ Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
 ; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
-
-It is expected that CBIOS's license will change to normal BSD license 'real soon'.
-
-# CBIOS may be redistributed under the terms of the UCB BSD license
-# found on Debian systems in the file /usr/share/common-licenses/BSD.
