@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.65 2004/12/30 18:56:03 mthuurne Exp $
+$Id: ChangeLog,v 1.66 2004/12/31 01:14:39 mthuurne Exp $
+
+2004-12-31 Albert Beevendorp
+    * Reset DPPAGE and ACPAGE on every CHGMOD
+      Fixes graphical bug in A-Class Mahjong
+    * CLS on bitmap screens now uses HMMV
 
 2004-12-30 Maarten ter Huurne <maarten@treewalker.org>
     * Fixed dependency checking: it now checks dependencies recursively,

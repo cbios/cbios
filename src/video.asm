@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.28 2004/12/30 09:15:30 andete Exp $
+; $Id: video.asm,v 1.29 2004/12/30 13:09:12 andete Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -425,6 +425,9 @@ initxt:
                 ld      a,(LINL40)
                 ld      (LINLEN),a
 
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
                 call    settxt
                 call    cls_screen0
                 jp      enascr
@@ -460,6 +463,9 @@ init32:
                 ld      a,(LINL32)
                 ld      (LINLEN),a
 
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
                 call    sett32
                 call    clrspr_attr_spritemode1
                 call    cls_screen1
@@ -497,6 +503,9 @@ inigrp_lp:
                 ld      hl,(GRPPAT)
                 ld      (PATBAS),hl
 
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
                 call    setgrp
                 call    clrspr_attr_spritemode1
                 call    cls_screen2
@@ -1141,7 +1150,9 @@ init_sc5:
                 ld      hl,$7600
                 ld      (ATRBAS),hl
 
-                ; TODO: Perform "SET PAGE 0,0" instead?
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
                 ld      bc,$1F02        ; B = $1F, C = 2
                 call    wrtvdp          ; VDP R#2
 
@@ -1199,7 +1210,9 @@ init_sc6:
                 ld      hl,$7600
                 ld      (ATRBAS),hl
 
-                ; TODO: Perform "SET PAGE 0,0" instead?
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
                 ld      bc,$1F02        ; B = $1F, C = 2
                 call    wrtvdp          ; VDP R#2
 
@@ -1257,7 +1270,9 @@ init_sc7:
                 ld      hl,$FA00
                 ld      (ATRBAS),hl
 
-                ; TODO: Perform "SET PAGE 0,0" instead?
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
                 ld      bc,$1F02        ; B = $1F, C = 2
                 call    wrtvdp          ; write VDP R#2
 
@@ -1314,7 +1329,9 @@ init_sc8:
                 ld      hl,$FA00
                 ld      (ATRBAS),hl
 
-                ; TODO: Perform "SET PAGE 0,0" instead?
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
                 ld      bc,$1F02        ; B = $1F, C = 2
                 call    wrtvdp          ; write VDP R#2
 
@@ -1351,6 +1368,7 @@ init_sc8:
 ;TODO: add optional borders to text based screens
 cls:
                 ret     nz
+                push    hl
                 ld      a,(SCRMOD)
                 ld      c,a
                 ld      b,0
@@ -1387,7 +1405,9 @@ cls_screen1:
 cls_text:
                 ld      hl,(NAMBAS)
                 ld      a,$20
-                jp      filvrm
+                call    filvrm
+                pop     hl
+                ret
 
 cls_screen2:
                 xor     a
@@ -1400,9 +1420,12 @@ cls_screen2:
 
                 ld      a,(BAKCLR)
                 ld      hl,$2000
-                jp      filvrm
+                call    filvrm
+                pop     hl
+                ret
 
 cls_screen3:
+                pop     hl
                 ret
 
 cls_screen5:
@@ -1414,7 +1437,8 @@ cls_screen5:
                 rlca
                 rlca
                 or      b
-                ld      bc,$6a00
+
+                ld      hl,256
                 jr      cls_bitmap
 
 cls_screen6:
@@ -1429,7 +1453,8 @@ cls_screen6:
                 rlca
                 rlca
                 or      b
-                ld      bc,$6a00
+
+                ld      hl,512
                 jr      cls_bitmap
 
 cls_screen7:
@@ -1441,16 +1466,45 @@ cls_screen7:
                 rlca
                 rlca
                 or      b
-                ld      bc,$d400
+
+                ld      hl,512
                 jr      cls_bitmap
 
 cls_screen8:
                 ld      a,(BAKCLR)
-                ld      bc,$d400
+                ld      hl,256
 
 cls_bitmap:
+                ld      (CDUMMY),a
+                ld      (NX),hl
+                ld      hl,212
+                ld      (NY),hl
                 ld      hl,0
-                jp      bigfil
+                ld      (DX),hl
+                ld      a,(ACPAGE)
+                ld      h,a
+                ld      l,0
+                ld      (DY),hl
+                ld      a,$C0
+                ld      (L_OP),a
+cls_bitmap_ce:
+                ld      a,2
+                call    vdpsta
+                bit     0,a
+                jr      nz,cls_bitmap_ce
+
+                di
+                ld      a,32
+                out     (VDP_ADDR),a
+                ld      a,128+ 17
+                out     (VDP_ADDR),a
+
+                ld      bc,15 *256+ VDP_REGS
+                ld      hl,SX
+                otir
+                ei
+                pop     hl
+                ret
 
 ; $0105 GETPAT
 ; Function : Returns current pattern of a character
