@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.88 2005/01/07 02:47:26 ccfg Exp $
+$Id: ChangeLog,v 1.89 2005/01/08 01:10:20 mthuurne Exp $
+
+2005-01-08 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Implemented control codes in CHPUT.
 
 2005-01-07 Maarten ter Huurne <maarten@treewalker.org>
     * First implementation steps towards a disk ROM.

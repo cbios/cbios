@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.74 2005/01/07 02:47:26 ccfg Exp $
+; $Id: main.asm,v 1.75 2005/01/08 01:03:01 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2527,67 +2527,113 @@ chput_ctrl_beep:
                 jr      chput_exit
 
 ; Cursor left.
-; TODO: This should only move the cursor.
 chput_ctrl_left:
-                ld      a,(CSRX)
-                cp      2
-                jr      c,chput_exit
-                dec     a
-                ld      (CSRX),a
-                call    set_curs
-                xor     a
-                out     (VDP_DATA),a
+                ld      hl,(CSRY)
+                dec     h
+                jr      nz,chput_ctrl_left_posit
+                ld      a,(LINLEN)
+                ld      h,a
+                dec     l
+                jr      nz,chput_ctrl_left_posit
+                inc     l
+                ld      h,l
+chput_ctrl_left_posit:
+                call    posit
                 jr      chput_exit
 
 ; Cursor to next tabulator-column intersection.
 chput_ctrl_tab:
-                ; TODO: Implement.
+                ; Calculate the position of next intersection.
+                ld      hl,(CSRY)
+                ld      a,h
+                and     $F8
+                add     a,8
+                ld      h,a
+
+                ; Test if it goes to next line.
+                ld      a,(LINLEN)
+                dec     a
+                cp      h
+                jr      nc,chput_ctrl_tab_posit
+                ld      h,1
+                inc     l
+                ld      a,(CRTCNT)
+                cp      l
+                jr      nc,chput_ctrl_tab_posit
+                ld      l,a
+                call    posit
+                call    scroll_txt
+                jr      chput_exit
+chput_ctrl_tab_posit:
+                call    posit
                 jr      chput_exit
 
 ; Line feed.
 chput_ctrl_lf:
+                ld      hl,(CSRY)
+                inc     l
                 ld      a,(CRTCNT)
-                ld      e,a
-                ld      a,(CSRY)
-                cp      e
-                jr      nc,lf_scroll
-                inc     a
-                ld      (CSRY),a
-                jr      chput_exit
-lf_scroll:
+                cp      l
+                jr      c,chput_ctrl_lf_scroll
+                call    posit
+                jp      chput_exit
+chput_ctrl_lf_scroll:
                 call    scroll_txt
-                jr      chput_exit
+                jp      chput_exit
 
 ; Set cursor to home.
 chput_ctrl_home:
-                ; TODO: Implement.
-                jr      chput_exit
+                ld      hl,$0101
+                call    posit
+                jp      chput_exit
 
 ; Clear screen and set cursor to home.
 chput_ctrl_clear:
-                ; TODO: Implement.
-                jr      chput_exit
+                push    bc
+                call    cls
+                pop     bc
+                jr      chput_ctrl_home
 
 ; Carriage return.
 chput_ctrl_cr:
                 ld      a,1
                 ld      (CSRX),a
-                jr      chput_exit
+                jp      chput_exit
 
 ; Cursor right.
 chput_ctrl_right:
-                ; TODO: Implement.
-                jr      chput_exit
+                ld      hl,(CSRY)
+                inc     h
+                ld      a,(LINLEN)
+                cp      h
+                jr      nc,chput_ctrl_right_posit
+                ld      h,1
+                inc     l
+                ld      a,(CRTCNT)
+                cp      l
+                jr      nc,chput_ctrl_right_posit
+                ld      l,a
+                ld      a,(LINLEN)
+                ld      h,a
+chput_ctrl_right_posit:
+                call    posit
+                jp      chput_exit
 
 ; Cursor up.
 chput_ctrl_up:
-                ; TODO: Implement.
-                jr      chput_exit
+                ld      hl,(CSRY)
+                dec     l
+                call    nz,posit
+                jp      chput_exit
 
 ; Cursor down.
 chput_ctrl_down:
-                ; TODO: Implement.
-                jr      chput_exit
+                ld      hl,(CSRY)
+                inc     l
+                ld      a,(CRTCNT)
+                cp      l
+                call    nc,posit
+                jp      chput_exit
 
 ; Handle escape sequences.
 chput_escape:                           ; A = escape state (ESCCNT)
