@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.40 2005/01/05 09:07:18 ccfg Exp $
+; $Id: video.asm,v 1.41 2005/01/05 09:35:40 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -641,14 +641,16 @@ settxt80:
                 call    wrtvdp          ; write VDP R#1
 
                 ; TODO: Use TXT??? or ???BAS for base addresses.
+                ; Set the VDP base address registers.
+                ld      de,NAMBAS
+                ld      c,2
 
-                ld      bc,$0204        ; R#4 PatGenTBLaddr=$1000
-                call    wrtvdp          ; write VDP R#4
+                ld      a,$03
+                call    set_base_address
+                inc     c
+                xor     a
+                call    set_base_address
 
-                ; Note: The table base is actually at $0000, but we have to
-                ;       write $03 to avoid the mirroring effect.
-                ld      bc,$0302        ; R#2 PatNamTBLaddr=$0000
-                call    wrtvdp          ; write VDP R#2
                 ret
         ENDIF
 
