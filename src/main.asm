@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.87 2005/01/13 17:29:34 bifimsx Exp $
+; $Id: main.asm,v 1.88 2005/01/15 00:07:16 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2049,7 +2049,10 @@ chget_char:
                 inc     hl
                 ; See comment in keyint (below label key_store).
                 ld      a,l
-                cp      $00FF & (KEYBUF + 40)           ; tniasm AND i.s.o. &
+                ; Currently, tniASM doesn't support "&" and SjASM doesn't
+                ; support "AND", so we have to hardcode the result.
+;                cp      $00FF & (KEYBUF + 40)
+                cp      $18
                 jr      nz,chget_nowrap
                 ld      hl,KEYBUF
 chget_nowrap:
@@ -3532,7 +3535,8 @@ key_store:
                 ;       FE18, it wraps back to FBF0.
                 inc     hl
                 ld      a,l
-                cp      $00FF & (KEYBUF + 40)           ; tniasm AND i.s.o. &
+;                cp      $00FF & (KEYBUF + 40)
+                cp      $18
                 jr      nz,key_store_nowrap
                 ld      hl,KEYBUF
 key_store_nowrap:
