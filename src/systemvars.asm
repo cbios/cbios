@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.21 2004/12/28 19:08:43 andete Exp $
+; $Id: systemvars.asm,v 1.22 2005/01/04 02:53:58 mthuurne Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -7,7 +7,7 @@
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
-; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -499,7 +499,7 @@ FNKSTR:         equ     $F87F
 ; screen routine work area
 ; ------------------------
 
-CGPPNT:         equ     $F91F
+CGPNT:          equ     $F91F
 NAMBAS:         equ     $F922
 CGPBAS:         equ     $F924
 PATBAS:         equ     $F926
@@ -596,6 +596,7 @@ KEYBUF:         equ     $FBF0
 ; LIMPNT: something about "key buffer pointer"
 LIMPNT:         equ     $FC17           ; キーバッファへのポインタ
 LINWRK:         equ     $FC18           ; 40桁分のバッファ
+PATWRK:         equ     $FC40
 BOTTOM:         equ     $FC48
 HIMEM:          equ     $FC4A
 TRPTBL:         equ     $FC4C
