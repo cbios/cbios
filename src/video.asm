@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.45 2005/01/10 23:58:20 mthuurne Exp $
+; $Id: video.asm,v 1.46 2005/01/13 16:00:55 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -408,11 +408,11 @@ clrspr_attr_spritemode1:
 
 clrspr_attr_spritemode_start:
                 ld      hl,(ATRBAS)
-                ; TODO: On MSX2, call nsetwr instead.
-                ;       Before that is possible, we should split MSX1 and MSX2
-                ;       into separate ROMs, because nsetwr writes to R#14,
-                ;       which doesn't exist on MSX1 and therefore wraps to R#6.
+        IF VDP = TMS99x8
                 call    setwrt
+        ELSE
+                call    nsetwr
+        ENDIF
                 ld      a,(FORCLR)
                 ld      d,a
                 ld      bc,$2000        ; B = 32 = counter, C = pattern index
