@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.2 2004/11/30 01:06:03 mthuurne Exp $
+; $Id: sub.asm,v 1.3 2004/12/05 06:16:22 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -49,6 +49,14 @@
                 call    H_NMI
                 retn
 
+; 0085h DOGRPH  ƒ‰ƒCƒ“•`‰æ
+                ds      $0085 - $,$C9
+                ret
+
+; 0089h GRPPRT
+                ds      $0089 - $,$C9
+                ret
+
 ; $013D SETPAG Switches display page.
 ; Input:   DPPAGE
 ; Changes: AF
@@ -57,12 +65,52 @@
                 ei
                 jp      setpag
 
+; 0141h INIPLT
+                ds      $0141 - $,$C9
+                ret
+
+; 0145h RSTPLT
+                ds      $0145 - $,$C9
+                ret
+
+; 0149h GETPLT
+                ds      $0149 - $,$C9
+                ret
+
+; 0149D SETPLT
+                ds      $014D - $,$C9
+                ret
+
+; 017Dh BEEP
+                ds      $017D - $,$C9
+                ret
+
+; 0181h PROMPT
+                ds      $0181 - $,$C9
+                ret
+
+; 01ADh NEWPAD
+                ds      $01AD - $,$C9
+                ret
+
 ; $01B5 CHGMDP Set screen mode, initialise palette.
 ; Input:   A = screen mode
 ; Changes: all
                 ds      $01B5 - $,$C9
                 ei
                 jp      chgmdp
+
+; 01BDh KNJPRT
+                ds      $01BD - $,$C9
+                ret
+
+; 01F5h REDCLK
+                ds      $01F5 - $,$C9
+                ret
+
+; 01F9h WRTCLK
+                ds      $01F9 - $,$C9
+                ret
 
 ; End of entry points, catch not-implemented calls.
                 ds      $0200 - $,$C9

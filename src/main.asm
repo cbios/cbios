@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.5 2004/12/05 04:46:20 mthuurne Exp $
+; $Id: main.asm,v 1.8 2004/12/05 06:13:09 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -191,22 +191,9 @@ romid:
                 ds      $0072 - $
                 jp      init_grp
 
-;007Eh  SETGRP
+;007Eh SETGRP
                 ds      $007E - $
                 jp      set_grp
-
-;0085h DOLINE   ライン描画
-doline:
-                ds      $0085 - $
-                ret
-
-;0089h GRPPRT   basic?
-grpprt:
-                ds      $0089 - $
-                ret
-
-                ds      $008A - $
-                ret
 
 ;0090h GICINI   音源ICの初期化
                 ds      $0090 - $
@@ -226,11 +213,11 @@ grpprt:
                 ds      $009F - $
                 jp      ch_get
 
-;00A2h  CHPUT .. ディスプレイのキャラクタを出力する。
+;00A2h CHPUT .. ディスプレイのキャラクタを出力する。
                 ds      $00A2 - $
                 jp      ch_put
 
-;00C6h  POSIT .. カーソル移動。
+;00C6h POSIT .. カーソル移動。
                 ds      $00C6 - $
                 jp      curxy
 
@@ -269,10 +256,6 @@ grpprt:
                 ds      $013E - $
                 jp      vdp_stat_in
 
-; TODO: subrom routine
-;setpag          ds   $013D - $
-;                ret
-
 ;0141h SNSMAT   キーマトリクスを得る
 ;snsmat
                 ds      $0141 - $
@@ -280,20 +263,6 @@ grpprt:
 
 ;phydio
                 ds      $0144 - $
-                ret
-
-;0145h RSTPLT
-;rstplt
-                ds      $0145 - $
-                ret
-
-;0149h RSTPLT?
-;rstplt
-                ds      $0149 - $
-                ret
-
-;getplt
-                ds      $014D - $
                 ret
 
 ;0156h KILBUF   キーボードバッファをクリアする
@@ -312,34 +281,6 @@ grpprt:
                 ds      $015F - $
                 jp      extrom
 
-; TODO: These are subrom calls, aren't they?
-;beep
-                ds      $017D - $
-                ret
-
-;prompt
-                ds      $0181 - $
-                ret
-
-;newpad
-                ds      $01AD - $
-                ret
-
-;chgmdp
-                ds      $01B5 - $
-                ret
-
-;knjprt
-                ds      $01BD - $
-                ret
-
-;redclk
-                ds      $01F5 - $
-                ret
-
-;wrtclk
-                ds      $01F9 - $
-                ret
 
 ; -------------------
 ; スタートアップコード（リセット時に呼び出される）
