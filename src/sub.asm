@@ -1,8 +1,8 @@
-; $Id: sub.asm,v 1.39 2005/02/06 19:15:22 bifimsx Exp $
+; $Id: sub.asm,v 1.40 2005/02/07 02:52:18 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
-; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
