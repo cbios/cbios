@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.29 2004/12/23 02:21:00 mthuurne Exp $
+; $Id: main.asm,v 1.30 2004/12/23 23:14:00 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -3118,7 +3118,7 @@ disk_error:
 
 str_proginfo:
                 ;       [01234567890123456789012345678901]
-                db      "C-BIOS 0.18         cbios.sf.net",$00
+                db      "C-BIOS 0.19         cbios.sf.net",$00
 
 str_slot:
                 ;       [01234567890123456789012345678901]
