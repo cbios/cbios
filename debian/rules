@@ -37,8 +37,7 @@ clean:
 	rm -f build-stamp configure-stamp
 	-$(MAKE) clean
 	dh_clean
-	-rm -f $(CURDIR)/debian/cbios.7
-	-rm -r cbios.7
+	-rm -f cbios.7
 
 install: build
 	dh_testdir

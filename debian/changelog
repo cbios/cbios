@@ -1,6 +1,12 @@
-cbios (0.19-2) unstable; urgency=low
+cbios (0.19-3) unstable; urgency=low
 
   * Close ITP (Closes: #286947)
+  * manpage removal fixed
+ 
+ -- Joost Yervante Damad <joost@lumatec.be>  Thu, 30 Dec 2004 21:12:55 +0100
+
+cbios (0.19-2) unstable; urgency=low
+
   * implemented remarks from  Goedson Paixao:
         - manpage removed in clean target
         - removed unneeded comments in debian/rules
