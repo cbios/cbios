@@ -1,7 +1,8 @@
-; $Id$
+; $Id: disk.asm,v 1.2 2004/12/27 00:14:26 mthuurne Exp $
 ; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -23,6 +24,19 @@
 ; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
+
+                include "hooks.asm"
+                include "systemvars.asm"
+                include "hardware.asm"
+
+; BDOS entry point.
+BDOS_ENTRY:     equ     $F37D
+; Actual place where the BDOS inter slot call is made.
+; The entry point is just 3 bytes, inter slot call requires 5.
+H_BDOS:         equ     $F331
+
+; Number of drives on interface.
+NUM_DRIVES:     equ     1
 
                 org     $4000
 
@@ -77,8 +91,80 @@
 ;--------------------------------
 init:
                 ld      hl,init_text
-                jp      print_debug
+                call    print_debug
+
+                ; Setup hooks.
+                call    dskslt          ; A = slot ID
+                ld      de,bdos         ; BDOS
+                ld      hl,H_BDOS
+                call    init_sethook
+                ld      de,phydio       ; PHYDIO
+                ld      hl,H_PHYD
+                call    init_sethook
+                ld      de,format       ; FORMAT
+                ld      hl,H_FORM
+                call    init_sethook
+                ld      de,boot         ; boot loader
+                ld      hl,H_RUNC
+                call    init_sethook
+
+                ; Setup BDOS entry point.
+                ld      a,$C3           ; jp
+                ld      hl,H_BDOS
+                ld      (BDOS_ENTRY),a
+                ld      (BDOS_ENTRY + 1),hl
+
+                ; Init megarom mapper.
+                ld      a,1
+                ld      ($6000),a
+
+                ret
+
+init_sethook:
+                ld      (hl),$F7        ; rst $30
+                inc     hl
+                ld      (hl),a          ; slot ID
+                inc     hl
+                ld      (hl),e          ; addr low
+                inc     hl
+                ld      (hl),d          ; addr high
+                inc     hl
+                ld      (hl),$C9        ; ret
+                ret
+
 init_text:      db      "C-DISK is initializing",0
+
+;--------------------------------
+boot:
+                ld      hl,boot_text
+                call    print_debug
+
+                ld      hl,$C000        ; address to load to
+                ld      de,$0000        ; boot sector
+                ld      bc,$01F9        ; 1 sector, 720K disk
+                xor     a               ; drive 0, read (NC)
+                call    dskio
+                ret     c               ; error -> abort boot
+
+                ; TODO: Perform sanity checks on boot sector contents?
+
+                ; TODO: Put RAM in page 0 and set up minimal call environment.
+
+                ; TODO: Since the bootsector routine checks CF, I assume it is
+                ;       called two times: first time with CF reset, second
+                ;       time with CF set. But I don't know the difference
+                ;       between the two.
+                ;and     a
+                ;call    $C01E
+                ld      hl,0            ; a pointer will be written here
+                ld      de,0            ; ???
+                ld      a,0             ; ???
+                scf
+                call    $C01E
+
+                ret
+
+boot_text:      db      "C-DISK booting",0
 
 ;--------------------------------
 ; DSKIO
@@ -101,14 +187,111 @@ init_text:      db      "C-DISK is initializing",0
 ;          B  = Always the number of sectors transferred
 ; NOTE: This routine is still stubbed
 dskio:
+                call    dskio_debug
+
+                ; Check whether the drive exists.
+                push    af
+                cp      NUM_DRIVES
+                jr      c,dskio_drive_ok
+                pop     af
+                ld      a,12
+                scf
+                ret
+dskio_drive_ok:
+                pop     af
+
+                ; Read or write?
+                jr      c,dskio_write
+
+dskio_read_loop:
+                push    de
+                push    bc
+                call    load_sector
+                inc     de              ; next sector
+                pop     bc
+                pop     de
+                djnz    dskio_read_loop
+                and     a               ; CF = 0
+                call    dskio_done
+                ret
+
+load_sector:
+                ; TODO: Support loading to page 1.
+                ex      de,hl           ; DE = address to load to
+                add     hl,hl           ; HL = sectornr * 2
+                ld      b,l
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                ld      a,h
+                add     a,2
+                ld      ($6000),a       ; page nr
+                ld      a,b
+                and     $1F
+                ld      b,a
+                ld      c,0             ; BC = offset in page
+                ld      hl,$6000
+                add     hl,bc
+                ld      bc,$0200        ; 512 bytes per sector
+                ldir
+                ex      de,hl           ; HL = updated address to load to
+                ld      a,1
+                ld      ($6000),a
+                ret
+
+dskio_write:
+                ; write protect error
+                xor     a
+                scf
+                call    dskio_done
+                ret
+
+dskio_debug:
                 push    hl
                 push    af
-                ld      hl,dskio_text
-                call    print_debug
+                ld      a,$23           ; ASCII mode
+                out     (DBG_CTRL),a
+                ld      hl,dskio_text_1
+                call    print_debug_asciiz
+                pop     af
+                push    af
+                ld      hl,dskio_text_wr
+                jr      c,dskio_debug_write
+                ld      hl,dskio_text_rd
+dskio_debug_write:
+                call    print_debug_asciiz
+                ld      hl,dskio_text_2
+                call    print_debug_asciiz
+                ld      l,e
+                ld      h,d
+                call    print_debug_hexword
+                ld      hl,dskio_text_3
+                call    print_debug_asciiz
+                ld      a,b
+                call    print_debug_hexbyte
+                ld      hl,dskio_text_4
+                call    print_debug_asciiz
+                pop     af
+                pop     hl
+                push    hl
+                push    af
+                call    print_debug_hexword
+                ld      hl,dskio_text_5
+                call    print_debug_asciiz
+                ld      a,c
+                call    print_debug_hexbyte
+                ld      a,$00           ; flush
+                out     (DBG_CTRL),a
                 pop     af
                 pop     hl
                 ret
-dskio_text:     db      "disk: DSKIO ($4010) called",0
+dskio_text_1:   db      "disk: ",0
+dskio_text_rd:  db      "READ",0
+dskio_text_wr:  db      "WRITE",0
+dskio_text_2:   db      " sectors: first $",0
+dskio_text_3:   db      ", num $",0
+dskio_text_4:   db      ", to $",0
+dskio_text_5:   db      ", media $",0
 
 ;--------------------------------
 ; DSKCHG
@@ -141,6 +324,7 @@ dskchg:
                 call    print_debug
                 pop     af
                 pop     hl
+                ld      b,0             ; unknown whether changed or not
                 ret
 dskchg_text:    db      "disk: DSKCHG ($4013) called",0
 
@@ -222,6 +406,7 @@ dskfmt:
                 call    print_debug
                 pop     af
                 pop     hl
+                scf                     ; error, because we didn't format
                 ret
 dskfmt_text:    db      "disk: DSKFMT ($401C) called",0
 
@@ -283,24 +468,59 @@ dskstp:
 dskstp_text:    db      "disk: DSKSTP ($4029) called",0
 
 ;--------------------------------
-; DSKSLT
-; Output:  Address $F348 keeps the slot where the DISK-ROM is found.
-; NOTE: This routine is still stubbed
+; $402D DSKSLT
+; Calculate slot ID for disk ROM slot.
+; Output:  A = slot ID
+; Changes: F, HL, BC
+; TODO: Old description said this:
+;       Output:  Address $F348 keeps the slot where the DISK-ROM is found.
 dskslt:
+                ; TODO: Calculate this dynamically.
+                ld      a,$8F           ; slot 3.3
+                ret
+
+;--------------------------------
+; PHYDIO
+phydio:
                 push    hl
                 push    af
-                ld      hl,dskslt_text
+                ld      hl,phydio_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-dskslt_text:    db      "disk: DSKSLT ($402D) called",0
+phydio_text:    db      "disk: PHYDIO ($0144) called",0
+
+;--------------------------------
+; BDOS
+bdos:
+                push    hl
+                push    af
+                ld      a,$23           ; ASCII mode
+                out     (DBG_CTRL),a
+                ld      hl,bdos_text
+                call    print_debug_asciiz
+                ld      a,c
+                call    print_debug_hexbyte
+                ld      a,$00           ; flush
+                out     (DBG_CTRL),a
+                pop     af
+                pop     hl
+                ret
+bdos_text:      db      "disk: BDOS ($F37D/$0005) called, function $",0
 
 ;--------------------------------
 
-                include "hardware.asm"
                 include "debug.asm"
 
 ;--------------------------------
+
+; The purpose of this routine is having a fixed address to put breakpoints on.
+; I expect that having a break point just after loading will be very useful
+; when debugging the disk ROM.
+                ds      $7F00 - $,$FF
+dskio_done:
+                nop
+                ret
 
                 ds      $8000 - $,$FF
