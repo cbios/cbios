@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.46 2005/01/13 16:00:55 bifimsx Exp $
+; $Id: video.asm,v 1.47 2005/01/13 17:30:16 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -408,7 +408,7 @@ clrspr_attr_spritemode1:
 
 clrspr_attr_spritemode_start:
                 ld      hl,(ATRBAS)
-        IF VDP = TMS99x8
+        IF VDP = TMS99X8
                 call    setwrt
         ELSE
                 call    nsetwr
