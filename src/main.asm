@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.53 2004/12/30 11:25:49 andete Exp $
+; $Id: main.asm,v 1.54 2004/12/30 12:15:23 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -3390,17 +3390,13 @@ ki_end:
 ; Output   : Depends on the routine
 ; Registers: Alternative registers, IY
 ; Remark   : Use of EXTROM or CALSLT is more convenient.
-;            In IX a extra value to the routine can be given by first
-;            PUSH'ing it to the stack.
+;            You have to use this routine like this:
+;               push    ix
+;               jp      subrom
+;            The purpose is unclear
 subrom:
-                ; TODO: What is that "IX on top of the stack" thing?
-                ; JYD: I think it means that you can do this:
-                ; ld ix, <some value>
-                ; push ix
-                ; ld ix, <address>
-                ; call SUBROM
-                ; and the switching to subrom is done with other regs to
-                ; allow IX to be used in the target subroutine
+                call    extrom
+                pop     ix
                 ret
 
 

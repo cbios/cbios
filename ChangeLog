@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.62 2004/12/30 10:26:41 andete Exp $
+$Id: ChangeLog,v 1.63 2004/12/30 13:09:11 andete Exp $
 
 2004-12-30 Joost Yervante Damad <joost@lumatec.be>
     * fix inconsistent naming
@@ -6,6 +6,7 @@ $Id: ChangeLog,v 1.62 2004/12/30 10:26:41 andete Exp $
     * stubbed INIFNK
     * SNSMAT stores BC, it's only allowed to change AF
     * some missing entries in sub.asm + some stubs
+    * fixed SUBROM
 
 2004-12-29 Manuel Bilderbeek <manuel@msxnet.org>
     * Replaced the font with a new font donated by Eric Boon. Thanks a lot!
