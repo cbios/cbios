@@ -1,6 +1,6 @@
-$Id: cbios.txt,v 1.2 2004/12/13 01:38:14 mthuurne Exp $
+$Id: cbios.txt,v 1.3 2004/12/18 18:51:33 mthuurne Exp $
 
-C-BIOS 0.18
+C-BIOS 0.19
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -21,6 +21,8 @@ Copyright (c) 2003 Reikan.  All rights reserved.
 Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004 Patrick van Arkel.  All rights reserved.
+Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
+Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -137,6 +139,13 @@ ver 0.18  2004-12-18(CET)
           * Much improved support for MSX2 games.
           * Graphical boot logo.
           * Included machine config files for several MSX emulators.
+          * Various bug fixes.
+ver 0.19  2004-12-24(CET)
+          * Added support for SCREEN4 and SCREEN8.
+          * Added support for clock chip.
+          * Added support for palette. This fixes a lot of wrong colours.
+          * Stubbed many calls: non-implemented calls print their name on the
+            openMSX debugdevice (if present).
           * Various bug fixes.
 
 
