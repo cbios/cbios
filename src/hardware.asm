@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.3 2004/12/22 15:28:25 bifimsx Exp $
+; $Id: hardware.asm,v 1.4 2004/12/22 21:11:13 manuelbi Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -29,32 +29,38 @@
 ;
 
 ;---------------------------------------------------
-; I/Oとフックの定義
+; I/O ports
+
+DBG_CTRL:       equ     $2E             ; openMSX debugdevice control (mode)
+DBG_DATA:       equ     $2F             ; openMSX debugdevice data
 
 PRN_STAT:       equ     $90             ; printer status
-VDP_RP:         equ     $98             ; VDPポート読み出し
-VDP_STAT:       equ     $99             ; VDP status, ラッチリセット。
-PSL_STAT:       equ     $A8             ; slot status
-KBD_STAT:       equ     $A9             ; keyboard status
-GIO_REGS:       equ     $AA             ; 総合IOレジスタ
-PPI_REGS:       equ     $AB             ; PPI register
+
+VDP_DATA:       equ     $98             ; VDP data port (VRAM read/write)
+VDP_ADDR:       equ     $99             ; VDP address (write only)
+VDP_STAT:       equ     $99             ; VDP status (read only)
+VDP_PALT:       equ     $9A             ; VDP palette latch (write only)
+VDP_REGS:       equ     $9B             ; VDP register access (write only)
 
 PSG_REGS:       equ     $A0             ; PSGレジスタ番号
 PSG_DATA:       equ     $A1             ; PSG data
 PSG_STAT:       equ     $A2             ; PSG status
 
-MAP_REG1:       equ     $FC             ; RAM mapperー 0000h-3FFFh
-MAP_REG2:       equ     $FD             ; RAM mapperー 4000h-7FFFh
-MAP_REG3:       equ     $FE             ; RAM mapperー 8000h-BFFFh
-MAP_REG4:       equ     $FF             ; RAM mapperー C000h-FFFFh
-
-VDP_DATA:       equ     $98             ; VDPデータ書き込み
-VDP_ADDR:       equ     $99             ; VDP address
-VDP_PALT:       equ     $9A             ; VDP palette latch
-VDP_REGS:       equ     $9B             ; VDP register access
+PSL_STAT:       equ     $A8             ; slot status
+KBD_STAT:       equ     $A9             ; keyboard status
+GIO_REGS:       equ     $AA             ; 総合IOレジスタ
+PPI_REGS:       equ     $AB             ; PPI register
 
 RTC_ADDR:       equ     $B4             ; RTC address
 RTC_DATA:       equ     $B5             ; RTC data
 
-SSL_REGS:       equ     $FFFF           ; 拡張スロット選択レジスタ
+MAP_REG1:       equ     $FC             ; memory mapper: bank in $0000-$3FFF
+MAP_REG2:       equ     $FD             ; memory mapper: bank in $4000-$7FFF
+MAP_REG3:       equ     $FE             ; memory mapper: bank in $8000-$BFFF
+MAP_REG4:       equ     $FF             ; memory mapper: bank in $C000-$FFFF
+
+;---------------------------------------------------
+; memory mapped I/O
+
+SSL_REGS:       equ     $FFFF           ; secondary slot select registers
 
