@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.21 2004/12/28 15:32:53 bifimsx Exp $
+; $Id: sub.asm,v 1.22 2004/12/28 16:30:05 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -480,7 +480,7 @@ setscr:
 setscr_text:    db      "SETSCR",0
 
 ;
-; internal, wait for VDP command to end
+; internal, wait for VDP command to end and execute the next one
 ;
 exec_cmd:
                 ld      a,2
@@ -491,9 +491,41 @@ exec_cmd:
                 ld      bc,32 *256+ 17
                 call    wrt_vdp
 
-                ld      bc,15 *256+ VDP_REGS
+                di
+                ld      bc,14 *256+ VDP_REGS
                 ld      hl,SX
                 otir
+                ret
+
+blt_clip:
+                ld      a,b
+                or      c
+                scf
+                ret     z
+
+                ld      a,d
+                or      e
+                scf
+                ret     z
+
+                push    hl
+                ld      hl,256
+                ld      a,(SCRMOD)
+                and     6                       ; SCREEN 6 or 7
+                cp      6
+                jr      nz,blt_clip_x           ; SCREEN 5 or 8 => X-max = 256
+                inc     h                       ; x-max = 512
+blt_clip_x:
+                or      a
+                sbc     hl,bc
+                pop     hl
+                ret     c
+
+                push    hl
+                ld      hl,212
+                or      a
+                sbc     hl,de
+                pop     hl
                 ret
 
 ;-------------------------------------
@@ -502,15 +534,20 @@ exec_cmd:
 ; Input:     SX, SY, DX, DY, NX, NY, ARG_, L_OP
 ; Registers: All
 bltvv:
-                call    chknew                  ; SCREEN 5 or higher?
+                ld      bc,(NX)
+                ld      de,(NY)
+                call    blt_clip
                 ret     c
 
-                ld      a,(L_OP)
+                call    exec_cmd
+
+                ld      a,(hl)
                 and     15
                 or      $90                     ; LMMM
-                ld      (L_OP),a
-
-                jp      exec_cmd
+                out     (c),a
+                ei
+                or      a
+                ret
 
 ;-------------------------------------
 ; $0195 BLTVM
@@ -520,7 +557,20 @@ bltvv:
 ;            NX and NY are required in screen data in RAM
 ; Registers: All
 bltvm:
-                call    chknew                  ; SCREEN 5 or higher?
+                ld      hl,(SX)
+                ld      c,(hl)                  ; read NX from screen data to BC
+                inc     hl
+                ld      b,(hl)
+                inc     hl
+                ld      (NX),bc                 ; store NX
+
+                ld      e,(hl)                  ; read NY from screen data to BC
+                inc     hl
+                ld      d,(hl)
+                inc     hl
+                ld      (NY),de                 ; store NY
+
+                call    blt_clip
                 ret     c
 
                 cp      8
@@ -532,24 +582,6 @@ bltvm:
                 ld      de,2 *256+ 4
 
 bltvm_cont:
-                ld      a,(L_OP)
-                and     15
-                or      $b0                     ; LMMC
-                ld      (L_OP),a
-
-                ld      hl,(SX)
-                ld      c,(hl)                  ; read NX from screen data to BC
-                inc     hl
-                ld      b,(hl)
-                inc     hl
-                ld      (NX),bc                 ; store NX
-
-                ld      c,(hl)                  ; read NY from screen data to BC
-                inc     hl
-                ld      b,(hl)
-                inc     hl
-                ld      (NY),bc                 ; store NY
-
                 ld      a,(hl)                  ; read first value to write
                 inc     hl
                 ld      (CDUMMY),a              ; store first byte
@@ -557,6 +589,12 @@ bltvm_cont:
                 push    af
                 push    hl
                 call    exec_cmd
+
+                ld      a,(hl)
+                and     15
+                or      $b0                     ; LMMC
+                out     (c),a
+                ei
                 pop     hl
 
                 ld      bc,$AD +256* 17
