@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.43 2004/12/29 12:03:07 andete Exp $
+; $Id: main.asm,v 1.44 2004/12/29 13:44:42 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -45,64 +45,64 @@ SP_REGS:        equ     $E002
 ; jump table
 ;---------------------
 
-;0000h CHKRAM
+; $0000 CHKRAM
 chkram:
                 org     $0000
                 di
                 jp      soft_reset
 
 ;フォントへのポインタ
-;0004h CGTABL   Base address of the MSX character set in ROM
+; $0004 CGTABL  Base address of the MSX character set in ROM
                 ds      $0004 - $
                 dw      B_Font
 
                 ds      $0006 - $
 
-;0006h VDP.DR   Base port address for VDP data read
+; $0006 VDP.DR  Base port address for VDP data read
 rdvdpa:         db      VDP_DATA        ; VDP読み出しポート
-;0007h VDP.WR   Base port address for VDP data write
+; $0007 VDP.WR  Base port address for VDP data write
 wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
 
-;0008h SYNCHR
+; $0008 SYNCHR
                 ds      $0008 - $
                 jp      synchr
 
-;000Ch RDSLT    任意スロットからのメモリ読み込み
+; $000C RDSLT    任意スロットからのメモリ読み込み
 
                 ds      $000C - $
                 jp      rdslt
 
-;0010h CHRGTR
+; $0010 CHRGTR
                 ds      $0010 - $
                 jp      chrgtr
 
-;0014h WRSLT    任意スロットへのメモリ書き込み
+; $0014 WRSLT    任意スロットへのメモリ書き込み
                 ds      $0014 - $
                 jp      wrslt
 
-;0018h OUTDO
+; $0018 OUTDO
                 ds      $0018 - $
                 jp      outdo
 
-;001Ch CALSLT   inter slot call routine
+; $001C CALSLT   inter slot call routine
 calslt:
                 ds      $001C - $
                 jp      cal_slt
 
-;0020h DCOMPR   HLとDEの比較
+; $0020 DCOMPR   HLとDEの比較
 dcompr:
                 ds      $0020 - $
                 jp      wordcomp
 
-;0024h ENASLT   スロットの変更
+; $0024 ENASLT   スロットの変更
                 ds      $0024 - $
                 jp      enaslt
 
-;0028h GETYPR
+; $0028 GETYPR
                 ds      $0028 - $
                 jp      getypr
 
-;002Bh IDBYT1
+; $002B IDBYT1
                 ds      $002B - $
 idbyt1:
 ; Basic ROM version 
@@ -114,7 +114,7 @@ idbyt1:
 ; +---------------- Default interrupt frequency
 ;                   0 = 60Hz, 1 = 50Hz
                 db      $21 ; ?? TODO Dutch MSX value: $91
-;002Ch IDBYT2
+; $002C IDBYT2
 idbyt2:
 ; Basic ROM version 
 ; 7 6 5 4 3 2 1 0
@@ -125,7 +125,7 @@ idbyt2:
 ;                   0 = Japanese, 1 = International
                 db      $11 ; ?? TODO Dutch MSX value: $11
 
-;002D version ID等
+; $002D version ID等
 romid:
                 ds      $002D - $
 ; version ID
@@ -140,23 +140,23 @@ romid:
 ; Reserved
                 db      0
 
-;0030h CALLF    インタースロット呼び出し(RST30h版)
+; $0030 CALLF    インタースロット呼び出し(RST30h版)
                 ds      $0030 - $
                 jp      call_lf
 
-;0038h INT_38   割り込みルーチン(RST38,VBlank,Timer...)
+; $0038 INT_38   割り込みルーチン(RST38,VBlank,Timer...)
                 ds      $0038 - $
                 jp      int_start
 
-;003Bh INITIO   I/Oの初期化
+; $003B INITIO   I/Oの初期化
                 ds      $003B - $
                 jp      initio 
 
-;0041h DISSCR   スクリーンを表示させない。
+; $0041 DISSCR   スクリーンを表示させない。
                 ds      $0041 - $
                 jp      disscr
 
-;0044h ENASCR   スクリーンを表示させる。
+; $0044 ENASCR   スクリーンを表示させる。
                 ds      $0044 - $
                 jp      enascr
 
@@ -164,60 +164,60 @@ romid:
 ;VDP routines
 ;---------------
 
-;0047h WRTVDP
+; $0047 WRTVDP
                 ds      $0047 - $
                 jp      wrt_vdp
 
-;004Ah RDVRM
+; $004A RDVRM
                 ds      $004A - $
                 jp      rd_vrm
 
-;004Dh WRTVRM
+; $004D WRTVRM
                 ds      $004D - $
                 jp      wrt_vrm
 
-;0050h SETRD
+; $0050 SETRD
                 ds      $0050 - $
                 jp      vdp_setrd
 
-;0053h SETWRT  .. VRAM書き込みアドレスの設定
+; $0053 SETWRT  .. VRAM書き込みアドレスの設定
                 ds      $0053 - $
                 jp      vdp_setwrt
-;0056h FILVRM
+; $0056 FILVRM
                 ds      $0056 - $
                 jp      vdp_fillmem
-;0059h LDIRMV
+; $0059 LDIRMV
                 ds      $0059 - $
                 jp      vdp_ldirmv      ; VRAM -> Memory
-;005Ch LDIRVM
+; $005C LDIRVM
                 ds      $005C - $
                 jp      vdp_data_rep    ; Memory -> VRAM
 
-;005Fh CHGMOD VDPスクリーンモードの変更
+; $005F CHGMOD VDPスクリーンモードの変更
                 ds      $005F - $
                 jp      chgmod
 
-;0062h CHGCLR
+; $0062 CHGCLR
                 ds      $0062 - $
                 jp      chgclr
 
-;0066h INT_NMI .. NMI割り込み
+; $0066 INT_NMI .. NMI割り込み
                 ds      $0066 - $
                 jp      nmi_int
 
-;0069h CLRSPR  .. スプライトを消去。
+; $0069 CLRSPR  .. スプライトを消去。
                 ds      $0069 - $
                 jp      clrspr
 
-;006Ch INITXT   画面をTEXT1モードに初期化。
+; $006C INITXT   画面をTEXT1モードに初期化。
                 ds      $006C - $
                 jp      init_txt
 
-;006Fh INIT32   画面をGRAPHIC1モードに初期化。
+; $006F INIT32   画面をGRAPHIC1モードに初期化。
                 ds      $006F - $
                 jp      init_txt32
 
-;0072h INITGRP  画面をGRAPHIC2モードに初期化。
+; $0072 INITGRP  画面をGRAPHIC2モードに初期化。
                 ds      $0072 - $
                 jp      init_grp
 
@@ -257,29 +257,29 @@ romid:
                 ds      $008D - $
                 jp      grpprt
 
-;0090h GICINI   音源ICの初期化
+; $0090 GICINI   音源ICの初期化
                 ds      $0090 - $
                 jp      sound_init
-;0093h WRTPSG
+; $0093 WRTPSG
                 ds      $0093 - $
                 jp      sound_out
-;0096 RDPSG
+; $0096 RDPSG
                 ds      $0096 - $
                 jp      sound_stat
 
-;0099 STRTMS
+; $0099 STRTMS
                 ds      $0099 - $
                 jp      strtms
 
-;009Ch CHSNS  .. check key buffer
+; $009C CHSNS  .. check key buffer
                 ds      $009C - $
                 jp      ch_sns
 
-;009Fh CHGET .. キーバッファからデータを得る
+; $009F CHGET .. キーバッファからデータを得る
                 ds      $009F - $
                 jp      ch_get
 
-;00A2h CHPUT .. ディスプレイのキャラクタを出力する。
+; $00A2 CHPUT .. ディスプレイのキャラクタを出力する。
                 ds      $00A2 - $
                 jp      ch_put
 
@@ -316,18 +316,18 @@ romid:
                 jp      iscntc
 
 ; $00BD CKCNTC
-                ds      $00AB - $
+                ds      $00BD - $
                 jp      ckcntc
 
 ; $00C0 BEEP
                 ds      $00C0 - $
                 jp      beep
 
-;00C3h CLS
+; $00C3 CLS
                 ds      $00C3 - $
                 jp      cls
 
-;00C6h POSIT .. カーソル移動。
+; $00C6 POSIT .. カーソル移動。
                 ds      $00C6 - $
                 jp      curxy
 
@@ -347,11 +347,11 @@ romid:
                 ds      $00D2 - $
                 jp      totext
 
-;00D5h GTSTCK .. ジョイスティック情報を得る。
+; $00D5 GTSTCK .. ジョイスティック情報を得る。
                 ds      $00D5 - $
                 jp      in_joy
 
-;00D8h GTTRIG .. トリガー情報を得る。
+; $00D8 GTTRIG .. トリガー情報を得る。
                 ds      $00D8 - $
                 jp      in_trig
 
@@ -383,30 +383,30 @@ romid:
                 ds      $00F3 - $
                 jp      stmotr
                 
-;0135h CHGSND
+; $0135 CHGSND
                 ds      $0135 - $
                 jp      chgsnd
 
-;0138h RDSLTREG プライマリスロットの情報を読み出す
+; $0138 RDSLTREG プライマリスロットの情報を読み出す
 ;g_slotreg
                 ds      $0138 - $
                 jp      get_slotreg
 
-;013Bh WRSLTREG プライマリスロットに情報を書き込む。
+; $013B WRSLTREG プライマリスロットに情報を書き込む。
 ;s_slotreg
                 ds      $013B - $
                 jp      set_slotreg
 
-;013Eh RDVDP    VDPステータスの読み出し
+; $013E RDVDP    VDPステータスの読み出し
                 ds      $013E - $
                 jp      vdp_stat_in
 
-;0141h SNSMAT   キーマトリクスを得る
+; $0141 SNSMAT   キーマトリクスを得る
 ;snsmat
                 ds      $0141 - $
                 jp      in_keyboard
 
-;0144h PHYDIO
+; $0144 PHYDIO
                 ds      $0144 - $
                 jp      phydio
 
@@ -418,43 +418,43 @@ romid:
                 ds      $014A - $
                 jp      isflio
 
-;0156h KILBUF   キーボードバッファをクリアする
+; $0156 KILBUF   キーボードバッファをクリアする
                 ds      $0156 - $
                 jp      kilbuf
 
-;0159h CALBAS   ベーシックインタプリタを呼び出す。
+; $0159 CALBAS   ベーシックインタプリタを呼び出す。
                 ds      $0159 - $
                 jp      call_basic_intr
 
-;015Ch SUBROM   Calls a routine in the subrom.
+; $015C SUBROM   Calls a routine in the subrom.
                 ds      $015C - $
                 jp      subrom
 
-;015Fh EXTROM   Calls a routine in the subrom.
+; $015F EXTROM   Calls a routine in the subrom.
                 ds      $015F - $
                 jp      extrom
 
-;0165h CHKNEW   Is the current screen mode a bitmap mode?
+; $0165 CHKNEW   Is the current screen mode a bitmap mode?
                 ds      $0165 - $
                 jp      chknew
 
-;016Bh BIGFIL   Like FILVRM, but supports 128K of VRAM.
+; $016B BIGFIL   Like FILVRM, but supports 128K of VRAM.
                 ds      $016B - $
                 jp      bigfil
 
-;016Eh NSETRD   Like SETRD, but supports 128K of VRAM.
+; $016E NSETRD   Like SETRD, but supports 128K of VRAM.
                 ds      $016E - $
                 jp      nsetrd
 
-;0171h NSETWR   Like SETWRT, but supports 128K of VRAM.
+; $0171 NSETWR   Like SETWRT, but supports 128K of VRAM.
                 ds      $0171 - $
                 jp      nsetwr
 
-;0174h NRDVRM   Like RDVRM, but supports 128K of VRAM.
+; $0174 NRDVRM   Like RDVRM, but supports 128K of VRAM.
                 ds      $0174 - $
                 jp      nrdvrm
 
-;0177h NWRVRM   Like WRTVRM, but supports 128K of VRAM.
+; $0177 NWRVRM   Like WRTVRM, but supports 128K of VRAM.
                 ds      $0177 - $
                 jp      nwrvrm
 
@@ -540,13 +540,8 @@ cant_wrt:
                 jp      print_error
 
 ram_ok:
-                ld      hl,SLT_TBL
-                ld      b,0
-                ld      c,a
-                add     hl,bc
-
-                ld      a,e
-                ld      (hl),a          ; 拡張スロット
+                ld      hl,SLT_TBL + 3
+                ld      (hl),e          ; 拡張スロット
 
 ; you can write the memory.
 
@@ -1731,6 +1726,7 @@ cl_jp:          equ     rdprim+(m_cl_jp-m_rdprim)
 
 ; the extensive descriptions were taken with permission from http://map.tni.nl/
 
+;-------------------------------------
 ;0008h SYNCHR
 ;Function:  tests whether the character of [HL] is the specified character
 ;           if not, it generates SYNTAX ERROR, otherwise it goes to CHRGTR
@@ -1753,6 +1749,7 @@ synchr:
                 ret
 synchr_text:    db      "SYNCHR",0
 
+;-------------------------------------
 ; 000Ch RDSLT
 ; in ..  A = slot ID , HL = address
 rdslt:
@@ -1808,6 +1805,7 @@ rdsft_lp:
                 djnz    rdsft_lp
                 ret
 
+;-------------------------------------
 ; 0010h CHRGTR
 ;Function:  Gets the next character (or token) of the Basic-text
 ;Input:     HL - Address last character
@@ -1829,6 +1827,7 @@ chrgtr:
                 ret
 chrgtr_text:    db      "CHRGTR",0
 
+;-------------------------------------
 ; 0014h WRSLT
 ; in ..  A = slot ID , HL = address
 wrslt:
@@ -1873,14 +1872,14 @@ wrslt:
                 pop     af
                 ret
 
-; ----------------------------
+;-------------------------------------
 ; $0018 OUTDO
 ; Function : Output to current outputchannel (printer, diskfile, etc.)
 ; Input    : A  - PRTFIL, PRTFLG
 ; Remark   : Used in basic, in ML it's pretty difficult
 ; TODO     : call H_OUTD
 outdo:
-;                call H_OUTD
+;                call    H_OUTD
                 jp      ch_put
 
 ;-------------------------------------
@@ -2410,7 +2409,6 @@ scroll_n1:
                 pop     af
                 ret
 
-
 ;--------------------------------
 ; $00A5 LPTOUT
 ; Function : Sends one character to printer
@@ -2430,7 +2428,7 @@ lptout:
                 pop     hl
                 and     a       ; always state success
                 ret
-lptout_text:      db      "LPTOUT",0
+lptout_text:    db      "LPTOUT",0
 
 ;--------------------------------
 ; $00A8 LPTSTT
@@ -2450,7 +2448,7 @@ lptstt:
                 ld      a,1     ; just always state
                 and     a       ; printer is ready
                 ret
-lptstt_text:      db      "LPTSTT",0
+lptstt_text:    db      "LPTSTT",0
 
 ;--------------------------------
 ; $00AB CNVCHR
@@ -3452,8 +3450,15 @@ stack_error:
 ;------------------------------------
 ;ベーシック呼び出し
 call_basic_intr:
+                push    hl
+                push    af
+                ld      hl,calbas_text
+                call    print_debug
+                pop     af
+                pop     hl
                 ld      de,str_no_basic_intr
                 jp      print_error
+calbas_text:    db      "CALBAS",0
 
 ;------------------------------------
 ;エラー表示
@@ -3510,7 +3515,7 @@ lp_strprn:
                 and     a
                 jr      nz,lp_strprn
 
-                jr      hang_up_mode
+                jp      hang_up_mode
 
 
 ;------------------------------------
