@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.31 2004/12/24 00:50:14 mthuurne Exp $
+; $Id: main.asm,v 1.32 2004/12/25 04:33:44 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -3135,7 +3135,7 @@ restore_subslot:
 
 
 ;-------------------
-                ds      $2000 - $
+                ds      $3000 - $
 
                 ld      a,$82
                 out     (PPI_REGS),a
@@ -3156,7 +3156,7 @@ hang_up_mode:
 
                 jr      hang_up_mode
 
-                ds      $2020 - $
+                ds      $3020 - $
 stack_error:
                 call    H_STKE
                 ld      de,str_stack_error
@@ -3446,13 +3446,6 @@ vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84
                 db      $F5,$87,$00,$40
 
-
-;------------
-;デバッグ用フックルーチン。
-
-                ds      $3232 - $
-debug_test:
-                ret
 
 ; ????
                 ds      $77CD - $
