@@ -1,6 +1,6 @@
-$Id: cbios.txt,v 1.5 2005/01/03 00:17:45 ccfg Exp $
+$Id: cbios.txt,v 1.6 2005/01/03 10:57:55 andete Exp $
 
-C-BIOS 0.19
+C-BIOS 0.20
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -16,14 +16,15 @@ http://cbios.sourceforge.net/
 License
 -------
 
-Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+Copyright (c) 2002-2004 BouKiCHi.  All rights reserved.
 Copyright (c) 2003 Reikan.  All rights reserved.
-Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
-Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
+Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004 Patrick van Arkel.  All rights reserved.
 Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
+Copyright (c) 2004 Eric Boon.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
 modification, are permitted provided that the following conditions
@@ -147,6 +148,19 @@ ver 0.19  2004-12-24(CET)
           * Added support for palette. This fixes a lot of wrong colours.
           * Stubbed many calls: non-implemented calls print their name on the
             openMSX debugdevice (if present).
+          * Various bug fixes.
+ver 0.20  2005-02-09(CET)
+          * Added an MSX2+ configuration, which includes V9958 and MSX MUSIC.
+          * Separate main ROMs for MSX1/MSX2/MSX2+.
+          * Implemented several MSX2 specific routines, including BLT*.
+          * Display is disabled when switching to a different screen mode.
+          * Improved CHPUT a lot; implemented control and escape codes.
+          * Rewrote key buffering; fixes bug of keys being repeated.
+          * New boot logo, even cooler than the previous one.
+          * New font, placed at a fixed address so all games can find it.
+          * Started work on a disk ROM, but it is not functional yet, so it
+            is not enabled in the configurations.
+          * Stubbed all non-implemented calls.
           * Various bug fixes.
 
 
