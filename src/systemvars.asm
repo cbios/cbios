@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.4 2004/12/21 20:08:55 andete Exp $
+; $Id: systemvars.asm,v 1.5 2004/12/21 21:50:13 manuelbi Exp $
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -26,26 +26,71 @@
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
 
+;-------------------
+; help function area
 
+; F380-F384: interslot read
+RDPRIM:         equ     $F380
 
+; F385-F38B: interslot read
+WRPRIM:         equ     $F385
 
-;----------------------------------------------
-; work area
+; F38C-F399: interslot call
+CLPRIM:         equ     $F38C
 
+; F39A-F3AD: workarea for the DEF USR statement
+; this area is initialized with the 10 times the value $475A, which gives
+; the error 'Syntax Error'
+USRTAB:         equ     $F39A
+
+;----------------------
+; screen parameter area
+
+; F3AE: # of positions on a line in SCREEN 0 (ini:39)
 LINL40:         equ     $F3AE
-LINL32:         equ     $F3AF
-LINLEN:         equ     $F3B0           ; çsêî.
-CRTCNT:         equ     $F3B1           ; âÊñ ÇÃåÖêî
 
+; F3AF: # of positions on a line in SCREEN 1 (ini:29)
+LINL32:         equ     $F3AF
+
+; F3B0: # of actually used positions in the current screenmodus (ini:39)
+LINLEN:         equ     $F3B0
+
+; F3B1: # of used lines on screen (ini:24)
+CRTCNT:         equ     $F3B1
+
+; F3B2: # of positions within a tabulator-column (ini:14)
+CLMLST:         equ     $F3B2
+
+; F3B3-F3B4: BASE(0): name table of SCREEN 0 (ini:$0000)
+; used to initialize NAMBAS when SCREEN 0 is activated
 TXTNAM:         equ     $F3B3
+
+; F3B5-F3B6: BASE(1): color table of SCREEN 0, unused? (ini:$0000)
 TXTCOL:         equ     $F3B5
+
+; F3B7-F3B8: BASE(2): pattern table of SCREEN 0 (ini:$0800)
+; used to initialize CGPBAS when SCREEN 0 is activated
 TXTCGP:         equ     $F3B7
+
+; F3B9-F3BA: BASE(3): sprite attribute table of SCREEN 0, unused (ini:$0000)
+; used to initialize ATRBAS when SCREEN 0 is activated
 TXTATR:         equ     $F3B9
+
+; F3BB-F3BC: BASE(4): sprite pattern table of SCREEN 0, unused (ini:$0000)
+; used to initialize PATBAS when SCREEN 0 is activated
 TXTPAT:         equ     $F3BB
 
+; F3BD-F3BE: BASE(5): nametable of SCREEN 1 (ini:$1800)
+; used to initialize NAMBAS when SCREEN 1 is activated
 T32NAM:         equ     $F3BD
+
+; F3BF-F3C0: BASE(6): color table of SCREEN 1 (ini:$2000)
 T32COL:         equ     $F3BF
+
+; F3C1-F3C2: BASE(7): pattern table of SCREEN 1 (ini:$0000)
+; used to initialize CGPBAS when SCREEN 1 is activated
 T32CGP:         equ     $F3C1
+
 T32ATR:         equ     $F3C3
 T32PAT:         equ     $F3C5
 GRPNAM:         equ     $F3C7           ; Screen2 Name

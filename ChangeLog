@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.25 2004/12/21 08:01:34 bifimsx Exp $
+$Id: ChangeLog,v 1.26 2004/12/21 20:08:55 andete Exp $
+
+2004-12-22 Joost Yervante Damad <joost@lumatec.be>
+    * fill in missing systemvars and documentation for systemvars (WIP)
 
 2004-12-21 Joost Yervante Damad <joost@lumatec.be>
     * order systemvars in systemvars.asm by address
