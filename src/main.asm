@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.61 2005/01/01 22:43:32 mthuurne Exp $
+; $Id: main.asm,v 1.62 2005/01/02 11:28:19 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -411,6 +411,78 @@ romid:
 ; $00F9 PUTQ
                 ds      $00F9 - $
                 jp      putq
+
+; $00FC RIGHTC
+                ds      $00FC - $
+                jp      rightc
+
+; $00FF LEFTC
+                ds      $00FF - $
+                jp      leftc
+
+; $0102 UPC
+                ds      $0102 - $
+                jp      upc
+
+; $0105 TUPC
+                ds      $0105 - $
+                jp      tupc
+
+; $0108 DOWNC
+                ds      $0108 - $
+                jp      downc
+
+; $010B TDOWNC
+                ds      $010B - $
+                jp      tdownc
+
+; $010E SCALXY
+                ds      $010E - $
+                jp      scalxy
+
+; $0111 MAPXY
+                ds      $0111 - $
+                jp      mapxy
+
+; $0114 FETCHC
+                ds      $0114 - $
+                jp      fetchc
+
+; $0117 STOREC
+                ds      $0117 - $
+                jp      storec
+
+; $011A SETATR
+                ds      $011A - $
+                jp      setatr
+
+; $011D READC
+                ds      $011D - $
+                jp      readc
+
+; $0120 SETC
+                ds      $0120 - $
+                jp      setc
+
+; $0123 NSETCX
+                ds      $0123 - $
+                jp      nsetcx
+
+; $0126 GTASPC
+                ds      $0126 - $
+                jp      gtaspc
+
+; $0129 PNTINI
+                ds      $0129 - $
+                jp      pntini
+
+; $012C SCANR
+                ds      $012C - $
+                jp      scanr
+
+; $012F SCANL
+                ds      $012F - $
+                jp      scanl
 
 ; $0132 CHGCAP
                 ds      $0132 - $

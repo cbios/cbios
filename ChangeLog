@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.71 2005/01/02 10:50:14 bifimsx Exp $
+$Id: ChangeLog,v 1.72 2005/01/02 11:28:13 andete Exp $
+
+2005-01-02 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Added stubs for `Graphic routines'. All MSX1 BIOS routines are now
+      either implemented or stubbed.
 
 2005-01-02 Joost Yervante Damad <joost@lumatec.be>
     * model dependant romid in main.asm

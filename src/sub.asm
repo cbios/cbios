@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.27 2004/12/30 13:09:12 andete Exp $
+; $Id: sub.asm,v 1.28 2005/01/01 22:39:06 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -74,20 +74,80 @@ VDP:            equ     V9938
                 jp      grpprt
 
 ; $008D SCALXY
+                ds      $008D - $,$C9
+                ei
+                jp      scalxy
+
 ; $0091 MAPXYC
+                ds      $0091 - $,$C9
+                ei
+                jp      mapxyc
+
 ; $0095 READC
+                ds      $0095 - $,$C9
+                ei
+                jp      readc
+
 ; $0099 SETATR
+                ds      $0099 - $,$C9
+                ei
+                jp      setatr
+
 ; $009D SETC
+                ds      $009D - $,$C9
+                ei
+                jp      setc
+
 ; $00A1 TRIGHT
+                ds      $00A1 - $,$C9
+                ei
+                jp      tright
+
 ; $00A5 RIGHTC
+                ds      $00A5 - $,$C9
+                ei
+                jp      rightc
+
 ; $00A9 TLEFTC
+                ds      $00A9 - $,$C9
+                ei
+                jp      tleftc
+
 ; $00AD LEFTC
+                ds      $00AD - $,$C9
+                ei
+                jp      leftc
+
 ; $00B1 TDOWNC
+                ds      $00B1 - $,$C9
+                ei
+                jp      tdownc
+
 ; $00B5 DOWNC
+                ds      $00B5 - $,$C9
+                ei
+                jp      downc
+
 ; $00B9 TUPC
+                ds      $00B9 - $,$C9
+                ei
+                jp      tupc
+
 ; $00BD UPC
+                ds      $00BD - $,$C9
+                ei
+                jp      upc
+
 ; $00C1 SCANR
+                ds      $00C1 - $,$C9
+                ei
+                jp      scanr
+
 ; $00C5 SCANL
+                ds      $00C5 - $,$C9
+                ei
+                jp      scanl
+
 ; $00C9 NVBXLN
 ; $00CD NVBXFL
 
@@ -350,6 +410,63 @@ dogrph:
                 pop     hl
                 ret
 dogrph_text:    db      "DOGRPH",0
+
+;-------------------------------------
+; $0091 MAPXYC
+; Function : Converts an X,Y position to an address: and mask in CLOC and
+; CMASK
+; Input    : BC - X-position
+;            DE - Y-position
+; Output   : HL - VRAM address: In SCREEN 3    (in CLOC too)
+;            A  - Mask          In SCREEN 3    (in CMASK too)
+;            HL - X-position In SCREEN 5->8 (in CLOC too)
+;            A  - Y-position In SCREEN 5->8 (in CMASK too)
+; Registers: F
+mapxyc:
+                push    hl
+                push    af
+                ld      hl,mapxyc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+mapxyc_text:    db      "MAPXYC",0
+
+;-------------------------------------
+; $00A1 TRIGHT
+; Function : Moves pixel to the right
+; Input    : X-position in CLOC
+;            Yposition in CMASK
+; Output   : New X-position in CLOC
+;            New Y-position in CMASK
+;            C-flag set if border of screen is reached
+; Registers: AF
+; Remark   : SCREEN 3 only
+tright:
+                push    hl
+                push    af
+                ld      hl,tright_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+tright_text:    db      "TRIGHT",0
+
+;-------------------------------------
+; $00A9 TLEFTC
+; Function : Moves pixel to the left
+; Input    : See TRIGHT
+; Output   : See TRIGHT
+; Registers: AF
+tleftc:
+                push    hl
+                push    af
+                ld      hl,tleftc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+tleftc_text:    db      "TRIGHT",0
 
 ;-------------------------------------
 ; $0119 CLRTXT

@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.33 2004/12/31 19:19:38 bifimsx Exp $
+; $Id: video.asm,v 1.34 2005/01/01 22:50:59 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1530,5 +1530,270 @@ getpat:
                 ret
 getpat_text:    db      "GETPAT",0
 
+;--------------------------------
+; $00FC RIGHTC
+; Function : Shifts screenpixel to the right
+; Registers: AF
+; NOTE     : This implementation is still a stub!
+rightc:
+                push    hl
+                push    af
+                ld      hl,rightc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+rightc_text:    db      "RIGHTC",0
+
+;--------------------------------
+; $00FF LEFTC
+; Function : Shifts screenpixel to the left
+; Registers: AF
+; NOTE     : This implementation is still a stub!
+leftc:
+                push    hl
+                push    af
+                ld      hl,leftc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+leftc_text:     db      "LEFTC",0
+
+;--------------------------------
+; $0102 UPC
+; Function : Shifts screenpixel up
+; Registers: AF
+; NOTE     : This implementation is still a stub!
+upc:
+                push    hl
+                push    af
+                ld      hl,upc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+upc_text:       db      "UPC",0
+
+;--------------------------------
+; $0105 TUPC
+; Function : Tests whether UPC is possible, if possible, execute UPC
+; Output   : C-flag set if operation would end outside the screen
+; Registers: AF
+; NOTE     : This implementation is still a stub!
+tupc:
+                push    hl
+                push    af
+                ld      hl,tupc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+tupc_text:      db      "TUPC",0
+
+;--------------------------------
+; $0108 DOWNC
+; Function : Shifts screenpixel down
+; Registers: AF
+; NOTE     : This implementation is still a stub!
+downc:
+                push    hl
+                push    af
+                ld      hl,downc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+downc_text:     db      "DOWNC",0
+
+;--------------------------------
+; $010B TDOWNC
+; Function : Tests whether DOWNC is possible, if possible, execute DOWNC
+; Output   : C-flag set if operation would end outside the screen
+; Registers: AF
+; NOTE     : This implementation is still a stub!
+tdownc:
+                push    hl
+                push    af
+                ld      hl,tdownc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+tdownc_text:    db      "TDOWNC",0
+
+;--------------------------------
+; $010E SCALXY
+; Function : Scales X and Y coordinates
+; NOTE     : This implementation is still a stub!
+scalxy:
+                push    hl
+                push    af
+                ld      hl,scalxy_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+scalxy_text:    db      "SCALXY",0
+
+;--------------------------------
+; $0111 MAPXY
+; Function : Places cursor at current cursor address
+; NOTE     : This implementation is still a stub!
+mapxy:
+                push    hl
+                push    af
+                ld      hl,mapxy_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+mapxy_text:    db      "MAPXY",0
+
+;--------------------------------
+; $0114 FETCHC
+; Function : Gets current cursor addresses mask pattern
+; Output   : HL - Cursor address
+;            A  - Mask pattern
+; NOTE     : This implementation is still a stub!
+fetchc:
+                push    hl
+                push    af
+                ld      hl,fetchc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+fetchc_text:    db      "FETCHC",0
+
+;--------------------------------
+; $0117 STOREC
+; Function : Record current cursor addresses mask pattern
+; Input    : HL - Cursor address
+;            A  - Mask pattern
+; NOTE     : This implementation is still a stub!
+storec:
+                push    hl
+                push    af
+                ld      hl,storec_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+storec_text:    db      "STOREC",0
+
+;--------------------------------
+; $011A SETATR
+; Function : Set attribute byte
+; NOTE     : This implementation is still a stub!
+setatr:
+                push    hl
+                push    af
+                ld      hl,setatr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+setatr_text:    db      "SETATR",0
+
+;--------------------------------
+; $011D READC
+; Function : Reads attribute byte of current screenpixel
+; NOTE     : This implementation is still a stub!
+readc:
+                push    hl
+                push    af
+                ld      hl,readc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+readc_text:     db      "READC",0
+
+;--------------------------------
+; $0120 SETC
+; Function : Returns currenct screenpixel of specificed attribute byte
+; NOTE     : This implementation is still a stub!
+setc:
+                push    hl
+                push    af
+                ld      hl,setc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+setc_text:      db      "SETC",0
+
+;--------------------------------
+; $0123 NSETCX
+; Function : Set horizontal screenpixels
+; NOTE     : This implementation is still a stub!
+nsetcx:
+                push    hl
+                push    af
+                ld      hl,nsetcx_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+nsetcx_text:    db      "NSETCX",0
+
+;--------------------------------
+; $0126 GTASPC
+; Function : Gets screen relations
+; Output   : DE, HL
+; Registers: DE, HL
+; NOTE     : This implementation is still a stub!
+gtaspc:
+                push    hl
+                push    af
+                ld      hl,gtaspc_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+gtaspc_text:    db      "GTASPC",0
+
+;--------------------------------
+; $0129 PNTINI
+; Function : Initalises the PAINT instruction
+; NOTE     : This implementation is still a stub!
+pntini:
+                push    hl
+                push    af
+                ld      hl,pntini_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+pntini_text:    db      "PNTINI",0
+
+;--------------------------------
+; $012C SCANR
+; Function : Scans screenpixels to the right
+; NOTE     : This implementation is still a stub!
+scanr:
+                push    hl
+                push    af
+                ld      hl,scanr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+scanr_text:     db      "SCANR",0
+
+;--------------------------------
+; $012F SCANL
+; Function : Scans screenpixels to the left
+; NOTE     : This implementation is still a stub!
+scanl:
+                push    hl
+                push    af
+                ld      hl,scanl_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+scanl_text:     db      "SCANL",0
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
