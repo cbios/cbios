@@ -1,4 +1,12 @@
-$Id: ChangeLog,v 1.100 2005/01/09 18:48:37 bifimsx Exp $
+$Id: ChangeLog,v 1.101 2005/01/10 23:59:18 mthuurne Exp $
+
+2005-01-11 Maarten ter Huurne <maarten@treewalker.org>
+    * Rewrote key buffering code:
+      - it uses a ring buffer now (more efficient, more like MSX BIOS)
+      - made sure the new buffering code is harmless when interacting with
+        a bug in Ashguine 2
+      - KILBUF only empties buffer; it does not mess with NEWKEY and OLDKEY
+        (this fixes some issues we misdiagnosed as too fast key repeat)
 
 2005-01-10 Maarten ter Huurne <maarten@treewalker.org>
     * Fixed sub ROM version of CLS.

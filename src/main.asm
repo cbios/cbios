@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.81 2005/01/08 13:30:40 bifimsx Exp $
+; $Id: main.asm,v 1.82 2005/01/10 23:59:17 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1639,7 +1639,7 @@ wait_key07:
                 ld      c,$FF
 wk07_lp:
                 halt
-                ld      a,($FBEB)
+                ld      a,(NEWKEY + 6)
                 and     c
                 ld      c,a
                 djnz    wk07_lp
@@ -2371,15 +2371,6 @@ chsns:
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)
                 rst     $20
-                jr      z,no_chr
-                ld      a,(hl)
-                and     a
-                pop     de
-                pop     hl
-                ret
-no_chr:
-                xor     a
-                and     a
                 pop     de
                 pop     hl
                 ret
@@ -2392,34 +2383,28 @@ no_chr:
 ; TODO:    : call H_CHGE
 chget:
 ;               call H_CHGE
-                ld      a,$00
                 push    hl
                 push    de
-                push    bc
-loop_chget:
+chget_wait:
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)
                 rst     $20
-                jr      nz,get_ch
+                jr      nz,chget_char
                 ei
                 halt
-                jr      loop_chget
-get_ch:
-                ld      hl,(PUTPNT)
-                ld      bc,(GETPNT)
-                ld      a,(bc)
-                and     a
+                jr      chget_wait
+chget_char:
+                ld      a,(hl)          ; HL = (GETPNT)
                 push    af
-                ld      bc,39
-                ld      hl,(GETPNT)
                 inc     hl
-                ld      de,(GETPNT)
-                ldir
-                ld      de,(PUTPNT)
-                dec     de
-                ld      (PUTPNT),de
+                ; See comment in keyint (below label key_store).
+                ld      a,l
+                cp      0x00FF & (KEYBUF + 40)
+                jr      nz,chget_nowrap
+                ld      hl,KEYBUF
+chget_nowrap:
+                ld      (GETPNT),hl
                 pop     af
-                pop     bc
                 pop     de
                 pop     hl
                 ret
@@ -3293,27 +3278,6 @@ stmotr_set:     out     (GIO_REGS),a
                 pop     bc
                 ret
 
-;--------------------------------------
-;0156h  KILBUF  キーバッファをクリア。
-kilbuf:
-                push    de
-                push    bc
-                push    af
-                ld      hl,KEYBUF
-                ld      (PUTPNT),hl
-
-                ld      a,$FF
-                ld      hl,OLDKEY
-                ld      (hl),a
-                ld      de,OLDKEY+1
-                ld      bc,21
-                ldir
-                pop     af
-                pop     bc
-                pop     de
-                ret
-
-
 ;--------------------------------
 ; $0090 GICINI  音源IC初期化
 ; Function : Initialises PSG and sets initial value for the PLAY statement
@@ -3760,6 +3724,15 @@ getvc2:
                 ret
 getvc2_text:    db      "GETVC2",0
 
+;--------------------------------
+; $0156 KILBUF
+; Empties the keyboard buffer.
+; Changes: HL
+kilbuf:
+                ld      hl,(GETPNT)
+                ld      (PUTPNT),hl
+                ret
+
 ;------------------
 ; interrupt routine code
 ;------------------
@@ -3802,8 +3775,16 @@ keyint:
                 call    gttrig
                 cpl
                 and     $01
-                ld      ($F3E8),a
-                call    old_key
+                ld      (TRGFLG),a
+
+                ; TODO: MSX BIOS doesn't scan the full keyboard on every
+                ;       interrupt, see SCNCNT (F3F6).
+                ; TODO: This can probably be done cheaper as part of the
+                ;       key_in routine.
+                ld      hl,NEWKEY
+                ld      de,OLDKEY
+                ld      bc,$0B
+                ldir
                 call    key_in
 
 int_end:
@@ -3829,19 +3810,6 @@ nmi:
                 retn
 
 ;--------------------------------
-old_key:
-                ld      de,NEWKEY
-                ld      hl,OLDKEY
-                ld      b,$0B
-oldkey_lp:
-                ld      a,(de)
-                ld      (hl),a
-                inc     de
-                inc     hl
-                djnz    oldkey_lp
-                ret
-
-;--------------------------------
 ; キーボード入力をバッファに取り込む
 key_in:
                 in      a,(GIO_REGS)
@@ -3857,17 +3825,10 @@ key_in_lp:
                 inc     hl
                 inc     c
                 djnz    key_in_lp
-                call    key_chk
-                ret
 
-;--------------------------------
-; key code check routine
-; 割り込みから呼び出される。
-;
-key_chk:
                 ld      ix,OLDKEY
                 ld      de,NEWKEY
-                ld      a,($FBEB)
+                ld      a,(NEWKEY + 6)
                 rrca
                 jr      nc,code_shift
                 ld      hl,scode_tbl
@@ -3880,10 +3841,13 @@ key_chk_lp:
                 ld      a,(de)
                 cpl
                 and     (ix+0)
+                ; TODO: Optimise scanning if no keys are pressed.
+                ;       That's the most common case by far.
                 ld      c,$08
 key_bit_lp:
                 rrca
-                jr      c,push_pnt
+                jr      c,key_store
+key_bit_next:
                 inc     hl
                 dec     c
                 jr      nz,key_bit_lp
@@ -3891,41 +3855,41 @@ key_bit_lp:
                 inc     de
                 djnz    key_chk_lp
                 ret
-push_pnt:
+key_store:
+                push    af
+                ld      a,(hl)          ; get ASCII value
+                and     a               ; dead key?
+                jr      z,key_store_end2
+                ; Store ASCII value in key buffer.
+                ; Since a full buffer is indicated by PUTPNT == GETPNT - 1,
+                ; it is always safe to store a character, but if the buffer
+                ; is full, PUTPNT cannot be increased.
                 push    hl
-                push    de
-                push    bc
-                ld      a,(hl)
-                and     a
-
-                ; RegAが表示可能キャラクタでなければストックしない。
-
-                jr      z,pnt_flow
-                ld      c,a
-                ld      de,LIMPNT
                 ld      hl,(PUTPNT)
-                rst     $20
-                jr      nc,pnt_flow
-                ld      a,c
                 ld      (hl),a
+                ; Note: Ashguine 2 has a bug: it puts KEYBUF at FDF0 iso FBF0
+                ;       in the name input routine. This writes keys in memory
+                ;       reserved for hooks, but since those hooks are only used
+                ;       by BASIC, the game doesn't suffer. When PUTPNT reaches
+                ;       FE18, it wraps back to FBF0.
                 inc     hl
-                ld      (PUTPNT),hl
-pnt_flow:
-                pop     bc
+                ld      a,l
+                cp      0x00FF & (KEYBUF + 40)
+                jr      nz,key_store_nowrap
+                ld      hl,KEYBUF
+key_store_nowrap:
+                ; Check whether the buffer is full.
+                push    de
+                ld      de,(GETPNT)
+                rst     $20
                 pop     de
+                jr      z,key_store_end
+                ld      (PUTPNT),hl
+key_store_end:
                 pop     hl
-                ret
-
-key_int:
-                ld      hl,NEWKEY
-                ld      bc,$0006
-                add     hl,bc
-                ld      a,(hl)
-                and     $01
-                jr      nz,ki_end
-                call    dbg_reg
-ki_end:
-                ret
+key_store_end2:
+                pop     af
+                jr      key_bit_next
 
 
 ;--------------------------------
