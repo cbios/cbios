@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.102 2005/01/12 00:53:59 mthuurne Exp $
+$Id: ChangeLog,v 1.103 2005/01/13 16:03:36 bifimsx Exp $
 
 2005-01-13 Albert Beevendorp
     * moved slot routines to seperate source: slot.asm
@@ -6,6 +6,9 @@ $Id: ChangeLog,v 1.102 2005/01/12 00:53:59 mthuurne Exp $
     * made GETPAT fully functional now in both main and sub rom
     * implemented handler for maskable interrupt to sub rom
       fixes slowdowns with BLTVM
+    * cleaned up subrom detection source and BLTVM source
+    * CLRSPR now calls NSETWR on MSX2 and SETWRT on MSX1
+      fixes a few games with garbled lines
 
 2005-01-11 Maarten ter Huurne <maarten@treewalker.org>
     * Rewrote key buffering code:
