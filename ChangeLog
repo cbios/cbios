@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.37 2004/12/25 18:28:47 ccfg Exp $
+$Id: ChangeLog,v 1.38 2004/12/25 19:44:54 bifimsx Exp $
+
+2004-12-26 Albert Beevendorp
+    * Added compiling of MUSIC-ROM and the DISKROM to the scripts
+    * Initial diskrom implemented
 
 2004-12-25 Albert Beevendorp
     * Added CLS routines
