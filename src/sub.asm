@@ -1,10 +1,11 @@
-; $Id: sub.asm,v 1.23 2004/12/28 20:08:20 bifimsx Exp $
+; $Id: sub.asm,v 1.24 2004/12/29 03:25:03 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
+; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -124,7 +125,7 @@
 ; $012D WRTVDP Write to VDP register.
                 ds      $012D - $,$C9
                 ei
-                jp      wrt_vdp
+                jp      wrtvdp
 
 ; $0131 VDPSTA Read VDP status register.
                 ds      $0131 - $,$C9
@@ -277,7 +278,7 @@ setpag:
                 push    bc
                 ld      b,a             ; B = R#2 data
                 ld      c,2
-                call    wrt_vdp         ; write VDP R#2
+                call    wrtvdp          ; write VDP R#2
                 pop     bc
                 ret
 
@@ -290,7 +291,7 @@ iniplt:
                 call    palette_vram
                 call    nsetwr
                 ld      bc,16
-                call    wrt_vdp         ; set palette index
+                call    wrtvdp          ; set palette index
                 ld      b,32
                 ld      hl,palette_vram_init
 iniplt_loop:    ld      a,(hl)
@@ -311,7 +312,7 @@ rstplt:
                 call    nsetrd
                 pop     hl
                 ld      bc,16
-                call    wrt_vdp         ; set palette index
+                call    wrtvdp          ; set palette index
                 ld      b,32
 rstplt_loop:    in      a,(VDP_DATA)
                 out     (VDP_PALT),a
@@ -360,7 +361,7 @@ setplt:
                 pop     hl
                 ld      b,d
                 ld      c,16
-                call    wrt_vdp         ; set palette index
+                call    wrtvdp          ; set palette index
                 pop     bc
                 pop     af
                 out     (VDP_PALT),a    ; set red and blue
@@ -489,7 +490,7 @@ exec_cmd:
                 jr      nz,exec_cmd
 
                 ld      bc,32 *256+ 17
-                call    wrt_vdp
+                call    wrtvdp
 
                 di
                 ld      bc,14 *256+ VDP_REGS
@@ -598,7 +599,7 @@ bltvm_cont:
                 pop     hl
 
                 ld      bc,$AD +256* 17
-                call    wrt_vdp
+                call    wrtvdp
                 pop     af
                 ld      c,a
 

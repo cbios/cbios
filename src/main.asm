@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.46 2004/12/29 19:13:48 mthuurne Exp $
+; $Id: main.asm,v 1.47 2004/12/29 21:30:53 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -46,10 +46,9 @@ SP_REGS:        equ     $E002
 ;---------------------
 
 ; $0000 CHKRAM
-chkram:
                 org     $0000
                 di
-                jp      soft_reset
+                jp      chkram
 
 ;フォントへのポインタ
 ; $0004 CGTABL  Base address of the MSX character set in ROM
@@ -59,9 +58,9 @@ chkram:
                 ds      $0006 - $
 
 ; $0006 VDP.DR  Base port address for VDP data read
-rdvdpa:         db      VDP_DATA        ; VDP読み出しポート
+vdp_dr:         db      VDP_DATA        ; VDP読み出しポート
 ; $0007 VDP.WR  Base port address for VDP data write
-wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
+vdp_dw:         db      VDP_DATA        ; VDP書き込みポート
 
 ; $0008 SYNCHR
                 ds      $0008 - $
@@ -84,14 +83,12 @@ wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
                 jp      outdo
 
 ; $001C CALSLT   inter slot call routine
-calslt:
                 ds      $001C - $
-                jp      cal_slt
+                jp      calslt
 
 ; $0020 DCOMPR   HLとDEの比較
-dcompr:
                 ds      $0020 - $
-                jp      wordcomp
+                jp      dcompr
 
 ; $0024 ENASLT   スロットの変更
                 ds      $0024 - $
@@ -141,15 +138,17 @@ romid:
 
 ; $0030 CALLF    インタースロット呼び出し(RST30h版)
                 ds      $0030 - $
-                jp      call_lf
+                jp      callf
 
-; $0038 INT_38   割り込みルーチン(RST38,VBlank,Timer...)
+; $0038 KEYINT   割り込みルーチン(RST38,VBlank,Timer...)
                 ds      $0038 - $
-                jp      int_start
+                jp      keyint
 
 ; $003B INITIO   I/Oの初期化
                 ds      $003B - $
                 jp      initio 
+
+; $003E INIFNK  ; TODO stub
 
 ; $0041 DISSCR   スクリーンを表示させない。
                 ds      $0041 - $
@@ -165,23 +164,23 @@ romid:
 
 ; $0047 WRTVDP
                 ds      $0047 - $
-                jp      wrt_vdp
+                jp      wrtvdp
 
 ; $004A RDVRM
                 ds      $004A - $
-                jp      rd_vrm
+                jp      rdvrm
 
 ; $004D WRTVRM
                 ds      $004D - $
-                jp      wrt_vrm
+                jp      wrtvrm
 
 ; $0050 SETRD
                 ds      $0050 - $
-                jp      vdp_setrd
+                jp      setrd
 
 ; $0053 SETWRT  .. VRAM書き込みアドレスの設定
                 ds      $0053 - $
-                jp      vdp_setwrt
+                jp      setwrt
 ; $0056 FILVRM
                 ds      $0056 - $
                 jp      vdp_fillmem
@@ -468,7 +467,7 @@ romid:
                 include "video.asm"
                 include "logo.asm"
 
-soft_reset:
+chkram:
 ;デバッグ用
 ;                ex      (sp),hl
 ;                ld      (LASTSTAC),hl
@@ -583,7 +582,7 @@ start_game:
                 and     $FD
                 ld      b,a
                 ld      c,$01
-                call    wrt_vdp
+                call    wrtvdp
 
                 ld      a,29
                 ld      (LINL32),a
@@ -644,7 +643,7 @@ disp_info:
                 ld      hl,(T32COL)
                 ld      bc,logo_patoffset / 8
                 add     hl,bc
-                call    vdp_setwrt
+                call    setwrt
                 ld      b,10
                 ld      a,$F1
 plot_logo_col:
@@ -683,7 +682,7 @@ plot_logo_nam:
                 or      $02
                 ld      b,a
                 ld      c,$01
-                call    wrt_vdp
+                call    wrtvdp
 
                 ; Upload sprite pattern table.
                 ld      hl,logo_spritepat
@@ -1899,7 +1898,7 @@ outdo:
 ;-------------------------------------
 ; 001Ch CALSLT(暫定的な関数)
 ; in .. IYh(スロット番号),(IX)
-cal_slt:
+calslt:
                 ex      af,af'
                 exx
 
@@ -1929,16 +1928,16 @@ cal_slt:
                 and     $03             ; A = page
                 ; Shift B and C page*2 positions to the left.
                 add     a,a
-                jr      z,cal_slt_sh2
-cal_slt_sh1:
+                jr      z,calslt_sh2
+calslt_sh1:
                 rlc     b
                 rlc     c
                 dec     a
-                jr      nz,cal_slt_sh1
-cal_slt_sh2:
+                jr      nz,calslt_sh1
+calslt_sh2:
 
 ; Select primary slot of target and perform call:
-                ld      hl,cal_slt_restore
+                ld      hl,calslt_restore
                 push    hl
                 in      a,(PSL_STAT)
                 push    af
@@ -1947,7 +1946,7 @@ cal_slt_sh2:
                 exx
                 jp      clprim
 
-cal_slt_restore:
+calslt_restore:
                 ex      af,af'
                 exx
 
@@ -1979,7 +1978,7 @@ isflio:
 ;--------------------------------
 ; 0020h DCOMPR　16ビット比較
 ; in .. hl,de= 数値
-wordcomp:
+dcompr:
                 ld      a,h
                 cp      d
                 ret     nz
@@ -2134,7 +2133,7 @@ getypr_text:    db      "GETYPR",0
 
 ;--------------------------------
 ; $0030 CALLLF
-call_lf:
+callf:
                 ex      af,af'
                 exx
                 pop     hl              ; Get data from return address.
@@ -2151,7 +2150,7 @@ call_lf:
                 push    hl              ; Update return address.
                 ex      af,af'
                 exx
-                jp      cal_slt         ; Perform inter-slot call.
+                jp      calslt          ; Perform inter-slot call.
 
 ;--------------------------------
 ; $003B INITIO
@@ -2192,7 +2191,7 @@ ch_sns:
                 push    de
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)
-                call    wordcomp
+                call    dcompr
                 jr      z,no_chr
                 ld      a,(hl)
                 and     a
@@ -2221,7 +2220,7 @@ ch_get:
 loop_chget:
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)
-                call    wordcomp
+                call    dcompr
                 jr      nz,get_ch
                 ei
                 halt
@@ -2315,7 +2314,7 @@ chput_scrll:
 set_curs:
                 call    curs2de
                 ex      de,hl
-                call    vdp_setwrt
+                call    setwrt
                 ex      de,hl
                 ret
 
@@ -3134,7 +3133,7 @@ trig_off:
 ; interrupt routine code
 ;------------------
 
-int_start:
+keyint:
 ;デバッグ用
 ;                push    hl
 ;                ld  hl,$3232
@@ -3274,7 +3273,7 @@ push_pnt:
                 ld      c,a
                 ld      de,LIMPNT
                 ld      hl,(PUTPNT)
-                call    wordcomp
+                call    dcompr
                 jr      nc,pnt_flow
                 ld      a,c
                 ld      (hl),a
@@ -3317,7 +3316,7 @@ extrom:
                 push    af
                 pop     iy              ; IYH = slot ID
                 ex      af,af'
-                jp      cal_slt         ; Perform inter-slot call.
+                jp      calslt          ; Perform inter-slot call.
 
 
 ;--------------------------------

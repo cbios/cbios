@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.24 2004/12/29 17:08:09 bifimsx Exp $
+; $Id: video.asm,v 1.25 2004/12/30 01:56:53 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -42,7 +42,7 @@ disscr:
                 and     $BF
                 ld      b,a
                 ld      c,1
-                call    wrt_vdp
+                call    wrtvdp
                 ret
 
 ;--------------------------------
@@ -56,7 +56,7 @@ enascr:
                 or      $40
                 ld      b,a
                 ld      c,1
-                call    wrt_vdp
+                call    wrtvdp
                 ret
 
 ;--------------------------------
@@ -66,7 +66,7 @@ enascr:
 ;            C  - number of the register
 ; Output   : RG0SAV(F3DF)-RG7SAV(F3E6)
 ; Registers: AF, BC
-wrt_vdp:
+wrtvdp:
                 push    hl
                 di
                 ld      a,b
@@ -106,8 +106,8 @@ rg8_sav:
 ; Input    : HL - address read
 ; Output   : A  - value which was read
 ; Registers: AF
-rd_vrm:
-                call    vdp_setrd
+rdvrm:
+                call    setrd
                 in      a,(VDP_DATA)
                 ret
 
@@ -118,9 +118,9 @@ rd_vrm:
 ; Input    : HL - address write
 ;            A  - value write
 ; Registers: AF
-wrt_vrm:
+wrtvrm:
                 push    af
-                call    vdp_setwrt
+                call    setwrt
                 pop     af
                 out     (VDP_DATA),a
                 ret
@@ -130,7 +130,7 @@ wrt_vrm:
 ; Function : Enable VDP to read
 ; Input    : HL - for VRAM-address
 ; Registers: AF
-vdp_setrd:
+setrd:
                 di
                 ld      a,l
                 out     (VDP_ADDR),a
@@ -145,7 +145,7 @@ vdp_setrd:
 ; Function : Enable VDP to write
 ; Input    : HL - Address
 ; Registers: AF
-vdp_setwrt:
+setwrt:
                 di
                 ld      a,l
                 out     (VDP_ADDR),a
@@ -165,7 +165,7 @@ vdp_setwrt:
 ; Registers: AF, BC
 vdp_fillmem:
                 push    af
-                call    vdp_setwrt
+                call    setwrt
                 dec     bc
                 inc     c
                 ld      a,b
@@ -188,7 +188,7 @@ vdp_fillmem_lp:
 ;            HL - Start address of VRAM
 ; Registers: All
 vdp_ldirmv:
-                call    vdp_setrd
+                call    setrd
                 ex      de,hl
                 dec     bc
                 inc     c
@@ -214,7 +214,7 @@ vdp_data_rep:
                 ld      a,(SCRMOD)
                 cp      4
                 jr      nc,vdp_data_rep_new
-                call    vdp_setwrt
+                call    setwrt
                 jr      vdp_data_rep_cont
 vdp_data_rep_new:
                 call    nsetwr
@@ -283,7 +283,7 @@ chgclr:
 
                 ld      b,a
                 ld      c,7
-                call    wrt_vdp
+                call    wrtvdp
                 pop     af
                 ret     nz
 
@@ -299,7 +299,7 @@ chgclr:
                 ld      hl,(T32COL)
                 ld      bc,$0020
                 push    af
-                call    vdp_setwrt
+                call    setwrt
 cclr_lp:
                 pop     af
                 out     (VDP_DATA),a
@@ -316,7 +316,7 @@ chgclr_sc8:
                 ld      a,(BDRCLR)
                 ld      b,a
                 ld      c,7
-                jp      wrt_vdp
+                jp      wrtvdp
 
 ;--------------------------------
 ; $0069 CLRSPR
@@ -375,7 +375,7 @@ clrspr_attr_spritemode_start:
                 ;       Before that is possible, we should split MSX1 and MSX2
                 ;       into separate ROMs, because nsetwr writes to R#14,
                 ;       which does not exist and therefore wraps to R#6.
-                call    vdp_setwrt
+                call    setwrt
                 ld      a,(FORCLR)
                 ld      d,a
                 ld      bc,$2000        ; B = 32 = counter, C = pattern index
@@ -479,7 +479,7 @@ init_grp:
 
                 ld      hl,(GRPNAM)
                 ld      (NAMBAS),hl
-                call    vdp_setwrt
+                call    setwrt
                 ld      b,3
                 xor     a
 init_grp_lp:
@@ -524,20 +524,20 @@ set_txt:
                 and     $F1             ; MASK 11110001
                 ld      b,a
                 ld      c,0
-                call    wrt_vdp         ; write VDP R#0
+                call    wrtvdp          ; write VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 or      $10
                 ld      b,a
                 inc     c
-                call    wrt_vdp         ; write VDP R#1
+                call    wrtvdp          ; write VDP R#1
 
                 ld      bc,$0104        ; R#4 PatGenTBLaddr=$0800
-                call    wrt_vdp         ; write VDP R#4
+                call    wrtvdp          ; write VDP R#4
 
                 ld      bc,$0002        ; R#2 PatNamTBLaddr=$0000
-                call    wrt_vdp         ; write VDP R#2
+                call    wrtvdp          ; write VDP R#2
                 ret
 
 ;------------------------------
@@ -551,13 +551,13 @@ set_txt32:
                 and     $F1             ; MASK 11110001
                 ld      b,a
                 ld      c,0
-                call    wrt_vdp         ; write VDP R#0
+                call    wrtvdp          ; write VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 ld      b,a
                 inc     c
-                call    wrt_vdp         ; write VDP R#1
+                call    wrtvdp          ; write VDP R#1
 
                 ld      hl,(T32NAM)
                 ld      a,h
@@ -566,7 +566,7 @@ set_txt32:
                 and     $3F
                 ld      b,a
                 ld      c,2
-                call    wrt_vdp         ; write VDP R#2
+                call    wrtvdp          ; write VDP R#2
 
                 ld      hl,(T32COL)
                 ld      b,2
@@ -577,7 +577,7 @@ tcol_lp:
                 djnz    tcol_lp
                 ld      b,h
                 ld      c,3
-                call    wrt_vdp         ; write VDP R#3
+                call    wrtvdp          ; write VDP R#3
 
                 ld      hl,(T32CGP)
                 ld      a,h
@@ -587,14 +587,14 @@ tcol_lp:
                 and     $1F
                 ld      b,a
                 ld      c,4
-                call    wrt_vdp         ; write VDP R#4
+                call    wrtvdp          ; write VDP R#4
 
                 ld      hl,(T32ATR)
                 rl      l
                 rl      h
                 ld      b,h
                 ld      c,5
-                call    wrt_vdp         ; write VDP R#5
+                call    wrtvdp          ; write VDP R#5
 
                 ld      hl,(T32PAT)
                 ld      a,h
@@ -604,7 +604,7 @@ tcol_lp:
                 and     $1F
                 ld      b,a
                 ld      c,6
-                call    wrt_vdp         ; write VDP R#6
+                call    wrtvdp          ; write VDP R#6
                 ret
 
 ;------------------------------
@@ -618,13 +618,13 @@ set_grp:
                 or      $02             ; M3 = 1
                 ld      b,a
                 ld      c,0
-                call    wrt_vdp         ; write VDP R#0
+                call    wrtvdp          ; write VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 ld      b,a
                 inc     c
-                call    wrt_vdp         ; write VDP R#1
+                call    wrtvdp          ; write VDP R#1
 
                 ld      hl,GRPNAM
                 ld      de,$7F03
@@ -670,7 +670,7 @@ sft_lp:
                 or      h
                 ld      b,a
 
-                call    wrt_vdp
+                call    wrtvdp
                 pop     hl
                 inc     hl
                 inc     hl
@@ -806,7 +806,7 @@ nsetrd:
 
                 ld      a,(SCRMOD)
                 cp      5
-                jp      c,vdp_setrd
+                jp      c,setrd
                 cp      7
                 ld      a,(ACPAGE)
                 jr      c,nsetrd_32k    ; SCREEN5/6 -> 32K pages
@@ -851,7 +851,7 @@ nsetwr:
 
                 ld      a,(SCRMOD)
                 cp      5
-                jp      c,vdp_setwrt
+                jp      c,setwrt
                 cp      7
                 ld      a,(ACPAGE)
                 jr      c,nsetwr_32k    ; SCREEN5/6 -> 32K pages
@@ -946,15 +946,15 @@ init_vdp:
                 in      a,(VDP_STAT)    ; ラッチの初期化
 
                 ld      bc,$0000        ; R#0
-                call    wrt_vdp
+                call    wrtvdp
                 ld      bc,$6001        ; R#1
-                call    wrt_vdp
+                call    wrtvdp
                 ld      bc,$0002        ; R#2
-                call    wrt_vdp
+                call    wrtvdp
                 ld      bc,$8003        ; R#3
-                call    wrt_vdp
+                call    wrtvdp
                 ld      bc,$0104        ; R#4
-                call    wrt_vdp
+                call    wrtvdp
 
                 call    clr_text32
 
@@ -976,7 +976,7 @@ init_vdp:
 ;             04h      00h
 
                 ld      bc,$F507        ; R#7
-                call    wrt_vdp
+                call    wrtvdp
 
                 in      a,(VDP_STAT)    ;　ラッチの初期化
 
@@ -992,11 +992,11 @@ init_vdp:
 ;       Or can we autodetect the VDP?
                 ; Write colour burst settings.
                 ld      bc,$0014        ; B = $00, C = 20
-                call    wrt_vdp         ; VDP R#20
+                call    wrtvdp          ; VDP R#20
                 ld      bc,$3B15        ; B = $3B, C = 21
-                call    wrt_vdp         ; VDP R#21
+                call    wrtvdp          ; VDP R#21
                 ld      bc,$0516        ; B = $05, C = 22
-                call    wrt_vdp         ; VDP R#22
+                call    wrtvdp          ; VDP R#22
 
                 ret
 
@@ -1036,22 +1036,22 @@ init_sc4:
                 or      $04             ; M4 = 1
                 ld      b,a
                 ld      c,0
-                call    wrt_vdp         ; write VDP R#0
+                call    wrtvdp          ; write VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 ld      b,a
                 inc     c
-                call    wrt_vdp         ; write VDP R#1
+                call    wrtvdp          ; write VDP R#1
 
                 ; TODO: This should be done for SCREEN2 as well,
                 ;       but on MSX1 this reg doesn't exist.
                 ld      bc,$000E        ; B = $00, C = 14
-                call    wrt_vdp         ; VDP R#14
+                call    wrtvdp          ; VDP R#14
 
                 ld      hl,(GRPNAM)
                 ld      (NAMBAS),hl
-                call    vdp_setwrt
+                call    setwrt
                 ld      b,3
                 xor     a
 init_sc4_lp:
@@ -1093,18 +1093,18 @@ init_sc4_lp:
                 and     $7F             ; 192 lines mode
                 ld      b,a
                 ld      c,9
-                call    wrt_vdp         ; VDP R#9
+                call    wrtvdp          ; VDP R#9
 
                 ; TODO: This should be done for SCREEN2 as well,
                 ;       but on MSX1 these regs don't exist.
                 ld      bc,$000A        ; B = $00, C = 10
-                call    wrt_vdp         ; VDP R#10
+                call    wrtvdp          ; VDP R#10
                 ld      bc,$000B        ; B = $00, C = 11
-                call    wrt_vdp         ; VDP R#11
+                call    wrtvdp          ; VDP R#11
 
                 call    clrspr_attr_spritemode1
                 ld      bc,$000E        ; B = $00, C = 14
-                call    wrt_vdp         ; VDP R#14
+                call    wrtvdp          ; VDP R#14
 
                 call    cls_screen2
                 jp      enascr
@@ -1126,13 +1126,13 @@ init_sc5:
                 or      $06             ; M4,M3 = 1
                 ld      b,a             ; B = R#0 data
                 ld      c,0
-                call    wrt_vdp         ; VDP R#0
+                call    wrtvdp          ; VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 ld      b,a
                 inc     c
-                call    wrt_vdp         ; VDP R#1
+                call    wrtvdp          ; VDP R#1
 
                 ld      hl,$0000
                 ld      (NAMBAS),hl
@@ -1143,27 +1143,27 @@ init_sc5:
 
                 ; TODO: Perform "SET PAGE 0,0" instead?
                 ld      bc,$1F02        ; B = $1F, C = 2
-                call    wrt_vdp         ; VDP R#2
+                call    wrtvdp          ; VDP R#2
 
                 ; Set sprite attribute table base.
                 ld      bc,$EF05        ; B = $EF, C = 5
-                call    wrt_vdp         ; VDP R#5
+                call    wrtvdp          ; VDP R#5
                 ld      bc,$000B        ; B = $00, C = 11
-                call    wrt_vdp         ; VDP R#11
+                call    wrtvdp          ; VDP R#11
 
                 ; Set sprite pattern table base.
                 ld      bc,$0F06        ; B = $0F, C = 6
-                call    wrt_vdp         ; VDP R#6
+                call    wrtvdp          ; VDP R#6
 
                 ld      a,(RG8SAV+9-8)
                 or      $80             ; 212 lines mode
                 ld      b,a
                 ld      c,9
-                call    wrt_vdp         ; VDP R#9
+                call    wrtvdp          ; VDP R#9
 
                 ; Turn off page blinking.
                 ld      bc,$000D
-                call    wrt_vdp         ; VDP R#13
+                call    wrtvdp          ; VDP R#13
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen5
@@ -1184,13 +1184,13 @@ init_sc6:
                 or      $08             ; M5 = 1
                 ld      b,a             ; B = R#0 data
                 ld      c,0
-                call    wrt_vdp         ; VDP R#0
+                call    wrtvdp          ; VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 ld      b,a
                 inc     c
-                call    wrt_vdp         ; VDP R#1
+                call    wrtvdp          ; VDP R#1
 
                 ld      hl,$0000
                 ld      (NAMBAS),hl
@@ -1201,27 +1201,27 @@ init_sc6:
 
                 ; TODO: Perform "SET PAGE 0,0" instead?
                 ld      bc,$1F02        ; B = $1F, C = 2
-                call    wrt_vdp         ; VDP R#2
+                call    wrtvdp          ; VDP R#2
 
                 ; Set sprite attribute table base.
                 ld      bc,$EF05        ; B = $EF, C = 5
-                call    wrt_vdp         ; VDP R#5
+                call    wrtvdp          ; VDP R#5
                 ld      bc,$000B        ; B = $00, C = 11
-                call    wrt_vdp         ; VDP R#11
+                call    wrtvdp          ; VDP R#11
 
                 ; Set sprite pattern table base.
                 ld      bc,$0F06        ; B = $0F, C = 6
-                call    wrt_vdp         ; VDP R#6
+                call    wrtvdp          ; VDP R#6
 
                 ld      a,(RG8SAV+9-8)
                 or      $80             ; 212 lines mode
                 ld      b,a
                 ld      c,9
-                call    wrt_vdp         ; VDP R#9
+                call    wrtvdp          ; VDP R#9
 
                 ; Turn off page blinking.
                 ld      bc,$000D
-                call    wrt_vdp         ; VDP R#13
+                call    wrtvdp          ; VDP R#13
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen6
@@ -1242,13 +1242,13 @@ init_sc7:
                 or      $0A             ; M5,M3 = 1
                 ld      b,a             ; B = R#0 data
                 ld      c,0
-                call    wrt_vdp         ; VDP R#0
+                call    wrtvdp          ; VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 ld      b,a             ; B = R#1 data
                 inc     c
-                call    wrt_vdp         ; VDP R#1
+                call    wrtvdp          ; VDP R#1
 
                 ld      hl,$0000
                 ld      (NAMBAS),hl
@@ -1259,27 +1259,27 @@ init_sc7:
 
                 ; TODO: Perform "SET PAGE 0,0" instead?
                 ld      bc,$1F02        ; B = $1F, C = 2
-                call    wrt_vdp         ; write VDP R#2
+                call    wrtvdp          ; write VDP R#2
 
                 ; Set sprite attribute table base.
                 ld      bc,$EF05        ; B = $EF, C = 5
-                call    wrt_vdp         ; write VDP R#5
+                call    wrtvdp          ; write VDP R#5
                 ld      bc,$000B        ; B = $00, C = 11
-                call    wrt_vdp         ; write VDP R#11
+                call    wrtvdp          ; write VDP R#11
 
                 ; Set sprite pattern table base.
                 ld      bc,$0F06        ; B = $0F, C = 6
-                call    wrt_vdp         ; write VDP R#6
+                call    wrtvdp          ; write VDP R#6
 
                 ld      a,(RG8SAV+9-8)
                 or      $80             ; 212 lines mode
                 ld      b,a
                 ld      c,9
-                call    wrt_vdp         ; VDP R#9
+                call    wrtvdp          ; VDP R#9
 
                 ; Turn off page blinking.
                 ld      bc,$000D
-                call    wrt_vdp         ; VDP R#13
+                call    wrtvdp          ; VDP R#13
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen7
@@ -1299,13 +1299,13 @@ init_sc8:
                 or      $0E             ; M5,M4,M3 = 1
                 ld      b,a             ; B = R#0 data
                 ld      c,0
-                call    wrt_vdp         ; VDP R#0
+                call    wrtvdp          ; VDP R#0
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
                 ld      b,a             ; B = R#1 data
                 inc     c
-                call    wrt_vdp         ; VDP R#1
+                call    wrtvdp          ; VDP R#1
 
                 ld      hl,$0000
                 ld      (NAMBAS),hl
@@ -1316,27 +1316,27 @@ init_sc8:
 
                 ; TODO: Perform "SET PAGE 0,0" instead?
                 ld      bc,$1F02        ; B = $1F, C = 2
-                call    wrt_vdp         ; write VDP R#2
+                call    wrtvdp          ; write VDP R#2
 
                 ; Set sprite attribute table base.
                 ld      bc,$EF05        ; B = $EF, C = 5
-                call    wrt_vdp         ; write VDP R#5
+                call    wrtvdp          ; write VDP R#5
                 ld      bc,$000B        ; B = $00, C = 11
-                call    wrt_vdp         ; write VDP R#11
+                call    wrtvdp          ; write VDP R#11
 
                 ; Set sprite pattern table base.
                 ld      bc,$0F06        ; B = $0F, C = 6
-                call    wrt_vdp         ; write VDP R#6
+                call    wrtvdp          ; write VDP R#6
 
                 ld      a,(RG8SAV+9-8)
                 or      $80             ; 212 lines mode
                 ld      b,a
                 ld      c,9
-                call    wrt_vdp         ; VDP R#9
+                call    wrtvdp          ; VDP R#9
 
                 ; Turn off page blinking.
                 ld      bc,$000D
-                call    wrt_vdp         ; VDP R#13
+                call    wrtvdp          ; VDP R#13
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen8
