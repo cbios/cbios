@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.11 2004/12/21 00:51:51 mthuurne Exp $
+; $Id: sub.asm,v 1.12 2004/12/21 03:32:20 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -250,15 +250,28 @@ getplt_text:    db      "GETPLT",0
 ;          E = xxxxxGGG
 ;          A = xRRRxBBB
 ; Changes: AF
+;
+; TODO: implement for all SCREEN modes
 setplt:
                 push    af
+                push    bc
+                push    hl
+                ld      l,d
+                ld      h,0
+                ld      bc,$7600
+                add     hl,bc
+                call    nsetwr
                 ld      b,d
                 ld      c,16
                 call    wrt_vdp         ; set palette index
+                pop     hl
+                pop     bc
                 pop     af
                 out     (VDP_PALT),a    ; set red and blue
+                out     (VDP_DATA),a
                 ld      a,e
                 out     (VDP_PALT),a    ; set green
+                out     (VDP_DATA),a
                 ret
 
 ;-------------------------------------

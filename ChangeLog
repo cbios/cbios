@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.22 2004/12/21 00:14:48 mthuurne Exp $
+$Id: ChangeLog,v 1.23 2004/12/21 03:32:49 mthuurne Exp $
+
+2004-12-21 Albert Beevendorp
+    * Added VRAM save to SETPLT which fixes about all wrong palette issues
 
 2004-12-20 Maarten ter Huurne <maarten@treewalker.org>
     * Implemented CHGSND: writing the 1-bit sound port.
