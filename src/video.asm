@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.7 2004/12/18 18:50:31 mthuurne Exp $
+; $Id: video.asm,v 1.8 2004/12/18 19:46:36 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -238,7 +238,7 @@ chgclr:
                 rlca
                 rlca
                 rlca
-		and	$F0
+                and     $F0
                 ld      l,a
                 ld      a,(BDRCLR)
                 or      l
