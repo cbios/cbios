@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.33 2005/01/09 17:11:23 bifimsx Exp $
+; $Id: sub.asm,v 1.34 2005/01/09 18:47:00 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -919,10 +919,8 @@ bltvm_1stcol:
                 and     15
                 or      $b0                     ; LMMC
                 out     (c),a
-                ei
 
                 ld      a,128+ 44
-                di
                 out     (VDP_ADDR),a
                 ld      a,128+ 17
                 out     (VDP_ADDR),a
@@ -936,8 +934,6 @@ bltvm_loop:
                 call    vdpsta
                 bit     0,a                     ; end of command?
                 ret     z
-                ;bit     7,a                     ; transmit ready?
-                ;jr      z,bltvm_loop
 
 bltvm_byte:
                 push    bc
