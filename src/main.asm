@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.82 2005/01/10 23:59:17 mthuurne Exp $
+; $Id: main.asm,v 1.83 2005/01/12 00:53:59 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -769,6 +769,7 @@ boot_stage2:
                 ld      a,1
                 ld      (DEVICE),a
                 xor     a
+                ; TODO: Find out or invent name for $FB29.
                 ld      ($FB29),a
 
                 ; Select RAM in page 2.
@@ -1200,9 +1201,9 @@ init_ram:
                 ldir
 
                 ld      a,$00
-                ld      hl,$FFE7 ; RG8SAV
+                ld      hl,RG8SAV
                 ld      (hl),a
-                ld      de,$FFE7+1
+                ld      de,RG8SAV + 1
                 ld      bc,15
                 ldir
 
@@ -3760,6 +3761,7 @@ keyint:
                 in      a,(VDP_STAT)
                 or      a
                 jp      p,int_end
+                ld      (STATFL),a      ; ステータス保存
 
                 call    H_TIMI
 
@@ -3767,8 +3769,11 @@ keyint:
                 inc     hl
                 ld      (JIFFY),hl
 
-                ei
-                ld      (STATFL),a      ; ステータス保存
+                ; TODO: It seems unsafe to me to already allow interrupts
+                ;       while this one is still busy: possible interference
+                ;       between two interrupts and also the amount of stack
+                ;       space claimed is a lot.
+                ;ei
 
                 xor     a
                 ld      (CLIKFL),a
