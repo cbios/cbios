@@ -1,9 +1,12 @@
-$Id: ChangeLog,v 1.66 2004/12/31 01:14:39 mthuurne Exp $
+$Id: ChangeLog,v 1.67 2004/12/31 17:54:36 bifimsx Exp $
 
 2004-12-31 Albert Beevendorp
     * Reset DPPAGE and ACPAGE on every CHGMOD
       Fixes graphical bug in A-Class Mahjong
     * CLS on bitmap screens now uses HMMV
+    * Added necessary code to SETRD and SETWRT for V99x8
+    * Fixed FILVRM to use 16-bits range for some reason
+      Fixes Contra graphical glitches
 
 2004-12-30 Maarten ter Huurne <maarten@treewalker.org>
     * Fixed dependency checking: it now checks dependencies recursively,

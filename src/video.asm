@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.31 2004/12/31 18:08:20 mthuurne Exp $
+; $Id: video.asm,v 1.32 2004/12/31 18:12:18 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -132,6 +132,11 @@ wrtvrm:
 ; Registers: AF
 setrd:
                 di
+                xor     a                       ; <msx2>
+                out     (VDP_ADDR),a            ; should be removed for
+                ld      a,128+14                ; the MSX1 ROM images
+                out     (VDP_ADDR),a            ; </msx2>
+
                 ld      a,l
                 out     (VDP_ADDR),a
                 ld      a,h
@@ -147,6 +152,11 @@ setrd:
 ; Registers: AF
 setwrt:
                 di
+                xor     a                       ; <msx2>
+                out     (VDP_ADDR),a            ; should be removed for
+                ld      a,128+14                ; the MSX1 ROM images
+                out     (VDP_ADDR),a            ; </msx2>
+
                 ld      a,l
                 out     (VDP_ADDR),a
                 ld      a,h
@@ -163,9 +173,10 @@ setwrt:
 ;            BC - length of the area to be written
 ;            HL - start address
 ; Registers: AF, BC
+; Note: Strange behaviour... it seems to use 16-bit addressing
 filvrm:
                 push    af
-                call    setwrt
+                call    nsetwr                  ; MSX1 should do SETWRT
                 dec     bc
                 inc     c
                 ld      a,b
@@ -188,7 +199,14 @@ filvrm_lp:
 ;            HL - Start address of VRAM
 ; Registers: All
 ldirmv:
+                ld      a,(SCRMOD)
+                cp      4
+                jr      nc,ldirmv_new
                 call    setrd
+                jr      ldirmv_cont
+ldirmv_new:
+                call    nsetrd
+ldirmv_cont:
                 ex      de,hl
                 dec     bc
                 inc     c
@@ -206,8 +224,8 @@ ldirmv_lp:
 ; $005C LDIRVM
 ; Function : Block transfer from memory to VRAM
 ; Input    : BC - blocklength
-;            DE - Start address of memory
-;            HL - Start address of VRAM
+;            DE - Start address of VRAM
+;            HL - Start address of memory
 ; Registers: All
 ldirvm:
                 ex      de,hl
