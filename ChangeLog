@@ -1,10 +1,13 @@
-$Id: ChangeLog,v 1.57 2004/12/29 19:16:56 mthuurne Exp $
+$Id: ChangeLog,v 1.58 2004/12/29 19:51:16 manuelbi Exp $
 
 2004-12-29 Manuel Bilderbeek <manuel@msxnet.org>
     * Replaced the font with a new font donated by Eric Boon. Thanks a lot!
 
 2004-12-29 Maarten ter Huurne <maarten@treewalker.org>
     * Fixed register trashing by RDSLT and WRSLT.
+    * Added enough hacks to make the NMS8250 disk ROM run on top of C-BIOS.
+      When debugging our own disk ROM we can now test whether problems we
+      encounter are caused by the disk ROM or by the main/sub ROM.
 
 2004-12-29 Albert Beevendorp
     * Changed detection order of NSETRD and NSETWR

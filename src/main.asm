@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.45 2004/12/29 14:38:29 mthuurne Exp $
+; $Id: main.asm,v 1.46 2004/12/29 19:13:48 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2953,44 +2953,31 @@ in_keyboard:
                 ei
                 ret
 
-; 0144h PHYDIO
-;Function:  Executes I/O for mass-storage media like diskettes
-;Input:     B  - Number of sectors
-;           C  - Media ID of the disk
-;           DE - Begin sector
-;           HL - Begin address in memory
-;Registers: All
-;Remark:    Before the call is called, the Z-flag must be reset, and the
-;           execution address which was in HL must be at the last stack address
-;           By the way: In minimum configuration only a HOOK is available
-;NOTE: this implementation is still a stub!
-;TODO: call H_PHYD
+;--------------------------------
+; $0144 PHYDIO
+; Executes I/O for mass-storage media like diskettes.
+; All this routine does is call H_PHYD, which should be installed by the main
+; disk ROM.
+; Input:     B  = number of sectors to save/load
+;            C  = media ID of the disk
+;            DE = begin sector
+;            HL = begin address in memory
+; Changes:   all
+; Remark:    Before the call is called, the Z-flag must be reset, and the
+;            execution address which was in HL must be at the last stack address
 phydio:
-;               call    H_PHYD
-                push    hl
-                push    af
-                ld      hl,phydio_text
-                call    print_debug
-                pop     af
-                pop     hl
+                call    H_PHYD
                 ret
-phydio_text:    db      "PHYDIO",0
 
-; $0014A FORMAT
-; Function : Initialises mass-storage media like formatting of diskettes
-; Registers: All
-; Remark   : In minimum configuration only a HOOK is available
-;TODO: call H_FORM
+;--------------------------------
+; $014A FORMAT
+; Initialises mass-storage media like formatting of diskettes.
+; All this routine does is call H_FORM, which should be installed by the main
+; disk ROM.
+; Changes:   all
 format:
-;               call    H_FORM
-                push    hl
-                push    af
-                ld      hl,format_text
-                call    print_debug
-                pop     af
-                pop     hl
+                call    H_FORM
                 ret
-format_text:    db      "FORMAT",0
 
 ;--------------------------------
 ;00D5h GTSTCK
@@ -3457,6 +3444,39 @@ hang_up_mode:
 
                 ds      $3020 - $
 stack_error:
+                ; Set up hooks and system vars so NMS8250 disk ROM will try
+                ; to load and execute the boot sector.
+                ld      a,$C9
+                ld      (H_STKE),a
+                ld      a,1
+                ld      (DEVICE),a
+                xor     a
+                ld      ($FB29),a
+
+                ; Select RAM in page 2.
+                ; This assumes the same slot used for page 3 also has RAM in
+                ; slot 2.
+                in      a,(PSL_STAT)
+                and     $CF
+                ld      c,a
+                rrca
+                rrca
+                and     $30
+                or      c
+                out     (PSL_STAT),a
+                ld      a,(SSL_REGS)
+                cpl
+                and     $CF
+                ld      c,a
+                rrca
+                rrca
+                and     $30
+                or      c
+                ld      (SSL_REGS),a
+
+                ; This is the hook the disk ROM uses for booting.
+                call    H_RUNC
+
                 call    H_STKE
                 ld      de,str_stack_error
                 jp      print_error
@@ -3756,6 +3776,53 @@ vdp_bios:
 ; ????
                 ds      $77CD - $
                 ret
+
+; Note: Below are a bunch of routines which do not adhere to any API that
+;       I know of. They are called directly by the NMS8250 disk ROM.
+;       For comparing the behaviour of the C-BIOS disk ROM which is under
+;       development with the known working NMS8250 disk ROM it is useful
+;       to be able to run either disk ROM in a C-BIOS machine. Therefore we
+;       have stubs for the routines that the NMS8250 disk ROM may call.
+
+; NMS8250 disk ROM can call to this address.
+                ds      $7D17 - $
+                push    hl
+                push    af
+                ld      hl,unk7D17_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+unk7D17_text:   db      "unknown@7D17",0
+
+; NMS8250 disk ROM retrieves a pointer from this address.
+                ds      $7D2F - $
+                dw      call_sdfscr
+
+; NMS8250 disk ROM can call to this address.
+                ds      $7D31 - $
+; Restore screen parameters from RTC and print welcome message.
+                ld      ix,$0189        ; SETSCR
+                call    extrom
+                ; Print BASIC copyright message.
+                ret
+
+; NMS8250 disk ROM calls to this address.
+; Restore screen parameters from RTC.
+call_sdfscr:
+                ld      ix,$0185        ; SDFSCR
+                jp      extrom
+
+; NMS8250 disk ROM can call to this address.
+                ds      $7E14 - $
+                push    hl
+                push    af
+                ld      hl,unk7E14_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+unk7E14_text:   db      "unknown@7E14",0
 
                 ds      $8000 - $
 
