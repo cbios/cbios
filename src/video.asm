@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.48 2005/01/13 18:37:11 ccfg Exp $
+; $Id: video.asm,v 1.49 2005/01/14 15:27:58 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -295,6 +295,48 @@ chgmod_tbl:
                 dw      init_sc8        ; SCREEN8
         ENDIF
 
+; TODO: Now that we rewrite most regs at the end of CHGMOD,
+;       the ini* routines can just update RG?SAV instead of calling wrtvdp.
+chgmod_finish:
+                di
+                ; Write R#0 - R#7.
+                ld      hl,RG0SAV
+                ld      bc,8 * $100 + VDP_ADDR
+                ld      d,$80
+chgmod_finish_lp:
+                outi
+                ld      a,b
+                out     (c),d
+                inc     d
+                or      a
+                jr      nz,chgmod_finish_lp
+
+        IF VDP != TMS99X8
+                ; Setup indirect access to R#8, auto-increment.
+                ld      a,8
+                out     (VDP_ADDR),a
+                ld      a,$80 + 17
+                out     (VDP_ADDR),a
+                ; Write R#8 - R#14.
+                ld      hl,RG8SAV
+                ld      bc,7 * $100 + VDP_REGS
+                otir
+                ; Skip these registers:
+                inc     hl              ; R#15: status register selection
+                inc     hl              ; R#16: palette index register
+                inc     hl              ; R#17: indirect register access
+                ; Setup indirect access to R#18, auto-increment.
+                ld      a,18
+                out     (VDP_ADDR),a
+                ld      a,$80 + 17
+                out     (VDP_ADDR),a
+                ; Write R#18 - R#23.
+                ld      bc,6 * $100 + VDP_REGS
+                otir
+        ENDIF
+                ei
+                jp      enascr
+
 ;--------------------------------
 ; $0062 CHGCLR
 ; Function : Changes the screencolors
@@ -489,7 +531,7 @@ initxt_width40:
                 call    settxt
                 call    init_font
                 call    cls_screen0
-                jp      enascr
+                jp      chgmod_finish
 
 ;--------------------------------
 ; $006F INIT32
@@ -533,7 +575,7 @@ init32:
                 call    sett32
                 call    clrspr_attr_spritemode1
                 call    cls_screen1
-                jp      enascr
+                jp      chgmod_finish
 
 ;--------------------------------
 ; $0072 INIGRP
@@ -578,7 +620,7 @@ inigrp_lp:
                 call    setgrp
                 call    clrspr_attr_spritemode1
                 call    cls_screen2
-                jp      enascr
+                jp      chgmod_finish
 
 ;------------------------------
 ; $0075 INIMLT
@@ -634,7 +676,7 @@ inimlt_loop3:
                 call    setmlt
                 call    clrspr_attr_spritemode1
                 call    cls_screen3
-                jp      enascr
+                jp      chgmod_finish
 
 ;------------------------------
 ; $0078 SETTXT
@@ -1281,7 +1323,7 @@ init_sc4_lp:
                 call    wrtvdp          ; VDP R#14
 
                 call    cls_screen2
-                jp      enascr
+                jp      chgmod_finish
 
 sc4atr:         dw      $1E00
 
@@ -1344,7 +1386,7 @@ init_sc5:
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen5
-                jp      enascr
+                jp      chgmod_finish
 
 ;------------------------------
 ; Initialise SCREEN6 (graphic 5).
@@ -1405,7 +1447,7 @@ init_sc6:
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen6
-                jp      enascr
+                jp      chgmod_finish
 
 ;------------------------------
 ; Initialise SCREEN7 (graphic 6).
@@ -1466,7 +1508,7 @@ init_sc7:
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen7
-                jp      enascr
+                jp      chgmod_finish
 
 ;------------------------------
 ; Initialise SCREEN8 (graphic 7).
@@ -1526,7 +1568,7 @@ init_sc8:
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen8
-                jp      enascr
+                jp      chgmod_finish
         ENDIF
 
 ;--------------------------------
