@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.12 2004/12/22 12:58:22 andete Exp $
+; $Id: systemvars.asm,v 1.13 2004/12/22 13:04:35 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -30,6 +30,7 @@
 
 ;-------------------
 ; help function area
+;-------------------
 
 ; F380-F384: interslot read
 RDPRIM:         equ     $F380
@@ -47,6 +48,7 @@ USRTAB:         equ     $F39A
 
 ;----------------------
 ; screen parameter area
+;----------------------
 
 ; F3AE: # of positions on a line in SCREEN 0 (ini:39)
 LINL40:         equ     $F3AE
@@ -298,6 +300,7 @@ RAWPRT:         equ     $F418
 
 ; ---------------------------
 ; basic interpreter work area
+; ---------------------------
 
 ; F419-F41A: work area for the BASIC command VAL: contains address of character that
 ; has temporarely been replaced by O by VAL
@@ -396,12 +399,16 @@ ATRBAS:         equ     $F928
 
 ; --------------------
 ; filesystem work area
+; --------------------
 
 ; ------------------------
 ; screen routine work area
+; ------------------------
 
 ; --------------------------------------
 ; work area for sound and queueing and RS232
+; --------------------------------------
+
 ; in the MSX2, the RS232 addresses are used for other purposes
 
 DPPAGE:         equ     $FAF5           ; Display page (SCR5+)
@@ -411,6 +418,7 @@ EXBRSA:         equ     $FAF8           ; ÉTÉuÉçÉÄà íu
 
 ; -----------------------------------------------
 ; settings for screen editor and interrupt system
+; -----------------------------------------------
 
 CLIKFL:         equ     $FBD9
 OLDKEY:         equ     $FBDA
@@ -433,27 +441,34 @@ SCRMOD:         equ     $FCAF
 
 ; ---------------------------
 ; storage of slot information
+; ---------------------------
 
 ; ------------------------------
 ; storage of ROM-page parameters
+; ------------------------------
 
 ; ------------
 ; system hooks
+; ------------
 
 ; system hooks are defined in hooks.asm
 
 ; ------------------
 ; storage of VDP8-23
+; ------------------
 
 RG8SAV:         equ     $FFE7
 
 ; ----------------------
 ; extra slot information
+; ----------------------
 
 ; ---------------------------
 ; subslot switching addresses
+; ---------------------------
 
 ; -------
 ; the end
+; -------
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
