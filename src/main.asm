@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.58 2004/12/31 01:14:40 mthuurne Exp $
+; $Id: main.asm,v 1.59 2004/12/31 03:37:22 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -355,6 +355,14 @@ romid:
                 ds      $00D8 - $
                 jp      gttrig
 
+; $00DB GTPAD
+                ds      $00DB - $
+                jp      gtpad
+
+; $00DE GTPDL
+                ds      $00DE - $
+                jp      gtpdl
+
 ; $00E1 TAPION
                 ds      $00E1 - $
                 jp      tapion
@@ -382,6 +390,18 @@ romid:
 ; $00F3 STMOTR
                 ds      $00F3 - $
                 jp      stmotr
+
+; $00F6 LFTQ
+                ds      $00F6 - $
+                jp      lftq
+
+; $00F9 PUTQ
+                ds      $00F9 - $
+                jp      putq
+
+; $0132 CHGCAP
+                ds      $0132 - $
+                jp      chgcap
 
 ; $0135 CHGSND
                 ds      $0135 - $
@@ -414,6 +434,18 @@ romid:
 ; $014A ISFLIO
                 ds      $014A - $
                 jp      isflio
+
+; $014D OUTDLP
+                ds      $014D - $
+                jp      outdlp
+
+; $0150 GETVCP
+                ds      $0150 - $
+                jp      getvcp
+
+; $0153 GETVC2
+                ds      $0153 - $
+                jp      getvc2
 
 ; $0156 KILBUF   キーボードバッファをクリアする
                 ds      $0156 - $
@@ -3254,6 +3286,144 @@ trig_off:
                 xor     a
                 ret
 
+;--------------------------------
+; $00DB GTPAD
+; Function : Returns current touch pad status
+; Input    : A  - Touchpad number to test
+; Output   : A  - Value
+; Registers: All
+; NOTE     : This implementation is still a stub!
+gtpad:
+                push    hl
+                push    af
+                ld      hl,gtpad_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+gtpad_text:     db      "GTPAD",0
+
+;--------------------------------
+; $00DE GTPDL
+; Function : Returns currenct value of paddle
+; Input    : A  - Paddle number
+; Output   : A  - Value
+; Registers: All
+; NOTE     : This implementation is still a stub!
+gtpdl:
+                push    hl
+                push    af
+                ld      hl,gtpdl_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+gtpdl_text:     db      "GTPDL",0
+
+;--------------------------------
+; $00F6 LFTQ
+; Function : Gives number of bytes in queue
+; Output   : A  - length of queue in bytes
+; Remark   : Internal use
+; NOTE     : This implementation is still a stub!
+lftq:
+                push    hl
+                push    af
+                ld      hl,lftq_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+lftq_text:      db      "LFTQ",0
+
+;--------------------------------
+; $00F9 PUTQ
+; Function : Put byte in queue
+; Remark   : Internal use
+; NOTE     : This implementation is still a stub!
+putq:
+                push    hl
+                push    af
+                ld      hl,putq_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+putq_text:      db      "PUTQ",0
+
+;--------------------------------
+; $0132 CHGCAP
+; Function : Alternates the CAP lamp status
+; Input    : A  - #00 is lamp on
+;             not #00 is lamp off
+; Registers: AF
+; NOTE     : This implementation is still a stub!
+chgcap:
+                push    hl
+                push    af
+                ld      hl,chgcap_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+chgcap_text:    db      "CHGCAP",0
+
+;--------------------------------
+; $014D OUTDLP
+; Function : Printer output
+; Input    : A  - code to print
+; Registers: F
+; Remark   : Differences with LPTOUT:
+;            1. TAB is expanded to spaces
+;            2. For non-MSX printers, Hiragana is transformed to katakana
+;               and graphic characters are transformed to 1-byte characters
+;            3. If failed, device I/O error occurs
+; TODO     : This implementation is still a stub!
+outdlp:
+                push    hl
+                push    af
+                ld      hl,outdlp_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+outdlp_text:    db      "OUTDLP",0
+
+;--------------------------------
+; $0150 GETVCP
+; Address  : #0150
+; Function : Returns pointer to play queue
+; Input    : A  - Channel number
+; Output   : HL - Pointer
+; Registers: AF
+; Remark   : Only used to play music in background
+; TODO     : This implementation is still a stub!
+getvcp:
+                push    hl
+                push    af
+                ld      hl,getvcp_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+getvcp_text:    db      "GETVCP",0
+
+;--------------------------------
+; $0153 GETVC2
+; Function : Returns pointer to variable in queue number VOICEN (byte op
+;            #FB38)
+; Input    : L  - Pointer in play buffer
+; Output   : HL - Pointer
+; Registers: AF
+getvc2:
+                push    hl
+                push    af
+                ld      hl,getvc2_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+getvc2_text:    db      "GETVC2",0
 
 ;------------------
 ; interrupt routine code

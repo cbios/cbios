@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.67 2004/12/31 17:54:36 bifimsx Exp $
+$Id: ChangeLog,v 1.68 2004/12/31 19:19:57 bifimsx Exp $
+
+2005-01-01 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Added stubs for some missing entries in main.asm.
 
 2004-12-31 Albert Beevendorp
     * Reset DPPAGE and ACPAGE on every CHGMOD
