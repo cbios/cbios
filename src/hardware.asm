@@ -1,9 +1,9 @@
-; $Id: hardware.asm,v 1.5 2004/12/26 22:49:53 mthuurne Exp $
+; $Id: hardware.asm,v 1.6 2004/12/30 12:15:23 andete Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
-; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
@@ -55,9 +55,11 @@ PPI_REGS:       equ     $AB             ; PPI register
 RTC_ADDR:       equ     $B4             ; RTC address
 RTC_DATA:       equ     $B5             ; RTC data
 
-SYSFLAGS:       equ     $F4             ; MSX2+ System flags, preserved after reset
+SYSFLAGS:       equ     $F4             ; MSX2+ System flags,
+                                        ; preserved after reset
                                         ; bit 5: CPU boot mode (1=R800)
-                                        ; bit 7: Boot method (1=soft boot, no logo)
+                                        ; bit 7: Boot method
+                                        ;        (1=soft boot, no logo)
 
 MAP_REG1:       equ     $FC             ; memory mapper: bank in $0000-$3FFF
 MAP_REG2:       equ     $FD             ; memory mapper: bank in $4000-$7FFF
@@ -68,5 +70,14 @@ MAP_REG4:       equ     $FF             ; memory mapper: bank in $C000-$FFFF
 ; memory mapped I/O
 
 SSL_REGS:       equ     $FFFF           ; secondary slot select registers
+
+;---------------------------------------------------
+; Constants used to define which hardware the BIOS will run on.
+; Used by the main_<model>.asm sources.
+
+; VDP models:
+TMS99X8:        equ     $9918
+V9938:          equ     $9938
+V9958:          equ     $9958
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
