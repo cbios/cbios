@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.16 2004/12/22 21:11:14 manuelbi Exp $
+; $Id: sub.asm,v 1.17 2004/12/23 02:21:00 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -115,6 +115,11 @@
                 ds      $0111 - $,$C9
                 ei
                 jp      chgclr
+
+; $0115 CLS
+                ds      $0115 - $,$C9
+                ei
+                jp      cls
 
 ; $012D WRTVDP Write to VDP register.
                 ds      $012D - $,$C9
