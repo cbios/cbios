@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.73 2005/01/02 12:48:54 ccfg Exp $
+$Id: ChangeLog,v 1.74 2005/01/02 23:47:40 ccfg Exp $
 
 2005-01-03 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Fixed a text scrolling bug in CHPUT.
@@ -13,6 +13,9 @@ $Id: ChangeLog,v 1.73 2005/01/02 12:48:54 ccfg Exp $
 2005-01-02 Albert Beevendorp
     * adjusted make.bat to compile the version dependent ROMs
     * updated blueMSX, NLMSX and RuMSX configurations
+
+2005-01-02 Patrick van Arkel <cbios@vampier.net>
+    * Came up with an initail plan to auto make configs for different emu's
 
 2005-01-01 Maarten ter Huurne <maarten@treewalker.org>
     * Create different ROMs for MSX1, MSX2 and MSX2+.
