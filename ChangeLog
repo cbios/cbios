@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.63 2004/12/30 13:09:11 andete Exp $
+$Id: ChangeLog,v 1.64 2004/12/30 14:09:58 andete Exp $
+
+2004-12-30 Maarten ter Huurne <maarten@treewalker.org>
+    * Fixed dependency checking: it now checks dependencies recursively,
+      so includes from included sources are checked properly.
 
 2004-12-30 Joost Yervante Damad <joost@lumatec.be>
     * fix inconsistent naming
