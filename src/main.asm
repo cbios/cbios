@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.50 2004/12/30 09:15:30 andete Exp $
+; $Id: main.asm,v 1.51 2004/12/30 10:26:41 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -466,6 +466,10 @@ romid:
                 include "video.asm"
                 include "logo.asm"
 
+; $0000 CHKRAM
+; Function : Tests RAM and sets RAM slot for the system
+; Registers: All
+; Remark   : After this, a jump must be made to INIT, for further initialisation.
 chkram:
 ;デバッグ用
 ;                ex      (sp),hl
