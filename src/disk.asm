@@ -1,4 +1,4 @@
-; $Id: disk.asm,v 1.2 2004/12/27 00:14:26 mthuurne Exp $
+; $Id: disk.asm,v 1.3 2005/01/08 01:07:44 mthuurne Exp $
 ; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
@@ -29,6 +29,8 @@
                 include "systemvars.asm"
                 include "hardware.asm"
 
+; Disk Transfer Area.
+DTA_ADDR:       equ     $F23D
 ; BDOS entry point.
 BDOS_ENTRY:     equ     $F37D
 ; Actual place where the BDOS inter slot call is made.
@@ -207,9 +209,9 @@ dskio_read_loop:
                 push    de
                 push    bc
                 call    load_sector
-                inc     de              ; next sector
                 pop     bc
                 pop     de
+                inc     de              ; next sector
                 djnz    dskio_read_loop
                 and     a               ; CF = 0
                 call    dskio_done
@@ -482,20 +484,92 @@ dskslt:
 ;--------------------------------
 ; PHYDIO
 phydio:
-                push    hl
-                push    af
-                ld      hl,phydio_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-phydio_text:    db      "disk: PHYDIO ($0144) called",0
+                ; TODO: Support multiple disk ROMs.
+                jp      dskio
 
 ;--------------------------------
 ; BDOS
 bdos:
+                ; Note: none of the BDOS functions uses A as an input.
+                ld      a,c
+                cp      $31
+                jr      nc,bdos_illfunc
                 push    hl
-                push    af
+                ld      hl,bdos_table
+                add     a,a
+                add     a,l
+                ld      l,a
+                ld      a,0
+                adc     a,h
+                ld      h,a
+                ld      a,(hl)
+                inc     hl
+                ld      h,(hl)
+                ld      l,a
+                ex      (sp),hl
+                ret                     ; jump to address from table
+
+bdos_illfunc:
+                ; Invalid function number.
+                ; Note: I couldn't find a specification anywhere of the proper
+                ;       behaviour in this case, so I'll return a typical error
+                ;       value.
+                ld      a,$FF
+                ld      l,a
+                ret
+
+bdos_table:
+                dw      bdos_print      ; $00
+                dw      bdos_print      ; $01
+                dw      bdos_print      ; $02
+                dw      bdos_print      ; $03
+                dw      bdos_print      ; $04
+                dw      bdos_print      ; $05
+                dw      bdos_print      ; $06
+                dw      bdos_print      ; $07
+                dw      bdos_print      ; $08
+                dw      bdos_print      ; $09
+                dw      bdos_print      ; $0A
+                dw      bdos_print      ; $0B
+                dw      bdos_print      ; $0C
+                dw      bdos_print      ; $0D
+                dw      bdos_print      ; $0E
+                dw      bdos_print      ; $0F
+                dw      bdos_print      ; $10
+                dw      bdos_print      ; $11
+                dw      bdos_print      ; $12
+                dw      bdos_print      ; $13
+                dw      bdos_print      ; $14
+                dw      bdos_print      ; $15
+                dw      bdos_print      ; $16
+                dw      bdos_print      ; $17
+                dw      bdos_print      ; $18
+                dw      bdos_print      ; $19
+                dw      bdos_setdta     ; $1A
+                dw      bdos_print      ; $1B
+                dw      bdos_print      ; $1C
+                dw      bdos_print      ; $1D
+                dw      bdos_print      ; $1E
+                dw      bdos_print      ; $1F
+                dw      bdos_print      ; $20
+                dw      bdos_print      ; $21
+                dw      bdos_print      ; $22
+                dw      bdos_print      ; $23
+                dw      bdos_print      ; $24
+                dw      bdos_print      ; $25
+                dw      bdos_print      ; $26
+                dw      bdos_print      ; $27
+                dw      bdos_print      ; $28
+                dw      bdos_print      ; $29
+                dw      bdos_print      ; $2A
+                dw      bdos_print      ; $2B
+                dw      bdos_print      ; $2C
+                dw      bdos_print      ; $2D
+                dw      bdos_print      ; $2E
+                dw      bdos_rdabs      ; $2F
+                dw      bdos_print      ; $30
+
+bdos_print:
                 ld      a,$23           ; ASCII mode
                 out     (DBG_CTRL),a
                 ld      hl,bdos_text
@@ -504,10 +578,47 @@ bdos:
                 call    print_debug_hexbyte
                 ld      a,$00           ; flush
                 out     (DBG_CTRL),a
-                pop     af
-                pop     hl
                 ret
 bdos_text:      db      "disk: BDOS ($F37D/$0005) called, function $",0
+
+;--------------------------------
+; BDOS $1A: SETDTA
+; Set Disk Transfer Area.
+; Input: DE = new DTA address
+bdos_setdta:
+                ld      (DTA_ADDR),de
+                ret
+
+;--------------------------------
+; BDOS $2F: RDABS
+; Read sectors.
+; Input:  DE = number of first sector to read
+;         L  = drive (0=A)
+;         H  = number of sectors to read
+; Output: A = error code (0=OK)
+bdos_rdabs:
+                ld      a,l
+                ld      b,h
+                ld      c,$F9           ; TODO: Retrieve media ID from disk.
+                ld      hl,(DTA_ADDR)
+                and     a               ; CF = 0
+                call    phydio
+                jr      c,bdos_rdabs_error
+                xor     a
+                ret
+
+bdos_rdabs_error:
+                ; TODO: Find out how to translate PHYDIO errors to BDOS errors.
+                inc     a
+                ret
+
+; Input:   F  = NC to read, C to write
+;          A  = Drive number (0=A:)
+;          B  = Number of sectors to transfer
+;          C  = Media descriptor
+;          DE = Logical sector number
+;          HL = Transfer address
+
 
 ;--------------------------------
 
