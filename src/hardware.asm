@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.4 2004/12/22 21:11:13 manuelbi Exp $
+; $Id: hardware.asm,v 1.5 2004/12/26 22:49:53 mthuurne Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -6,6 +6,7 @@
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -42,9 +43,9 @@ VDP_STAT:       equ     $99             ; VDP status (read only)
 VDP_PALT:       equ     $9A             ; VDP palette latch (write only)
 VDP_REGS:       equ     $9B             ; VDP register access (write only)
 
-PSG_REGS:       equ     $A0             ; PSGÉåÉWÉXÉ^î‘çÜ
-PSG_DATA:       equ     $A1             ; PSG data
-PSG_STAT:       equ     $A2             ; PSG status
+PSG_REGS:       equ     $A0             ; PSG register write port
+PSG_DATA:       equ     $A1             ; PSG value write port
+PSG_STAT:       equ     $A2             ; PSG value read port
 
 PSL_STAT:       equ     $A8             ; slot status
 KBD_STAT:       equ     $A9             ; keyboard status
@@ -53,6 +54,10 @@ PPI_REGS:       equ     $AB             ; PPI register
 
 RTC_ADDR:       equ     $B4             ; RTC address
 RTC_DATA:       equ     $B5             ; RTC data
+
+SYSFLAGS:       equ     $F4             ; MSX2+ System flags, preserved after reset
+                                        ; bit 5: CPU boot mode (1=R800)
+                                        ; bit 7: Boot method (1=soft boot, no logo)
 
 MAP_REG1:       equ     $FC             ; memory mapper: bank in $0000-$3FFF
 MAP_REG2:       equ     $FD             ; memory mapper: bank in $4000-$7FFF
@@ -64,3 +69,4 @@ MAP_REG4:       equ     $FF             ; memory mapper: bank in $C000-$FFFF
 
 SSL_REGS:       equ     $FFFF           ; secondary slot select registers
 
+; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:

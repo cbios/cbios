@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.52 2004/12/30 10:28:55 andete Exp $
+; $Id: main.asm,v 1.53 2004/12/30 11:25:49 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1010,12 +1010,12 @@ init_ram:
                 ld      bc,$0C7D
                 ldir
 
-;リターンコード埋め込み
+; initialize hook area with C9 (assembler code for ret)
                 ld      a,$C9           ; ret code
                 ld      hl,H_KEYI
                 ld      (hl),a
                 ld      de,H_KEYI+1
-                ld      bc,$024D
+                ld      bc,$024D        ; shouldn't this be $0235 ?
                 ldir
 
 ;キーマトリクスの初期化。
