@@ -1,0 +1,105 @@
+$Id$
+
+2004-11-27 Maarten ter Huurne <maarten@treewalker.org>
+    * Put C-BIOS code into CVS, with the following changes compared to 0.17:
+      - Changed assembly syntax such that MSX-style assemblers like SjASM and
+        tniASM accept it.
+      - Assemble main ROM file from main source, instead of in two halves.
+      - Renamed source files.
+      - Added Makefile.
+      - Moved change log from main source file to this file.
+
+2003-08-10 BouKiChi
+    * fixed clear problem in init_txt, init_txt32.
+    * fixed scroll in CHPUT on txt40/graphic1 modes.
+
+2003-06-01 BouKiChi
+    * fixed chgmod related. (init_txt, init_txt32 font load added)
+    * fixed curs2de, de2curs (screen1 support added)
+
+2003-04-16 BouKiChi
+    * divided sound routine from main kernel.
+
+2002-10-02 BouKiChi
+    * improved init_sc5.
+
+2002-09-26 BouKiChi
+    * fixed keyboard routine.
+
+2002-09-25 BouKiChi
+    * rewrite ENASLT.
+    * added init_sc7.
+
+2002-09-23 BouKiChi
+    * added disk routine.
+
+2002-09-22 BouKiChi
+    * fixed init_sc5.
+
+2002-09-19 BouKiChi
+    * improved stroke speed of keyboard input.
+    * added scroll routines.
+    * fixed init_grp.
+
+2002-09-18 BouKiChi
+    * added CHPUT routine.
+    * rewrite curs2de and de2curs routine again.
+
+2002-09-16 BouKiChi
+    * added half of system font.
+
+2002-09-12 BouKiChi
+    * initilize from RG8SAV to RG23
+    * ENASLT returns state of disable interrupt.
+
+2002-09-11 BouKiChi
+    * added print_error function.
+    * added ROM searching and fixed usage of EXPTBL.
+
+2002-09-10 BouKiChi
+    * improved clearing memory routine.
+    * added memory saving trap.
+
+2002-09-08 BouKiChi
+    * fixed WRSLT.
+    * added keyboard routine.
+    * added GTSTCK and GTTRIG.
+
+2002-08-27 BouKiChi
+    * added sound mode.
+    * syntax adjust for other assemblers.
+    * fixed RDPRIM.
+
+2002-08-26 BouKiChi
+    * added initialize value of GRP??? and MLT???.
+    * re-adjust memory ack function.
+    * added calling H.STKE function.
+    * re-adjust routines.
+
+2002-08-24 BouKiChi
+    * added INITGRP,CHGMOD and sound_init.
+
+2002-08-21 BouKiChi
+    * name of this project was changed.
+
+2002-08-20 BouKiChi
+    * added initilize table of $fcc2-$fcc4
+    * added in_joy and in_trig
+    * filesize reduced from 32KB to 16KB.
+    * set.bat can be restoring for only 32kb readable emulators.
+
+2002-08-19 BouKiChi
+    * added DCOMPR function and adjusted wait.
+
+2002-08-15 BouKiChi
+    * improved cartridge knowledge.
+
+2002-08-13 BouKiChi
+    * added fonts and key input routine,displayed infomation.
+
+2002-08-09 BouKiChi
+    * it's my birthday,this version was playable games.
+
+2002-08-07 BouKiChi
+    * start development.
+
