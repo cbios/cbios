@@ -1,8 +1,10 @@
-$Id: ChangeLog,v 1.98 2005/01/09 03:26:36 mthuurne Exp $
+$Id: ChangeLog,v 1.99 2005/01/09 17:11:38 bifimsx Exp $
 
 2005-01-09 Albert Beevendorp
     * fixed BLTVM. It wasn't tested yet as games using it were unknown
       at that time.
+    * sped up BLTVM. Fixes issues with several games that were broken with
+      the previous.
 
 2005-01-08 Maarten ter Huurne <maarten@treewalker.org>
     * Added support for loading to page 1.
