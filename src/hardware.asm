@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.9 2005/01/02 16:42:11 bifimsx Exp $
+; $Id: hardware.asm,v 1.10 2005/02/06 19:13:27 bifimsx Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -87,7 +87,7 @@ MODEL_MSX2P:    equ     2
 MODEL_MSXTR:    equ     3
 
 ; BOOLEAN VALUES
-YES:            equ     0
-NO:             equ     1
+YES:            equ     1
+NO:             equ     0
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
