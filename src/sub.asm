@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.13 2004/12/21 06:47:40 bifimsx Exp $
+; $Id: sub.asm,v 1.14 2004/12/21 08:01:08 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -205,6 +205,8 @@ iniplt:
                 push    hl
                 call    palette_vram
                 call    nsetwr
+                ld      bc,16
+                call    wrt_vdp         ; set palette index
                 ld      b,32
                 ld      hl,palette_vram_init
 iniplt_loop:    ld      a,(hl)
@@ -224,6 +226,8 @@ rstplt:
                 call    palette_vram
                 call    nsetrd
                 pop     hl
+                ld      bc,16
+                call    wrt_vdp         ; set palette index
                 ld      b,32
 rstplt_loop:    in      a,(VDP_DATA)
                 out     (VDP_PALT),a
@@ -428,16 +432,22 @@ knjprt_text:    db      "KNJPRT",0
 ;                   ++------ Block-number
 ; Output:    A  - Read value in lowest four bits
 ; Registers: F
-; NOTE: this implementation is still a stub!
 redclk:
-                push    hl
-                push    af
-                ld      hl,redclk_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,13
+                out     (RTC_ADDR),a
+                ld      a,c
+                rrca
+                rrca
+                rrca
+                rrca
+                and     3
+                or      8
+                out     (RTC_DATA),a
+                ld      a,c
+                and     15
+                out     (RTC_ADDR),a
+                in      a,(RTC_DATA)
                 ret
-redclk_text:    db      "REDCLK",0
 
 ;-------------------------------------
 ; $01F9 WRTCLK
@@ -448,16 +458,26 @@ redclk_text:    db      "REDCLK",0
 ;                   ++------ Block-number
 ;            A  - Value to write
 ; Registers: F
-; NOTE: this implementation is still a stub!
 wrtclk:
-                push    hl
-                push    af
-                ld      hl,wrtclk_text
-                call    print_debug
-                pop     af
-                pop     hl
+                push    bc
+                ld      b,a
+                ld      a,13
+                out     (RTC_ADDR),a
+                ld      a,c
+                rrca
+                rrca
+                rrca
+                rrca
+                and     3
+                or      8
+                out     (RTC_DATA),a
+                ld      a,c
+                and     15
+                out     (RTC_ADDR),a
+                ld      a,b
+                out     (RTC_DATA),a
+                pop     bc
                 ret
-wrtclk_text:    db      "WRTCLK",0
 
 ; Empty space until end of page.                
                 ds      $4000 - $
