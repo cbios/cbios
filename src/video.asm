@@ -1,9 +1,9 @@
-; $Id: video.asm,v 1.36 2005/01/03 00:07:17 ccfg Exp $
+; $Id: video.asm,v 1.37 2005/01/03 00:17:46 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
-; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
@@ -428,33 +428,47 @@ clrspr_attr_8:
 ; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
 ; Registers: All
 initxt:
+                ; New screen mode.
                 ld      a,$00
                 ld      (SCRMOD),a
                 ld      (OLDSCR),a
 
+                ; No VRAM pages.
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
+
+                ; Line length.
+                ld      a,(LINL40)
+                ld      (LINLEN),a
+
+                ; Cursor position: top-left.
                 ld      a,1
                 ld      (CSRY),a
                 ld      (CSRX),a
 
-                call    chgclr
-
-                ld      hl,B_Font
-                ld      de,(TXTCGP)
-                ld      bc,$0800
-                call    ldirvm          ; init Font
-
-                ld      hl,$0000
+                ; Table base addresses.
+                ld      hl,(TXTNAM)     ; name table
                 ld      (NAMBAS),hl
-                ld      hl,$0800
+                ld      hl,(TXTCGP)     ; pattern table
+        IF VDP != TMS99X8
+                ld      a,(LINLEN)
+                cp      41
+                jr      c,initxt_width40
+                ld      hl,$1000
+initxt_width40:
+        ENDIF
                 ld      (CGPBAS),hl
+                ld      hl,(TXTATR)     ; sprite attribute table (unused)
+                ld      (ATRBAS),hl
+                ld      hl,(TXTPAT)     ; sprite pattern table (unused)
+                ld      (PATBAS),hl
 
-                ld      a,(LINL40)
-                ld      (LINLEN),a
-
-                xor     a
-                ld      (DPPAGE),a
-                ld      (ACPAGE),a
+                ; Update VDP regs and VRAM.
+                call    disscr
+                call    chgclr
                 call    settxt
+                call    init_font
                 call    cls_screen0
                 jp      enascr
 
@@ -484,10 +498,7 @@ init32:
                 ld      hl,(T32ATR)
                 ld      (ATRBAS),hl
 
-                ld      hl,B_Font
-                ld      de,(T32CGP)
-                ld      bc,$0800
-                call    ldirvm          ; init Font
+                call    init_font
 
                 ld      a,(LINL32)
                 ld      (LINLEN),a
@@ -558,6 +569,12 @@ inimlt_text:    db      "SCREEN3",0
 ; Registers: All
 ; TODO:      Make use of the inputs; see setgrp.
 settxt:
+        IF VDP != TMS99X8
+                ld      a,(LINLEN)
+                cp      41
+                jr      nc,settxt80
+        ENDIF
+
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 ld      b,a
@@ -577,6 +594,35 @@ settxt:
                 ld      bc,$0002        ; R#2 PatNamTBLaddr=$0000
                 call    wrtvdp          ; write VDP R#2
                 ret
+
+; Switches VDP to TEXT2 mode (SCREEN 0, WIDTH 80).
+        IF VDP != TMS99X8
+settxt80:
+                ld      a,(RG0SAV)
+                and     $F1             ; MASK 11110001
+                or      $04
+                ld      b,a
+                ld      c,0
+                call    wrtvdp          ; write VDP R#0
+
+                ld      a,(RG1SAV)
+                and     $E7             ; MASK 11100111
+                or      $10
+                ld      b,a
+                inc     c
+                call    wrtvdp          ; write VDP R#1
+
+                ; TODO: Use TXT??? or ???BAS for base addresses.
+
+                ld      bc,$0204        ; R#4 PatGenTBLaddr=$1000
+                call    wrtvdp          ; write VDP R#4
+
+                ; Note: The table base is actually at $0000, but we have to
+                ;       write $03 to avoid the mirroring effect.
+                ld      bc,$0302        ; R#2 PatNamTBLaddr=$0000
+                call    wrtvdp          ; write VDP R#2
+                ret
+        ENDIF
 
 ;------------------------------
 ; $007B SETT32
@@ -1040,6 +1086,15 @@ init_vdp:
                 call    wrtvdp          ; VDP R#22
 
                 ret
+
+;------------------------------
+; Initialise font.
+; Uploads font to VRAM address specified by CGPBAS.
+init_font:
+                ld      hl,B_Font
+                ld      de,(CGPBAS)
+                ld      bc,$0800
+                jp      ldirvm
 
 ;------------------------------
 ; Initialise SCREEN4 (graphic 3).

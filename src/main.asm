@@ -1,9 +1,9 @@
-; $Id: main.asm,v 1.64 2005/01/02 23:47:41 ccfg Exp $
+; $Id: main.asm,v 1.65 2005/01/03 00:17:45 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
-; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
@@ -1768,109 +1768,75 @@ page_set0:
                 out     (PSL_STAT),a
                 ret
 
+;--------------------------------
+; Determine bytes per line in the current text mode.
+; Input:   SCRMOD, LINLEN
+; Output:  C = number of bytes per line
+; Changes: AF
+text_bytes_per_line:
+                ld      c,32            ; text32
+                ld      a,(SCRMOD)
+                or      a
+                ret     nz
+                ld      c,40            ; text40
+                ld      a,(LINLEN)
+                cp      41
+                ret     c
+                ld      c,80            ; text80
+                ret
 
-;-------------------------------------
-;カーソルをRegDEに変換する。
-;-------------------------------------
-;out.. DE = VRAM address
-curs2de:
-                push    af
+;--------------------------------
+; Calculate the VRAM address that corresponds to the current cursor position.
+; Input:   CSRX, CSRY
+; Output:  HL = VRAM address
+; Changes: none
+curs2hl:
                 push    bc
-                push    hl
+                push    af
 
-                xor     a
-                ld      hl,SCRMOD
-                cp      (hl)
-                jr      nz,c2d_scr1
-                ld      hl,(TXTNAM)
-                ld      de,40           ; text40
-                jr      c2d_do
-c2d_scr1:
-                ld      hl,(T32NAM)
-                ld      de,32           ; text32
-;                jr      c2d_do
-c2d_do:
+                call    text_bytes_per_line
 
-                ld      a,(CSRY)
-                cp      2
-                jr      c,c2d_add_skip
-                dec     a
-                ld      b,a
-c2d_add_lp:
-                add     hl,de
-                djnz    c2d_add_lp
-c2d_add_skip:
+                ; Calculate left border.
+                ld      a,(LINLEN)
+                neg
+                add     a,c             ; A = bytes_per_line - LINLEN
+                inc     a               ; round up
+                srl     a               ; A = A / 2
+                ld      l,a             ; L = size of left border
+
+                ; Add X coordinate.
                 ld      a,(CSRX)
-                cp      2
-                jr      c,c2d_add_skip2
-                dec     a
-                ld      e,a
-                add     hl,de
+                dec     a               ; from 1-based to 0-based
+                add     a,l             ; add border size
+                ld      l,a
 
-c2d_add_skip2:
+                ; Convert to 16-bits counters.
+                ld      h,0
+                ld      b,h
 
-                ld      d,h
-                ld      e,l
+                ; Add Y * bytes_per_line.
+                ld      a,(CSRY)
+                dec     a               ; from 1-based to 0-based
+curs2hl_mult_loop:
+                srl     a
+                jr      nc,curs2hl_mult_skip
+                add     hl,bc
+curs2hl_mult_skip:
+                sla     c               ; BC = BC * 2
+                rl      b
+                or      a
+                jr      nz,curs2hl_mult_loop
 
-                pop     hl
-                pop     bc
+                ; Add base address.
+                ld      bc,(NAMBAS)
+                add     hl,bc
+
                 pop     af
+                pop     bc
                 ret
 
 
-;-----------------------------------
-; RegDEからカーソル位置へ (CSRX,CSRY)
-de2curs:
-                push    af
-                push    bc
-                push    de
-                push    hl
-
-                ex      de,hl
-
-                xor     a
-                ld      hl,SCRMOD
-                cp      (hl)
-                jr      nz,d2c_scr1
-                ld      de,(TXTNAM)
-                ld      bc,40
-                jr      d2c_do
-d2c_scr1:
-                ld      de,(T32NAM)
-                ld      bc,32           ; text32
-;                jr      d2c_do
-d2c_do:
-                inc     a
-                ld      c,a
-                jr      under_chk
-
-d2c_sub_lp:
-                and     a
-                sbc     hl,bc
-                inc     e
-under_chk:
-                xor     a
-                cp      h
-                jr      nz,d2c_sub_lp
-                ld      a,l
-                cp      40
-                jr      nc,d2c_sub_lp
-
-                ld      a,e
-                inc     a
-                ld      (CSRY),a
-                ld      a,l
-                inc     a
-                ld      (CSRX),a
-
-                pop     hl
-                pop     de
-                pop     bc
-                pop     af
-                ret
-
-
-;----------------------------------
+;--------------------------------
 
 m_rdprim:
                 out     (PSL_STAT),a
@@ -2461,14 +2427,11 @@ chput:
                 push    af
                 ld      a,(SCRMOD)
                 cp      2
-                jr      c,scr_txt_mode
+                jr      nc,chput_exit_af
                 pop     af
-                ret
-
-scr_txt_mode:
-                pop     af
-                push    de
                 push    af
+                push    hl
+                push    de
 
                 ; CTRL code
                 cp      $00
@@ -2483,9 +2446,9 @@ scr_txt_mode:
                 jp      z,ctrl_lf
 
                 ; Charactor code
+                push    af
                 call    set_curs
                 pop     af
-                push    af
                 out     (VDP_DATA),a
                 ld      a,(LINLEN)
                 ld      e,a
@@ -2497,10 +2460,14 @@ scr_txt_mode:
                 inc     a
 chput_ret:
                 ld      (CSRX),a
+
 chput_exit:
-                pop     af
                 pop     de
+                pop     hl
+chput_exit_af:
+                pop     af
                 ret
+
 chput_nx:
                 ld      a,(CRTCNT)
                 ld      e,a
@@ -2517,18 +2484,13 @@ chput_scrll:
                 jr      chput_ret
 
 set_curs:
-                call    curs2de
-                ex      de,hl
-                call    setwrt
-                ex      de,hl
-                ret
+                call    curs2hl
+                jp      setwrt
 
 chput_beep:
-                push    hl
                 push    bc
                 call    beep
                 pop     bc
-                pop     hl
                 jr      chput_exit
 
 back_spc:
@@ -2564,68 +2526,59 @@ lf_scroll:
 
 ; scroll routine
 scroll_txt:
-                push    af
                 push    bc
-                push    hl
-                push    de
+                call    text_bytes_per_line
+                ld      b,0             ; BC = bytes_per_line
                 ld      hl,(NAMBAS)
-                ld      de,LINWRK
-                ld      a,(CRTCNT)
-;                ld      (CSRY),a
-;                dec     a
-                ld      b,a
-                ld      a,(SCRMOD)
-                and     a
-                jr      nz,scroll_n0
-                ld      c,40
-                jr      scr_loop
-scroll_n0:
-                dec     a
-                jr      nz,scroll_n1
-                ld      c,32
+                ld      e,l
+                ld      d,h             ; DE = dest (VRAM addr)
+                add     hl,bc           ; HL = source (VRAM addr)
 
+                ld      a,(CRTCNT)
+                dec     a
 scr_loop:
                 push    bc
+                push    af
+                ld      a,c
+                cp      41
+                jr      c,scr_copy
+                ; The LINWRK buffer is 40 bytes long, so for 80 bytes per
+                ; line we have to copy in 2 steps.
+                ld      c,40
+                call    copy_line
+scr_copy:
+                call    copy_line       ; HL = source, DE = dest, BC = length
+
+                pop     af
+                pop     bc
+                dec     a
+                jr      nz,scr_loop
+
+                ex      de,hl
                 xor     a
-                ld      b,a
-
-                add     hl,bc
-                push    hl
-                push    de
-                push    bc
-                call    ldirmv          ; HL=VRAM,DE=RAM,BC=LENGTH
-                pop     bc
-                pop     de
-                pop     hl
-
-                and     a
-                sbc     hl,bc
-
-                ex      de,hl           ; DE = VRAM,HL = RAM
-
-                push    hl
-                push    de
-                push    bc
-                call    ldirvm
-                pop     bc
-                pop     de
-                pop     hl
-
-                ex      de,hl           ; DE = RAM,HL = VRAM
-
-                add     hl,bc
-
-                pop     bc
-                djnz    scr_loop
-
-                ld      a,0
                 call    filvrm
 
-scroll_n1:
-                pop     de
-                pop     hl
                 pop     bc
-                pop     af
+                ret
+
+copy_line:
+                push    hl              ; HL = source
+                push    de
+                push    bc
+                ld      de,LINWRK
+                call    ldirmv          ; HL = VRAM, DE = RAM, BC = length
+                pop     bc
+                pop     de
+                push    de              ; DE = dest
+                push    bc
+                ld      hl,LINWRK
+                call    ldirvm          ; HL = RAM, DE = VRAM, BC = length
+                pop     bc
+                pop     hl
+                add     hl,bc
+                ex      de,hl           ; DE = updated dest
+                pop     hl
+                add     hl,bc           ; HL = updated source
                 ret
 
 ;--------------------------------

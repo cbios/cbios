@@ -1,4 +1,10 @@
-$Id: ChangeLog,v 1.74 2005/01/02 23:47:40 ccfg Exp $
+$Id: ChangeLog,v 1.75 2005/01/03 00:28:06 vampier Exp $
+
+2005-01-03 Maarten ter Huurne <maarten@treewalker.org>
+    * Implemented SCREEN0 in 80 columns mode (TEXT2).
+    * Implemented centering if WIDTH is less than maximum allowed by the VDP.
+    * Rewrote curs2de, renamed to curs2hl.
+    * Rewrote VRAM copy part of text scrolling routine.
 
 2005-01-03 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Fixed a text scrolling bug in CHPUT.
@@ -15,7 +21,7 @@ $Id: ChangeLog,v 1.74 2005/01/02 23:47:40 ccfg Exp $
     * updated blueMSX, NLMSX and RuMSX configurations
 
 2005-01-02 Patrick van Arkel <cbios@vampier.net>
-    * Came up with an initail plan to auto make configs for different emu's
+    * Came up with an initial plan to auto make configs for different emu's
 
 2005-01-01 Maarten ter Huurne <maarten@treewalker.org>
     * Create different ROMs for MSX1, MSX2 and MSX2+.
