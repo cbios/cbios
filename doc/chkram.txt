@@ -1,0 +1,40 @@
+What a BIOS does when CHKRAM is called
+--------------------------------------
+
+- disable interrupts
+- init memory mapper
+- init light pen (not needed)
+- init PPI commando register
+- init PPI-A select 4x slot 0
+- init PPI-C caps off, motor off
+- init VDP set reg 9 with value 2
+- wait quite some time (more then $a000 x 4 instructions)
+- init PPI-A select 4x slot 0 (again)
+- select subslot for 8000 & C000
+- try to see if it is really RAM by writing to it, and test RAM
+- remove RAM from page 3 ?
+- try to write to page 3 ?
+- more slot trickery ???
+- even more slot trickery
+- fill f380 - fff7 with 0
+- and more slot trickery
+- init SP on F376
+- fill hook area with C9
+- init HIMEM with F380
+- find highest ROM area and init BOTTOM
+- copy initial values to f380-f410
+- call INIFNK
+- init ENDBUF, NLONLY, BUFMIN, KBFMIN, CGPNT, PRMDRV, STKTOP, MEMSIZ, VARTAB
+- calculate MAXFIL, FILTAB, adjust MEMSIZ, STKTOP, calc NULBUF
+- init TEMPST
+- reset PRTFLG, try CR/LF to printer, update LPTPOS
+- init VLZADR, VLZDAT, ERRLIN = CURLIN, init DOT
+- some VDP write??
+- call H_FINP; reset PRTFLG
+- init PTRFIL (0)
+- init at 0: PRMLEN NOFUNS PRMLN2 FUNACT PRMSTK SUBFLG
+- round BOTTOM
+- init TXTTAB
+...
+...
+List NOT yet complete!
