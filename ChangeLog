@@ -1,4 +1,10 @@
-$Id: ChangeLog,v 1.83 2005/01/04 18:18:00 bifimsx Exp $
+$Id: ChangeLog,v 1.84 2005/01/05 09:07:17 ccfg Exp $
+
+2005-01-05 Albert Beevendorp
+    * Added GRPPRT, GETPAT
+    * Added RST calls to subrom
+    * Added simple CHRGTR to subrom
+    * Added DOCOMPR to subrom
 
 2005-01-05 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Rewrote adr_sft, renamed to set_base_address.
