@@ -1,19 +1,19 @@
-$Id: ChangeLog,v 1.52 2004/12/29 11:17:27 andete Exp $
+$Id: ChangeLog,v 1.53 2004/12/29 12:03:07 andete Exp $
 
 2004-12-29 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Select 8x8 sprites before running a ROM. Fixes American Truck.
 
 2004-12-29 Joost Yervante Damad <joost@lumatec.be>
-	* add more hooks to hooks.asm and document them
-	* add some commented hooks to some subroutines in main.asm
-	* implement ISFLIO; with call to H_ISFL in comments
-	* implement FORMAT stub; with call to H_FORM in comments
-	* stubs for LPTOUT and LPTSTT with commented hooks
-	* implemented CNVCHR
-	* stubs for PINLIN, INLIN, QINLIN with commented hooks
-	* stubs for BREAKX, ISCNTC
-	* implemented CKCNTC
-	* document GETYPR
+    * add more hooks to hooks.asm and document them
+    * add some commented hooks to some subroutines in main.asm
+    * implement ISFLIO; with call to H_ISFL in comments
+    * implement FORMAT stub; with call to H_FORM in comments
+    * stubs for LPTOUT and LPTSTT with commented hooks
+    * implemented CNVCHR
+    * stubs for PINLIN, INLIN, QINLIN with commented hooks
+    * stubs for BREAKX, ISCNTC
+    * implemented CKCNTC
+    * document GETYPR
 
 2004-12-28 Albert Beevendorp
     * Added clipping to BLTVV and BLTVM
@@ -277,3 +277,4 @@ $Id: ChangeLog,v 1.52 2004/12/29 11:17:27 andete Exp $
 2002-08-07 BouKiChi
     * start development.
 
+# vim:ts=4:expandtab
