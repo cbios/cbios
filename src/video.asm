@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.14 2004/12/22 21:11:14 manuelbi Exp $
+; $Id: video.asm,v 1.15 2004/12/23 02:21:00 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -481,7 +481,7 @@ init_grp:
 
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
-                or      2               ; M3 = 1
+                or      $02             ; M3 = 1
                 ld      b,a
                 ld      c,0
                 call    wrt_vdp         ; write VDP R#0
@@ -503,6 +503,9 @@ init_grp_lp:
                 jr      nz,init_grp_lp
                 djnz    init_grp_lp
 
+                ld      hl,(GRPCGP)
+                ld      (CGPBAS),hl
+
                 ld      hl,(GRPATR)
                 ld      (ATRBAS),hl
 
@@ -516,15 +519,15 @@ init_grp_lp:
                 ld      c,2             ; C = VDP R#
 
                 xor     a               ; data=0
-                call    adr_sft         ; R#2
+                call    adr_sft         ; R#2: GRPNAM
                 ld      a,d             ; data=D
-                call    adr_sft         ; R#3
+                call    adr_sft         ; R#3: GRPCOL
                 ld      a,e             ; data=E
-                call    adr_sft         ; R#4
+                call    adr_sft         ; R#4: GRPCGP
                 xor     a               ; data=0
-                call    adr_sft         ; R#5
+                call    adr_sft         ; R#5: GRPATR
                 xor     a               ; data=0
-                call    adr_sft
+                call    adr_sft         ; R#6: GRPPAT
                 pop     ix
 
                 call    clrspr_spritemode1
@@ -915,9 +918,91 @@ clr_text32:
 ;------------------------------
 ; Initialise SCREEN4 (graphic 3).
 init_sc4:
-                ld      hl,init_sc4_text
-                jp      print_debug
-init_sc4_text:  db      "SCREEN4",0
+; TODO: Try to reduce code duplication from init_mlt.
+                ld      a,$04
+                ld      (SCRMOD),a
+
+                call    chgclr
+
+                ld      a,(RG0SAV)
+                and     $F1             ; MASK 11110001
+                or      $04             ; M4 = 1
+                ld      b,a
+                ld      c,0
+                call    wrt_vdp         ; write VDP R#0
+
+                ld      a,(RG1SAV)
+                and     $E7             ; MASK 11100111
+                ld      b,a
+                inc     c
+                call    wrt_vdp         ; write VDP R#1
+
+                ; TODO: This should be done for SCREEN2 as well,
+                ;       but on MSX1 this reg doesn't exist.
+                ld      bc,$000E        ; B = $00, C = 14
+                call    wrt_vdp         ; VDP R#14
+
+                ld      hl,(GRPNAM)
+                ld      (NAMBAS),hl
+                call    vdp_setwrt
+                ld      b,3
+                xor     a
+init_sc4_lp:
+                out     (VDP_DATA),a
+                inc     a
+                jr      nz,init_sc4_lp
+                djnz    init_sc4_lp
+
+                ld      hl,(GRPCGP)
+                ld      (CGPBAS),hl
+
+                ld      hl,(GRPATR)
+                ld      (ATRBAS),hl
+
+                ld      hl,(GRPPAT)
+                ld      (PATBAS),hl
+
+                ld      hl,GRPNAM
+                ld      de,$7F03
+                push    ix
+                ld      ix,shift_tbl
+                ld      c,2             ; C = VDP R#
+
+                xor     a               ; data=0
+                call    adr_sft         ; R#2: GRPNAM
+                ld      a,d             ; data=D
+                call    adr_sft         ; R#3: GRPCOL
+                ld      a,e             ; data=E
+                call    adr_sft         ; R#4: GRPCGP
+                ld      hl,sc4atr
+                ld      a,$03           ; data=xxxxxx11
+                call    adr_sft         ; R#5: Sprite attribute table.
+                ld      hl,GRPPAT
+                xor     a               ; data=0
+                call    adr_sft         ; R#6: GRPPAT
+                pop     ix
+
+                ld      a,(RG8SAV+9-8)
+                and     $7F             ; 192 lines mode
+                ld      b,a
+                ld      c,9
+                call    wrt_vdp         ; VDP R#9
+
+                ; TODO: This should be done for SCREEN2 as well,
+                ;       but on MSX1 these regs don't exist.
+                ld      bc,$000A        ; B = $00, C = 10
+                call    wrt_vdp         ; VDP R#10
+                ld      bc,$000B        ; B = $00, C = 11
+                call    wrt_vdp         ; VDP R#11
+
+                call    clrspr_spritemode1
+                ld      bc,$000E        ; B = $00, C = 14
+                call    wrt_vdp         ; VDP R#14
+
+                call    enascr
+                ret
+
+sc4atr:         dw      $1E00
 
 ;------------------------------
 ;screen 5ÇÃèâä˙âª.

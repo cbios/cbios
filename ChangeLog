@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.31 2004/12/22 21:23:34 andete Exp $
+$Id: ChangeLog,v 1.32 2004/12/23 02:20:59 mthuurne Exp $
 
 2004-12-22 Maarten ter Huurne <maarten@treewalker.org>
     * Added main rom entry points for INIMLT and GRPPRT.
@@ -7,6 +7,7 @@ $Id: ChangeLog,v 1.31 2004/12/22 21:23:34 andete Exp $
     * Added stubs for SETTXT, SETT32, SETGRP, SETMLT, CALPAT, CALATR and
       GSPSIZ. Note: the old SETGRP code implemented the wrong interface.
     * Moved GRPPRT stub from "sub.asm" to "video.asm".
+    * Implemented SCREEN4.
 
 2004-12-22 Albert Beevendorp
     * Implemented REDCLK and WRTCLK routines
