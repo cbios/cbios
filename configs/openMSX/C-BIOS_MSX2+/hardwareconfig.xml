@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id$ -->
+<!-- $Id: hardwareconfig.xml,v 1.1 2005/01/01 22:53:50 mthuurne Exp $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -46,6 +46,7 @@
       <secondary slot="1">
         <MSX-MUSIC id="C-BIOS MSX-MUSIC">
           <mem base="0x4000" size="0x4000"/>
+          <io base="0x7C" num="2" type="O"/>
           <rom>
             <!--sha1:cbios_music.rom-->
             <filename>roms/cbios_music.rom</filename>
