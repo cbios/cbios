@@ -1,4 +1,12 @@
-$Id: ChangeLog,v 1.8 2004/12/10 07:30:01 mthuurne Exp $
+$Id: ChangeLog,v 1.9 2004/12/12 05:31:17 mthuurne Exp $
+
+2004-12-17 Maarten ter Huurne <maarten@treewalker.org>
+    * Refactored subslot selection code from "cal_slt" into reusable
+      subroutines.
+    * Implemented subslot support for RDSLT and WRSLT.
+
+2004-12-12 Maarten ter Huurne <maarten@treewalker.org>
+    * Added "dist" target to Makefile.
 
 2004-12-11 Maarten ter Huurne <maarten@treewalker.org>
     * Added support for Pasmo in the Makefile. You can select an assembler by

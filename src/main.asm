@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.14 2004/12/10 18:24:51 manuelbi Exp $
+; $Id: main.asm,v 1.15 2004/12/12 05:30:12 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1563,10 +1563,18 @@ cl_jp:          equ     rdprim+(m_cl_jp-m_rdprim)
 ;---------------------------
 ; 000Ch RDSLT
 ; in ..  A = スロットID , HL = アドレス
-rdslt:          ;TODO: add expanded slot support
+rdslt:
                 push    hl
                 push    af
+                ld      d,a             ; init D in case call is not made
+                and     a               ; expanded slot?
+                call    m,select_subslot
+                pop     af
+                pop     hl
+                push    de              ; D = slot ID, E = saved SSL
 
+                push    hl
+                push    af
                 ld      a,h
                 rlca
                 rlca
@@ -1575,12 +1583,10 @@ rdslt:          ;TODO: add expanded slot support
                 ld      l,a             ; L=シフトナンバー
                 ld      b,a
 
-                ld      a,$03
+                ld      a,$FC
                 call    rdsft
-                cpl
                 ld      e,a             ; E= マスク
-                ld      a,l             ; A=シフトナンバー
-                ld      b,a             ; B=シフトナンバー
+                ld      b,l             ; B=シフトナンバー
                 pop     af
                 and     $03
                 call    rdsft
@@ -1593,6 +1599,11 @@ rdslt:          ;TODO: add expanded slot support
 
                 call    rdprim
                 ld      a,e
+                pop     de              ; D = slot ID, E = saved SSL
+                push    af
+                bit     7,d             ; expanded slot?
+                call    nz,restore_subslot
+                pop     af
                 ret
 
 rdsft:
@@ -1607,10 +1618,17 @@ rdsft_lp:
 
 ; 0014h WRSLT
 ; in ..  A = スロットID , HL = アドレス
-wrslt:          ;TODO: add expanded slot support
+wrslt:
                 push    hl
-                push    af
+                ld      d,a             ; D = slot ID
+                push    de
+                and     a               ; expanded slot?
+                call    m,select_subslot
+                pop     bc              ; B = slot ID, C = data
+                pop     hl
+                push    de              ; D = slot ID, E = saved SSL
 
+                push    hl
                 ld      a,h
                 rlca
                 rlca
@@ -1619,14 +1637,12 @@ wrslt:          ;TODO: add expanded slot support
                 ld      l,a             ; L=シフト番号
                 ld      b,a
 
-                ld      a,$03
+                ld      a,$FC
                 call    rdsft
-                cpl
                 ld      e,a             ; E=マスク
-                ld      a,l             ; A=シフトナンバー
-                ld      b,a             ; B=シフトナンバー
-                pop     af
-                and     $03
+                ld      b,l             ; B=シフトナンバー
+                ld      a,d
+                and     $03             ; A = 000000PP
                 call    rdsft
                 ld      b,a             ; B=シフトされたスロット
                 in      a,(PSL_STAT)
@@ -1634,8 +1650,14 @@ wrslt:          ;TODO: add expanded slot support
                 and     e
                 or      b               ; スロットを変更する
                 pop     hl
-
+                ld      e,c             ; E = data
                 call    wrprim
+
+                pop     de              ; D = slot ID, E = saved SSL
+                push    af
+                bit     7,d             ; expanded slot?
+                call    nz,restore_subslot
+                pop     af
                 ret
 
 
@@ -1646,15 +1668,21 @@ cal_slt:
                 ex      af,af'
                 exx
 
-; Precalculate values we'll need later on:
+; Select secondary slot of target:
+; Note: This approach fails if target is in page 0 of slot 0.1, 0.2 or 0.3.
+; TODO: Put slot 0 specific routine in page 3, on the stack if necessary.
+                di
                 push    iy
-                pop     de              ; D = slot ID: E000SSPP
-                ld      a,d
-                rrca
-                rrca
-                and     $03
-                ld      h,a             ; H = secondary slot
-                ld      a,d
+                pop     af              ; A = slot ID: E000SSPP
+                push    ix
+                pop     hl              ; HL = address to call
+                ld      d,a             ; init D in case call is not made
+                and     a               ; expanded slot?
+                call    m,select_subslot
+                push    de              ; D = slot ID, E = saved SSL
+
+; Calculate primary slot select value:
+                ld      a,d             ; A = slot ID: E000SSPP
                 and     $03
                 ld      b,a             ; B = primary slot
                 ld      c,$FC           ; C = mask
@@ -1664,50 +1692,15 @@ cal_slt:
                 rlca
                 rlca
                 and     $03             ; A = page
-                ; Shift B,C,H page*2 positions to the left.
+                ; Shift B and C page*2 positions to the left.
                 add     a,a
                 jr      z,cal_slt_sh2
 cal_slt_sh1:
                 rlc     b
-                rlc     h
-                scf
-                rl      c
+                rlc     c
                 dec     a
                 jr      nz,cal_slt_sh1
 cal_slt_sh2:
-
-; Select secondary slot of target:
-; Note: This approach fails if target is in page 0 of slot 0.1, 0.2 or 0.3.
-                di
-                bit     7,d             ; expanded slot?
-                jr      z,cal_slt_notexp1
-                ; Select primary slot of target in page 3.
-                ; Note: Stack is unavailable until primary slot is restored.
-                ld      a,d             ; A = slot ID: E000SSPP
-                rrca
-                rrca
-                and     $C0
-                ld      d,a             ; D = PP000000
-                in      a,(PSL_STAT)
-                ld      e,a             ; E = saved PSL
-                and     $3F
-                or      d
-                out     (PSL_STAT),a
-                ; Select secondary slot of target.
-                ld      a,(SSL_REGS)
-                cpl
-                ld      l,a             ; L = saved SSL
-                and     c               ; C = mask (shifted)
-                or      h               ; H = secondary slot (shifted)
-                ld      (SSL_REGS),a
-                ; Restore original primary slot in page 3.
-                ld      a,e
-                out     (PSL_STAT),a
-cal_slt_notexp1:
-                push    iy
-                pop     af
-                ld      h,a
-                push    hl              ; H = slot ID, L = saved SSL
 
 ; Select primary slot of target and perform call:
                 ld      hl,cal_slt_restore
@@ -1725,28 +1718,9 @@ cal_slt_restore:
 
 ; Restore secondary slot:
                 di
-                pop     hl              ; H = slot ID, L = saved SSL
-                bit     7,h             ; expanded slot?
-                jr      z,cal_slt_notexp2
-                ; Select primary slot of target in page 3.
-                ; Note: Stack is unavailable until primary slot is restored.
-                ld      a,h
-                rrca
-                rrca
-                and     $C0
-                ld      d,a             ; D = PP000000
-                in      a,(PSL_STAT)
-                ld      e,a             ; E = saved PSL
-                and     $3F
-                or      d
-                out     (PSL_STAT),a
-                ; Restore secondary slot.
-                ld      a,l
-                ld      (SSL_REGS),a
-                ; Restore original primary slot in page 3.
-                ld      a,e
-                out     (PSL_STAT),a
-cal_slt_notexp2:
+                pop     de              ; D = slot ID, E = saved SSL
+                bit     7,d             ; expanded slot?
+                call    nz,restore_subslot
 
 ; Done:
                 ex      af,af'
@@ -2592,6 +2566,106 @@ extrom:
                 pop     iy              ; IYH = slot ID
                 ex      af,af'
                 jp      cal_slt         ; Perform inter-slot call.
+
+
+;--------------------------------
+; Select subslot.
+; Input:   A  = slot ID: E000SSPP
+;          HL = address which specifies page to select
+;               (actually, only the highest 2 bits of H are relevant)
+; Output:  D  = slot ID (same as input)
+;          E  = original value of secondary slot select register
+;          SLTTBL[slot] = new value of secondary slot select register
+; Changes: AF, HL, BC
+; Note:    Interrupts must be disabled before calling this routine.
+select_subslot:
+                ; Select primary slot of target in page 3.
+                ; Note: Stack is unavailable until primary slot is restored.
+                ld      d,a             ; D = E000SSPP
+                rrca
+                rrca
+                ld      e,a             ; E = PPE000SS
+                and     $C0
+                ld      l,a             ; L = PP000000
+                in      a,(PSL_STAT)
+                ld      c,a             ; C = saved PSL
+                and     $3F
+                or      l
+                out     (PSL_STAT),a
+                ; Shift mask and subslot according to page.
+                ld      a,e             ; A = PPE000SS
+                and     $03
+                ld      l,a             ; L = subslot
+                ld      a,h             ; A = high byte of address
+                ld      h,$03           ; H = mask
+                jr      select_subslot_next
+select_subslot_lp:
+                add     hl,hl           ; Shift 2 bits to the left.
+                add     hl,hl
+select_subslot_next:
+                sub     $40             ; Subtract 1 page.
+                jr      nc,select_subslot_lp
+                ld      a,h
+                cpl
+                ld      h,a
+                ; Select secondary slot of target.
+                ld      a,(SSL_REGS)
+                cpl
+                ld      e,a             ; E = saved SSL
+                and     h               ; H = mask (shifted)
+                or      l               ; L = subslot (shifted)
+                ld      (SSL_REGS),a
+                ld      l,a             ; L = value written to SSL_REGS
+                ; Restore original primary slot in page 3.
+                ld      a,c
+                out     (PSL_STAT),a
+                ; Update SLTTBL.
+                ld      a,d
+                and     $03             ; A = 000000SS
+                ld      c,a
+                ld      b,0
+                ld      a,l             ; A = value written to SSL_REGS
+                ld      hl,SLT_TBL
+                add     hl,bc
+                ld      (hl),a
+                ret
+
+
+;--------------------------------
+; Restore subslot, companion routine to select_subslot.
+; Input:   D  = slot ID: E000SSPP
+;          E  = original value of secondary slot select register
+; Output:  SLTTBL[slot] = original value of secondary slot select register
+; Changes: AF, HL, BC
+; Note:    Interrupts must be disabled before calling this routine.
+restore_subslot:
+                ; Select primary slot of target in page 3.
+                ; Note: Stack is unavailable until primary slot is restored.
+                ld      a,d
+                rrca
+                rrca
+                and     $C0
+                ld      b,a             ; B = PP000000
+                in      a,(PSL_STAT)
+                ld      c,a             ; C = saved PSL
+                and     $3F
+                or      b
+                out     (PSL_STAT),a
+                ; Restore secondary slot.
+                ld      a,e
+                ld      (SSL_REGS),a
+                ; Restore original primary slot in page 3.
+                ld      a,c
+                out     (PSL_STAT),a
+                ; Update SLTTBL.
+                ld      a,d
+                and     $03             ; A = 000000SS
+                ld      c,a
+                ld      b,0
+                ld      hl,SLT_TBL
+                add     hl,bc
+                ld      (hl),e
+                ret
 
 
 ;-------------------
