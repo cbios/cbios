@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.19 2004/12/25 19:44:40 bifimsx Exp $
+; $Id: video.asm,v 1.20 2004/12/27 23:30:23 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -362,6 +362,101 @@ init_txt:
                 call    clr_text40
                 call    chgclr
 
+                ld      hl,B_Font
+                ld      de,(TXTCGP)
+                ld      bc,$0800
+                call    vdp_data_rep    ; init Font
+
+                ld      hl,$0000
+                ld      (NAMBAS),hl
+                ld      hl,$0800
+                ld      (CGPBAS),hl
+
+                ld      a,(LINL40)
+                ld      (LINLEN),a
+
+                call    set_txt
+                call    cls_screen0
+                jp      enascr
+
+;--------------------------------
+; $006F INIT32
+init_txt32:
+                ld      a,$01           ; SCREEN1
+                ld      (SCRMOD),a
+
+                call    clr_text32
+                call    chgclr
+
+                ld      hl,(T32NAM)
+                ld      (NAMBAS),hl
+                ld      hl,(T32CGP)
+                ld      (CGPBAS),hl
+                ld      hl,(T32PAT)
+                ld      (PATBAS),hl
+                ld      hl,(T32ATR)
+                ld      (ATRBAS),hl
+
+                ld      hl,B_Font
+                ld      de,(T32CGP)
+                ld      bc,$0800
+                call    vdp_data_rep    ; init Font
+
+                ld      a,(LINL32)
+                ld      (LINLEN),a
+
+                call    set_txt32
+                call    clrspr_attr_spritemode1
+                call    cls_screen1
+                jp      enascr
+
+;--------------------------------
+; $0072 INIGRP
+init_grp:
+                ld      a,$02
+                ld      (SCRMOD),a
+
+                call    chgclr
+
+                ld      hl,(GRPNAM)
+                ld      (NAMBAS),hl
+                call    vdp_setwrt
+                ld      b,3
+                xor     a
+init_grp_lp:
+                out     (VDP_DATA),a
+                inc     a
+                jr      nz,init_grp_lp
+                djnz    init_grp_lp
+
+                ld      hl,(GRPCGP)
+                ld      (CGPBAS),hl
+
+                ld      hl,(GRPATR)
+                ld      (ATRBAS),hl
+
+                ld      hl,(GRPPAT)
+                ld      (PATBAS),hl
+
+                call    set_grp
+                call    clrspr_attr_spritemode1
+                call    cls_screen2
+                jp      enascr
+
+;------------------------------
+; $0075 INIMLT
+; Initialise SCREEN3 (multi-colour mode).
+init_mlt:
+                ld      hl,init_mlt_text
+                jp      print_debug
+init_mlt_text:  db      "SCREEN3",0
+
+;------------------------------
+; $0078 SETTXT
+; Input:     TXTNAM, TXTCGP
+; Changes:   
+; TODO:      Make use of the inputs; see set_grp.
+set_txt:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 ld      b,a
@@ -380,31 +475,14 @@ init_txt:
 
                 ld      bc,$0002        ; R#2 PatNamTBLaddr=$0000
                 call    wrt_vdp         ; write VDP R#2
+                ret
 
-                ld      hl,B_Font
-                ld      de,(TXTCGP)
-                ld      bc,$0800
-                call    vdp_data_rep    ; init Font
-
-                ld      hl,$0000
-                ld      (NAMBAS),hl
-                ld      hl,$0800
-                ld      (CGPBAS),hl
-
-                ld      a,(LINL40)
-                ld      (LINLEN),a
-
-                jp      cls_screen0
-
-;--------------------------------
-; $006F INIT32
-init_txt32:
-                ld      a,$01           ; SCREEN1
-                ld      (SCRMOD),a
-
-                call    clr_text32
-                call    chgclr
-
+;------------------------------
+; $007B SETT32
+; Input:     T32NAM, T32CGP, T32COL, T32ATR, T32PAT
+; Changes:   
+; TODO:      Try to reduce code duplication; see set_grp.
+set_txt32:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 ld      b,a
@@ -418,15 +496,6 @@ init_txt32:
                 call    wrt_vdp         ; write VDP R#1
 
                 ld      hl,(T32NAM)
-                ld      (NAMBAS),hl
-                ld      hl,(T32CGP)
-                ld      (CGPBAS),hl
-                ld      hl,(T32PAT)
-                ld      (PATBAS),hl
-                ld      hl,(T32ATR)
-                ld      (ATRBAS),hl
-
-                ld      hl,(T32NAM)
                 ld      a,h
                 rrca
                 rrca
@@ -434,7 +503,6 @@ init_txt32:
                 ld      b,a
                 ld      c,2
                 call    wrt_vdp         ; write VDP R#2
-
 
                 ld      hl,(T32COL)
                 ld      b,2
@@ -473,27 +541,13 @@ tcol_lp:
                 ld      b,a
                 ld      c,6
                 call    wrt_vdp         ; write VDP R#6
+                ret
 
-                ld      hl,B_Font
-                ld      de,(T32CGP)
-                ld      bc,$0800
-                call    vdp_data_rep    ; init Font
-
-                call    clrspr_attr_spritemode1
-
-                ld      a,(LINL32)
-                ld      (LINLEN),a
-
-                jp      cls_screen1
-
-;--------------------------------
-; $0072 INIGRP
-init_grp:
-                ld      a,$02
-                ld      (SCRMOD),a
-
-                call    chgclr
-
+;------------------------------
+; $00ED SETGRP
+; Input:     GRPNAM, GRPCGP, GRPCOL, GRPATR, GRPPAT
+; Changes:   
+set_grp:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 or      $02             ; M3 = 1
@@ -506,26 +560,6 @@ init_grp:
                 ld      b,a
                 inc     c
                 call    wrt_vdp         ; write VDP R#1
-
-                ld      hl,(GRPNAM)
-                ld      (NAMBAS),hl
-                call    vdp_setwrt
-                ld      b,3
-                xor     a
-init_grp_lp:
-                out     (VDP_DATA),a
-                inc     a
-                jr      nz,init_grp_lp
-                djnz    init_grp_lp
-
-                ld      hl,(GRPCGP)
-                ld      (CGPBAS),hl
-
-                ld      hl,(GRPATR)
-                ld      (ATRBAS),hl
-
-                ld      hl,(GRPPAT)
-                ld      (PATBAS),hl
 
                 ld      hl,GRPNAM
                 ld      de,$7F03
@@ -544,10 +578,7 @@ init_grp_lp:
                 xor     a               ; data=0
                 call    adr_sft         ; R#6: GRPPAT
                 pop     ix
-
-                call    clrspr_attr_spritemode1
-                call    cls_screen2
-                jp    enascr
+                ret
 
 shift_tbl:
                 db      $06,$0A,$05,$09,$05
@@ -580,35 +611,6 @@ sft_lp:
                 inc     hl
                 inc     c
                 ret
-
-;------------------------------
-; $0075 INIMLT
-; Initialise SCREEN3 (multi-colour mode).
-init_mlt:
-                ld      hl,init_mlt_text
-                jp      print_debug
-init_mlt_text:  db      "SCREEN3",0
-
-;------------------------------
-; $0078 SETTXT
-set_txt:
-                ld      hl,set_txt_text
-                jp      print_debug
-set_txt_text:  db      "SETTXT",0
-
-;------------------------------
-; $007B SETT32
-set_txt32:
-                ld      hl,set_txt32_text
-                jp      print_debug
-set_txt32_text: db      "SETT32",0
-
-;------------------------------
-; $00ED SETGRP
-set_grp:
-                ld      hl,set_grp_text
-                jp      print_debug
-set_grp_text:   db      "SETGRP",0
 
 ;------------------------------
 ; $00F1 SETMLT
@@ -654,6 +656,7 @@ calatr:
 
 ;------------------------------
 ; $008A GSPSIZ
+; Returns the current sprite-size in bytes.
 ; Output:    A  = sprite-size in bytes
 ;            CF = set when size is 16x16, otherwise reset
 ; Changes:   AF

@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.39 2004/12/26 21:46:43 bifimsx Exp $
+$Id: ChangeLog,v 1.40 2004/12/27 00:22:28 mthuurne Exp $
+
+2004-12-28 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Implemented SETTXT, SETT32 and SETGRP routines.
 
 2004-12-26 Maarten ter Huurne <maarten@treewalker.org>
     * Added MUSIC ROM stub, which was made by BiFi and BouKiChi.
