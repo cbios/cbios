@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.7 2005/01/01 22:37:04 mthuurne Exp $
+; $Id: hardware.asm,v 1.8 2005/01/02 11:28:14 andete Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -81,9 +81,9 @@ V9938:          equ     $9938
 V9958:          equ     $9958
 
 ; MSX models:
-MODEL_MSX1      equ     0
-MODEL_MSX2      equ     1
-MODEL_MSX2P     equ     2
-MODEL_MSXTR     equ     3
+MODEL_MSX1:     equ     0
+MODEL_MSX2:     equ     1
+MODEL_MSX2P:    equ     2
+MODEL_MSXTR:    equ     3
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
