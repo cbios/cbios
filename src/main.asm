@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.22 2004/12/19 14:59:32 manuelbi Exp $
+; $Id: main.asm,v 1.23 2004/12/20 20:33:04 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -104,7 +104,7 @@ dcompr:
                 jp      getypr
 
 ;002Bh IDBYT1
-                ds      $002D - $
+                ds      $002B - $
 idbyt1:
 ; Basic ROM version 
 ; 7 6 5 4 3 2 1 0
@@ -2301,21 +2301,18 @@ sound_stat:
                 in      a,(PSG_STAT)
                 ret
 
-;0135h CHGSND
-;Function:  Alternates the 1-bit sound port status
-;Input:     A  - #00 to turn off
-;            not #00 to turn on
-;Registers: AF
-;NOTE: this implementation is still a stub!
+;--------------------------------
+; $0135 CHGSND
+; Write to the 1-bit sound port.
+; Input:   A = zero to set sound state to 0, non-zero to set sound state to 1
+; Changes: AF
 chgsnd:
-                push    hl
-                push    af
-                ld      hl,chgsnd_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,$0E           ; $0E = command to reset bit 7
+                jr      z,chgsnd_write
+                inc     a               ; $0F = command to set bit 7
+chgsnd_write:
+                out     (PPI_REGS),a    ; set/reset bit of port C
                 ret
-chgsnd_text:    db      "CHGSND",0
 
 ;--------------------------------
 get_slotreg:
