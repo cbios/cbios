@@ -1,7 +1,7 @@
 echo off
 rem make base dirs
 echo --------------------------
-ehco - OpenMSX dir structures -
+echo - OpenMSX dir structures -
 echo --------------------------
 echo - make config base dirs 
 mkdir derived\configs\openMSX\share\machines
