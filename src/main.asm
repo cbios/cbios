@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.54 2004/12/30 12:15:23 andete Exp $
+; $Id: main.asm,v 1.55 2004/12/30 14:09:58 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -624,6 +624,9 @@ start_game:
                 ; For example the game "Girly Block" depends on this.
                 ; So we have to disable interrupts as well.
                 di
+
+                ; TODO: also support cartridges that have their rom located
+                ; in slot 0; for example the game "Beam Rider"
 
                 ld      a,($4000)
                 cp      'A'
