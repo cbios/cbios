@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.71 2005/01/04 15:06:25 bifimsx Exp $
+; $Id: main.asm,v 1.72 2005/01/04 15:57:19 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -4131,7 +4131,8 @@ str_de_oe:
 str_nocart:
                 ;       [0123456789012345678901234567890123456789]
                 db      $0D,$0A
-                db      "No cartridge found.",$00
+                db      "No cartridge found.",$0D,$0A,"Please restart your MSX (or emu-lator), with a cartridge inser- ted.",$00
+; TODO change it to db      "No cartridge found.",$0D,$0A,"Please restart your MSX (or emu-lator), with a cartridge inser- ted or press any key to reboot.",$00 as soon as the reboot is implemented.
 
 str_run:
                 ;       [0123456789012345678901234567890123456789]
