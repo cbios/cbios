@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.15 2004/12/23 02:21:00 mthuurne Exp $
+; $Id: video.asm,v 1.16 2004/12/23 04:22:41 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -604,39 +604,52 @@ set_mlt_text:   db      "SETMLT",0
 
 ;------------------------------
 ; $0084 CALPAT
+; Returns the address of a sprite pattern in the sprite pattern table.
+; Input:     A  = pattern number
+; Output:    HL = address
+; Changes:   AF, DE, HL
 calpat:
-                push    hl
-                push    af
-                ld      hl,calpat_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      h,0
+                ld      l,a
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                call    gspsiz
+                jr      nc,calpat_8
+                add     hl,hl
+                add     hl,hl
+calpat_8:       ld      de,(PATBAS)
+                add     hl,de
                 ret
-calpat_text:    db      "CALPAT",0
 
 ;------------------------------
 ; $0087 CALATR
+; Returns the address of a sprite in the sprite attribute table.
+; Input:     A  = sprite number
+; Output:    HL = address
+; Changes:   AF, DE, HL
 calatr:
-                push    hl
-                push    af
-                ld      hl,calatr_text
-                call    print_debug
-                pop     af
-                pop     hl
+                add     a,a
+                add     a,a
+                ld      hl,(ATRBAS)
+                ld      d,0
+                ld      e,a
+                add     hl,de
                 ret
-calatr_text:    db      "CALATR",0
 
 ;------------------------------
 ; $008A GSPSIZ
+; Output:    A  = sprite-size in bytes
+;            CF = set when size is 16x16, otherwise reset
+; Changes:   AF
 gspsiz:
-                push    hl
-                push    af
-                ld      hl,gspsiz_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,(RG1SAV)
+                rrca
+                rrca
+                ld      a,8
+                ret     nc
+                ld      a,32
                 ret
-gspsiz_text:    db      "GSPSIZ",0
 
 ;------------------------------
 ; $008D GRPPRT
