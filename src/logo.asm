@@ -1,3 +1,72 @@
+logo_show:
+                ; Upload pattern table.
+                ld      hl,(CGPBAS)
+                ld      bc,8 * logo_patoffset
+                add     hl,bc
+                ex      de,hl
+                ld      hl,logo_patterns
+                ld      bc,8 * logo_npatterns
+                call    ldirvm
+
+                ; Upload colour table.
+                ld      hl,(T32COL)
+                ld      bc,logo_patoffset / 8
+                add     hl,bc
+                call    setwrt
+                ld      b,10
+                ld      a,$F1
+plot_logo_col:
+                out     (VDP_DATA),a
+                djnz    plot_logo_col
+                ld      a,$E1
+                out     (VDP_DATA),a
+                ld      a,$E1
+                out     (VDP_DATA),a
+
+                ; Upload name table.
+                ld      hl,(NAMBAS)
+                ld      bc,logo_namoffset
+                add     hl,bc
+                ex      de,hl
+                ld      hl,logo_names
+                ld      b,logo_namheight
+plot_logo_nam:
+                push    bc
+                push    hl
+                push    de
+                ld      bc,logo_namwidth
+                call    ldirvm
+                pop     hl              ; value of DE
+                ld      bc,32
+                add     hl,bc
+                ex      de,hl
+                pop     hl              ; value of HL
+                ld      bc,logo_namwidth
+                add     hl,bc
+                pop     bc
+                djnz    plot_logo_nam
+
+                ; Select 16x16 sprites.
+                ld      a,(RG1SAV)
+                or      $02
+                ld      b,a
+                ld      c,$01
+                call    wrtvdp
+
+                ; Upload sprite pattern table.
+                ld      hl,logo_spritepat
+                ld      de,(PATBAS)
+                ld      bc,32
+                call    ldirvm
+
+                ; Upload sprite attribute table.
+                ld      hl,logo_spriteattr
+                ld      de,(ATRBAS)
+                ld      bc,8
+                call    ldirvm
+
+                ret
+
 logo_patoffset: equ     131
 logo_npatterns: equ     91
 logo_patterns:

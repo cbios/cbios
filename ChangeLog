@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.105 2005/01/14 15:27:58 ccfg Exp $
+$Id: ChangeLog,v 1.106 2005/01/15 00:07:15 ccfg Exp $
+
+2005-01-20 Albert Beevendorp
+    * moved logo plot code from main.asm to logo.asm
+      enables easy implementation of adjusted logo's for
+      MSX1, MSX2 and MSX2+
 
 2005-01-15 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented GETVCP and GETVC2.
