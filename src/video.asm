@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.26 2004/12/30 08:41:09 andete Exp $
+; $Id: video.asm,v 1.27 2004/12/30 08:49:51 andete Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -209,16 +209,16 @@ ldirmv_lp:
 ;            DE - Start address of memory
 ;            HL - Start address of VRAM
 ; Registers: All
-vdp_data_rep:
+ldirvm:
                 ex      de,hl
                 ld      a,(SCRMOD)
                 cp      4
-                jr      nc,vdp_data_rep_new
+                jr      nc,ldirvm_new
                 call    setwrt
-                jr      vdp_data_rep_cont
-vdp_data_rep_new:
+                jr      ldirvm_cont
+ldirvm_new:
                 call    nsetwr
-vdp_data_rep_cont:
+ldirvm_cont:
                 ex      de,hl
                 dec     bc
                 inc     c
@@ -226,10 +226,10 @@ vdp_data_rep_cont:
                 ld      b,c
                 inc     a
                 ld      c,VDP_DATA
-vdp_data_rep_lp:
+ldirvm_lp:
                 otir
                 dec     a
-                jr      nz,vdp_data_rep_lp
+                jr      nz,ldirvm_lp
                 ; Note: Without this, Quinpl shows glitches.
                 ; TODO: Investigate why.
                 ex      de,hl
@@ -248,10 +248,10 @@ chgmod:
                 ld      hl,chgmod_tbl
                 jp      jump_table
 chgmod_tbl:
-                dw      init_txt        ; SCREEN0
-                dw      init_txt32      ; SCREEN1
-                dw      init_grp        ; SCREEN2
-                dw      init_mlt        ; SCREEN3
+                dw      initxt          ; SCREEN0
+                dw      init32          ; SCREEN1
+                dw      inigrp          ; SCREEN2
+                dw      inimlt          ; SCREEN3
                 dw      init_sc4        ; SCREEN4
                 dw      init_sc5        ; SCREEN5
                 dw      init_sc6        ; SCREEN6
@@ -404,7 +404,7 @@ clrspr_attr_8:
 ; Input    : TXTNAM, TXTCGP
 ; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
 ; Registers: All
-init_txt:
+initxt:
                 ld      a,$00
                 ld      (SCRMOD),a
                 ld      (OLDSCR),a
@@ -415,7 +415,7 @@ init_txt:
                 ld      hl,B_Font
                 ld      de,(TXTCGP)
                 ld      bc,$0800
-                call    vdp_data_rep    ; init Font
+                call    ldirvm          ; init Font
 
                 ld      hl,$0000
                 ld      (NAMBAS),hl
@@ -425,7 +425,7 @@ init_txt:
                 ld      a,(LINL40)
                 ld      (LINLEN),a
 
-                call    set_txt
+                call    settxt
                 call    cls_screen0
                 jp      enascr
 
@@ -435,7 +435,7 @@ init_txt:
 ; Input    : T32NAM, T32CGP, T32COL, T32ATR, T32PAT
 ; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
 ; Registers: All
-init_txt32:
+init32:
                 ld      a,$01           ; SCREEN1
                 ld      (SCRMOD),a
                 ld      (OLDSCR),a
@@ -455,12 +455,12 @@ init_txt32:
                 ld      hl,B_Font
                 ld      de,(T32CGP)
                 ld      bc,$0800
-                call    vdp_data_rep    ; init Font
+                call    ldirvm          ; init Font
 
                 ld      a,(LINL32)
                 ld      (LINLEN),a
 
-                call    set_txt32
+                call    sett32
                 call    clrspr_attr_spritemode1
                 call    cls_screen1
                 jp      enascr
@@ -471,7 +471,7 @@ init_txt32:
 ; Input    : GRPNAM, GRPCGP, GRPCOL, GRPATR, GRPPAT
 ; Output   : NAMBAS-ATRBAS, SCRMOD
 ; Registers: All
-init_grp:
+inigrp:
                 ld      a,$02
                 ld      (SCRMOD),a
 
@@ -482,11 +482,11 @@ init_grp:
                 call    setwrt
                 ld      b,3
                 xor     a
-init_grp_lp:
+inigrp_lp:
                 out     (VDP_DATA),a
                 inc     a
-                jr      nz,init_grp_lp
-                djnz    init_grp_lp
+                jr      nz,inigrp_lp
+                djnz    inigrp_lp
 
                 ld      hl,(GRPCGP)
                 ld      (CGPBAS),hl
@@ -497,7 +497,7 @@ init_grp_lp:
                 ld      hl,(GRPPAT)
                 ld      (PATBAS),hl
 
-                call    set_grp
+                call    setgrp
                 call    clrspr_attr_spritemode1
                 call    cls_screen2
                 jp      enascr
@@ -508,18 +508,18 @@ init_grp_lp:
 ; Input    : MLTNAM, MLTCGP, MLTCOL, MLTATR, MLTPAT
 ; Output   : NAMBAS-ATRBAS, SCRMOD
 ; Registers: All
-init_mlt:
-                ld      hl,init_mlt_text
+inimlt:
+                ld      hl,inimlt_text
                 jp      print_debug
-init_mlt_text:  db      "SCREEN3",0
+inimlt_text:    db      "SCREEN3",0
 
 ;------------------------------
 ; $0078 SETTXT
 ; Function : Switches to VDP in SCREEN 0 mode
 ; Input    : TXTNAM, TXTCGP
 ; Registers: All
-; TODO:      Make use of the inputs; see set_grp.
-set_txt:
+; TODO:      Make use of the inputs; see setgrp.
+settxt:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 ld      b,a
@@ -545,8 +545,8 @@ set_txt:
 ; Function : Schakelt VDP in SCREEN 1 modus
 ; Input    : T32NAM, T32CGP, T32COL, T32ATR, T32PAT
 ; Registers: All
-; TODO:      Try to reduce code duplication; see set_grp.
-set_txt32:
+; TODO:      Try to reduce code duplication; see setgrp.
+sett32:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 ld      b,a
@@ -612,7 +612,7 @@ tcol_lp:
 ; Function : Switches VDP to SCREEN 2 mode
 ; Input:     GRPNAM, GRPCGP, GRPCOL, GRPATR, GRPPAT
 ; Registers: All
-set_grp:
+setgrp:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
                 or      $02             ; M3 = 1
@@ -682,10 +682,10 @@ sft_lp:
 ; Function : Switches VDP to SCREEN 3 mode
 ; Input    : MLTNAM, MLTCGP, MLTCOL, MLTATR, MLTPAT
 ; Registers: All
-set_mlt:
-                ld      hl,set_mlt_text
+setmlt:
+                ld      hl,setmlt_text
                 jp      print_debug
-set_mlt_text:   db      "SETMLT",0
+setmlt_text:    db      "SETMLT",0
 
 ;------------------------------
 ; $0084 CALPAT
@@ -984,7 +984,7 @@ init_vdp:
 
                 ld      de,$0800
                 ld      bc,$0800
-                call    vdp_data_rep
+                call    ldirvm
 
                 ret
 
@@ -1025,7 +1025,7 @@ clr_text32:
 ;------------------------------
 ; Initialise SCREEN4 (graphic 3).
 init_sc4:
-; TODO: Try to reduce code duplication from init_mlt.
+; TODO: Try to reduce code duplication from inimlt.
                 ld      a,$04
                 ld      (SCRMOD),a
 

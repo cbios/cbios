@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.48 2004/12/30 08:41:08 andete Exp $
+; $Id: main.asm,v 1.49 2004/12/30 08:49:51 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -189,7 +189,7 @@ romid:
                 jp      ldirmv          ; VRAM -> Memory
 ; $005C LDIRVM
                 ds      $005C - $
-                jp      vdp_data_rep    ; Memory -> VRAM
+                jp      ldirvm          ; Memory -> VRAM
 
 ; $005F CHGMOD VDPスクリーンモードの変更
                 ds      $005F - $
@@ -199,9 +199,9 @@ romid:
                 ds      $0062 - $
                 jp      chgclr
 
-; $0066 INT_NMI .. NMI割り込み
+; $0066 NMI .. NMI割り込み
                 ds      $0066 - $
-                jp      nmi_int
+                jp      nmi
 
 ; $0069 CLRSPR  .. スプライトを消去。
                 ds      $0069 - $
@@ -209,35 +209,35 @@ romid:
 
 ; $006C INITXT   画面をTEXT1モードに初期化。
                 ds      $006C - $
-                jp      init_txt
+                jp      initxt
 
 ; $006F INIT32   画面をGRAPHIC1モードに初期化。
                 ds      $006F - $
-                jp      init_txt32
+                jp      init32
 
 ; $0072 INITGRP  画面をGRAPHIC2モードに初期化。
                 ds      $0072 - $
-                jp      init_grp
+                jp      inigrp
 
 ; $0075 INIMLT
                 ds      $0075 - $
-                jp      init_mlt
+                jp      inimlt
 
 ; $0078 SETTXT
                 ds      $0078 - $
-                jp      set_txt
+                jp      settxt
 
 ; $007B SETT32
                 ds      $007B - $
-                jp      set_txt32
+                jp      sett32
 
 ; $007E SETGRP
                 ds      $007E - $
-                jp      set_grp
+                jp      setgrp
 
 ; $0081 SETMLT
                 ds      $0081 - $
-                jp      set_mlt
+                jp      setmlt
 
 ; $0084 CALPAT
                 ds      $0084 - $
@@ -257,13 +257,13 @@ romid:
 
 ; $0090 GICINI   音源ICの初期化
                 ds      $0090 - $
-                jp      sound_init
+                jp      gicini
 ; $0093 WRTPSG
                 ds      $0093 - $
-                jp      sound_out
+                jp      wrtpsg
 ; $0096 RDPSG
                 ds      $0096 - $
-                jp      sound_stat
+                jp      rdpsg
 
 ; $0099 STRTMS
                 ds      $0099 - $
@@ -271,15 +271,15 @@ romid:
 
 ; $009C CHSNS  .. check key buffer
                 ds      $009C - $
-                jp      ch_sns
+                jp      chsns
 
 ; $009F CHGET .. キーバッファからデータを得る
                 ds      $009F - $
-                jp      ch_get
+                jp      chget
 
 ; $00A2 CHPUT .. ディスプレイのキャラクタを出力する。
                 ds      $00A2 - $
-                jp      ch_put
+                jp      chput
 
 ; $00A5 LPTOUT
                 ds      $00A5 - $
@@ -565,7 +565,7 @@ ram_ok:
                 xor     a
                 ld      (PSG_DBG),a
 
-                call    sound_init
+                call    gicini
 
                 ei
 
@@ -622,7 +622,7 @@ disp_info:
 
 ; プログラム情報の表示
 
-                call    init_txt32
+                call    init32
 
                 ; Print program info.
                 ld      hl,$0101
@@ -637,7 +637,7 @@ disp_info:
                 ex      de,hl
                 ld      hl,logo_patterns
                 ld      bc,8 * logo_npatterns
-                call    vdp_data_rep
+                call    ldirvm
 
                 ; Upload colour table.
                 ld      hl,(T32COL)
@@ -666,7 +666,7 @@ plot_logo_nam:
                 push    hl
                 push    de
                 ld      bc,logo_namwidth
-                call    vdp_data_rep
+                call    ldirvm
                 pop     hl              ; value of DE
                 ld      bc,32
                 add     hl,bc
@@ -688,13 +688,13 @@ plot_logo_nam:
                 ld      hl,logo_spritepat
                 ld      de,(PATBAS)
                 ld      bc,32
-                call    vdp_data_rep
+                call    ldirvm
 
                 ; Upload sprite attribute table.
                 ld      hl,logo_spriteattr
                 ld      de,(ATRBAS)
                 ld      bc,8
-                call    vdp_data_rep
+                call    ldirvm
 
                 ret
 
@@ -730,13 +730,13 @@ start_cartprog_found:
                 ld      d,$00
                 ld      e,a
                 add     a,'0'
-                call    ch_put
+                call    chput
                 ld      hl,EXP_TBL
                 add     hl,de
                 bit     7,(hl)
                 jr      z,start_cartprog_notexp
                 ld      a,'.'
-                call    ch_put
+                call    chput
                 ld      hl,SLT_TBL
                 add     hl,de
                 ld      a,(hl)
@@ -744,7 +744,7 @@ start_cartprog_found:
                 rrca
                 and     $03
                 add     a,'0'
-                call    ch_put
+                call    chput
 start_cartprog_notexp:
 
                 ld      b,120           ; 2sec wait (1 = 1/60sec)
@@ -788,21 +788,21 @@ kbd_shift:
                 jr      c,kbd_on
 ;Bit[n] = 0
                 ld      a,'0'
-                call    ch_put
+                call    chput
                 pop     af
                 jr      kbd_lpchk
 ;Bit[n] = 1
 kbd_on:
                 ld      a,'1'
-                call    ch_put
+                call    chput
                 pop     af
 kbd_lpchk:
                 djnz    kbd_shift
                 pop     bc
                 ld      a,$0D
-                call    ch_put
+                call    chput
                 ld      a,$0A
-                call    ch_put
+                call    chput
 
                 djnz    kbd_byteread
 
@@ -833,7 +833,7 @@ debug_mode:
                 call    vout_hex16
 
                 ld      a,' '
-                call    ch_put
+                call    chput
 
                 ld      ix,(SP_REGS)
                 call    vout_hex16
@@ -862,7 +862,7 @@ dump_lp:
                 call    vout_hex16
                 pop     bc
                 ld      a,':'
-                call    ch_put
+                call    chput
                 ld      b,$10           ; RegB = cols
 d16_lp:
                 ld      a,(ix+0)
@@ -1290,7 +1290,7 @@ prn_hex:
                 call    vout_hex16
 
                 ld      a,' '
-                call    ch_put
+                call    chput
 
                 ret
 
@@ -1314,7 +1314,7 @@ prn_reg:
 reg_lp:
                 ld      a,(hl)
                 inc     hl
-                call    ch_put
+                call    chput
                 djnz    reg_lp
 
                 pop     bc
@@ -1342,7 +1342,7 @@ vout_hex16:
                 ld      c,a
                 add     hl,bc
                 ld      a,(hl)
-                call    ch_put
+                call    chput
 
 
                 ; RegB下位4bit
@@ -1357,7 +1357,7 @@ vout_hex16:
                 ld      c,a
                 add     hl,bc
                 ld      a,(hl)
-                call    ch_put
+                call    chput
 
                 ; RegC上位4bit
                 ld      hl,hex_tbl
@@ -1375,7 +1375,7 @@ vout_hex16:
                 ld      c,a
                 add     hl,bc
                 ld      a,(hl)
-                call    ch_put
+                call    chput
 
                 ; RegC 下位 4bit
                 ld      hl,hex_tbl
@@ -1389,7 +1389,7 @@ vout_hex16:
                 ld      c,a
                 add     hl,bc
                 ld      a,(hl)
-                call    ch_put
+                call    chput
 
                 ret
 
@@ -1413,7 +1413,7 @@ vout_hex8:
                 ld      c,a
                 add     hl,bc
                 ld      a,(hl)
-                call    ch_put
+                call    chput
 
                 pop     af
 
@@ -1426,7 +1426,7 @@ vout_hex8:
                 ld      c,a
                 add     hl,bc
                 ld      a,(hl)
-                call    ch_put
+                call    chput
 
                 ret
 
@@ -1465,7 +1465,7 @@ prn_str_disp:
                 ld      a,(hl)
                 or      a
                 jp      z,nul_term
-                call    ch_put
+                call    chput
                 inc     hl
                 jr      prn_str_disp
 nul_term:
@@ -1893,7 +1893,7 @@ wrslt:
 ; TODO     : call H_OUTD
 outdo:
 ;                call    H_OUTD
-                jp      ch_put
+                jp      chput
 
 ;-------------------------------------
 ; 001Ch CALSLT(暫定的な関数)
@@ -2186,7 +2186,10 @@ strtms_text:    db      "STRTMS",0
 
 ;--------------------------------
 ; $009C CHSNS
-ch_sns:
+; Function : Tests the status of the keyboard buffer
+; Output   : Z-flag set if buffer is filled
+; Registers: AF
+chsns:
                 push    hl
                 push    de
                 ld      hl,(GETPNT)
@@ -2211,7 +2214,7 @@ no_chr:
 ; Output   : A  - ASCII-code of the input character
 ; Registers: AF
 ; TODO:    : call H_CHGE
-ch_get:
+chget:
 ;               call H_CHGE
                 ld      a,$00
                 push    hl
@@ -2249,7 +2252,7 @@ get_ch:
 ; $00A2 CHPUT
 ; Input:   A = character code
 ; Changes: none
-ch_put:
+chput:
                 push    de
                 push    af
                 ld      a,(SCRMOD)
@@ -2400,7 +2403,7 @@ scr_loop:
                 push    hl
                 push    de
                 push    bc
-                call    vdp_data_rep
+                call    ldirvm
                 pop     bc
                 pop     de
                 pop     hl
@@ -2856,30 +2859,35 @@ kilbuf:
 
 
 ;--------------------------------
-;0090h GICINIT  音源IC初期化
-sound_init:
+; $0090 GICINI  音源IC初期化
+; Function : Initialises PSG and sets initial value for the PLAY statement
+; Registers: All
+gicini:
                 ld      e,$00
                 ld      a,$08
-                call    sound_out
+                call    wrtpsg
                 inc     a
-                call    sound_out
+                call    wrtpsg
                 inc     a
-                call    sound_out
+                call    wrtpsg
                 inc     a
 
                 ld      e,$B8
                 ld      a,$07
-                call    sound_out
+                call    wrtpsg
                 
                 ld      e,$80           ; TODO: What about strobe and trigger?
                 ld      a,$0F
-                call    sound_out
+                call    wrtpsg
 
                 ret
 
 ;--------------------------------
-;0093h in a=reg#,e=data
-sound_out:
+; $0093 WRTPSG
+; Function : Writes data to PSG-register
+; Input    : A  - PSG register number
+;            E  - data write
+wrtpsg:
                 di
                 out     (PSG_REGS),a
                 push    af
@@ -2901,7 +2909,11 @@ sound_out:
                 ret
 
 ;--------------------------------
-sound_stat:
+; $0096 RDPSG
+; Function : Reads value from PSG-register
+; Input    : A  - PSG-register read
+; Output   : A  - value read
+rdpsg:
                 out     (PSG_REGS),a
                 in      a,(PSG_STAT)
                 ret
@@ -3022,16 +3034,16 @@ joy_stc1:
 sel_stc1:
                 ld      a,$0F
                 di
-                call    sound_stat
+                call    rdpsg
                 ei
                 and     $BF
                 or      e
                 ld      e,a
                 ld      a,$0F
-                call    sound_out
+                call    wrtpsg
                 ld      a,$0E
                 di
-                call    sound_stat
+                call    rdpsg
                 ei
                 cpl
                 and     $0F             ; 0000RLDU
@@ -3100,12 +3112,12 @@ joy_trig:
                 set     6,e
 sel_trig1:
                 ld      a,$0F
-                call    sound_stat
+                call    rdpsg
                 and     $BF
                 or      e
                 ld      e,a
                 ld      a,$0F
-                call    sound_out
+                call    wrtpsg
 
                 ld      a,b
                 ld      b,$10
@@ -3115,7 +3127,7 @@ sel_trig1:
 istrg_a:
                 ld      a,$0E
                 di
-                call    sound_stat
+                call    rdpsg
                 ei
                 pop     de
                 and     b
@@ -3193,7 +3205,7 @@ int_end:
 
 ;--------------------------------
 ; 0066h NMI割り込み
-nmi_int:
+nmi:
                 call    H_NMI
                 retn
 
@@ -3611,17 +3623,17 @@ file_lp:
 name_lp:
                 ld      a,(ix+0)
                 inc     ix
-                call    ch_put
+                call    chput
                 djnz    name_lp
 
                 ld      a,'.'
-                call    ch_put
+                call    chput
 
                 ld      b,3
 ext_lp:
                 ld      a,(ix+0)
                 inc     ix
-                call    ch_put
+                call    chput
                 djnz    ext_lp
 
                 ld      de,$0015

@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.24 2004/12/29 03:25:03 mthuurne Exp $
+; $Id: sub.asm,v 1.25 2004/12/30 08:41:08 andete Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -70,42 +70,42 @@
 ; $00D5 INITXT Set VDP for 40x24 text mode (SCREEN0).
                 ds      $00D5 - $,$C9
                 ei
-                jp      init_txt
+                jp      initxt
 
 ; $00D9 INIT32 Set VDP for 32x24 text mode (SCREEN1).
                 ds      $00D9 - $,$C9
                 ei
-                jp      init_txt32
+                jp      init32
 
 ; $00DD INIGRP Set VDP for graphics mode (SCREEN2).
                 ds      $00DD - $,$C9
                 ei
-                jp      init_grp
+                jp      inigrp
 
 ; $00E1 INIMLT Set VDP for multicolour mode (SCREEN3).
                 ds      $00E1 - $,$C9
                 ei
-                jp      init_mlt
+                jp      inimlt
 
 ; $00E5 SETTXT Set VDP for 40x24 text mode (SCREEN0).
                 ds      $00E5 - $,$C9
                 ei
-                jp      set_txt
+                jp      settxt
 
 ; $00E9 SETT32 Set VDP for 32x24 text mode (SCREEN1).
                 ds      $00E9 - $,$C9
                 ei
-                jp      set_txt32
+                jp      sett32
 
 ; $00ED SETGRP Set VDP for graphics mode (SCREEN2).
                 ds      $00ED - $,$C9
                 ei
-                jp      set_grp
+                jp      setgrp
 
 ; $00F1 SETMLT Set VDP for multicolour mode (SCREEN3).
                 ds      $00F1 - $,$C9
                 ei
-                jp      set_mlt
+                jp      setmlt
 
 ; $00F5 CLRSPR Clear sprites.
                 ds      $00F5 - $,$C9
