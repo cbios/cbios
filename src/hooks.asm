@@ -1,10 +1,11 @@
-; $Id: hooks.asm,v 1.2 2004/12/19 11:23:50 manuelbi Exp $
+; $Id: hooks.asm,v 1.3 2004/12/22 21:11:13 manuelbi Exp $
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
+; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -29,6 +30,6 @@
 
 H_KEYI:         equ     $FD9A           ; キーボード割り込みフック
 H_TIMI:         equ     $FD9F           ; タイマー割り込みフック
+H_TOTE:         equ     $FDBD           ; called at start of TOTEXT
 H_NMI:          equ     $FDD6           ; NMI hook
 H_STKE:         equ     $FEDA           ; スタックエラーフック
-

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.35 2004/12/28 00:33:05 ccfg Exp $
+; $Id: main.asm,v 1.36 2004/12/28 15:01:49 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2406,14 +2406,15 @@ dspfnk_text:    db      "DSPFNK",0
 ;--------------------------------
 ; $00D2 TOTEXT
 ; Forces the screen to be in the text mode.
+; Input: SCRMOD, OLDSCR
 ; Changes: all
+; TODO: should call H.TOTE; ?should directly use INITXT or INIT32?
 totext:
+;                call H_TOTE
                 ld      a,(SCRMOD)
                 cp      2
                 ret     c
-                ; TODO: To which SCREEN mode does it switch exactly?
-                ;       Probably some system variable?
-                xor     a
+                ld      a,(OLDSCR)
                 jp      chgmod
 
 ;--------------------------------

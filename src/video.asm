@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.20 2004/12/27 23:30:23 ccfg Exp $
+; $Id: video.asm,v 1.21 2004/12/28 00:28:59 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -6,6 +6,7 @@
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
+; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -31,7 +32,9 @@
                 include "font.asm"
 
 ;--------------------------------
-;0041h DISSCR
+; $0041 DISSCR
+; Function : inhibits the screen display
+; Registers: AF, BC
 disscr:
                 in      a,(VDP_STAT)    ; reset Latch
 
@@ -43,7 +46,9 @@ disscr:
                 ret
 
 ;--------------------------------
-;0044h ENASCR
+; $0044 ENASCR
+; Function : displays the screen
+; Registers: AF, BC
 enascr:
                 in      a,(VDP_STAT)    ; reset Latch
 
@@ -55,10 +60,13 @@ enascr:
                 ret
 
 ;--------------------------------
+; 0047$ WRTVDP
+; Function : write data in the VDP-register
+; Input    : B  - data to write
+;            C  - number of the register
+; Output   : RG0SAV(F3DF)-RG7SAV(F3E6)
+; Registers: AF, BC
 wrt_vdp:
-; 0047h WRTVDP
-;in:B = VDP data , C = レジスタ番号
-; dest af,b
                 push    hl
                 di
                 ld      a,b
@@ -93,7 +101,11 @@ rg8_sav:
                 ret
 
 ;--------------------------------
-;004Ah VRAM読み出し
+; $004A RDVRM
+; Function : Reads the content of VRAM
+; Input    : HL - address read
+; Output   : A  - value which was read
+; Registers: AF
 rd_vrm:
                 call    vdp_setrd
                 in      a,(VDP_DATA)
@@ -101,7 +113,11 @@ rd_vrm:
 
 
 ;--------------------------------
-;004Dh VRAM書き込み
+; $004D WRTVRM
+; Function : Writes data in VRAM
+; Input    : HL - address write
+;            A  - value write
+; Registers: AF
 wrt_vrm:
                 push    af
                 call    vdp_setwrt
@@ -110,7 +126,10 @@ wrt_vrm:
                 ret
 
 ;--------------------------------
-; 0050h SETRD
+; $0050 SETRD
+; Function : Enable VDP to read
+; Input    : HL - for VRAM-address
+; Registers: AF
 vdp_setrd:
                 di
                 ld      a,l
@@ -122,8 +141,10 @@ vdp_setrd:
                 ret
 
 ;--------------------------------
-; 0053h SETWRT
-; VRAMアドレスの設定
+; $0053 SETWRT
+; Function : Enable VDP to write
+; Input    : HL - Address
+; Registers: AF
 vdp_setwrt:
                 di
                 ld      a,l
@@ -136,8 +157,12 @@ vdp_setwrt:
                 ret
 
 ;--------------------------------
-;0056h fill VRAM
-;HL = VRAM address, BC = 長さ , A = data
+; $0056 FILVRM
+; Function : fill VRAM with value
+; Input    : A  - data byte
+;            BC - length of the area to be written
+;            HL - start address
+; Registers: AF, BC
 vdp_fillmem:
                 push    af
                 call    vdp_setwrt
@@ -156,9 +181,12 @@ vdp_fillmem_lp:
                 ret
 
 ;--------------------------------
-;0059h VRAM -> Memory
-;in de bc
-;dest. af de bc
+; $0059 LDIRMV
+; Function : Block transfer from VRAM to memory
+; Input    : BC - blocklength
+;            DE - Start address of memory
+;            HL - Start address of VRAM
+; Registers: All
 vdp_ldirmv:
                 call    vdp_setrd
                 ex      de,hl
@@ -175,9 +203,12 @@ vdp_ldirmv_lp:
                 ret
 
 ;--------------------------------
-;005Ch Memory -> VRAM
-;in hl de bc
-;dest. af de bc
+; $005C LDIRVM
+; Function : Block transfer from memory to VRAM
+; Input    : BC - blocklength
+;            DE - Start address of memory
+;            HL - Start address of VRAM
+; Registers: All
 vdp_data_rep:
                 ex      de,hl
                 ld      a,(SCRMOD)
@@ -205,7 +236,10 @@ vdp_data_rep_lp:
                 ret
 
 ;----------------------------------
-;005Fh CHGMOD   画面モードの変更
+; $005F CHGMOD   画面モードの変更
+; Function : Switches to given screenmode
+; Input    : A  - screen mode
+; Registers: All
 chgmod:
                 ; Guard against non-existing screen mode.
                 cp      9
@@ -225,8 +259,12 @@ chgmod_tbl:
                 dw      init_sc8        ; SCREEN8
 
 ;--------------------------------
-;0062h CHGCLR
-;in = 無し
+; $0062 CHGCLR
+; Function : Changes the screencolors
+; Input    : Foregroundcolor in FORCLR
+;            Backgroundcolor in BAKCLR
+;            Bordercolor in BDRCLR
+; Registers: All
 chgclr:
                 ld      a,(SCRMOD)
                 cp      8
@@ -281,7 +319,10 @@ chgclr_sc8:
                 jp      wrt_vdp
 
 ;--------------------------------
-;0069h CLRSPR
+; $0069 CLRSPR
+; Function : Initialises all sprites
+; Input    : SCRMOD
+; Registers: All
 clrspr:
 ; Check screen mode.
                 ld      a,(SCRMOD)
@@ -355,9 +396,14 @@ clrspr_attr_8:
 
 ;--------------------------------
 ; $006C INITXT
+; Function : Switch to SCREEN 0
+; Input    : TXTNAM, TXTCGP
+; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
+; Registers: All
 init_txt:
                 ld      a,$00
                 ld      (SCRMOD),a
+                ld      (OLDSCR),a
 
                 call    clr_text40
                 call    chgclr
@@ -381,9 +427,14 @@ init_txt:
 
 ;--------------------------------
 ; $006F INIT32
+; Function : Switches to SCREEN 1 (text screen with 32*24 characters)
+; Input    : T32NAM, T32CGP, T32COL, T32ATR, T32PAT
+; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
+; Registers: All
 init_txt32:
                 ld      a,$01           ; SCREEN1
                 ld      (SCRMOD),a
+                ld      (OLDSCR),a
 
                 call    clr_text32
                 call    chgclr
@@ -412,6 +463,10 @@ init_txt32:
 
 ;--------------------------------
 ; $0072 INIGRP
+; Function : Switches to SCREEN 2 (high resolution screen with 256*192 pixels)
+; Input    : GRPNAM, GRPCGP, GRPCOL, GRPATR, GRPPAT
+; Output   : NAMBAS-ATRBAS, SCRMOD
+; Registers: All
 init_grp:
                 ld      a,$02
                 ld      (SCRMOD),a
@@ -445,7 +500,10 @@ init_grp_lp:
 
 ;------------------------------
 ; $0075 INIMLT
-; Initialise SCREEN3 (multi-colour mode).
+; Function : Switches to SCREEN 3 (multi-color screen 64*48 pixels)
+; Input    : MLTNAM, MLTCGP, MLTCOL, MLTATR, MLTPAT
+; Output   : NAMBAS-ATRBAS, SCRMOD
+; Registers: All
 init_mlt:
                 ld      hl,init_mlt_text
                 jp      print_debug
@@ -453,8 +511,9 @@ init_mlt_text:  db      "SCREEN3",0
 
 ;------------------------------
 ; $0078 SETTXT
-; Input:     TXTNAM, TXTCGP
-; Changes:   
+; Function : Switches to VDP in SCREEN 0 mode
+; Input    : TXTNAM, TXTCGP
+; Registers: All
 ; TODO:      Make use of the inputs; see set_grp.
 set_txt:
                 ld      a,(RG0SAV)
@@ -479,8 +538,9 @@ set_txt:
 
 ;------------------------------
 ; $007B SETT32
-; Input:     T32NAM, T32CGP, T32COL, T32ATR, T32PAT
-; Changes:   
+; Function : Schakelt VDP in SCREEN 1 modus
+; Input    : T32NAM, T32CGP, T32COL, T32ATR, T32PAT
+; Registers: All
 ; TODO:      Try to reduce code duplication; see set_grp.
 set_txt32:
                 ld      a,(RG0SAV)
@@ -544,9 +604,10 @@ tcol_lp:
                 ret
 
 ;------------------------------
-; $00ED SETGRP
+; $007E SETGRP
+; Function : Switches VDP to SCREEN 2 mode
 ; Input:     GRPNAM, GRPCGP, GRPCOL, GRPATR, GRPPAT
-; Changes:   
+; Registers: All
 set_grp:
                 ld      a,(RG0SAV)
                 and     $F1             ; MASK 11110001
@@ -613,7 +674,10 @@ sft_lp:
                 ret
 
 ;------------------------------
-; $00F1 SETMLT
+; $0081 SETMLT
+; Function : Switches VDP to SCREEN 3 mode
+; Input    : MLTNAM, MLTCGP, MLTCOL, MLTATR, MLTPAT
+; Registers: All
 set_mlt:
                 ld      hl,set_mlt_text
                 jp      print_debug
@@ -1324,3 +1388,5 @@ cls_screen8:
 cls_bitmap:
                 ld      hl,0
                 jp      bigfil
+
+; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:

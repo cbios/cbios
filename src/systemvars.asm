@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.19 2004/12/23 03:02:46 mthuurne Exp $
+; $Id: systemvars.asm,v 1.20 2004/12/28 08:13:50 bifimsx Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -619,7 +619,7 @@ KANAMD:         equ     $FCAD
 
 FLBMEM:         equ     $FCAE
 SCRMOD:         equ     $FCAF
-OLDSRC:         equ     $FCB0
+OLDSCR:         equ     $FCB0
 CASPRV:         equ     $FCB1
 BRDATR:         equ     $FCB2
 GXPOS:          equ     $FCB3
