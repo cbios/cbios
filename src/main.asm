@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.28 2004/12/22 21:23:34 andete Exp $
+; $Id: main.asm,v 1.29 2004/12/23 02:21:00 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -524,6 +524,11 @@ start_game:
 
                 ld      hl,stack_error
                 push    hl
+
+                ; Note: Without this, Girly Block hangs on startup.
+                ;       Coincidence? Anyway, let's keep this for now.
+                ei
+                halt
 
                 ld      a,($4000)
                 cp      'A'
