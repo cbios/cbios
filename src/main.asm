@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.16 2004/12/18 03:20:56 mthuurne Exp $
+; $Id: main.asm,v 1.17 2004/12/18 05:03:58 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2164,6 +2164,11 @@ sound_init:
                 ld      e,$B8
                 ld      a,$07
                 call    sound_out
+                
+                ld      e,$80           ; TODO: What about strobe and trigger?
+                ld      a,$0F
+                call    sound_out
+
                 ret
 
 ;--------------------------------
@@ -2342,11 +2347,11 @@ joy_trig:
                 di
                 dec     a
                 push    de
-                ld      e,$00
+                ld      e,$80           ; TODO: What about strobe and trigger?
                 ld      b,a
                 and     $01
                 jr      z,sel_trig1
-                ld      e,$40
+                set     6,e
 sel_trig1:
                 ld      a,$0F
                 call    sound_stat
