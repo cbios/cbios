@@ -1,10 +1,10 @@
-; $Id: main.asm,v 1.65 2005/01/03 00:17:45 ccfg Exp $
+; $Id: main.asm,v 1.66 2005/01/03 05:46:30 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
-; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Jussi Pitk舅en.  All rights reserved.
@@ -698,7 +698,9 @@ ram_ok:
                 call    init_ram
 
                 call    check_expanded
+        IF VDP != TMS99X8
                 call    chksubpos
+        ENDIF
                 call    check_rom
 
 ;                in      a,(PSL_STAT)
@@ -1351,6 +1353,7 @@ check_expanded_next:
                 ei
                 ret
 
+        IF VDP != TMS99X8
 ;----------------------
 ;サブロム位置の検出
 chksubpos:
@@ -1430,6 +1433,7 @@ rd_subpos:
                 ;pop    de              ; debug
                 pop     bc
                 ret
+        ENDIF
 
 ;------------------------
 ;
@@ -3244,15 +3248,15 @@ joy_end:
 
 joypos_joy_tbl:
                 ;         0   1   2   3   4   5   6   7
-                db      $00,$01,$05,$00,$07,$08,$06,$00
+                db      $00,$01,$05,$00,$07,$08,$06,$07
                 ;         8   9   A   B   C   D   E   F
-                db      $03,$02,$04,$00,$00,$00,$00,$00
+                db      $03,$02,$04,$03,$00,$01,$05,$00
 
 joypos_kbd_tbl:
                 ;         0   1   2   3   4   5   6   7
-                db      $00,$07,$01,$08,$05,$06,$00,$00
+                db      $00,$07,$01,$08,$05,$06,$00,$07
                 ;         8   9   A   B   C   D   E   F
-                db      $03,$00,$02,$00,$04,$00,$00,$00
+                db      $03,$00,$02,$01,$04,$05,$03,$00
 
 
 ;--------------------------------
