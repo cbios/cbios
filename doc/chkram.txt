@@ -64,7 +64,7 @@ What a BIOS does when CHKRAM is called
 - adjust FRETOP
 - TOTEXT
 - FLBMEM = 0
-- at PTRFIL+9 fill 256 bytes with 0 (initializing FCB?)
+- at (PTRFIL)+9 fill 256 bytes with 0 (initializing FCB?)
 - call H_READ
 - call PROMPT in subrom
 - main basic loop:
