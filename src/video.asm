@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.5 2004/12/12 05:30:24 mthuurne Exp $
+; $Id: video.asm,v 1.6 2004/12/18 05:03:58 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -197,6 +197,9 @@ vdp_data_rep_lp:
                 otir
                 dec     a
                 jr      nz,vdp_data_rep_lp
+                ; Note: Without this, Quinpl shows glitches.
+                ; TODO: Investigate why.
+                ex      de,hl
                 ret
 
 ;----------------------------------
