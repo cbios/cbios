@@ -1,4 +1,4 @@
-$Id$
+$Id: building.txt,v 1.1 2004/12/12 21:18:34 mthuurne Exp $
 
 Building C-BIOS From Source
 ===========================
@@ -12,10 +12,9 @@ All three of them work on Windows, Pasmo and SjASM work on Linux too and
 probably on other Unix-like systems as well.
 
 Building with Pasmo:
-Run "make".
-You should have GNU Make or something similar enough installed on your machine.
-Or if you use Windows and do not want to install Make, you can adapt "make.bat"
-manually.
+On Unix-like systems: Run "make". You should have GNU Make or something similar
+enough installed on your machine.
+On Windows: Run "make.bat" like this: "make pasmo".
 
 Building with SjASM:
 Define Z80_ASSEMBLER=sjasm in your environment, or edit the assembler selection
