@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.30 2005/01/03 00:17:46 ccfg Exp $
+; $Id: sub.asm,v 1.31 2005/01/04 18:17:31 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -42,6 +42,43 @@ VDP:            equ     V9938
                 dw      0               ; Initialisation routine.
                 dw      0               ; Statement handler.
                 dw      0               ; Device handler.
+; $0008
+                ds      $0008 - $,$C9
+
+; $0010 CHRGTR
+                ds      $0010 - $,0
+                ; Simple implementation
+                ld      a,(hl)
+                or      a
+                ret
+; $0014 WRSLT
+                ds      $0014 - $,0
+                ret
+
+; $0018
+                ds      $0018 - $,0
+                ret
+
+; $001C CALSLT
+                ds      $001C - $,0
+                ret
+
+; $0020 DCOMPR
+                ds      $0020 - $,0
+                ld      a,h
+                cp      d
+                ret     nz
+                ld      a,l
+                cp      e
+                ret
+
+; $0028
+                ds      $0028 - $,0
+                ret
+
+; $0030 CALLF
+                ds      $0030 - $,0
+                ret
 
 ; $0038 Handler for maskable interrupt.
                 ds      $0038 - $,$C9
@@ -72,7 +109,7 @@ VDP:            equ     V9938
 ; $0089 GRPPRT
                 ds      $0089 - $,$C9
                 ei
-                jp      grpprt
+                jp      grpprt_sub
 
 ; $008D SCALXY
                 ds      $008D - $,$C9
@@ -411,6 +448,60 @@ dogrph:
                 pop     hl
                 ret
 dogrph_text:    db      "DOGRPH",0
+
+;------------------------------
+; $0089 GRPPRT
+; Function:  Places a character on graphic screen
+; Input:     A  - Character
+;            ATRBYT for attribute
+;            LOGOPR for logical operator
+; NOTE: Currently MSX2 Graphical screens only
+; NOTE: It still lacks any clipping check
+grpprt_sub:
+                push    bc
+                push    de
+                push    hl
+                call    getpat
+
+                ld      hl,(GXPOS)
+                ld      (DX),HL
+                ld      bc,8
+                add     hl,bc
+                ld      (GXPOS),hl
+
+                ld      a,(ACPAGE)
+                ld      hl,(GYPOS)
+                ld      h,a
+                ld      (DY),hl
+
+                ld      (NX),bc
+                ld      (NY),bc
+                call    exec_cmd
+
+                ld      a,(hl)
+                and     15
+                or      $b0
+                out     (c),a
+
+                ld      bc,$AD +256* 17
+                call    wrtvdp
+
+                ld      b,8                     ; number of lines
+                ld      hl,PATWRK
+grpprt_line:    ld      c,8                     ; number of pixels
+grpprt_loop:    rlc     (hl)
+                ld      a,(FORCLR)
+                jr      c,grpprt_out
+                ld      a,(BAKCLR)
+grpprt_out:     out     (VDP_REGS),a            ; write pixel color
+                dec     c
+                jr      nz,grpprt_loop
+                inc     hl
+                djnz    grpprt_line
+                pop     hl
+                pop     de
+                pop     bc
+                ret
 
 ;-------------------------------------
 ; $0091 MAPXYC
