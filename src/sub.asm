@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.5 2004/12/07 22:24:06 mthuurne Exp $
+; $Id: sub.asm,v 1.6 2004/12/10 01:23:07 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -61,6 +61,11 @@
                 ds      $00D1 - $,$C9
                 ei
                 jp      chgmod
+
+; $00F5 CLRSPR Clear sprites.
+                ds      $00F5 - $,$C9
+                ei
+                jp      clrspr
 
 ; $013D SETPAG Switches display page.
 ; Input:   DPPAGE

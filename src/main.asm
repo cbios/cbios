@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.15 2004/12/12 05:30:12 mthuurne Exp $
+; $Id: main.asm,v 1.16 2004/12/18 03:20:56 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -176,7 +176,7 @@ romid:
 
 ;0069h CLRSPR  .. スプライトを消去。
                 ds      $0069 - $
-                ret
+                jp      clrspr
 
 ;006Ch INITXT   画面をTEXT1モードに初期化。
                 ds      $006C - $

@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.4 2004/12/10 07:30:02 mthuurne Exp $
+; $Id: video.asm,v 1.5 2004/12/12 05:30:24 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -267,6 +267,64 @@ cclr_lp: pop     af
                 ret
 
 ;--------------------------------
+;0069h CLRSPR
+clrspr:
+; Check screen mode.
+                ld      a,(SCRMOD)
+                or      a
+                ret     z               ; no sprites in SCREEN0
+                cp      4
+                jr      c,clrspr_spritemode1
+
+; Note: This label is called directly by external routines.
+clrspr_spritemode2:                     
+                ld      c,217           ; Y coordinate
+                jr      clrspr_spritemode_start
+
+; Note: This label is called directly by external routines.
+clrspr_spritemode1:
+                ld      c,209           ; Y coordinate
+
+clrspr_spritemode_start:
+; Initialise sprite attribute table.
+                ld      hl,(ATRBAS)
+                call    nsetwr
+                ld      b,32
+clrspr_attr_lp:
+                ld      a,c             ; Y coordinate
+                out     (VDP_DATA),a
+                ld      a,0
+                out     (VDP_DATA),a    ; X coordinate
+                ld      a,32
+                sub     b
+                out     (VDP_DATA),a    ; pattern number
+                ld      a,(FORCLR)
+                and     $0F
+                out     (VDP_DATA),a    ; colour
+                djnz    clrspr_attr_lp
+
+; Clear sprite colour table.
+                ld      a,c
+                cp      209             ; sprite mode 1?
+                jr      z,clrspr_col_skip
+                ld      hl,(PATBAS)
+                dec     h
+                dec     h               ; HL = (PATBAS) - 512
+                ld      bc,32 * 16
+                ld      a,(FORCLR)
+                and     $0F
+                call    bigfil
+clrspr_col_skip:
+
+; Clear sprite pattern generator table.
+                ld      hl,(PATBAS)
+                ld      bc,256 * 8
+                xor     a
+                call    bigfil
+
+                ret
+
+;--------------------------------
 ;006Ch INITXT
 init_txt:
                 ld      a,$00
@@ -321,8 +379,7 @@ init_txt:
 ;--------------------------------
 ;006Fh INIT32
 init_txt32:
-                ; screen 1
-                ld      a,$01
+                ld      a,$01           ; SCREEN1
                 ld      (SCRMOD),a
 
                 call    clr_text32
@@ -334,16 +391,13 @@ init_txt32:
 
                 ld      b,a             ; B = R#0 data
                 ld      c,0
-
                 call    wrt_vdp         ; write VDP R#0
-
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
 
                 ld      b,a             ; B = R#1 data
                 inc     c
-
                 call    wrt_vdp         ; write VDP R#1
 
                 ld      hl,(T32NAM)
@@ -416,10 +470,7 @@ tcol_lp:
                 ld      bc,$0800
                 call    vdp_data_rep    ; init Font
 
-
-;                ld      a,1
-;                ld      (CSRY),a
-;                ld      (CSRX),a
+                call    clrspr_spritemode1
 
                 ld      a,(LINL32)
                 ld      (LINLEN),a
@@ -472,6 +523,8 @@ ig_loop:
                 ld      hl,GRPNAM
                 ld      de,$7F03
                 call    set_grp
+
+                call    clrspr_spritemode1
                 call    enascr
                 ret
 
@@ -855,6 +908,7 @@ init_sc5:
                 inc     c
                 call    wrt_vdp         ; VDP R#22
 
+                call    clrspr_spritemode2
                 call    enascr
                 ret
 
@@ -940,6 +994,7 @@ init_sc7:
                 inc     c
                 call    wrt_vdp         ; write VDP R#6
 
+                call    clrspr_spritemode2
                 call    enascr
                 ret
 

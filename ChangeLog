@@ -1,9 +1,11 @@
-$Id: ChangeLog,v 1.9 2004/12/12 05:31:17 mthuurne Exp $
+$Id: ChangeLog,v 1.10 2004/12/18 03:20:56 mthuurne Exp $
 
 2004-12-17 Maarten ter Huurne <maarten@treewalker.org>
     * Refactored subslot selection code from "cal_slt" into reusable
       subroutines.
     * Implemented subslot support for RDSLT and WRSLT.
+    * Implemented CLRSPR (clear sprites) and also call it when switching
+      screen mode.
 
 2004-12-12 Maarten ter Huurne <maarten@treewalker.org>
     * Added "dist" target to Makefile.
