@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.66 2005/01/03 05:46:30 mthuurne Exp $
+; $Id: main.asm,v 1.67 2005/01/03 07:35:24 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2437,17 +2437,25 @@ chput:
                 push    hl
                 push    de
 
+                push    af
+                ld      a,(ESCCNT)
+                or      a
+                jp      nz,chput_escape
+                pop     af
+
                 ; CTRL code
                 cp      $00
-                jp      z,chput_exit
+                jr      z,chput_exit
                 cp      $07
-                jp      z,chput_beep
+                jr      z,chput_beep
                 cp      $08
-                jp      z,back_spc
+                jr      z,back_spc
                 cp      $0D
-                jp      z,ctrl_cr
+                jr      z,ctrl_cr
                 cp      $0A
-                jp      z,ctrl_lf
+                jr      z,ctrl_lf
+                cp      $1B
+                jr      z,chput_start_escape
 
                 ; Charactor code
                 push    af
@@ -2471,6 +2479,11 @@ chput_exit:
 chput_exit_af:
                 pop     af
                 ret
+
+chput_start_escape:
+                ld      a,$FF
+                ld      (ESCCNT),a
+                jr      chput_exit
 
 chput_nx:
                 ld      a,(CRTCNT)
@@ -2527,6 +2540,60 @@ ctrl_lf:
 lf_scroll:
                 call    scroll_txt
                 jr      chput_exit
+
+chput_escape:                           ; A = escape state (ESCCNT)
+                ld      d,0             ; D = next state
+                dec     a
+                jr      z,chput_escape_curshapex        ; 1
+                dec     a
+                jr      z,chput_escape_curshapey        ; 2
+                dec     a
+                jr      z,chput_escape_locate2          ; 3
+                dec     a
+                jr      z,chput_escape_locate1          ; 4
+
+                ; Seen: <ESC>
+                pop     af
+                inc     d               ; D = 1
+                cp      'x'
+                jr      z,chput_escape_exit
+                inc     d               ; D = 2
+                cp      'y'
+                jr      z,chput_escape_exit
+                ld      d,4
+                cp      'Y'
+                jr      z,chput_escape_exit
+                ; TODO: Implement.
+                ld      d,0
+chput_escape_exit:
+                ld      a,d
+                ld      (ESCCNT),a
+                jp      chput_exit
+
+chput_escape_curshapex:
+                ; Seen: <ESC>x
+                pop     af
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+chput_escape_curshapey:
+                ; Seen: <ESC>y
+                pop     af
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+chput_escape_locate1:
+                ; Seen: <ESC>Y
+                pop     af
+                ; TODO: Store this value somewhere.
+                ld      d,3
+                jr      chput_escape_exit
+
+chput_escape_locate2:
+                ; Seen: <ESC>Y<row>
+                pop     af
+                ; TODO: Implement.
+                jr      chput_escape_exit
 
 ; scroll routine
 scroll_txt:
