@@ -1,4 +1,10 @@
-$Id: ChangeLog,v 1.110 2005/02/06 03:06:25 mthuurne Exp $
+$Id: ChangeLog,v 1.111 2005/02/06 04:08:00 mthuurne Exp $
+
+2005-02-06 Albert Beevendorp
+    * added some more version specific compilation
+    * moved the font to the default address if $1BBF as games depend
+      on it being there
+    * removed font from subrom
 
 2005-02-05 Maarten ter Huurne <maarten@treewalker.org>
     * Workaround for buggy cartridge boot code: HALT just before calling
