@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.6 2004/12/07 19:37:11 bifimsx Exp $
+$Id: ChangeLog,v 1.7 2004/12/10 06:41:18 mthuurne Exp $
+
+2004-12-10 Maarten ter Huurne <maarten@treewalker.org>
+    * Made the MSX1 VRAM transfer routines faster.
 
 2004-12-09 Maarten ter Huurne <maarten@treewalker.org>
     * Introduced debug.asm, which contains routines useful for debugging.

@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.2 2004/12/07 23:29:47 mthuurne Exp $
+; $Id: video.asm,v 1.3 2004/12/10 01:51:15 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -94,8 +94,6 @@ rg8_sav:
 ;004Ah VRAM読み出し
 rd_vrm:
                 call    vdp_setrd
-                ex      (sp),ix
-                ex      (sp),ix
                 in      a,(VDP_DATA)
                 ret
 
@@ -105,8 +103,6 @@ rd_vrm:
 wrt_vrm:
                 push    af
                 call    vdp_setwrt
-                ex      (sp),ix
-                ex      (sp),ix
                 pop     af
                 out     (VDP_DATA),a
                 ret
@@ -114,7 +110,6 @@ wrt_vrm:
 ;--------------------------------
 ; 0050h SETRD
 vdp_setrd:
-
                 di
                 ld      a,l
                 out     (VDP_ADDR),a
@@ -128,7 +123,6 @@ vdp_setrd:
 ; 0053h SETWRT
 ; VRAMアドレスの設定
 vdp_setwrt:
-
                 di
                 ld      a,l
                 out     (VDP_ADDR),a
@@ -145,16 +139,18 @@ vdp_setwrt:
 vdp_fillmem:
                 push    af
                 call    vdp_setwrt
-lp_u001:
-                pop     af
-                out     (VDP_DATA),a
-                push    af
-
                 dec     bc
-                ld      a,c
-                or      b
-                jr      nz,lp_u001
+                inc     c
+                ld      a,b
+                ld      b,c
+                ld      c,a
+                inc     c
                 pop     af
+vdp_fillmem_lp:
+                out     (VDP_DATA),a
+                djnz    vdp_fillmem_lp
+                dec     c
+                jr      nz,vdp_fillmem_lp
                 ret
 
 ;--------------------------------
@@ -163,16 +159,17 @@ lp_u001:
 ;dest. af de bc
 vdp_ldirmv:
                 call    vdp_setrd
-                ex      (sp),ix
-                ex      (sp),ix
-ldir_lp1:
-                in      a,(VDP_DATA)
-                ld      (de),a
-                inc     de
+                ex      de,hl
                 dec     bc
-                ld      a,c
-                or      b
-                jr      nz,ldir_lp1
+                inc     c
+                ld      a,b
+                ld      b,c
+                inc     a
+                ld      c,VDP_DATA
+vdp_ldirmv_lp:
+                inir
+                dec     a
+                jr      nz,vdp_ldirmv_lp
                 ret
 
 ;--------------------------------
@@ -185,17 +182,21 @@ vdp_data_rep:
                 cp      4
                 jr      nc,vdp_data_rep_new
                 call    vdp_setwrt
-                jr      lp_vd_rep
+                jr      vdp_data_rep_cont
 vdp_data_rep_new:
                 call    nsetwr
-lp_vd_rep:
-                ld      a,(de)
-                out     (VDP_DATA),a
-                inc     de
+vdp_data_rep_cont:
+                ex      de,hl
                 dec     bc
-                ld      a,c
-                or      b
-                jr      nz,lp_vd_rep
+                inc     c
+                ld      a,b
+                ld      b,c
+                inc     a
+                ld      c,VDP_DATA
+vdp_data_rep_lp:
+                otir
+                dec     a
+                jr      nz,vdp_data_rep_lp
                 ret
 
 ;----------------------------------
