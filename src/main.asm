@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.90 2005/01/20 07:20:56 bifimsx Exp $
+; $Id: main.asm,v 1.91 2005/01/20 17:40:27 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1252,6 +1252,11 @@ init_ram:
 
                 ld      a,$08
                 ld      (RG8SAV),a
+
+                ld      a,(SLTTBL)
+                ld      (CGPNT),a
+                ld      hl,(4)
+                ld      (CGPNT+1),hl
 
                 ret
 
