@@ -1,4 +1,4 @@
-; $Id: disk.asm,v 1.4 2005/01/08 03:37:27 mthuurne Exp $
+; $Id: disk.asm,v 1.5 2005/01/08 21:46:32 mthuurne Exp $
 ; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
@@ -33,8 +33,16 @@ enaslt:         equ     $0024
 
 ; Disk Transfer Area.
 DTA_ADDR:       equ     $F23D
+
+; For each page, the slot in which RAM is located.
+RAM_PAGE0:      equ     $F341
+RAM_PAGE1:      equ     $F342
+RAM_PAGE2:      equ     $F343
+RAM_PAGE3:      equ     $F344
+
 ; BDOS entry point.
 BDOS_ENTRY:     equ     $F37D
+
 ; Actual place where the BDOS inter slot call is made.
 ; The entry point is just 3 bytes, inter slot call requires 5.
 H_BDOS:         equ     $F331
@@ -97,18 +105,70 @@ init:
                 ld      hl,init_text
                 call    print_debug
 
-                ; Setup hooks.
-                call    dskslt          ; A = slot ID
-                ld      de,bdos         ; BDOS
+; Init variables:
+
+                ; Init RAM_PAGEx.
+                ; Note: Should this happen in disk ROM or main ROM?
+                ; We assume that the same slot that is chosen by the main ROM
+                ; to hold the system vars provides RAM in all pages.
+                ; This is not true for all MSX models, but it is for most.
+                ; TODO: Search for RAM for each page separately.
+                in      a,(PSL_STAT)
+                and     $C0
+                rlca
+                rlca
+                ld      c,a             ; C = 000000PP
+                ld      a,(SSL_REGS)
+                cpl
+                and     $C0
+                rrca
+                rrca
+                rrca
+                rrca                    ; A = 0000SS00
+                or      c               ; A = 0000SSPP
+                ld      b,0
+                ld      hl,EXPTBL
+                add     hl,bc
+                or      (hl)            ; A = E000SSPP
+                ld      hl,RAM_PAGE0
+                ld      (hl),a
+                inc     hl
+                ld      (hl),a
+                inc     hl
+                ld      (hl),a
+                inc     hl
+                ld      (hl),a
+
+                ; Init DRVINF.
+                ; TODO: Cooperate with other disk ROMs.
+                ld      hl,DRVINF
+                ld      (hl),NUM_DRIVES
+                inc     hl
+                push    hl
+                call    dskslt
+                pop     hl
+                ld      (hl),a
+
+                ; Init DTA.
+                call    resetdta
+
+; Setup hooks:
+
+                call    dskslt
+                ; BDOS
+                ld      de,bdos
                 ld      hl,H_BDOS
                 call    init_sethook
-                ld      de,phydio       ; PHYDIO
+                ; PHYDIO
+                ld      de,phydio
                 ld      hl,H_PHYD
                 call    init_sethook
-                ld      de,format       ; FORMAT
+                ; FORMAT
+                ld      de,format
                 ld      hl,H_FORM
                 call    init_sethook
-                ld      de,boot         ; boot loader
+                ; boot loader
+                ld      de,boot
                 ld      hl,H_RUNC
                 call    init_sethook
 
@@ -259,7 +319,7 @@ load_sector_skip:
 ; Load 1 sector to an address in page 1.
 load_sector_page1:
                 ; TODO: Determine slot currently active in page 2.
-                ld      a,$8B           ; slot 3.2 (RAM)
+                ld      a,(RAM_PAGE2)   ; RAM slot
                 push    af
                 ; Select disk ROM in page 2.
                 push    hl
@@ -294,8 +354,7 @@ load_sector_page1_high:
                 ; Note that this will only allow loading into the primary
                 ; mapper; does the MSX disk ROM have the same limitation?
                 ; If not, how does it know which slot to load to?
-                ; TODO: Use RAM slot from $F342.
-                ld      a,$8B           ; slot 3.2
+                ld      a,(RAM_PAGE1)
                 ld      h,$40
                 call    enaslt
                 pop     hl              ; HL = sector number
@@ -618,7 +677,7 @@ bdos_table:
                 dw      bdos_print      ; $0A
                 dw      bdos_print      ; $0B
                 dw      bdos_print      ; $0C
-                dw      bdos_print      ; $0D
+                dw      bdos_dskrst     ; $0D
                 dw      bdos_print      ; $0E
                 dw      bdos_print      ; $0F
                 dw      bdos_print      ; $10
@@ -630,7 +689,7 @@ bdos_table:
                 dw      bdos_print      ; $16
                 dw      bdos_print      ; $17
                 dw      bdos_print      ; $18
-                dw      bdos_print      ; $19
+                dw      bdos_curdrv     ; $19
                 dw      bdos_setdta     ; $1A
                 dw      bdos_print      ; $1B
                 dw      bdos_print      ; $1C
@@ -668,9 +727,30 @@ bdos_print:
 bdos_text:      db      "disk: BDOS ($F37D/$0005) called, function $",0
 
 ;--------------------------------
+; BDOS $0D: DSKRST
+; Flush internal buffers and reset DTA.
+bdos_dskrst:
+                ; TODO: Flush internal buffers.
+                ;       (we don't have any buffers yet)
+                call    resetdta
+                ret
+
+;--------------------------------
+; BDOS $19: CURDRV
+; Gets the current drive.
+; Output: drive (0=A)
+bdos_curdrv:
+                ; TODO: Keep the current drive in a sysvar.
+                xor     a
+                ld      l,a
+                ret
+
+;--------------------------------
 ; BDOS $1A: SETDTA
 ; Set Disk Transfer Area.
 ; Input: DE = new DTA address
+resetdta:
+                ld      de,$0080
 bdos_setdta:
                 ld      (DTA_ADDR),de
                 ret
