@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.12 2004/12/07 23:29:47 mthuurne Exp $
+; $Id: main.asm,v 1.13 2004/12/10 01:51:15 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2755,6 +2755,8 @@ str_proginfo:
                 db      "C-BIOS ver 0.17",$0D,$0A
                 db      "Copyright (C) 2002-2003 BouKiCHi",$0D,$0A
                 db      "Copyright (C) 2003 Reikan",$0D,$0A
+                db      "Copyright (C) 2004 C-BIOS Team",$0D,$0A
+                db      "(See http://cbios.sf.net/)",$0D,$0A
                 db      $00
 
 str_slot:
