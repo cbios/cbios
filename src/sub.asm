@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.36 2005/01/13 16:02:28 bifimsx Exp $
+; $Id: sub.asm,v 1.37 2005/01/13 17:29:52 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -506,14 +506,17 @@ grpprt_sub:
                 or      $b0
                 out     (c),a
 
-                ld      bc,$AD +256* 17
-                call    wrtvdp
+                ld      a,128+ 44
+                out     (VDP_ADDR),a
+                ld      a,128+ 17
+                out     (VDP_ADDR),a
+                ei
 
                 ld      b,8                     ; number of lines
                 ld      hl,PATWRK
 grpprt_line:    ld      c,8                     ; number of pixels
 grpprt_loop:    rlc     (hl)
-                ld      a,(FORCLR)
+                ld      a,(ATRBYT)
                 jr      c,grpprt_out
                 ld      a,(BAKCLR)
 grpprt_out:     out     (VDP_REGS),a            ; write pixel color
