@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.89 2005/01/15 14:51:46 mthuurne Exp $
+; $Id: main.asm,v 1.90 2005/01/20 07:20:56 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -607,7 +607,6 @@ romid:
                 include "debug.asm"
                 include "video.asm"
                 include "slot.asm"
-                include "logo.asm"
 
 ; $0000 CHKRAM
 ; Function : Tests RAM and sets RAM slot for the system
@@ -726,11 +725,11 @@ ram_ok:
 
 start_game:
                 ; Select 8x8 sprites, the logo needed them to be 16x16.
-                ld      a,(RG1SAV)
-                and     $FD
-                ld      b,a
-                ld      c,$01
-                call    wrtvdp
+;                ld      a,(RG1SAV)
+;                and     $FD
+;                ld      b,a
+;                ld      c,$01
+;                call    wrtvdp
 
                 ld      a,29
                 ld      (LINL32),a
@@ -817,6 +816,34 @@ disp_info:
 ; ÉvÉçÉOÉâÉÄèÓïÒÇÃï\é¶
 
                 call    init32
+
+                ld      a,5
+                ld      (BAKCLR),a
+                ld      (BDRCLR),a
+                call    chgclr
+
+                ; Set up SCREEN 2 mirrored
+                ld      bc,0 +256* 2
+                call    wrtvdp
+                ld      bc,3 +256* 159
+                call    wrtvdp
+                ld      bc,4 +256* 0
+                call    wrtvdp
+
+                ; Fill the color table
+                ld      a,(FORCLR)
+                and     15
+                rlca
+                rlca
+                rlca
+                rlca
+                ld      b,a
+                ld      a,(BAKCLR)
+                and     15
+                or      b
+                ld      bc,2048
+                ld      hl,(GRPCOL)
+                call    filvrm
 
                 ; Print program info.
                 ld      hl,$0101
@@ -3729,7 +3756,7 @@ disk_error:
 
 str_proginfo:
                 ;       [01234567890123456789012345678901]
-                db      "C-BIOS 0.19         cbios.sf.net",$00
+                db      "C-BIOS 0.20         cbios.sf.net",$00
 
 str_slot:
                 ;       [01234567890123456789012345678901]
@@ -3837,6 +3864,7 @@ vdp_bios:
                 db      $F5,$87,$00,$40
 
 
+                include "logo.asm"
 ; ????
                 ds      $77CD - $
                 ret
