@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.34 2005/01/09 18:47:00 bifimsx Exp $
+; $Id: sub.asm,v 1.35 2005/01/09 19:19:34 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -82,12 +82,34 @@ VDP:            equ     V9938
 
 ; $0038 Handler for maskable interrupt.
                 ds      $0038 - $,$C9
-                ; TODO: Write a real handler.
                 push    af
-                in      a,($99)
+                push    bc
+                push    de
+                push    hl
+                ex      af,af'
+                exx
+                push    af
+                push    bc
+                push    de
+                push    hl
+                push    ix
+                push    iy
+                ld      ix,$38
+                ld      iy,($fcc0)
+                call    calslt
+                pop     iy
+                pop     ix
+                pop     hl
+                pop     de
+                pop     bc
                 pop     af
-                ei
-                ret
+                ex      af,af'
+                exx
+                pop     hl
+                pop     de
+                pop     bc
+                pop     af
+                reti
 
 ; $0066 Handler for non-maskable interrupt (not used on MSX).
                 ds      $0066 - $,$C9
@@ -428,6 +450,7 @@ VDP:            equ     V9938
 
                 include "util.asm"
                 include "debug.asm"
+                include "slot.asm"
                 include "video.asm"
 
 ;-------------------------------------
@@ -881,7 +904,7 @@ bltvm:
                 inc     hl
                 ld      (NX),bc                 ; store NX
 
-                ld      e,(hl)                  ; read NY from screen data to BC
+                ld      e,(hl)                  ; read NY from screen data to DE
                 inc     hl
                 ld      d,(hl)
                 inc     hl
@@ -891,12 +914,12 @@ bltvm:
                 ret     c
 
                 cp      8
-                ld      de,1 *256+ 8            ; D = number of pixels in a byte
-                jr      z,bltvm_cont            ; E = number of bits per pixel (shift)
+                ld      de,1 *256+ 4            ; D = number of pixels in a byte
+                jr      z,bltvm_cont            ; E = number of 2-bits per pixel (shift)
                 cp      6
-                ld      de,4 *256+ 2
+                ld      de,4 *256+ 1
                 jr      z,bltvm_cont
-                ld      de,2 *256+ 4
+                ld      de,2 *256+ 2
 
 bltvm_cont:
                 ld      c,(hl)                  ; read first value to write
@@ -904,6 +927,8 @@ bltvm_cont:
                 ld      b,e                     ; number of bits per pixel
 bltvm_1stcol:
                 rl      c                       ; shift bits into A
+                rla
+                rl      c
                 rla
                 djnz    bltvm_1stcol
 
@@ -919,6 +944,7 @@ bltvm_1stcol:
                 and     15
                 or      $b0                     ; LMMC
                 out     (c),a
+                ;ei
 
                 ld      a,128+ 44
                 out     (VDP_ADDR),a
@@ -934,6 +960,8 @@ bltvm_loop:
                 call    vdpsta
                 bit     0,a                     ; end of command?
                 ret     z
+                bit     7,a                     ; transmit ready?
+                jr      z,bltvm_loop
 
 bltvm_byte:
                 push    bc
@@ -942,8 +970,17 @@ bltvm_byte:
 bltvm_pixel:
                 rl      c                       ; shift bits into A
                 rla
+                rl      c
+                rla
                 djnz    bltvm_pixel
+
                 out     (VDP_REGS),a            ; write pixel color
+                ;di
+                ;out     (VDP_ADDR),a            ; write pixel color
+                ;ld      a,128+ 44
+                ;out     (VDP_ADDR),a
+                ;ei
+
                 ld      a,c
                 pop     bc
                 ld      c,a
