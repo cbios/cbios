@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.19 2004/12/20 02:14:53 mthuurne Exp $
+$Id: ChangeLog,v 1.20 2004/12/20 19:44:02 mthuurne Exp $
+
+2004-12-20 Joost Yervante Damad <joost@lumatec.be>
+	* documentation additions and added 002B and 002C
 
 2004-12-19 Maarten ter Huurne <maarten@treewalker.org>
     * Implemented VDPSTA: VDP status register reading.

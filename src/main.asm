@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.21 2004/12/19 11:23:50 manuelbi Exp $
+; $Id: main.asm,v 1.22 2004/12/19 14:59:32 manuelbi Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -50,13 +50,15 @@ chkram:
                 jp      soft_reset
 
 ;フォントへのポインタ
-
+;0004h CGTABL   Base address of the MSX character set in ROM
                 ds      $0004 - $
                 dw      B_Font
 
                 ds      $0006 - $
 
+;0006h VDP.DR   Base port address for VDP data read
 rdvdpa:         db      VDP_DATA        ; VDP読み出しポート
+;0007h VDP.WR   Base port address for VDP data write
 wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
 
 ;0008h SYNCHR
@@ -101,13 +103,43 @@ dcompr:
                 ds      $0028 - $
                 jp      getypr
 
+;002Bh IDBYT1
+                ds      $002D - $
+idbyt1:
+; Basic ROM version 
+; 7 6 5 4 3 2 1 0
+; | | | | +-+-+-+-- Character set
+; | | | |           0 = Japanese, 1 = International (ASCII), 2=Korean
+; | +-+-+---------- Date format
+; |                 0 = Y-M-D, 1 = M-D-Y, 2 = D-M-Y
+; +---------------- Default interrupt frequency
+;                   0 = 60Hz, 1 = 50Hz
+                db      $21 ; ?? TODO Dutch MSX value: $91
+;002Ch IDBYT2
+idbyt2:
+; Basic ROM version 
+; 7 6 5 4 3 2 1 0
+; | | | | +-+-+-+-- Keyboard type
+; | | | |           0 = Japanese, 1 = International (QWERTY)
+; | | | |           2 = French (AZERTY), 3 = UK, 4 = German (DIN)
+; +-+-+-+---------- Basic version
+;                   0 = Japanese, 1 = International
+                db      $11 ; ?? TODO Dutch MSX value: $11
+
 ;002D version ID等
 romid:
                 ds      $002D - $
 ; version ID
+; MSX version number
+;  0 = MSX 1
+;  1 = MSX 2
+;  2 = MSX 2+
+;  3 = MSX turbo R
                 db      0 ; 0 .. msx1 ,1 .. msx2
+; Bit 0: if 1 then MSX-MIDI is present internally (MSX turbo R only)
                 db      0 ; ??
-                db      0 ; ??
+; Reserved
+                db      0
 
 ;0030h CALLF    インタースロット呼び出し(RST30h版)
                 ds      $0030 - $
