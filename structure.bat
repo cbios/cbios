@@ -1,22 +1,22 @@
 @echo off
 echo Setting up openMSX configs
 mkdir derived\configs\openMSX\share\machines 2>nul
-xcopy configs\openMSX\*.* derived\configs\openMSX\share\machines /s /y >nul
+xcopy configs\openMSX\*.* derived\configs\openMSX\share\machines /s /e /y >nul
 del derived\configs\openMSX\share\machines\README.TXT
 
 echo Setting up blueMSX configs
 mkdir derived\configs\blueMSX\Machines 2>nul
-xcopy configs\blueMSX\*.* derived\configs\blueMSX\Machines /s /y >nul
+xcopy configs\blueMSX\*.* derived\configs\blueMSX\Machines /s /e /y >nul
 del derived\configs\blueMSX\Machines\README.TXT
 
 echo Setting up NLMSX configs
 mkdir derived\configs\NLMSX\ROMS 2>nul
-xcopy configs\NLMSX\*.* derived\configs\NLMSX /s /y >nul
+xcopy configs\NLMSX\*.* derived\configs\NLMSX /s /e /y >nul
 del derived\configs\NLMSX\README.TXT
 
 echo Setting up RuMSX configs
 mkdir derived\configs\RuMSX\SYSTEM 2>nul
-xcopy configs\RuMSX\*.* derived\configs\RuMSX /s /y >nul
+xcopy configs\RuMSX\*.* derived\configs\RuMSX /s /e /y >nul
 del derived\configs\RuMSX\README.TXT
 
 echo Copying system files
