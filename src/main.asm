@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.57 2004/12/30 15:17:58 andete Exp $
+; $Id: main.asm,v 1.58 2004/12/31 01:14:40 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -675,8 +675,10 @@ boot_stage2:
                 ; This is the hook the disk ROM uses for booting.
                 call    H_RUNC
 
-                ; We couldn't boot anything, instead show disk contents.
-                jp      disk_intr
+; We couldn't boot anything, instead show disk contents.
+; TODO: This breaks boot of MG2, so disabled for now.
+;                jp      disk_intr
+                ret                     ; goto stack_error
 
 ;-------------------------------
 ; èÓïÒï\é¶
@@ -3652,8 +3654,10 @@ lp_strprn:
 ; disk routine
 ;------------------------------------
 
-DISKIO:         equ     $4010
+DISKIO:         equ     phydio ;$4010
 
+; TODO: It seems this routine is currently broken, but it worked before.
+;       It is currently disabled as well, so there is no harm.
 disk_intr:
                 ld      hl,str_flist
                 call    prn_text
