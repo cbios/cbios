@@ -1,4 +1,4 @@
-$Id: cbios.txt,v 1.4 2004/12/24 00:46:00 mthuurne Exp $
+$Id: cbios.txt,v 1.5 2005/01/03 00:17:45 ccfg Exp $
 
 C-BIOS 0.19
 ===========
@@ -22,7 +22,7 @@ Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004 Patrick van Arkel.  All rights reserved.
 Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
-Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
 
 Redistribution and use in source and binary forms, with or without
