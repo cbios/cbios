@@ -1,4 +1,4 @@
-; $Id: disk.asm,v 1.5 2005/01/08 21:46:32 mthuurne Exp $
+; $Id: disk.asm,v 1.6 2005/01/09 02:32:23 mthuurne Exp $
 ; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
@@ -29,7 +29,9 @@
                 include "systemvars.asm"
                 include "hardware.asm"
 
+calslt:         equ     $001C
 enaslt:         equ     $0024
+chput:          equ     $00A2
 
 ; Disk Transfer Area.
 DTA_ADDR:       equ     $F23D
@@ -666,14 +668,14 @@ bdos_illfunc:
 bdos_table:
                 dw      bdos_print      ; $00
                 dw      bdos_print      ; $01
-                dw      bdos_print      ; $02
+                dw      bdos_conout     ; $02
                 dw      bdos_print      ; $03
                 dw      bdos_print      ; $04
                 dw      bdos_print      ; $05
                 dw      bdos_print      ; $06
                 dw      bdos_print      ; $07
                 dw      bdos_print      ; $08
-                dw      bdos_print      ; $09
+                dw      bdos_strout     ; $09
                 dw      bdos_print      ; $0A
                 dw      bdos_print      ; $0B
                 dw      bdos_print      ; $0C
@@ -710,7 +712,7 @@ bdos_table:
                 dw      bdos_print      ; $2B
                 dw      bdos_print      ; $2C
                 dw      bdos_print      ; $2D
-                dw      bdos_print      ; $2E
+                dw      bdos_verify     ; $2E
                 dw      bdos_rdabs      ; $2F
                 dw      bdos_print      ; $30
 
@@ -725,6 +727,38 @@ bdos_print:
                 out     (DBG_CTRL),a
                 ret
 bdos_text:      db      "disk: BDOS ($F37D/$0005) called, function $",0
+
+;--------------------------------
+; BDOS $02: CONOUT
+; Print character on stdout.
+; TODO: Support printer echo.
+; TODO: Check CTRL-C and other key combos (see function $0B in DOS2 docs).
+; Input: E = character to print
+bdos_conout:
+                push    iy
+                push    ix
+                ld      ix,chput
+                ld      iy,(EXPTBL - 1)
+                ld      a,e
+                call    calslt
+                pop     ix
+                pop     iy
+                ret
+
+;--------------------------------
+; BDOS $09: STROUT
+; Print string on stdout.
+; Input: DE = address of string, string is terminated by "$" character
+bdos_strout:
+                ld      a,(de)
+                cp      '$'
+                ret     z
+                push    de
+                ld      e,a
+                call    bdos_conout
+                pop     de
+                inc     de
+                jr      bdos_strout
 
 ;--------------------------------
 ; BDOS $0D: DSKRST
@@ -753,6 +787,18 @@ resetdta:
                 ld      de,$0080
 bdos_setdta:
                 ld      (DTA_ADDR),de
+                ret
+
+;--------------------------------
+; BDOS $2E: VERIFY
+; Set/reset verify flag.
+; The DOS2 docs say it is optional to implement the verify feature.
+; That means we will not implement it, because:
+; - most people will be using C-BIOS with disk images rather than real disks
+; - verification is very slow
+; - verification doesn't really add a lot of protection
+; Input: E = new flag state (E=0: disabled, E!=0: enabled)
+bdos_verify:
                 ret
 
 ;--------------------------------

@@ -1,10 +1,14 @@
-$Id: ChangeLog,v 1.96 2005/01/08 21:46:31 mthuurne Exp $
+$Id: ChangeLog,v 1.97 2005/01/09 02:32:20 mthuurne Exp $
 
 2005-01-08 Maarten ter Huurne <maarten@treewalker.org>
     * Added support for loading to page 1.
     * Initialise F341-F344 (RAM slot for each page).
     * Initialise DRVINF table.
     * Partial implementation of DSKRST and CURDRV BDOS functions.
+    * Partial implementation of CONOUT BDOS function.
+    * Implemented STROUT BDOS function.
+    * Implemented VERIFY BDOS function by doing nothing: according to the DOS2
+      docs, the verify feature is optional, so we just ignore the verify flag.
 
 2005-01-08 Albert Beevendorp
     * turned a few relative jumps into absolute jumps in CHPUT to fix
