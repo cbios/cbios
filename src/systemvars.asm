@@ -1,10 +1,11 @@
-; $Id: systemvars.asm,v 1.15 2004/12/22 19:56:26 andete Exp $
+; $Id: systemvars.asm,v 1.16 2004/12/22 20:42:38 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions

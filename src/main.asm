@@ -1,10 +1,11 @@
-; $Id: main.asm,v 1.25 2004/12/21 00:20:22 mthuurne Exp $
+; $Id: main.asm,v 1.26 2004/12/21 00:22:51 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions

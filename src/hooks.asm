@@ -1,9 +1,10 @@
-; $Id: hooks.asm,v 1.1 2004/12/04 03:56:01 mthuurne Exp $
+; $Id: hooks.asm,v 1.2 2004/12/19 11:23:50 manuelbi Exp $
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions

@@ -1,10 +1,11 @@
-; $Id: video.asm,v 1.12 2004/12/21 03:30:10 mthuurne Exp $
+; $Id: video.asm,v 1.13 2004/12/21 03:32:20 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
