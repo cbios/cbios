@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.41 2004/12/29 10:01:46 andete Exp $
+; $Id: main.asm,v 1.42 2004/12/29 11:17:28 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2099,6 +2099,15 @@ chg_psl:
                 ret
 ;--------------------------------
 ; $0028 GETYPR
+; Function : Returns Type of DAC
+; Input    : VALTYP(F663)
+; Output   : C, Z, S
+;       C       Z       S       Type    VALTYP
+;       low     -       -       double  8
+;       high    high    low     string  3
+;       high    low     high    integer 2
+;       high    low     low     float   4
+; Registers: AF
 ;NOTE: this implementation is still a stub!
 getypr:
                 push    hl
