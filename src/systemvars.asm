@@ -1,4 +1,5 @@
-; $Id: systemvars.asm,v 1.5 2004/12/21 21:50:13 manuelbi Exp $
+; $Id: systemvars.asm,v 1.6 2004/12/22 07:55:57 andete Exp $
+;
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -25,6 +26,7 @@
 ; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
+
 
 ;-------------------
 ; help function area
@@ -91,19 +93,42 @@ T32COL:         equ     $F3BF
 ; used to initialize CGPBAS when SCREEN 1 is activated
 T32CGP:         equ     $F3C1
 
+; F3C3-F3C4: BASE(8): sprite attribute table of SCREEN 1 (ini:$1B00)
+; used to initialize ATRBAS when SCREEN 1 is activated
 T32ATR:         equ     $F3C3
+
+; F3C5-F3C6: BASE(9)
 T32PAT:         equ     $F3C5
+
+; F3C7-F3C8: BASE(10)
 GRPNAM:         equ     $F3C7           ; Screen2 Name
+
+; F3C9-F3CA: BASE(11)
 GRPCOL:         equ     $F3C9           ; Screen2 Color
+
+; F3CB-F3CC: BASE(12)
 GRPCGP:         equ     $F3CB           ; Screen2 CG pattern
+
+; F3CD-F3CE: BASE(13)
 GRPATR:         equ     $F3CD           ; Screen2 Attribute
+
+; F3CF-F3D0: BASE(14)
 GRPPAT:         equ     $F3CF           ; Screen2 Sprite pattern
 
-MLTNAM:         equ     $F3D2           ; Screen3 Name
-MLTCOL:         equ     $F3D4           ; Screen3 Color
-MLTCGP:         equ     $F3D6           ; Screen3 CG pattern
-MLTATR:         equ     $F3D8           ; Screen3 Attribute
-MLTPAT:         equ     $F3DA           ; Screen3 Sprite pattern
+; F3D1-F3D2: BASE(15)
+MLTNAM:         equ     $F3D1           ; Screen3 Name
+
+; F3D3-F3D4: BASE(16)
+MLTCOL:         equ     $F3D3           ; Screen3 Color
+
+; F3D5-F3D6: BASE(17)
+MLTCGP:         equ     $F3D5           ; Screen3 CG pattern
+
+; F3D7-F3D8: BASE(18)
+MLTATR:         equ     $F3D7           ; Screen3 Attribute
+
+; F3D9-F3DA: BASE(19)
+MLTPAT:         equ     $F3D9           ; Screen3 Sprite pattern
 
 CLIKSW:         equ     $F3DB           ; Key Click.
 CSRY:           equ     $F3DC           ; カーソール位置(Y座標)
@@ -165,4 +190,4 @@ RG8SAV:         equ     $FFE7
 
 
 
-
+; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
