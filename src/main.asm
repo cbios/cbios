@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.20 2004/12/19 03:44:38 mthuurne Exp $
+; $Id: main.asm,v 1.21 2004/12/19 11:23:50 manuelbi Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -60,18 +60,17 @@ rdvdpa:         db      VDP_DATA        ; VDP読み出しポート
 wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
 
 ;0008h SYNCHR
-synchr:
                 ds      $0008 - $
-                ret
+                jp      synchr
 
 ;000Ch RDSLT    任意スロットからのメモリ読み込み
 
                 ds      $000C - $
                 jp      rdslt
 
-chrgtb:
+;0010h CHRGTR
                 ds      $0010 - $
-                ret
+                jp      chrgtr
 
 ;0014h WRSLT    任意スロットへのメモリ書き込み
                 ds      $0014 - $
@@ -98,9 +97,9 @@ dcompr:
                 ds      $0024 - $
                 jp      enaslt
 
-;0028h MATH-PACK
+;0028h GETYPR
                 ds      $0028 - $
-                ret
+                jp      getypr
 
 ;002D version ID等
 romid:
@@ -120,7 +119,7 @@ romid:
 
 ;0038h INITIO   I/Oの初期化
                 ds      $003B - $
-                ret
+                jp      initio 
 
 ;0041h DISSCR   スクリーンを表示させない。
                 ds      $0041 - $
@@ -239,9 +238,9 @@ romid:
                 ds      $0131 - $
                 ret
 
-;chgsnd
+;0135h CHGSND
                 ds      $0135 - $
-                ret
+                jp      chgsnd
 
 ;0138h RDSLTREG プライマリスロットの情報を読み出す
 ;g_slotreg
@@ -262,9 +261,9 @@ romid:
                 ds      $0141 - $
                 jp      in_keyboard
 
-;phydio
+;0144h PHYDIO
                 ds      $0144 - $
-                ret
+                jp      phydio
 
 ;0156h KILBUF   キーボードバッファをクリアする
                 ds      $0156 - $
@@ -1563,6 +1562,31 @@ cl_jp:          equ     rdprim+(m_cl_jp-m_rdprim)
 ;---------------------------
 ; サブルーチン
 ;---------------------------
+
+; the extensive descriptions were taken with permission from http://map.tni.nl/
+
+;0008h SYNCHR
+;Function:  tests whether the character of [HL] is the specified character
+;           if not, it generates SYNTAX ERROR, otherwise it goes to CHRGTR
+;           (#0010)
+;Input:     set the character to be tested in [HL] and the character to be
+;           compared next to RST instruction which calls this routine (inline 
+;           parameter)
+;Output:    HL is increased by one and A receives [HL], When the tested character
+;           is numerical, the CY flag is set the end of the statement (00h or
+;           3Ah) causes the Z flag to be set
+;Registers: AF, HL
+;NOTE: this implementation is still a stub!
+synchr:
+                push    hl
+                push    af
+                ld      hl,synchr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+synchr_text:    db      "SYNCHR",0
+
 ; 000Ch RDSLT
 ; in ..  A = slot ID , HL = address
 rdslt:
@@ -1617,6 +1641,25 @@ rdsft_lp:
                 rlca
                 djnz    rdsft_lp
                 ret
+
+; 0010h CHRGTR
+;Function:  Gets the next character (or token) of the Basic-text
+;Input:     HL - Address last character
+;Output:    HL - points to the next character
+;           A  - contains the character
+;           C  - flag set if it's a number
+;           Z  - flag set if it's the end of the statement
+;Registers: AF, HL
+;NOTE: this implementation is still a stub!
+chrgtr:
+                push    hl
+                push    af
+                ld      hl,chrgtr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+chrgtr_text:    db      "CHRGTR",0
 
 ; 0014h WRSLT
 ; in ..  A = slot ID , HL = address
@@ -1864,7 +1907,17 @@ chg_psl:
 
                 pop     hl
                 ret
-
+; 0028h GETYPR
+;NOTE: this implementation is still a stub!
+getypr:
+                push    hl
+                push    af
+                ld      hl,getypr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+getypr_text:    db      "GETYPR",0
 
 ;--------------------------------
 ; 0030h CALLLF
@@ -1885,6 +1938,20 @@ call_lf:
                 ex      af,af'
                 exx
                 jp      cal_slt         ; Perform inter-slot call.
+
+; 003Bh INITIO
+;Function:  Initialises the device
+;Registers: All
+;NOTE: this implementation is still a stub!
+initio:
+                push    hl
+                push    af
+                ld      hl,initio_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+initio_text:    db      "INITIO",0
 
 ;--------------------------------
 ;009Ch  CHSNS
@@ -2202,6 +2269,22 @@ sound_stat:
                 in      a,(PSG_STAT)
                 ret
 
+;0135h CHGSND
+;Function:  Alternates the 1-bit sound port status
+;Input:     A  - #00 to turn off
+;            not #00 to turn on
+;Registers: AF
+;NOTE: this implementation is still a stub!
+chgsnd:
+                push    hl
+                push    af
+                ld      hl,chgsnd_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+chgsnd_text:    db      "CHGSND",0
+
 ;--------------------------------
 get_slotreg:
                 in      a,(PSL_STAT)
@@ -2233,6 +2316,27 @@ in_keyboard:
                 in      a,(KBD_STAT)
                 ei
                 ret
+
+; 0144h PHYDIO
+;Function:  Executes I/O for mass-storage media like diskettes
+;Input:     B  - Number of sectors
+;           C  - Media ID of the disk
+;           DE - Begin sector
+;           HL - Begin address in memory
+;Registers: All
+;Remark:    Before the call is called, the Z-flag must be reset, and the
+;           execution address which was in HL must be at the last stack address
+;           By the way: In minimum configuration only a HOOK is available
+;NOTE: this implementation is still a stub!
+phydio:
+                push    hl
+                push    af
+                ld      hl,phydio_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+phydio_text:    db      "PHYDIO",0
 
 ;--------------------------------
 ;00D5h GTSTCK
