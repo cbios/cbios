@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.80 2005/01/08 13:11:54 ccfg Exp $
+; $Id: main.asm,v 1.81 2005/01/08 13:30:40 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -339,7 +339,7 @@ romid:
 
 ; $00C3 CLS
                 ds      $00C3 - $
-                jp      cls
+                jp      cls_z
 
 ; $00C6 POSIT
                 ds      $00C6 - $

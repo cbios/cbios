@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.99 2005/01/09 17:11:38 bifimsx Exp $
+$Id: ChangeLog,v 1.100 2005/01/09 18:48:37 bifimsx Exp $
+
+2005-01-10 Maarten ter Huurne <maarten@treewalker.org>
+    * Fixed sub ROM version of CLS.
+      T&E logo of Ashguine 2 is now shown on a black background.
 
 2005-01-09 Albert Beevendorp
     * fixed BLTVM. It wasn't tested yet as games using it were unknown
