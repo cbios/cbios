@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.29 2004/12/22 15:30:08 bifimsx Exp $
+$Id: ChangeLog,v 1.30 2004/12/22 20:42:38 andete Exp $
 
 2004-12-22 Albert Beevendorp
     * Implemented REDCLK and WRTCLK routines
@@ -7,6 +7,7 @@ $Id: ChangeLog,v 1.29 2004/12/22 15:30:08 bifimsx Exp $
 2004-12-22 Joost Yervante Damad <joost@lumatec.be>
     * fill in missing systemvars and documentation for systemvars
 		- finished, but alot of variables are still undocumented
+	* stubbed BEEP, CLS and STRTMS
 
 2004-12-22 Albert Beevendorp
     * Implemented REDCLK and WRTCLK routines

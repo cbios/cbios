@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.26 2004/12/21 00:22:51 mthuurne Exp $
+; $Id: main.asm,v 1.27 2004/12/22 21:11:13 manuelbi Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -6,6 +6,7 @@
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
+; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -185,17 +186,17 @@ romid:
 ;0053h SETWRT  .. VRAM書き込みアドレスの設定
                 ds      $0053 - $
                 jp      vdp_setwrt
-
+;0056h FILVRM
                 ds      $0056 - $
                 jp      vdp_fillmem
-
+;0059h LDIRMV
                 ds      $0059 - $
                 jp      vdp_ldirmv      ; VRAM -> Memory
-
+;005Ch LDIRVM
                 ds      $005C - $
                 jp      vdp_data_rep    ; Memory -> VRAM
 
-;005Fh VDPスクリーンモードの変更
+;005Fh CHGMOD VDPスクリーンモードの変更
                 ds      $005F - $
                 jp      chgmod
 
@@ -231,12 +232,16 @@ romid:
 ;0090h GICINI   音源ICの初期化
                 ds      $0090 - $
                 jp      sound_init
-
+;0093h WRTPSG
                 ds      $0093 - $
                 jp      sound_out
-
+;0096 RDPSG
                 ds      $0096 - $
                 jp      sound_stat
+
+;0099 STRTMS
+                ds      $0099 - $
+                jp      strtms
 
 ;009Ch CHSNS  .. check key buffer
                 ds      $009C - $
@@ -249,6 +254,23 @@ romid:
 ;00A2h CHPUT .. ディスプレイのキャラクタを出力する。
                 ds      $00A2 - $
                 jp      ch_put
+
+;00A5h LPTOUT
+;00A8h LPTSST
+;00ABh CNVCHR
+;00AEh PINLIN
+;00B1h INLIN
+;00B4h QINLIN
+;00B7h BREAKX
+;00BAh ISCNTC
+;00BDh CKCNTC
+;00C0h BEEP
+                ds      $00C0 - $
+                jp      beep
+
+;00C3h CLS
+                ds      $00C3 - $
+                jp      cls
 
 ;00C6h POSIT .. カーソル移動。
                 ds      $00C6 - $
@@ -1986,6 +2008,22 @@ initio:
                 ret
 initio_text:    db      "INITIO",0
 
+; $0099 STRTMS
+; Function : Tests whether the PLAY statement is being executed as a background
+;            task. If not, begins to execute the PLAY statement
+; Registers: All
+;NOTE: this implementation is still a stub!
+strtms:
+                push    hl
+                push    af
+                ld      hl,strtms_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+strtms_text:    db      "STRTMS",0
+
+
 ;--------------------------------
 ;009Ch  CHSNS
 ch_sns:
@@ -2214,6 +2252,34 @@ scroll_n1:
                 pop     af
                 ret
 
+; $00C0 BEEP
+; Function : play a short beep, and reset sound system via GICINI
+; Registers: All
+;NOTE: this implementation is still a stub!
+beep:
+                push    hl
+                push    af
+                ld      hl,beep_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+beep_text:    db      "BEEP",0
+
+; $00C3 CLS
+; Function : clear the screen
+; Input: BAKCLR, Z-Flag has to be low
+; Registers: AF, BC, DE
+;NOTE: this implementation is still a stub!
+cls:
+                push    hl
+                push    af
+                ld      hl,cls_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+cls_text:    db      "CLS",0
 
 
 ;-----------------------
@@ -3135,3 +3201,5 @@ debug_test:
                 ret
 
                 ds      $8000 - $
+
+; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
