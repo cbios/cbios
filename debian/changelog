@@ -1,6 +1,12 @@
+cbios (0.19-1) unstable; urgency=low
+
+  * 0.19 upstream release (Closes: #286947)
+ 
+ -- Joost Yervante Damad <joost@lumatec.be>  Fri, 24 Dec 2004 08:54:39 +0100
+
 cbios (0.18-2) unstable; urgency=low
 
-  * 0.18 upstream release (Closes: #286947)
+  * 0.18 upstream release
   * do not install config files for other emulators
   * fix README.Debian
  
