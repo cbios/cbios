@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.34 2005/01/01 22:50:59 mthuurne Exp $
+; $Id: video.asm,v 1.35 2005/01/02 12:48:58 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -431,7 +431,10 @@ initxt:
                 ld      (SCRMOD),a
                 ld      (OLDSCR),a
 
-                call    clr_text40
+                ld      a,1
+                ld      (CSRY),a
+                ld      (CSRX),a
+
                 call    chgclr
 
                 ld      hl,B_Font
@@ -465,7 +468,10 @@ init32:
                 ld      (SCRMOD),a
                 ld      (OLDSCR),a
 
-                call    clr_text32
+                ld      a,1
+                ld      (CSRY),a
+                ld      (CSRX),a
+
                 call    chgclr
 
                 ld      hl,(T32NAM)
@@ -987,7 +993,10 @@ init_vdp:
                 ld      bc,$0104        ; R#4
                 call    wrtvdp
 
-                call    clr_text32
+                ld      a,1
+                ld      (CSRY),a
+                ld      (CSRX),a
+                call    cls_screen1
 
                 ld      a ,$00
                 ld      hl,$0800
@@ -1029,28 +1038,6 @@ init_vdp:
                 ld      bc,$0516        ; B = $05, C = 22
                 call    wrtvdp          ; VDP R#22
 
-                ret
-
-;------------------------
-; 画面表示されているテキストをクリアする。
-clr_text40:
-                xor     a
-                ld      bc,$0400
-                ld      hl,(TXTNAM)
-                call    filvrm
-                ld      a,1
-                ld      (CSRY),a
-                ld      (CSRX),a
-                ret
-
-clr_text32:
-                xor     a
-                ld      bc,$0300
-                ld      hl,(T32NAM)
-                call    filvrm
-                ld      a,1
-                ld      (CSRY),a
-                ld      (CSRX),a
                 ret
 
 ;------------------------------
