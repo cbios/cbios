@@ -35,11 +35,11 @@ What a BIOS does when CHKRAM is called
 - init at 0: PRMLEN NOFUNS PRMLN2 FUNACT PRMSTK SUBFLG
 - round BOTTOM
 - call CHKSLZ: search slots for subrom and search slots for AB extensions
-	* search for subrom
+	* search for subrom (CD)
+		- call INIT via interslot call if not zero
 	* for each slot:
 		- check for AB in 4000, then 8000, in order of slots, also look at expanded slots in order
-		- does not check at 0000???
-		- call INIT via interslot call at vblank if available
+		- call INIT via interslot call ( at vblank ) if not zero
 		- write purpose of slots in SLTADR
 		- if it's a BASIC rom, start it
 - init TXTTAB
