@@ -1,4 +1,4 @@
-; $Id: music.asm,v 1.1 2004/12/27 00:18:20 mthuurne Exp $
+; $Id: music.asm,v 1.2 2004/12/27 06:36:18 bifimsx Exp $
 ; C-BIOS MSX-MUSIC ROM
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
@@ -28,7 +28,7 @@
                 org     $4000
 
                 db      "AB"
-                dw      init            ; init
+                dw      0               ; init
                 dw      0               ; statement
                 dw      0               ; device
                 dw      0               ; basic text
@@ -37,11 +37,6 @@
                 ds      8,0
                 db      "APRLOPLL"
 
-init:
-                ld      hl,init_text
-                call    print_debug
-                ret
-init_text:      db      "C-MUSIC in da house, yo check it out!",0
 
 ;--------------------------------
 ; FM BIOS
