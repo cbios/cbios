@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.83 2005/01/12 00:53:59 mthuurne Exp $
+; $Id: main.asm,v 1.84 2005/01/12 00:59:47 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2400,7 +2400,7 @@ chget_char:
                 inc     hl
                 ; See comment in keyint (below label key_store).
                 ld      a,l
-                cp      0x00FF & (KEYBUF + 40)
+                cp      $00FF & (KEYBUF + 40)
                 jr      nz,chget_nowrap
                 ld      hl,KEYBUF
 chget_nowrap:
@@ -3879,7 +3879,7 @@ key_store:
                 ;       FE18, it wraps back to FBF0.
                 inc     hl
                 ld      a,l
-                cp      0x00FF & (KEYBUF + 40)
+                cp      $00FF & (KEYBUF + 40)
                 jr      nz,key_store_nowrap
                 ld      hl,KEYBUF
 key_store_nowrap:
