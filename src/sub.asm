@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.8 2004/12/19 03:44:38 mthuurne Exp $
+; $Id: sub.asm,v 1.9 2004/12/19 21:34:19 manuelbi Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -67,10 +67,12 @@
                 ei
                 jp      clrspr
 
+; $0131 VDPSTA Read VDP status register.
+                ds      $0131 - $,$C9
+                ei
+                jp      vdpsta
+
 ; $013D SETPAG Switches display page.
-; Input:   DPPAGE
-; Changes: AF
-; TODO: Does it do more? Maybe something involving ACPAGE?
                 ds      $013D - $,$C9
                 ei
                 jp      setpag
@@ -166,7 +168,34 @@ grpprt:
 grpprt_text:    db      "GRPPRT",0
 
 ;-------------------------------------
+; $0131 VDPSTA
+; Read VDP status register.
+; Input:   A = number of status register
+; Output:  A = value read
+; Changes: F
+vdpsta:
+                di
+                ; Select desired status register.
+                out     (VDP_ADDR),a
+                ld      a,$80 + 15
+                out     (VDP_ADDR),a
+                ; Read status register.
+                in      a,(VDP_STAT)
+                push    af
+                ; Restore status register 0.
+                xor     a
+                out     (VDP_ADDR),a
+                ld      a,$80 + 15
+                out     (VDP_ADDR),a
+                ei
+                pop     af
+                ret
+
+;-------------------------------------
 ; $013D SETPAG
+; Input:   DPPAGE
+; Changes: AF
+; TODO: Does it do more? Maybe something involving ACPAGE?
 setpag:
 ; TODO: This is valid for SCREEN5, but what about other modes?
                 ld      a,(DPPAGE)
@@ -230,21 +259,21 @@ getplt_text:    db      "GETPLT",0
 
 ;-------------------------------------
 ; $014D SETPLT
-; Function:  Sets the color code to the palette
-; Input:     D  - Colorcode
-;            E  - xxxxGGGG
-;            A  - RRRRBBBB
-; Registers: AF
-; NOTE: this implementation is still a stub!
+; Sets a palette index to a given RGB value.
+; Input:   D = palette index
+;          E = xxxxxGGG
+;          A = xRRRxBBB
+; Changes: AF
 setplt:
-                push    hl
                 push    af
-                ld      hl,setplt_text
-                call    print_debug
+                ld      b,d
+                ld      c,16
+                call    wrt_vdp         ; set palette index
                 pop     af
-                pop     hl
+                out     (VDP_PALT),a    ; set red and blue
+                ld      a,e
+                out     (VDP_PALT),a    ; set green
                 ret
-setplt_text:    db      "SETPLT",0
 
 ;-------------------------------------
 ; $017D BEEP
