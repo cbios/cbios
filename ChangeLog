@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.117 2005/02/16 08:50:18 bkc_alpha Exp $
+$Id: ChangeLog,v 1.119 2005/02/24 06:56:00 BouKiCHi Exp $
+
+2005-02-24 BouKiCHi
+    * calslt_restore(some rouines uses it) routine returns with EI
+    * rewritten make.bat and build.bat
 
 2005-02-19 Maarten ter Huurne <maarten@treewalker.org>
     * Select RAM in page 2 already on first boot attempt.
