@@ -1,14 +1,14 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.2 2004/12/13 01:32:11 mthuurne Exp $ -->
+<!-- $Id$ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
   <info>
     <manufacturer>C-BIOS</manufacturer>
-    <code>MSX2</code>
-    <release_year>2003</release_year>
-    <description>An MSX2 machine using C-BIOS</description>
-    <type>MSX2</type>
+    <code>MSX2+</code>
+    <release_year>2005</release_year>
+    <description>An MSX2+ machine using C-BIOS</description>
+    <type>MSX2+</type>
   </info>
 
   <MapperReadBackBits>largest</MapperReadBackBits>
@@ -21,8 +21,8 @@
       <ROM id="C-BIOS Main ROM">
         <mem base="0x0000" size="0x8000"/>
         <rom>
-          <!--sha1:cbios_main_msx2.rom-->
-          <filename>roms/cbios_main_msx2.rom</filename>
+          <!--sha1:cbios_main_msx2+.rom-->
+          <filename>roms/cbios_main_msx2+.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -41,6 +41,20 @@
             <filename>roms/cbios_sub.rom</filename>
           </rom>
         </ROM>
+      </secondary>
+
+      <secondary slot="1">
+        <MSX-MUSIC id="C-BIOS MSX-MUSIC">
+          <mem base="0x4000" size="0x4000"/>
+          <rom>
+            <!--sha1:cbios_music.rom-->
+            <filename>roms/cbios_music.rom</filename>
+          </rom>
+          <sound>
+            <volume>9000</volume>
+            <mode>mono</mode>
+          </sound>
+        </MSX-MUSIC>
       </secondary>
 
       <secondary slot="2">
@@ -63,7 +77,7 @@
     <VDP id="VDP">
       <io base="0x98" num="4" type="O"/>
       <io base="0x98" num="2" type="I"/>
-      <version>V9938</version>
+      <version>V9958</version>
       <vram>128</vram>
     </VDP>
 
@@ -78,7 +92,7 @@
     <RTC id="Real time clock">
       <io base="0xB4" num="2" type="O"/>
       <io base="0xB5" num="1" type="I"/>
-      <sramname>cbios-msx2.cmos</sramname>
+      <sramname>cbios-msx2+.cmos</sramname>
     </RTC>
 
     <PrinterPort id="Printer Port">
