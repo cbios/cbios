@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.48 2004/12/29 03:18:20 ccfg Exp $
+$Id: ChangeLog,v 1.49 2004/12/29 03:23:42 mthuurne Exp $
 
 2004-12-29 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Select 8x8 sprites before running a ROM. Fixes American Truck.
@@ -8,7 +8,7 @@ $Id: ChangeLog,v 1.48 2004/12/29 03:18:20 ccfg Exp $
 
 2004-12-28 Joost Yervante Damad <joost@lumatec.be>
     * add documentation to some BIOS calls in video.asm
-	* fix TOTEXT
+    * fix TOTEXT
 
 2004-12-28 Albert Beevendorp
     * Implemented BLTVM routine
@@ -17,6 +17,7 @@ $Id: ChangeLog,v 1.48 2004/12/29 03:18:20 ccfg Exp $
     * Found (and fixed) real reason for Girly Block startup problem:
       interrupts should be disabled when cartridge init routine is called.
     * Call BEEP if character 7 is printed by CHPUT.
+    * Fixed bug in CALLLF: return address was not properly updated.
 
 2004-12-28 Albert Beevendorp
     * Added stubs for SDFSCR, SETSCR and bitblit routines
