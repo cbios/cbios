@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.12 2004/12/18 17:01:40 mthuurne Exp $
+$Id: ChangeLog,v 1.13 2004/12/18 17:19:15 mthuurne Exp $
+
+2004-12-18 Albert Beevendorp
+    * fixed a bug in CHGCLR which resulted in a different bordercolor
+      in Famicle Parodic.
 
 2004-12-18 Maarten ter Huurne <maarten@treewalker.org>
     * Added support for Pasmo to make.bat/build.bat:
