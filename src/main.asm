@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.5 2004/12/05 04:46:20 mthuurne Exp $
+; $Id: main.asm,v 1.6 2004/12/05 05:59:38 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -776,10 +776,10 @@ on_pageup:
                 pop     bc
                 jr      down_addr
 on_down:
-                ld      bc,$10
+                ld      bc,$0010
                 jr      up_addr
 on_up:
-                ld      bc,$10
+                ld      bc,$0010
                 jr      down_addr
 
 up_addr:
@@ -1688,6 +1688,7 @@ cal_slt_restore:
                 exx
 
 ; Restore secondary slot:
+                di
                 pop     hl              ; H = slot ID, L = saved SSL
                 bit     7,h             ; expanded slot?
                 jr      z,cal_slt_notexp2
@@ -3258,7 +3259,7 @@ extrom:
 
 
 ;-------------------
-                ds      $1000 - $
+                ds      $2000 - $
 
                 ld      a,$82
                 out     (PPI_REGS),a
@@ -3279,7 +3280,7 @@ hang_up_mode:
 
                 jr      hang_up_mode
 
-                ds      $1020 - $
+                ds      $2020 - $
 stack_error:
                 call    H_STKE
                 ld      de,str_stack_error
