@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.103 2005/01/13 16:03:36 bifimsx Exp $
+$Id: ChangeLog,v 1.104 2005/01/13 17:31:29 bifimsx Exp $
+
+2005-01-14 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Fixed init_sc4 to set the sprite pattern base address correctly.
 
 2005-01-13 Albert Beevendorp
     * moved slot routines to seperate source: slot.asm

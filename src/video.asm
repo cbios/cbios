@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.47 2005/01/13 17:30:16 bifimsx Exp $
+; $Id: video.asm,v 1.48 2005/01/13 18:37:11 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1259,6 +1259,7 @@ init_sc4_lp:
                 ld      de,sc4atr
                 ld      a,$03
                 call    set_base_address
+                ld      de,GRPPAT
                 xor     a
                 call    set_base_address
 
