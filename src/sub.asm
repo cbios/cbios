@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.38 2005/01/20 19:07:30 bifimsx Exp $
+; $Id: sub.asm,v 1.39 2005/02/06 19:15:22 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1013,27 +1013,31 @@ bltmv:
                 call    blt_clip
                 ret     c
 
+                ; A = (SCRMOD), set by blt_clip
                 cp      8
-                ld      de,1 *256+ 0            ; D = number of pixels in a byte
-                jr      z,bltmv_cont            ; E = number of bits per pixel (shift)
+                ld      de,1 *256+ 1            ; actually 8, but 1 works too
+                jr      z,bltmv_cont
                 cp      6
                 ld      de,4 *256+ 2
                 jr      z,bltmv_cont
                 ld      de,2 *256+ 4
-
 bltmv_cont:
+                ; D = number of pixels in a byte
+                ; E = number of bits per pixel (shift)
+
                 push    hl
                 call    exec_cmd
-
                 ld      a,(hl)
-                and     15
-                or      $a0                     ; LMCM
+                and     $0F
+                or      $A0                     ; LMCM
                 out     (c),a
                 ei
                 pop     hl
+
+bltmv_byte:
                 ld      b,d
                 ld      c,0
-bltmv_byte:
+bltmv_pixel:
                 ld      a,2
                 call    vdpsta
                 bit     7,a                     ; transmit ready?
@@ -1043,22 +1047,22 @@ bltmv_byte:
                 ld      a,7
                 call    vdpsta
                 ld      b,e
-bltmv_pixel:
+bltmv_bit:
                 rlc     c
-                djnz    bltmv_pixel
+                djnz    bltmv_bit
                 or      c
                 pop     bc
                 ld      c,a
-                djnz    bltmv_byte
+                djnz    bltmv_pixel
                 ld      (hl),c
                 inc     hl
-                ld      c,0
-bltmv_end:
+
                 ld      a,2
                 call    vdpsta
-                bit     0,a                     ; end of command?
-                ret     z
-                jr      bltmv_byte
+bltmv_end:
+                rra                             ; end of command?
+                jr      c,bltmv_byte
+                ret
 
 ;-------------------------------------
 ; $019D BLTVD
