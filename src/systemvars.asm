@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.10 2004/12/22 12:29:30 andete Exp $
+; $Id: systemvars.asm,v 1.11 2004/12/22 12:37:26 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -318,6 +318,62 @@ KBFMIN:         equ     $F41E
 ; F41F-F55C: workarea for coding basic rules that have been typed in direct modus
 ; this are contains the code for the line interpreted in direct modus
 KBUF:           equ     $F41F
+
+; F55D: byte used as first byte of BUF for input statements, giving them always
+; an extra ',' (ini:44 == ',')
+BUFMIN:         equ     $F55D
+
+; F55E-F65F: used in direct modus to store the ASCII codes of the line, or simulary
+; for INPUT or LINE INPUT BASIC statements
+BUF:            equ     $F55E
+
+; F660: last usable byte of BUF
+ENDBUF:         equ     $F660
+
+; F661: number of column of last written character on the screen
+TTYPOS:         equ     $F661
+
+; F662: switch indicating during variable lookup for arrays, if this has not already
+; been done for a DIM BASIC statement
+DIMFLG:         equ     $F662
+
+; F663: workarea for evaluation of expressions; contains type of last evaluated
+; expression; the value of the expression is in DAC, possible values of VALTYP:
+; 2: integer
+; 3: string
+; 4: normal real
+; 8: double real
+VALTYP:         equ     $F663
+
+; F664: workarea for coding of BASIC statements. switch indicating if keywords have
+; to be encoded or not. E.g. in DATA fields they should not be encoded
+; 0: encoding on, 1: encoding off
+DORES:          equ     $F664
+
+; F665: workarea for coding of BASIC statements. swithc indication of numbers have to be
+; encoded; values: $0: encode as const, $1: encode as line number, $FF: do not encode
+DONUM:          equ     $F665
+
+; F666-F667: work area for evaluation of expressions: contains address of first character
+; after the code of the last evaluated expression
+CONTXT:         equ     $F666
+
+; F668: work area for evaluation of expressions: contains information byte about the
+; encoding of the last evaluated constant number; value of this constant is in CONLO
+; values:
+; $0B: octal (2 bytes)
+; $0C: hexadecimal (2 bytes)
+; $0F: decimal 0<=value<256 (1 byte)
+; $11-$1B: short encoding for 0->10
+; $1C: decimal (2bytes, 2s-compliment)
+; $26: $42 binary as ASCII
+; $0E: line number
+; $0D: line pointer
+; $1D: normal real (1 byte exp, 3 bytes BCD)
+; $1F: double real (1 byte exp, 7 bytes BCD)
+CONSAV:         equ     $F668
+
+; F669: work
 
 STKTOP:         equ     $F674
 
