@@ -1,4 +1,4 @@
-; $Id$
+; $Id: music.asm,v 1.1 2004/12/27 00:18:20 mthuurne Exp $
 ; C-BIOS MSX-MUSIC ROM
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
