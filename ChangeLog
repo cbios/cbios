@@ -1,4 +1,10 @@
-$Id: ChangeLog,v 1.75 2005/01/03 00:28:06 vampier Exp $
+$Id: ChangeLog,v 1.76 2005/01/03 05:46:30 mthuurne Exp $
+
+2005-01-03 Albert Beevendorp
+    * Added conditional compilation for subrom search
+    * Completed GTSTCK direction tables
+    * Added VDP dependent compilation for LDIRMV, LDIRVM, CHGMOD, INITXT,
+      INIT32, INIGRP and CLS
 
 2005-01-03 Maarten ter Huurne <maarten@treewalker.org>
     * Implemented SCREEN0 in 80 columns mode (TEXT2).
