@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.25 2004/12/30 01:56:53 mthuurne Exp $
+; $Id: video.asm,v 1.26 2004/12/30 08:41:09 andete Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -163,7 +163,7 @@ setwrt:
 ;            BC - length of the area to be written
 ;            HL - start address
 ; Registers: AF, BC
-vdp_fillmem:
+filvrm:
                 push    af
                 call    setwrt
                 dec     bc
@@ -173,11 +173,11 @@ vdp_fillmem:
                 ld      c,a
                 inc     c
                 pop     af
-vdp_fillmem_lp:
+filvrm_lp:
                 out     (VDP_DATA),a
-                djnz    vdp_fillmem_lp
+                djnz    filvrm_lp
                 dec     c
-                jr      nz,vdp_fillmem_lp
+                jr      nz,filvrm_lp
                 ret
 
 ;--------------------------------
@@ -187,7 +187,7 @@ vdp_fillmem_lp:
 ;            DE - Start address of memory
 ;            HL - Start address of VRAM
 ; Registers: All
-vdp_ldirmv:
+ldirmv:
                 call    setrd
                 ex      de,hl
                 dec     bc
@@ -196,10 +196,10 @@ vdp_ldirmv:
                 ld      b,c
                 inc     a
                 ld      c,VDP_DATA
-vdp_ldirmv_lp:
+ldirmv_lp:
                 inir
                 dec     a
-                jr      nz,vdp_ldirmv_lp
+                jr      nz,ldirmv_lp
                 ret
 
 ;--------------------------------
@@ -961,13 +961,13 @@ init_vdp:
                 ld      a ,$00
                 ld      hl,$0800
                 ld      bc,$0800
-                call    vdp_fillmem
+                call    filvrm
 
                 ; for screen 1 color table
                 ld      a ,$F5
                 ld      hl,$2000
                 ld      bc,$0020
-                call    vdp_fillmem
+                call    filvrm
 
 
 ; PatGenTbl
@@ -1006,7 +1006,7 @@ clr_text40:
                 xor     a
                 ld      bc,$0400
                 ld      hl,(TXTNAM)
-                call    vdp_fillmem
+                call    filvrm
                 ld      a,1
                 ld      (CSRY),a
                 ld      (CSRX),a
@@ -1016,7 +1016,7 @@ clr_text32:
                 xor     a
                 ld      bc,$0300
                 ld      hl,(T32NAM)
-                call    vdp_fillmem
+                call    filvrm
                 ld      a,1
                 ld      (CSRY),a
                 ld      (CSRX),a
@@ -1387,7 +1387,7 @@ cls_screen1:
 cls_text:
                 ld      hl,(NAMBAS)
                 ld      a,$20
-                jp      vdp_fillmem
+                jp      filvrm
 
 cls_screen2:
                 xor     a
@@ -1395,12 +1395,12 @@ cls_screen2:
                 ld      hl,(CGPBAS)
                 ld      l,a
                 push    bc
-                call    vdp_fillmem
+                call    filvrm
                 pop     bc
 
                 ld      a,(BAKCLR)
                 ld      hl,$2000
-                jp      vdp_fillmem
+                jp      filvrm
 
 cls_screen3:
                 ret

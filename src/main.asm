@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.47 2004/12/29 21:30:53 mthuurne Exp $
+; $Id: main.asm,v 1.48 2004/12/30 08:41:08 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -183,10 +183,10 @@ romid:
                 jp      setwrt
 ; $0056 FILVRM
                 ds      $0056 - $
-                jp      vdp_fillmem
+                jp      filvrm
 ; $0059 LDIRMV
                 ds      $0059 - $
-                jp      vdp_ldirmv      ; VRAM -> Memory
+                jp      ldirmv          ; VRAM -> Memory
 ; $005C LDIRVM
                 ds      $005C - $
                 jp      vdp_data_rep    ; Memory -> VRAM
@@ -2191,7 +2191,7 @@ ch_sns:
                 push    de
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)
-                call    dcompr
+                rst     $20
                 jr      z,no_chr
                 ld      a,(hl)
                 and     a
@@ -2220,7 +2220,7 @@ ch_get:
 loop_chget:
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)
-                call    dcompr
+                rst     $20
                 jr      nz,get_ch
                 ei
                 halt
@@ -2388,7 +2388,7 @@ scr_loop:
                 push    hl
                 push    de
                 push    bc
-                call    vdp_ldirmv      ; HL=VRAM,DE=RAM,BC=LENGTH
+                call    ldirmv          ; HL=VRAM,DE=RAM,BC=LENGTH
                 pop     bc
                 pop     de
                 pop     hl
@@ -2413,7 +2413,7 @@ scr_loop:
                 djnz    scr_loop
 
                 ld      a,0
-                call    vdp_fillmem
+                call    filvrm
 
 scroll_n1:
                 pop     de
@@ -3273,7 +3273,7 @@ push_pnt:
                 ld      c,a
                 ld      de,LIMPNT
                 ld      hl,(PUTPNT)
-                call    dcompr
+                rst     $20
                 jr      nc,pnt_flow
                 ld      a,c
                 ld      (hl),a

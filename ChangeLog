@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.59 2004/12/29 21:30:52 mthuurne Exp $
+$Id: ChangeLog,v 1.60 2004/12/30 08:41:07 andete Exp $
 
 2004-12-30 Joost Yervante Damad <joost@lumatec.be>
     * fix inconsistent naming
+    * replace calls to dcompr with rst $20
 
 2004-12-29 Manuel Bilderbeek <manuel@msxnet.org>
     * Replaced the font with a new font donated by Eric Boon. Thanks a lot!
