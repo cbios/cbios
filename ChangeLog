@@ -1,4 +1,12 @@
-$Id: ChangeLog,v 1.6 2004/12/07 20:34:24 mthuurne Exp $
+$Id: ChangeLog,v 1.6 2004/12/07 19:37:11 bifimsx Exp $
+
+2004-12-09 Maarten ter Huurne <maarten@treewalker.org>
+    * Introduced debug.asm, which contains routines useful for debugging.
+    * Added MSX2 routines for reading and writing VRAM.
+
+2004-12-07 Maarten ter Huurne <maarten@treewalker.org>
+    * Make CHGMOD routine available from subrom ($00D1).
+    * Implemented CHKNEW routine.
 
 2004-12-07 Albert Beevendorp
     * fixed order of memory mapper blocks.
