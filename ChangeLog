@@ -1,7 +1,7 @@
-$Id: ChangeLog,v 1.14 2004/12/18 19:47:06 bifimsx Exp $
+$Id: ChangeLog,v 1.15 2004/12/18 20:21:56 andete Exp $
 
 2004-12-18 Joost Yervante Damad <joost@lumatec.be>
-	* add debian/ directory, provides debian packaging
+    * add debian/ directory, provides debian packaging
 
 2004-12-18 Albert Beevendorp
     * fixed a bug in CHGCLR which resulted in a different bordercolor
@@ -12,6 +12,7 @@ $Id: ChangeLog,v 1.14 2004/12/18 19:47:06 bifimsx Exp $
       "make pasmo" selects Pasmo instead of tniASM.
       Patch provided by BouKiChi.
     * Keep Kana LED in off state.
+    * Released C-BIOS 0.18.
 
 2004-12-17 Maarten ter Huurne <maarten@treewalker.org>
     * Refactored subslot selection code from "cal_slt" into reusable
