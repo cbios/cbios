@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.4 2004/12/13 01:21:22 mthuurne Exp $
+# $Id: Makefile,v 1.5 2004/12/24 00:56:49 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -8,7 +8,7 @@ PACKAGE:=cbios
 VERSION:=0.19
 PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
-ROMS:=main sub
+ROMS:=main sub music disk
 ROMS_FULLPATH:=$(addprefix derived/bin/cbios_,$(addsuffix .rom,$(ROMS)))
 DEPS_FULLPATH:=$(addprefix derived/dep/,$(addsuffix .dep,$(ROMS)))
 
