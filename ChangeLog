@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.26 2004/12/21 20:08:55 andete Exp $
+$Id: ChangeLog,v 1.27 2004/12/22 07:55:57 andete Exp $
 
 2004-12-22 Joost Yervante Damad <joost@lumatec.be>
     * fill in missing systemvars and documentation for systemvars (WIP)
+		- MSX1 screen parameter area done
 
 2004-12-21 Joost Yervante Damad <joost@lumatec.be>
     * order systemvars in systemvars.asm by address

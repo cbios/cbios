@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.8 2004/12/22 08:42:25 andete Exp $
+; $Id: systemvars.asm,v 1.9 2004/12/22 10:00:06 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -256,6 +256,49 @@ HIGH_:          equ     $F408 ; real name: HIGH, but doesn't compile?
 ; F40A: lenghts of synchronization block for the current speed of the tape system
 ; either equal to the content of F400 or the content of F405
 HEADER:         equ     $F40A
+
+; F40B-F40C: standard setting for the height/width aspect of the
+; BASIC statement CIRCLE; only the byte in F40B is actually used
+; If ASPECT2 is larger then 255, the value of F40B is the number of horizontal
+; dots per 256 verical dots of the radius (ini:$0100)
+; ! not verified :)
+ASPCT1:         equ     $F40B
+
+; F40D-F40E: standard setting for the height/width aspect of the
+; BASIC statement CIRCLE; If ASPCT2 is smaller then 512, then ASPCT2 is the
+; number of vertical dots per 256 horizontal dots of the radius (ini:$0100)
+; ! not verified :)
+ASPCT2:         equ     $F40D
+
+; F40F-F414: work area for the BASIC statement RESUME NEXT
+; contains a fake end of basic program
+ENDPRG:         equ     $F40F
+
+; F414: errornumber of last error that happened while executing a BASIC program
+; (ini:0)
+ERRFLG:         equ     $F414
+
+; F415: number of characters in the writebuffer of the printer that still
+; need printing
+LPTPOS:         equ     $F415
+
+; F416: switch indicating if output should be screen or printer
+; (think LIST vs LLIST) (ini:0) values: 0: screen, 1: printer
+PRTFLG:         equ     $F416
+
+; F417: switch indicating if hooked up printer is an MSX printer or not
+; values: 0: MSX-Printer, 1: no MSX-Printer
+NTMSXP:         equ     $F417
+
+; F418: switch indicating of printing routines should use raw-mode or
+; should convert:
+; =0 to convert tabs and unknown characters to spaces and remove graphical headers
+; =1 to send data just like it gets it
+RAWPRT:         equ     $F418
+
+; F419-F41A: work area for the BASIC command VAL: contains address pf character that
+; has temporarely been replaced by O by VAL
+VLZADR:         equ     $F419
 
 ; ---------------------------
 ; basic interpreter work area
