@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.30 2004/12/23 23:14:00 mthuurne Exp $
+; $Id: main.asm,v 1.31 2004/12/24 00:50:14 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -79,7 +79,6 @@ wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
 ;0014h WRSLT    任意スロットへのメモリ書き込み
                 ds      $0014 - $
                 jp      wrslt
-                ret
 
 ;0018h OUTDO
                 ds      $0018 - $
@@ -89,13 +88,11 @@ wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
 calslt:
                 ds      $001C - $
                 jp      cal_slt
-                ret
 
 ;0020h DCOMPR   HLとDEの比較
 dcompr:
                 ds      $0020 - $
                 jp      wordcomp
-                ret
 
 ;0024h ENASLT   スロットの変更
                 ds      $0024 - $
@@ -151,7 +148,7 @@ romid:
                 ds      $0038 - $
                 jp      int_start
 
-;0038h INITIO   I/Oの初期化
+;003Bh INITIO   I/Oの初期化
                 ds      $003B - $
                 jp      initio 
 
@@ -307,6 +304,22 @@ romid:
                 ds      $00C6 - $
                 jp      curxy
 
+; $00C9 FNKSB
+                ds      $00C9 - $
+                jp      fnksb
+
+; $00CC ERAFNK
+                ds      $00CC - $
+                jp      erafnk
+
+; $00CF DSPFNK
+                ds      $00CF - $
+                jp      dspfnk
+
+; $00D2 TOTEXT
+                ds      $00D2 - $
+                jp      totext
+
 ;00D5h GTSTCK .. ジョイスティック情報を得る。
                 ds      $00D5 - $
                 jp      in_joy
@@ -315,6 +328,34 @@ romid:
                 ds      $00D8 - $
                 jp      in_trig
 
+; $00E1 TAPION
+                ds      $00E1 - $
+                jp      tapion
+
+; $00E4 TAPIN
+                ds      $00E4 - $
+                jp      tapin
+
+; $00E7 TAPIOF
+                ds      $00E7 - $
+                jp      tapiof
+
+; $00EA TAPOON
+                ds      $00EA - $
+                jp      tapoon
+
+; $00ED TAPOUT
+                ds      $00ED - $
+                jp      tapout
+
+; $00F0 TAPOOF
+                ds      $00F0 - $
+                jp      tapoof
+
+; $00F3 STMOTR
+                ds      $00F3 - $
+                jp      stmotr
+                
 ;012Dh WRTVDP .. VDPレジスタの値を変更する
                 ds      $012D - $
                 ret
@@ -2081,7 +2122,7 @@ no_chr:
                 pop     hl
                 ret
 
-;---------------------------------
+;--------------------------------
 ;009Fh  CHGET
 ch_get:
                 ld      a,$00
@@ -2115,7 +2156,8 @@ get_ch:
                 pop     de
                 pop     hl
                 ret
-;-----------------------------------
+
+;--------------------------------
 ;00A2h  CHPUT
 ;in ... A = character code
 ch_put:
@@ -2288,6 +2330,7 @@ scroll_n1:
                 pop     af
                 ret
 
+;--------------------------------
 ; $00C0 BEEP
 ; Function : play a short beep, and reset sound system via GICINI
 ; Registers: All
@@ -2300,8 +2343,9 @@ beep:
                 pop     af
                 pop     hl
                 ret
-beep_text:    db      "BEEP",0
+beep_text:      db      "BEEP",0
 
+;--------------------------------
 ; $00C3 CLS
 ; Function : clear the screen
 ; Input: BAKCLR, Z-Flag has to be low
@@ -2315,10 +2359,10 @@ cls:
                 pop     af
                 pop     hl
                 ret
-cls_text:    db      "CLS",0
+cls_text:       db      "CLS",0
 
 
-;-----------------------
+;--------------------------------
 ;00C6h  カーソルを設定する
 ;in ... RegH = X, RegL = Y
 curxy:
@@ -2328,9 +2372,187 @@ curxy:
                 ld      (CSRX),a
                 ret
 
-;-----------------------
+;--------------------------------
+; $00C9 FNKSB
+; Tests whether the function key display is active (FNKFLG),
+; if so, displays them, otherwise erases them.
+; Input:   FNKFLG (#FBCE)
+; Changes: all
+; NOTE: This implementation is still a stub!
+fnksb:
+                push    hl
+                push    af
+                ld      hl,fnksb_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+fnksb_text:     db      "FNKSB",0
 
+;--------------------------------
+; $00CC ERAFNK
+; Erase function key display.
+; Changes: all
+; NOTE: This implementation is still a stub!
+erafnk:
+                push    hl
+                push    af
+                ld      hl,erafnk_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+erafnk_text:    db      "ERAFNK",0
 
+;--------------------------------
+; $00CF DSPFNK
+; Display function keys.
+; Changes: all
+; NOTE: This implementation is still a stub!
+dspfnk:
+                push    hl
+                push    af
+                ld      hl,dspfnk_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+dspfnk_text:    db      "DSPFNK",0
+
+;--------------------------------
+; $00D2 TOTEXT
+; Forces the screen to be in the text mode.
+; TODO: To which SCREEN mode does it switch exactly?
+; Changes: all
+; NOTE: This implementation is still a stub!
+totext:
+                push    hl
+                push    af
+                ld      hl,totext_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+totext_text:    db      "TOTEXT",0
+
+;--------------------------------
+; $00E1 TAPION
+; Reads the header block after turning the cassette motor on.
+; Output:  CF = set if failed
+; Changes: all
+; NOTE: This implementation is still a stub!
+tapion:
+                push    hl
+                push    af
+                ld      hl,tapion_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ; TODO: not implemented -> always fail
+                scf
+                ret
+tapion_text:    db      "TAPION",0
+
+;--------------------------------
+; $00E4 TAPIN
+; Read data from the tape.
+; Output:  A = data read
+; Changes: all
+; NOTE: This implementation is still a stub!
+tapin:
+                push    hl
+                push    af
+                ld      hl,tapin_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ; TODO: not implemented -> always fail
+                scf
+                ret
+tapin_text:     db      "TAPIN",0
+
+;--------------------------------
+; $00E7 TAPIOF
+; Stops reading from the tape.
+; NOTE: This implementation is still a stub!
+tapiof:
+                push    hl
+                push    af
+                ld      hl,tapiof_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+tapiof_text:    db      "TAPIOF",0
+
+;--------------------------------
+; $00EA TAPOON
+; Turns on the cassette motor and writes the header.
+; Input:   A  = zero for short header, non-zero for long header
+; Output:  CF = set if failed
+; Changes: all
+; NOTE: This implementation is still a stub!
+tapoon:
+                push    hl
+                push    af
+                ld      hl,tapoon_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ; TODO: not implemented -> always fail
+                scf
+                ret
+tapoon_text:    db      "TAPOON",0
+
+;--------------------------------
+; $00ED TAPOUT
+; Writes data to the tape.
+; Input:   A  = data to write
+; Output:  CF = set if failed
+; Changes: all
+; NOTE: This implementation is still a stub!
+tapout:
+                push    hl
+                push    af
+                ld      hl,tapout_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ; TODO: not implemented -> always fail
+                scf
+                ret
+tapout_text:    db      "TAPOUT",0
+
+;--------------------------------
+; $00F0 TAPOOF
+; Stops writing on the tape.
+; NOTE: This implementation is still a stub!
+tapoof:
+                push    hl
+                push    af
+                ld      hl,tapoof_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+tapoof_text:    db      "TAPOOF",0
+
+;--------------------------------
+; $00F3 STMOTR
+; Changes the cassette motor state.
+; Input:   A = action: #00 stops motor, #01 starts motor,
+;                      #FF inverts current state
+; Changes: AF
+; NOTE: This implementation is still a stub!
+stmotr:
+                push    hl
+                push    af
+                ld      hl,stmotr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+stmotr_text:    db      "STMOTR",0
 
 ;--------------------------------------
 ;0156h  KILBUF  キーバッファをクリア。
