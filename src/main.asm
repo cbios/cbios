@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.77 2005/01/08 05:33:55 ccfg Exp $
+; $Id: main.asm,v 1.78 2005/01/08 05:46:15 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2473,20 +2473,7 @@ chput:
                 jp      z,chput_ctrl_down
 
                 ; Charactor code
-                push    af
-                call    set_curs
-                pop     af
-                out     (VDP_DATA),a
-                ld      a,(LINLEN)
-                ld      e,a
-                ld      a,(CSRX)
-                cp      e
-                jr      nc,chput_nx
-
-                ; next point
-                inc     a
-chput_ret:
-                ld      (CSRX),a
+                call    chput_character
 
 chput_exit:
                 pop     de
@@ -2495,29 +2482,38 @@ chput_exit_af:
                 pop     af
                 ret
 
+; Output a character.
+chput_character:
+                ; Output the character.
+                push    af
+                call    curs2hl
+                call    setwrt
+                pop     af
+                out     (VDP_DATA),a
+
+                ; Move cursor.
+                ld      hl,(CSRY)
+                ld      a,(LINLEN)
+                inc     h
+                cp      h
+                jr      nc,chput_character_posit
+                ld      h,1
+                ld      a,(CRTCNT)
+                inc     l
+                cp      l
+                jr      nc,chput_character_posit
+                ld      l,a
+                call    posit
+                call    scroll_txt
+                ret
+chput_character_posit:
+                call    posit
+                ret
+
 chput_start_escape:
                 ld      a,$FF
                 ld      (ESCCNT),a
                 jr      chput_exit
-
-chput_nx:
-                ld      a,(CRTCNT)
-                ld      e,a
-                ld      a,(CSRY)
-                cp      e
-                jr      nc,chput_scrll
-                inc     a
-                ld      (CSRY),a
-                ld      a,1
-                jr      chput_ret
-chput_scrll:
-                call    scroll_txt
-                ld      a,1
-                jr      chput_ret
-
-set_curs:
-                call    curs2hl
-                jp      setwrt
 
 ; Generate a beep.
 chput_ctrl_beep:
@@ -2541,31 +2537,14 @@ chput_ctrl_left_posit:
                 call    posit
                 jr      chput_exit
 
-; Cursor to next tabulator-column intersection.
+; Fill with space to next tab position.
 chput_ctrl_tab:
-                ; Calculate the position of next intersection.
-                ld      hl,(CSRY)
-                ld      a,h
-                and     $F8
-                add     a,8
-                ld      h,a
-
-                ; Test if it goes to next line.
-                ld      a,(LINLEN)
-                dec     a
-                cp      h
-                jr      nc,chput_ctrl_tab_posit
-                ld      h,1
-                inc     l
-                ld      a,(CRTCNT)
-                cp      l
-                jr      nc,chput_ctrl_tab_posit
-                ld      l,a
-                call    posit
-                call    scroll_txt
-                jr      chput_exit
-chput_ctrl_tab_posit:
-                call    posit
+                ld      a,$20
+                call    chput_character
+                ld      a,(CSRX)
+                and     $07
+                cp      $01
+                jr      nz,chput_ctrl_tab
                 jr      chput_exit
 
 ; Line feed.
@@ -2768,7 +2747,25 @@ chput_escape_erase_to_eos:
 
 ; Erase to end of line.
 chput_escape_erase_to_eol:
-                ; TODO: Implement.
+                push    bc
+
+                ; Calculate the number of bytes to erase.
+                ld      a,(CSRX)
+                dec     a
+                ld      b,a
+                ld      a,(LINLEN)
+                sub     b
+                ld      c,a
+                ld      b,0
+
+                ; Calculate the VRAM position.
+                call    curs2hl
+
+                ; Fill with space.
+                ld      a,$20
+                call    filvrm
+
+                pop     bc
                 jr      chput_escape_exit
 
 ; Insert a line and scroll the rest of the screen down.
