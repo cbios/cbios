@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.50 2005/02/06 03:06:09 mthuurne Exp $
+; $Id: video.asm,v 1.51 2005/02/06 04:08:02 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -29,8 +29,6 @@
 ; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
-
-                include "font.asm"
 
 ;--------------------------------
 ; $0041 DISSCR
@@ -64,6 +62,12 @@ enascr:
 ; Output   : RG0SAV(F3DF)-RG7SAV(F3E6)
 ; Registers: AF, BC
 wrtvdp:
+        IF VDP = TMS99X8
+                ld      a,c
+                and     63
+                cp      8
+                ret     nc
+        ENDIF
                 push    hl
                 di
                 ld      a,b
@@ -72,20 +76,25 @@ wrtvdp:
                 or      $80
                 out     (VDP_ADDR),a
                 ei
+
+                push    bc
+        IF VDP != TMS99X8
                 ld      a,c
                 and     $3F
                 sub     8
                 jr      nc,rg8_sav
+        ENDIF
                 ld      a,b
                 ld      b,0
                 ld      hl,RG0SAV
                 add     hl,bc
                 ld      (hl),a
+                pop     bc
                 pop     hl
                 ret
 
+        IF VDP != TMS99X8
 rg8_sav:
-                push    bc
                 ld      c,a
 
                 ld      a,b
@@ -96,6 +105,7 @@ rg8_sav:
                 pop     bc
                 pop     hl
                 ret
+        ENDIF
 
 ;--------------------------------
 ; $004A RDVRM
@@ -529,7 +539,9 @@ initxt_width40:
                 call    disscr
                 call    chgclr
                 call    settxt
+        IF COMPILE_FONT != NO
                 call    init_font
+        ENDIF
                 call    cls_screen0
                 jp      chgmod_finish
 
@@ -562,7 +574,9 @@ init32:
                 ld      hl,(T32ATR)
                 ld      (ATRBAS),hl
 
+        IF COMPILE_FONT != NO
                 call    init_font
+        ENDIF
 
                 ld      a,(LINL32)
                 ld      (LINLEN),a
@@ -1208,16 +1222,19 @@ init_vdp:
                 ld      bc,$F507        ; R#7
                 call    wrtvdp
 
+        IF COMPILE_FONT != NO
                 ld      hl,B_Font
 
                 ld      de,$0800
                 ld      bc,$0800
                 call    ldirvm
+        ENDIF
 
                 ret
 
 ; TODO: Is it safe to enable this on MSX1 machines?
 ;       Or can we autodetect the VDP?
+        IF VDP != TMS99X8
                 ; Write colour burst settings.
                 ld      bc,$0014        ; B = $00, C = 20
                 call    wrtvdp          ; VDP R#20
@@ -1225,9 +1242,11 @@ init_vdp:
                 call    wrtvdp          ; VDP R#21
                 ld      bc,$0516        ; B = $05, C = 22
                 call    wrtvdp          ; VDP R#22
+        ENDIF
 
                 ret
 
+        IF COMPILE_FONT != NO
 ;------------------------------
 ; Initialise font.
 ; Uploads font to VRAM address specified by CGPBAS.
@@ -1236,6 +1255,7 @@ init_font:
                 ld      de,(CGPBAS)
                 ld      bc,$0800
                 jp      ldirvm
+        ENDIF
 
         IF VDP != TMS99X8
 ;------------------------------
