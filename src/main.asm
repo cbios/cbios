@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.33 2004/12/25 04:42:53 mthuurne Exp $
+; $Id: main.asm,v 1.34 2004/12/25 19:44:40 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2405,18 +2405,15 @@ dspfnk_text:    db      "DSPFNK",0
 ;--------------------------------
 ; $00D2 TOTEXT
 ; Forces the screen to be in the text mode.
-; TODO: To which SCREEN mode does it switch exactly?
 ; Changes: all
-; NOTE: This implementation is still a stub!
 totext:
-                push    hl
-                push    af
-                ld      hl,totext_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-totext_text:    db      "TOTEXT",0
+                ld      a,(SCRMOD)
+                cp      2
+                ret     c
+                ; TODO: To which SCREEN mode does it switch exactly?
+                ;       Probably some system variable?
+                xor     a
+                jp      chgmod
 
 ;--------------------------------
 ; $00E1 TAPION

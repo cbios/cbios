@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.40 2004/12/27 00:22:28 mthuurne Exp $
+$Id: ChangeLog,v 1.41 2004/12/28 00:28:59 ccfg Exp $
 
 2004-12-28 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented SETTXT, SETT32 and SETGRP routines.
+    * Added an incomplete TOTEXT implementation.
 
 2004-12-26 Maarten ter Huurne <maarten@treewalker.org>
     * Added MUSIC ROM stub, which was made by BiFi and BouKiChi.
