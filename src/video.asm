@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.42 2005/01/05 09:39:25 ccfg Exp $
+; $Id: video.asm,v 1.43 2005/01/05 10:17:19 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -587,9 +587,54 @@ inigrp_lp:
 ; Output   : NAMBAS-ATRBAS, SCRMOD
 ; Registers: All
 inimlt:
-                ld      hl,inimlt_text
-                jp      print_debug
-inimlt_text:    db      "SCREEN3",0
+                ; Disable video output.
+                call    disscr
+
+                ld      a,$03
+                ld      (SCRMOD),a
+
+                call    chgclr
+
+                ld      hl,(MLTNAM)
+                ld      (NAMBAS),hl
+                call    setwrt
+                xor     a
+                ld      c,6
+inimlt_loop1:
+                push    af
+                ld      e,4
+inimlt_loop2:
+                push    af
+                ld      b,32
+inimlt_loop3:
+                out     (VDP_DATA),a
+                inc     a
+                djnz    inimlt_loop3
+                pop     af
+                dec     e
+                jr      nz,inimlt_loop2
+                pop     af
+                add     a,32
+                dec     c
+                jr      nz,inimlt_loop1
+
+                ld      hl,(MLTCGP)
+                ld      (CGPBAS),hl
+                ld      hl,(MLTATR)
+                ld      (ATRBAS),hl
+                ld      hl,(MLTPAT)
+                ld      (PATBAS),hl
+
+        IF VDP != TMS99X8
+                xor     a
+                ld      (DPPAGE),a
+                ld      (ACPAGE),a
+        ENDIF
+
+                call    setmlt
+                call    clrspr_attr_spritemode1
+                call    cls_screen3
+                jp      enascr
 
 ;------------------------------
 ; $0078 SETTXT
@@ -744,9 +789,37 @@ setgrp:
 ; Input    : MLTNAM, MLTCGP, MLTCOL, MLTATR, MLTPAT
 ; Registers: All
 setmlt:
-                ld      hl,setmlt_text
-                jp      print_debug
-setmlt_text:    db      "SETMLT",0
+                ld      a,(RG0SAV)
+                and     $F1
+                ld      b,a
+                ld      c,0
+                call    wrtvdp
+
+                ld      a,(RG1SAV)
+                and     $E7
+                or      $08             ; M2 = 1
+                ld      b,a
+                inc     c
+                call    wrtvdp
+
+                ; Set the base address registers. This works because MLTNAM,
+                ; MLTCOL, MLTCGP, MLTATR and MLTPAT are in same order as the
+                ; VDP base address registers.
+                ld      de,MLTNAM
+                ld      c,2
+
+                xor     a
+                call    set_base_address
+                xor     a
+                call    set_base_address; TODO: Should we ignore MLTCOL?
+                xor     a
+                call    set_base_address
+                xor     a
+                call    set_base_address
+                xor     a
+                call    set_base_address
+
+                ret
 
 ;------------------------------
 ; Get an address from a base address table, convert it into a register value,
@@ -1466,7 +1539,6 @@ init_sc8:
 ; Function : clear the screen
 ; Input: BAKCLR, Z-Flag has to be low
 ; Registers: AF, BC, DE
-;TODO: add SCREEN 3 CLS
 ;TODO: add optional borders to text based screens
 cls:
                 ret     nz
@@ -1519,7 +1591,17 @@ cls_screen2:
                 jp      filvrm
 
 cls_screen3:
-                ret
+                ld      a,(BAKCLR)
+                and     $0F
+                ld      b,a
+                rlca
+                rlca
+                rlca
+                rlca
+                or      b
+                ld      bc,$800
+                ld      hl,(CGPBAS)
+                jp      filvrm
 
         IF VDP != TMS99X8
 cls_screen5:
