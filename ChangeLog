@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.104 2005/01/13 17:31:29 bifimsx Exp $
+$Id: ChangeLog,v 1.105 2005/01/14 15:27:58 ccfg Exp $
+
+2005-01-15 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Implemented GETVCP and GETVC2.
 
 2005-01-14 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Fixed init_sc4 to set the sprite pattern base address correctly.

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.86 2005/01/13 16:00:25 bifimsx Exp $
+; $Id: main.asm,v 1.87 2005/01/13 17:29:34 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -3340,39 +3340,43 @@ outdlp_text:    db      "OUTDLP",0
 
 ;--------------------------------
 ; $0150 GETVCP
+; Returns pointer to a variable at offset 2 in a voice structure.
+; TODO: find out the purpose of this variable.
 ; Address  : #0150
 ; Function : Returns pointer to play queue
 ; Input    : A  - Channel number
 ; Output   : HL - Pointer
 ; Registers: AF
 ; Remark   : Only used to play music in background
-; TODO     : This implementation is still a stub!
 getvcp:
-                push    hl
-                push    af
-                ld      hl,getvcp_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-getvcp_text:    db      "GETVCP",0
+                ld      l,2
+                jr      getvc2_a
 
 ;--------------------------------
 ; $0153 GETVC2
-; Function : Returns pointer to variable in queue number VOICEN (byte op
-;            #FB38)
-; Input    : L  - Pointer in play buffer
+; Returns pointer to a given variable in a voice structure.
+; Input    : L        - Pointer in play buffer
+;            (VOICEN) - Voice structure number
 ; Output   : HL - Pointer
 ; Registers: AF
 getvc2:
-                push    hl
-                push    af
-                ld      hl,getvc2_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,(VOICEN)
+getvc2_a:
+                push    de
+                ld      d,0
+                ld      e,l
+                ld      hl,VCBA
+                add     hl,de
+                ld      e,37            ; Size of a structure
+getvc2_loop:
+                or      a
+                jr      z,getvc2_exit
+                add     hl,de
+                dec     a
+                jr      getvc2_loop
+getvc2_exit:
+                pop     de
                 ret
-getvc2_text:    db      "GETVC2",0
 
 ;--------------------------------
 ; $0156 KILBUF
