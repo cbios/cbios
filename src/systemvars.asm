@@ -1,10 +1,10 @@
-; $Id: systemvars.asm,v 1.22 2005/01/04 02:53:58 mthuurne Exp $
+; $Id: systemvars.asm,v 1.23 2005/01/05 09:30:28 bifimsx Exp $
 ;
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
-; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
@@ -561,9 +561,11 @@ MODE:           equ     $FAFC
 XSAVE:          equ     $FAFE
 YSAVE:          equ     $FB00
 LOGOPR:         equ     $FB02
-; end of MSX2 only usage of RS2IQ
-
+; FB21-FB28: Table which contains info for up to 4 disk ROMs, 2 bytes each:
+; - first byte: number of drives connected to this interface
+; - second byte: slot ID of the disk ROM
 DRVINF:         equ     $FB21
+; end of MSX2 only usage of RS2IQ
 
 PRSCNT:         equ     $FB35
 SAVSP:          equ     $FB36
