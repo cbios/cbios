@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.23 2004/12/21 03:32:49 mthuurne Exp $
+$Id: ChangeLog,v 1.24 2004/12/21 06:48:39 bifimsx Exp $
+
+2004-12-21 Albert Beevendorp
+    * Implemented INIPLT, RSTPLT and GETPLT routines
+    * Added INIPLT to CHGMDP
 
 2004-12-21 Albert Beevendorp
     * Added VRAM save to SETPLT which fixes about all wrong palette issues

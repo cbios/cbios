@@ -1,8 +1,9 @@
-; $Id: sub.asm,v 1.12 2004/12/21 03:32:20 mthuurne Exp $
+; $Id: sub.asm,v 1.13 2004/12/21 06:47:40 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -200,31 +201,34 @@ setpag:
 ; $0141 INIPLT
 ; Function:  Initialises the palette (current palette is saved in VRAM)
 ; Registers: AF, BC, DE
-; NOTE: this implementation is still a stub!
 iniplt:
                 push    hl
-                push    af
-                ld      hl,iniplt_text
-                call    print_debug
-                pop     af
+                call    palette_vram
+                call    nsetwr
+                ld      b,32
+                ld      hl,palette_vram_init
+iniplt_loop:    ld      a,(hl)
+                out     (VDP_DATA),a
+                inc     hl
+                out     (VDP_PALT),a
+                djnz    iniplt_loop
                 pop     hl
                 ret
-iniplt_text:    db      "INIPLT",0
 
 ;-------------------------------------
 ; $0145 RSTPLT
 ; Function:  Restore palette from VRAM
 ; Registers: AF, BC, DE
-; NOTE: this implementation is still a stub!
 rstplt:
                 push    hl
-                push    af
-                ld      hl,rstplt_text
-                call    print_debug
-                pop     af
+                call    palette_vram
+                call    nsetrd
                 pop     hl
+                ld      b,32
+rstplt_loop:    in      a,(VDP_DATA)
+                out     (VDP_PALT),a
+                djnz    rstplt_loop
                 ret
-rstplt_text:    db      "RSTPLT",0
 
 ;-------------------------------------
 ; $0149 GETPLT
@@ -232,16 +236,20 @@ rstplt_text:    db      "RSTPLT",0
 ; Input:     A  - Colorcode
 ; Output:    B  - RRRRBBBB
 ;            C  - xxxxGGGG
-; NOTE: this implementation is still a stub!
 getplt:
-                push    hl
                 push    af
-                ld      hl,getplt_text
-                call    print_debug
+                call    palette_vram
                 pop     af
-                pop     hl
+                add     a,a
+                ld      c,a
+                ld      b,0
+                add     hl,bc
+                call    nsetrd
+                in      a,(VDP_DATA)
+                ld      b,a
+                in      a,(VDP_DATA)
+                ld      c,a
                 ret
-getplt_text:    db      "GETPLT",0
 
 ;-------------------------------------
 ; $014D SETPLT
@@ -250,21 +258,21 @@ getplt_text:    db      "GETPLT",0
 ;          E = xxxxxGGG
 ;          A = xRRRxBBB
 ; Changes: AF
-;
-; TODO: implement for all SCREEN modes
 setplt:
                 push    af
                 push    bc
                 push    hl
-                ld      l,d
-                ld      h,0
-                ld      bc,$7600
+                call    palette_vram
+                ld      a,d
+                add     a,a
+                ld      c,a
+                ld      b,0
                 add     hl,bc
                 call    nsetwr
+                pop     hl
                 ld      b,d
                 ld      c,16
                 call    wrt_vdp         ; set palette index
-                pop     hl
                 pop     bc
                 pop     af
                 out     (VDP_PALT),a    ; set red and blue
@@ -273,6 +281,53 @@ setplt:
                 out     (VDP_PALT),a    ; set green
                 out     (VDP_DATA),a
                 ret
+;
+; internal - get palette base address from screen mode
+; in : SCRMOD
+; out: HL = base address
+;
+palette_vram:
+                ld      a,(SCRMOD)
+                or      a
+                call    z,palette_width
+                inc     a
+                ld      hl,palette_vram_table
+                add     a,a
+                add     a,l
+                ld      l,a
+                ld      a,h
+                adc     a,0
+                ld      h,a
+                ld      a,(hl)
+                inc     hl
+                ld      h,(hl)
+                ld      l,a
+                ret
+
+palette_width:
+                ld      h,a
+                ld      a,(LINLEN)
+                cp      40
+                ld      a,h
+                ret     nc
+                dec     a
+                ret
+
+palette_vram_table:
+                dw      $0400           ; SCREEN 0 - WIDTH 40
+                dw      $0f00           ; SCREEN 0 - WIDTH 80
+                dw      $2020           ; SCREEN 1
+                dw      $1b80           ; SCREEN 2
+                dw      $2020           ; SCREEN 3
+                dw      $1b80           ; SCREEN 4
+                dw      $7680           ; SCREEN 5
+                dw      $7680           ; SCREEN 6
+                dw      $fa80           ; SCREEN 7
+                dw      $fa80           ; SCREEN 8
+
+palette_vram_init:
+                dw      $000,$000,$611,$733,$117,$327,$115,$627
+                dw      $171,$373,$661,$664,$411,$265,$555,$777
 
 ;-------------------------------------
 ; $017D BEEP
@@ -344,7 +399,7 @@ newpad_text:    db      "NEWPAD",0
 ; Changes: all
 chgmdp:
                 call    chgmod
-                ; TODO: Initialise palette.
+                call    iniplt
                 ret
 
 ;-------------------------------------
