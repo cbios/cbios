@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.1 2004/12/04 03:56:01 mthuurne Exp $
+; $Id: systemvars.asm,v 1.2 2004/12/19 11:23:53 manuelbi Exp $
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -67,12 +67,15 @@ MLTPAT:         equ     $F3DA           ; Screen3 Sprite pattern
 
 CLIKSW:         equ     $F3DB           ; Key Click.
 
-STATFL:         equ     $F3E7
 RG0SAV:         equ     $F3DF
 RG1SAV:         equ     $F3E0
-
+RG2SAV:         equ     $F3E1
+RG3SAV:         equ     $F3E2
 RG4SAV:         equ     $F3E3
-
+RG5SAV:         equ     $F3E4
+RG6SAV:         equ     $F3E5
+RG7SAV:         equ     $F3E6
+STATFL:         equ     $F3E7
 RG8SAV:         equ     $FFE7
 
 CLIKFL:         equ     $FBD9
