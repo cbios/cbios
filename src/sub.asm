@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.25 2004/12/30 08:41:08 andete Exp $
+; $Id: sub.asm,v 1.26 2004/12/30 09:15:30 andete Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -52,6 +52,13 @@
                 call    H_NMI
                 retn
 
+; $0069 PAINT   (BASIC)
+; $006D PSET    (BASIC)
+; $0071 ATRSCN  (BASIC)
+; $0075 GLINE   (BASIC)
+; $0079 DOBOXF  (BASIC)
+; $0081 BOXLIN  (BASIC)
+
 ; $0085 DOGRPH  ƒ‰ƒCƒ“•`‰æ
                 ds      $0085 - $,$C9
                 ei
@@ -61,6 +68,24 @@
                 ds      $0089 - $,$C9
                 ei
                 jp      grpprt
+
+; $008D SCALXY
+; $0091 MAPXYC
+; $0095 READC
+; $0099 SETATR
+; $009D SETC
+; $00A1 TRIGHT
+; $00A5 RIGHTC
+; $00A9 TLEFTC
+; $00AD LEFTC
+; $00B1 TDOWNC
+; $00B5 DOWNC
+; $00B9 TUPC
+; $00BD UPC
+; $00C1 SCANR
+; $00C5 SCANL
+; $00C9 NVBXLN
+; $00CD NVBXFL
 
 ; $00D1 CHGMOD Set screen mode.
                 ds      $00D1 - $,$C9
@@ -112,6 +137,36 @@
                 ei
                 jp      clrspr
 
+; $00F9 CALPAT Returns address of sprite pattern-table.
+                ds      $00F9 - $,$C9
+                ei
+                jp      calpat
+
+; $00FD CALATR Returns address of sprite attribute-table.
+                ds      $00FD - $,$C9
+                ei
+                jp      calatr
+
+; $0101 GSPSIZ Returns current sprite-size.
+                ds      $0101 - $,$C9
+                ei
+                jp      gspsiz
+
+; $0105 GETPAT
+                ds      $0105 - $,$C9
+                ei
+                jp      getpat
+
+; $0109 WRTVRM
+                ds      $0109 - $,$C9
+                ei
+                jp      nwrvrm                  ; call 16 bit version
+
+; $010D RDVRM
+                ds      $010D - $,$C9
+                ei
+                jp      nrdvrm                  ; call 16 bit version
+
 ; $0111 CHGCLR Change colours.
                 ds      $0111 - $,$C9
                 ei
@@ -122,6 +177,16 @@
                 ei
                 jp      cls
 
+; $0119 CLRTXT
+                ds      $0119 - $,$C9
+                ei
+                jp      clrtxt
+
+; $011D DSPFNK
+; $0121 DELLNO
+; $0125 INSLNO
+; $0129 PUTVRM
+
 ; $012D WRTVDP Write to VDP register.
                 ds      $012D - $,$C9
                 ei
@@ -131,6 +196,9 @@
                 ds      $0131 - $,$C9
                 ei
                 jp      vdpsta
+
+; $0135 KYKLOK
+; $0139 PUTCHR
 
 ; $013D SETPAG Switches display page.
                 ds      $013D - $,$C9
@@ -157,6 +225,18 @@
                 ei
                 jp      setplt
 
+; $0151 PUTSPRT (BASIC)
+; $0155 COLOR   (BASIC)
+; $0159 SCREEN  (BASIC)
+; $015D WIDTHS  (BASIC)
+; $0161 VDP     (BASIC)
+; $0165 VDPF    (BASIC)
+; $0169 BASE    (BASIC)
+; $016D BASEF   (BASIC)
+; $0171 VPOKE   (BASIC)
+; $0175 VPEEK   (BASIC)
+; $0179 SETS    (BASIC)
+
 ; $017D BEEP
                 ds      $017D - $,$C9
                 ei
@@ -176,6 +256,8 @@
                 ds      $0189 - $,$C9
                 ei
                 jp      setscr
+
+; $018D SCOPY   (BASIC)
 
 ; $0191 BLTVV Copy from VRAM to VRAM
                 ds      $0191 - $,$C9
@@ -216,6 +298,8 @@
                 ds      $01AD - $,$C9
                 ei
                 jp      newpad
+
+; $01B1 GETPUT  (BASIC)
 
 ; $01B5 CHGMDP Set screen mode, initialise palette.
                 ds      $01B5 - $,$C9
@@ -262,6 +346,22 @@ dogrph:
                 pop     hl
                 ret
 dogrph_text:    db      "DOGRPH",0
+
+;-------------------------------------
+; $0119 CLRTXT
+; Function : Clear Text-screen
+; Registers: All
+; NOTE: this implementation is still a stub!
+clrtxt:
+                push    hl
+                push    af
+                ld      hl,clrtxt_text
+                call    print_debug
+                pop     af
+                pop     hl
+                jp      cls
+clrtxt_text:    db      "CLRTXT",0
+
 
 ;-------------------------------------
 ; $013D SETPAG
@@ -835,3 +935,5 @@ wrtclk:
 
 ; Empty space until end of page.                
                 ds      $4000 - $
+
+; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:

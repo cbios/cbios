@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.27 2004/12/30 08:49:51 andete Exp $
+; $Id: video.asm,v 1.28 2004/12/30 09:15:30 andete Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1451,5 +1451,24 @@ cls_screen8:
 cls_bitmap:
                 ld      hl,0
                 jp      bigfil
+
+; $0105 GETPAT
+; Function : Returns current pattern of a character
+; Input    : A  - ASCII code of character
+; Output   : Pattern in PATWRK starting from address #FC40
+; Registers: All
+; Remark   : Same as routine in MSX1-BIOS, but there it doesn't exist as
+;            a BIOS-call
+;NOTE: this implementation is still a stub!
+getpat:
+                push    hl
+                push    af
+                ld      hl,getpat_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+getpat_text:    db      "GETPAT",0
+
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
