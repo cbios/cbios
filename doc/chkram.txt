@@ -35,6 +35,21 @@ What a BIOS does when CHKRAM is called
 - init at 0: PRMLEN NOFUNS PRMLN2 FUNACT PRMSTK SUBFLG
 - round BOTTOM
 - init TXTTAB
+- reset TRCFLG, AUTFLG, PTRFLG
+- write 2 zeros to start of TXTTAB
+- init VARTAB
+- call H_RUNC
+- call H_CLEA
+- init ONGSBF
+- call H_LOPD
+- init DEFTBL with $08
+- init RNDX		00 40 64 96 51 37 23 58
+- init ONEFLG (0)
+- init ONELIN (0) OLDTXT (0)
+- FRETOP = MEMSIZ
+- calculate DATPTR from TXTTAB
+- ARYTAB = VARTAB, STREND = VARTAB
+- call INITIO
 ...
 ...
 List NOT yet complete!
