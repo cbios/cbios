@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.3 2004/11/30 01:06:02 mthuurne Exp $
+; $Id: main.asm,v 1.4 2004/12/04 03:55:52 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -330,6 +330,14 @@ grpprt:
                 ds      $0159 - $
                 jp      call_basic_intr
 
+;015Ch SUBROM   Calls a routine in the subrom.
+                ds      $015C - $
+                jp      subrom
+
+;015Fh EXTROM   Calls a routine in the subrom.
+                ds      $015F - $
+                jp      extrom
+
 ; TODO: These are subrom calls, aren't they?
 ;beep
                 ds      $017D - $
@@ -465,6 +473,7 @@ ram_ok:
 
                 call    init_ram
 
+                call    chksubpos
                 call    check_rom
 
 ;                in      a,(PSL_STAT)
@@ -1026,6 +1035,11 @@ init_ram:
 ;----------------------
 ;サブロム位置の検出
 chksubpos:
+                ; TODO: Really implement.
+                ld      a,$83
+                ld      (EXBRSA),a
+                ret
+                
                 ld      b,$03
                 ld      hl,$0000
 loop_subpos:
@@ -1619,7 +1633,115 @@ wrslt:
 ; 001Ch CALSLT(暫定的な関数)
 ; in .. IYh(スロット番号),(IX)
 cal_slt:
-                jp      (ix)
+                ex      af,af'
+                exx
+
+; Precalculate values we'll need later on:
+                push    iy
+                pop     de              ; D = slot ID: E000SSPP
+                ld      a,d
+                rrca
+                rrca
+                and     $03
+                ld      h,a             ; H = secondary slot
+                ld      a,d
+                and     $03
+                ld      b,a             ; B = primary slot
+                ld      c,$FC           ; C = mask
+                ; Calculate page that contains call address.
+                push    ix
+                pop     af              ; A = high byte call address
+                rlca
+                rlca
+                and     $03             ; A = page
+                ; Shift B,C,H page*2 positions to the left.
+                add     a,a
+                jr      z,cal_slt_sh2
+cal_slt_sh1:
+                rlc     b
+                rlc     h
+                scf
+                rl      c
+                dec     a
+                jr      nz,cal_slt_sh1
+cal_slt_sh2:
+
+; Select secondary slot of target:
+; Note: This approach fails if target is in page 0 of slot 0.1, 0.2 or 0.3.
+                di
+                bit     7,d             ; expanded slot?
+                jr      z,cal_slt_notexp1
+                ; Select primary slot of target in page 3.
+                ; Note: Stack is unavailable until primary slot is restored.
+                ld      a,d             ; A = slot ID: E000SSPP
+                rrca
+                rrca
+                and     $C0
+                ld      d,a             ; D = PP000000
+                in      a,(PSL_STAT)
+                ld      e,a             ; E = saved PSL
+                and     $3F
+                or      d
+                out     (PSL_STAT),a
+                ; Select secondary slot of target.
+                ld      a,(SSL_REGS)
+                cpl
+                ld      l,a             ; L = saved SSL
+                and     c               ; C = mask (shifted)
+                or      h               ; H = secondary slot (shifted)
+                ld      (SSL_REGS),a
+                ; Restore original primary slot in page 3.
+                ld      a,e
+                out     (PSL_STAT),a
+cal_slt_notexp1:
+                push    iy
+                pop     af
+                ld      h,a
+                push    hl              ; H = slot ID, L = saved SSL
+
+; Select primary slot of target and perform call:
+                ld      hl,cal_slt_restore
+                push    hl
+                in      a,(PSL_STAT)
+                push    af
+                and     c               ; C = mask (shifted)
+                or      b               ; B = primary slot (shifted)
+                exx
+                jp      clprim
+
+cal_slt_restore:
+                ex      af,af'
+                exx
+
+; Restore secondary slot:
+                pop     hl              ; H = slot ID, L = saved SSL
+                bit     7,h             ; expanded slot?
+                jr      z,cal_slt_notexp2
+                ; Select primary slot of target in page 3.
+                ; Note: Stack is unavailable until primary slot is restored.
+                ld      a,h
+                rrca
+                rrca
+                and     $C0
+                ld      d,a             ; D = PP000000
+                in      a,(PSL_STAT)
+                ld      e,a             ; E = saved PSL
+                and     $3F
+                or      d
+                out     (PSL_STAT),a
+                ; Restore secondary slot.
+                ld      a,l
+                ld      (SSL_REGS),a
+                ; Restore original primary slot in page 3.
+                ld      a,e
+                out     (PSL_STAT),a
+cal_slt_notexp2:
+
+; Done:
+                ex      af,af'
+                exx
+                ret
+
 
 ;--------------------------------
 ; 0020h DCOMPR　16ビット比較
@@ -1760,22 +1882,22 @@ chg_psl:
 ;--------------------------------
 ; 0030h CALLLF
 call_lf:
-                pop     hl ; スロット情報のアドレス
+                ex      af,af'
+                exx
+                pop     hl              ; Get data from return address.
                 ld      a,(hl)
                 inc     hl
                 ld      e,(hl)
                 inc     hl
                 ld      d,(hl)
-                inc     hl
-                ex      de,hl
-                push    de
-                push    hl
-                push    af
-                call    enaslt
-                pop     af
-                pop     hl
-                jp      (hl)
-
+                push    de              ; IX = call address
+                pop     ix
+                push    af              ; IY = slot
+                pop     iy
+                push    hl              ; Update return address.
+                ex      af,af'
+                exx
+                jp      cal_slt         ; Perform inter-slot call.
 
 ;--------------------------------
 ; 0050h SETRD
@@ -3138,6 +3260,29 @@ key_int:
 ki_end:
                 ret
 
+
+;--------------------------------
+; 015Ch Calls a routine in the subrom.
+; Input:   IX = call adress, must also be pushed on top of the stack
+; Changes: IY, shadow registers
+subrom:
+                ; TODO: What is that "IX on top of the stack" thing?
+                ret
+
+
+;--------------------------------
+; 015Fh Calls a routine in the subrom.
+; Input:   IX = call adress
+; Changes: IY, shadow registers
+extrom:
+                ex      af,af'
+                ld      a,(EXBRSA)
+                push    af
+                pop     iy              ; IYH = slot ID
+                ex      af,af'
+                jp      cal_slt         ; Perform inter-slot call.
+
+
 ;-------------------
                 ds      $1000 - $
 
@@ -3234,7 +3379,7 @@ lp_strprn:
 ;ディスクルーチン
 ;------------------------------------
 
-DISKIO:  equ     $4010
+DISKIO:         equ     $4010
 
 disk_intr:
                 ld      hl,str_flist

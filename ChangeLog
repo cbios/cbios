@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.1.1.1 2004/11/27 02:23:54 mthuurne Exp $
+$Id: ChangeLog,v 1.2 2004/12/04 03:55:52 mthuurne Exp $
 
 2004-12-04 Maarten ter Huurne <maarten@treewalker.org>
     * Split off system variable and hook declarations into separate sources.
+    * Implemented inter-slot call.
 
 2004-11-27 Maarten ter Huurne <maarten@treewalker.org>
     * Put C-BIOS code into CVS, with the following changes compared to 0.17:
