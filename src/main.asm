@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.91 2005/01/20 17:40:27 bifimsx Exp $
+; $Id: main.asm,v 1.92 2005/01/20 19:06:39 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -740,6 +740,13 @@ start_game:
                 push    hl
                 ld      hl,boot_stage2
                 push    hl
+
+                ; Some cartridges have buggy initialisation code.
+                ; By postponing the interrupt as long as possible,
+                ; there is a better chance they will boot correctly.
+                ; For example the game "Koronis Rift" depends on this.
+                ei
+                halt
 
                 ; MSX BIOS starts cartridges using inter-slot call,
                 ; so interrupts are disabled when cartridge code starts.
