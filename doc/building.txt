@@ -1,4 +1,4 @@
-$Id: building.txt,v 1.1 2004/12/12 21:18:34 mthuurne Exp $
+$Id: building.txt,v 1.2 2004/12/24 00:38:05 mthuurne Exp $
 
 Building C-BIOS From Source
 ===========================
@@ -25,6 +25,8 @@ manually.
 
 Building with tniASM:
 Run "make.bat".
+If you use tniASM prior to version 0.43, please upgrade or replace "!=" by "<>"
+in the conditional assembly statements.
 
 The produced ROM files are located in the directory "derived/bin", which will
 be automatically created. You can find symbol listings in "derived/lst", they
