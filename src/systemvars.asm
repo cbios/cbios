@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.9 2004/12/22 10:00:06 andete Exp $
+; $Id: systemvars.asm,v 1.10 2004/12/22 12:29:30 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -296,12 +296,28 @@ NTMSXP:         equ     $F417
 ; =1 to send data just like it gets it
 RAWPRT:         equ     $F418
 
-; F419-F41A: work area for the BASIC command VAL: contains address pf character that
+; ---------------------------
+; basic interpreter work area
+
+; F419-F41A: work area for the BASIC command VAL: contains address of character that
 ; has temporarely been replaced by O by VAL
 VLZADR:         equ     $F419
 
-; ---------------------------
-; basic interpreter work area
+; F41B: work area for the BASIC command VAL: contains the character originally at
+; the location of VLZADR
+VLZDAT:         equ     $F41B
+
+; F41C-F41D: line number of current BASIC line being executed, in direct modus this
+; contains $FFFF (ini:$FFFF)
+CURLIN:         equ     $F41C
+
+; F41E: error detection prefix for KBUF, always contains ":"
+; originally undocumented :)
+KBFMIN:         equ     $F41E
+
+; F41F-F55C: workarea for coding basic rules that have been typed in direct modus
+; this are contains the code for the line interpreted in direct modus
+KBUF:           equ     $F41F
 
 STKTOP:         equ     $F674
 
