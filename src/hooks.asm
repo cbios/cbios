@@ -1,4 +1,4 @@
-; $Id: hooks.asm,v 1.3 2004/12/22 21:11:13 manuelbi Exp $
+; $Id: hooks.asm,v 1.4 2004/12/28 19:08:42 andete Exp $
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -32,4 +32,4 @@ H_KEYI:         equ     $FD9A           ; キーボード割り込みフック
 H_TIMI:         equ     $FD9F           ; タイマー割り込みフック
 H_TOTE:         equ     $FDBD           ; called at start of TOTEXT
 H_NMI:          equ     $FDD6           ; NMI hook
-H_STKE:         equ     $FEDA           ; スタックエラーフック
+H_STKE:         equ     $FEDA           ; stack error hook
