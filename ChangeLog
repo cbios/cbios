@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.32 2004/12/23 02:20:59 mthuurne Exp $
+$Id: ChangeLog,v 1.33 2004/12/23 04:22:40 mthuurne Exp $
+
+2004-12-23 Maarten ter Huurne <maarten@treewalker.org>
+    * Workaround for Girly Block startup problem.
+    * Released C-BIOS 0.19.
 
 2004-12-22 Maarten ter Huurne <maarten@treewalker.org>
     * Added main rom entry points for INIMLT and GRPPRT.
