@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.114 2005/02/07 01:27:29 mthuurne Exp $
+$Id: ChangeLog,v 1.115 2005/02/09 22:12:55 mthuurne Exp $
+
+2005-02-14 Albert Beevendorp / BouKiCHi
+    * implemented code to boot games in PAGE0.
+      Thank you, BouKiCHi
 
 2005-02-09 Maarten ter Huurne <maarten@treewalker.org>
     * Released C-BIOS 0.20.

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.94 2005/02/06 19:14:19 bifimsx Exp $
+; $Id: main.asm,v 1.95 2005/02/06 20:51:47 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -766,8 +766,14 @@ start_game:
                 ld      a,($4000)
                 cp      'A'
                 jr      nz,p3_run
+                ld      a,($4003)
+                cp      $40
+                jp      c,p0_run        ; I can't return anymore!
+
+
                 ld      hl,($4002)      ; カートリッジ開始アドレス。
                 jp      (hl)            ; 実行...
+
 p3_run:
                 ld      hl,($8002)      ; カートリッジ開始アドレス。
                 jp      (hl)            ; 実行...
@@ -809,6 +815,69 @@ boot_stage2:
 ; TODO: This breaks boot of MG2, so disabled for now.
 ;                jp      disk_intr
                 ret                     ; goto stack_error
+
+HYPER_ADRS:     equ     $c000 ; Where the routine will put?
+
+
+;-----------------------
+;p0_run  We have to jump to the hell where anyone can't control
+;-----------------------
+p0_run:
+                ld      hl,hyper_p0_jump
+                ld      de,HYPER_ADRS
+                ld      bc,hyper_p0_jump_end - hyper_p0_jump
+                ldir
+
+                in      a,(PSL_STAT)
+                rrca
+                rrca
+                and     $03             ; 000000PP
+                ld      d,$00
+                ld      e,a
+                ld      c,a
+                ld      hl,EXPTBL
+                add     hl,de
+                ld      a,(EXPTBL)
+                bit     7,(hl)
+                jr      z,p0_noexp
+                inc     hl
+                inc     hl
+                inc     hl
+                inc     hl
+                ld      a,(hl)
+                and     $fc
+                or      e
+                ld      (hl),a
+                ld      d,a             ; D = expanded slot register
+                ld      a,e
+                rrca
+                rrca
+                ld      b,a             ; B = PP000000
+                in      a,(PSL_STAT)
+                ld      e,a             ; E = old primary slot reg
+                and     $3f
+                or      b
+                out     (PSL_STAT),a
+
+                ld      a,d
+                ld      (SSL_REGS),a
+                ld      a,e
+                out     (PSL_STAT),a
+
+p0_noexp:
+                ld      hl,($8002)      ; an address of the cartridge start
+                jp      HYPER_ADRS
+
+;-------------------
+hyper_p0_jump:
+; in : Reg C = Primary slot under the cartridge
+                in      a,(PSL_STAT)
+                and     $fc
+                or      c
+                out     (PSL_STAT),a
+                jp      (hl)
+hyper_p0_jump_end:      equ     $
+
 
 ;-------------------------------
 ; 情報表示
@@ -1676,11 +1745,22 @@ chk_p3:
                 call    enaslt
                 pop     bc
 
+                ld      a,($8000)
+                cp      'A'
+                jr      nz,no_cart
+
                 ld      a,($8003)
                 cp      $80
-                jr      c,no_cart       ; A-$80 < 0
+                jr      c,chk_p0       ; A-$80 < 0
                 cp      $C0
-                jr      nc,no_cart      ; A-$C0 >= 0
+                jr      nc,chk_p0      ; A-$C0 >= 0
+                jp      chk_rom_ok
+
+chk_p0:
+                ld      h,a
+                ld      a,($8002)
+                or      h
+                jr      z,no_cart      ; (INIT) == 0
                 jp      chk_rom_ok
 
 no_cart:
@@ -3773,7 +3853,7 @@ disk_error:
 
 str_proginfo:
                 ;       [01234567890123456789012345678901]
-                db      "C-BIOS 0.20         cbios.sf.net",$00
+                db      "C-BIOS 0.20a        cbios.sf.net",$00
 
 str_slot:
                 ;       [01234567890123456789012345678901]
