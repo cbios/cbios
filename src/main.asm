@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.9 2004/12/05 15:22:34 bifimsx Exp $
+; $Id: main.asm,v 1.10 2004/12/06 01:25:09 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -309,13 +309,13 @@ soft_reset:
 
 ;メモリバンクを初期化する。
                 xor     a
-;                out     (MAP_REG1),a
-                inc     a
-                out     (MAP_REG2),a
+                out     (MAP_REG4),a
                 inc     a
                 out     (MAP_REG3),a
                 inc     a
-                out     (MAP_REG4),a
+                out     (MAP_REG2),a
+                inc     a
+                out     (MAP_REG1),a
 
 ;メモリチェック、選択スロットをメモリに書き込む。
 ; C = プライマリ,B = セカンダリ。
@@ -930,38 +930,81 @@ check_expanded_next:
 ;----------------------
 ;サブロム位置の検出
 chksubpos:
-                ; TODO: Really implement.
-                ld      a,$83
-                ld      (EXBRSA),a
-                ret
                 
-                ld      b,$03
-                ld      hl,$0000
-loop_subpos:
-                ld      a,b
+                ld      bc,$0400
+                ;ld     de,$fa00        ; debug
+                ld      hl,EXP_TBL
+pri_subpos_loop:
                 push    bc
-                call    rdslt
+                push    hl
+                ld      a,c
+                or      (hl)
+                bit     7,a
+                jr      nz,pri_subpos_call
+
+                call    chk_subpos
+                jr      pri_subpos_next
+pri_subpos_call:
+                call    sub_subpos
+pri_subpos_next:
+                pop     hl
                 pop     bc
-                cp      'C'
-                jr      z,chked_c
-slt_wrong:
-                djnz    loop_subpos
+                ret     c
+                inc     hl
+                inc     c
+                djnz    pri_subpos_loop
+
                 xor     a
                 ld      (EXBRSA),a
                 ret
-chked_c:
-                inc     hl
-                ld      a,b
+
+sub_subpos:
+                ld      b,4
+sub_subpos_loop:
                 push    bc
-                call    rdslt
+                call    chk_subpos
                 pop     bc
-                cp      'D'
-                jr      z,chked_d
-                dec     hl
-                jr      slt_wrong
-chked_d:
-                ld      a,b
+                ret     c
+
+                add     a,4
+                djnz    sub_subpos_loop
+                ret
+
+chk_subpos:
+                ld      c,a
                 ld      (EXBRSA),a
+                ;ld     (de),a          ; debug
+                ;inc    de              ; debug
+
+                ld      hl,0
+                call    rd_subpos
+                ;ld     (de),a          ; debug
+                ;inc    de              ; debug
+                cp      "C"
+                jr      nz,chk_subpos_notfound
+
+                inc     hl
+                call    rd_subpos
+                ;ld     (de),a          ; debug
+                ;inc    de              ; debug
+                cp      "D"
+
+chk_subpos_notfound:
+                ld      a,c
+                scf
+                ret     z
+                or      a
+                ret
+
+rd_subpos:
+                ld      a,c
+                push    bc
+                ;push   de              ; debug
+                push    hl
+                call    rdslt
+                pop     hl
+                ;pop    de              ; debug
+                pop     bc
                 ret
 
 ;------------------------
@@ -1448,7 +1491,7 @@ cl_jp:          equ     rdprim+(m_cl_jp-m_rdprim)
 ;---------------------------
 ; 000Ch RDSLT
 ; in ..  A = スロットID , HL = アドレス
-rdslt:
+rdslt:          ;TODO: add expanded slot support
                 push    hl
                 push    af
 
@@ -1492,7 +1535,7 @@ rdsft_lp:
 
 ; 0014h WRSLT
 ; in ..  A = スロットID , HL = アドレス
-wrslt:
+wrslt:          ;TODO: add expanded slot support
                 push    hl
                 push    af
 
