@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.19 2004/12/28 08:13:50 bifimsx Exp $
+; $Id: sub.asm,v 1.20 2004/12/28 15:31:00 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -486,7 +486,7 @@ exec_cmd:
                 ld      a,2
                 call    vdpsta
                 bit     0,a
-                jr      nz,wait_ce
+                jr      nz,exec_cmd
 
                 ld      bc,32 *256+ 17
                 call    wrt_vdp
