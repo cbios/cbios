@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.73 2005/01/05 21:48:03 manuelbi Exp $
+; $Id: main.asm,v 1.74 2005/01/07 02:47:26 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1214,16 +1214,17 @@ init_ram:
                 ld      hl,$8000
                 ld      (BOTTOM),hl     ; ページ1,2はROM。ページ3,4はRAM.
 
-                ld      hl,$F380
+                ; I don't know exactly what is stored between $F168 and $F380,
+                ; but the disk ROM needs some space there, so I'll just
+                ; reserve all of it.
+                ld      hl,$F168
                 ld      (HIMEM),hl      ; 使用可能メモリの上限
-
                 ld      (STKTOP),hl     ; BASICスタックの位置
 
 ;RDPRIMをRAMに転送する.
 
                 ld      hl,m_rdprim
                 ld      de,$F380
-
                 ld      bc,m_prim_end-m_rdprim
                 ldir
 
