@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.17 2004/12/23 02:21:00 mthuurne Exp $
+; $Id: sub.asm,v 1.18 2004/12/25 20:03:37 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -165,6 +165,51 @@
                 ds      $0181 - $,$C9
                 ei
                 jp      prompt
+
+; $0185 SDFSCR Restore screen parameters from RTC
+                ds      $0185 - $,$C9
+                ei
+                jp      sdfscr
+
+; $0189 SETSCR Restore screen parameters from RTC and print welcome message
+                ds      $0189 - $,$C9
+                ei
+                jp      setscr
+
+; $0191 BLTVV Copy from VRAM to VRAM
+                ds      $0191 - $,$C9
+                ei
+                jp      bltvv
+
+; $0195 BLTVM Copy from Memory to VRAM
+                ds      $0195 - $,$C9
+                ei
+                jp      bltvm
+
+; $0199 BLTMV Copy from Memory to VRAM
+                ds      $0195 - $,$C9
+                ei
+                jp      bltmv
+
+; $019D BLTVD Copy from Memory to VRAM
+                ds      $0195 - $,$C9
+                ei
+                jp      bltvd
+
+; $01A1 BLTDV Copy from Memory to VRAM
+                ds      $0195 - $,$C9
+                ei
+                jp      bltdv
+
+; $01A5 BLTMD Copy from Memory to VRAM
+                ds      $0195 - $,$C9
+                ei
+                jp      bltmd
+
+; $01A9 BLTDM Copy from Memory to VRAM
+                ds      $0195 - $,$C9
+                ei
+                jp      bltdm
 
 ; $01AD NEWPAD
                 ds      $01AD - $,$C9
@@ -401,6 +446,175 @@ prompt:
                 pop     hl
                 ret
 prompt_text:    db      "PROMPT",0
+
+;-------------------------------------
+; $0185 SDFSCR
+; Function:  Recovers screen-parameters from RTC.
+; Input:     F = NC when called from MSX-DOS
+;                 C to display function keys
+; Registers: All
+; NOTE: this implementation is still a stub!
+sdfscr:
+                push    hl
+                push    af
+                ld      hl,sdfscr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+sdfscr_text:    db      "SDFSCR",0
+
+;-------------------------------------
+; $0189 SETSCR
+; Function:  Recovers screen parameters from RTC and display welcome message
+; Registers: All
+; NOTE: this implementation is still a stub!
+setscr:
+                push    hl
+                push    af
+                ld      hl,setscr_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+setscr_text:    db      "SETSCR",0
+
+;
+; internal wait for VDP command to end
+;
+wait_ce:        ld      a,2
+                call    vdpsta
+                bit     0,a
+                jr      nz,wait_ce
+                ret
+
+;-------------------------------------
+; $0191 BLTVV
+; Function:  Copy from VRAM to VRAM
+; Input:     SX, SY, DX, DY, NX, NY, ARG_, L_OP
+; Registers: All
+bltvv:
+                call    wait_ce
+
+                ld      a,(L_OP)
+                and     15
+                or      $90
+                ld      (L_OP),a
+
+                ld      bc,32 *256+ 17
+                call    wrt_vdp
+
+                ld      bc,15 *256+ $9B
+                ld      hl,SX
+                otir
+                ret
+
+;-------------------------------------
+; $0195 BLTVM
+; Function:  Copy from RAM to VRAM
+; Input:     SX = address of screen data in RAM
+;            DX, DY, NX, NY, ARG_, L_OP
+;            NX and NY are required in screen data in RAM
+; Registers: All
+; NOTE: this implementation is still a stub!
+bltvm:
+                push    hl
+                push    af
+                ld      hl,bltvm_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+bltvm_text:    db      "BLTVM",0
+
+;-------------------------------------
+; $0199 BLTMV
+; Function:  Copy from VRAM to RAM
+; Input:     SX, SY, NX, NY, ARG_, L_OP
+;            NX and NY are written to screen data in RAM
+; Registers: All
+; NOTE: this implementation is still a stub!
+bltmv:
+                push    hl
+                push    af
+                ld      hl,bltmv_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+bltmv_text:    db      "BLTMV",0
+
+;-------------------------------------
+; $019D BLTVD
+; Function:  Copy from diskfile to VRAM
+; Input:     SX = address to diskfile name
+;            DX, DY, NX, NY, ARG_, L_OP
+;            NX and NY are required in diskfile
+; Registers: All
+; NOTE: this implementation is still a stub!
+bltvd:
+                push    hl
+                push    af
+                ld      hl,bltvd_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+bltvd_text:    db      "BLTVD",0
+
+;-------------------------------------
+; $01A1 BLTDV
+; Function:  Copy from VRAM to diskfile
+; Input:     SX, SY, DX, NX, NY, ARG_, L_OP
+;            DX = address to diskfile name
+;            NX and NY are written to diskfile
+; Registers: All
+; NOTE: this implementation is still a stub!
+bltdv:
+                push    hl
+                push    af
+                ld      hl,bltdv_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+bltdv_text:    db      "BLTDV",0
+
+;-------------------------------------
+; $01A5 BLTMD
+; Function:  Copy from diskfile to RAM
+; Input:     SX = address to diskfile name
+;            DX = base address in RAM
+;            DY = end address in RAM
+; Registers: All
+; NOTE: this implementation is still a stub!
+bltmd:
+                push    hl
+                push    af
+                ld      hl,bltmd_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+bltmd_text:    db      "BLTMD",0
+
+;-------------------------------------
+; $01A9 BLTDM
+; Function:  Copy from RAM to diskfile
+; Input:     SX = base address in RAM
+;            SY = end address in RAM
+;            DX = address to diskfile name
+; Registers: All
+; NOTE: this implementation is still a stub!
+bltdm:
+                push    hl
+                push    af
+                ld      hl,bltdm_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+bltdm_text:    db      "BLTDM",0
 
 ;-------------------------------------
 ; $01AD NEWPAD

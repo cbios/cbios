@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.18 2004/12/22 21:23:35 andete Exp $
+; $Id: systemvars.asm,v 1.19 2004/12/23 03:02:46 mthuurne Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -7,6 +7,7 @@
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -332,6 +333,17 @@ BUFMIN:         equ     $F55D
 ; F55E-F65F: used in direct modus to store the ASCII codes of the line, or simulary
 ; for INPUT or LINE INPUT BASIC statements
 BUF:            equ     $F55E
+
+; F562-F570: used by bitblit routines to store the register data
+SX:             equ     $F562
+SY:             equ     $F564
+DX:             equ     $F566
+DY:             equ     $F568
+NX:             equ     $F56A
+NY:             equ     $F56C
+CDUMMY:         equ     $F56E
+ARG_:           equ     $F56F
+L_OP:           equ     $F570
 
 ; F660: last usable byte of BUF
 ENDBUF:         equ     $F660
