@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.43 2005/01/05 10:17:19 ccfg Exp $
+; $Id: video.asm,v 1.44 2005/01/06 08:13:51 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1128,7 +1128,7 @@ vdpsta:
 ;--------------------
 
 init_vdp:
-                in      a,(VDP_STAT)    ; ラッチの初期化
+                in      a,(VDP_STAT)    ; reset latch
 
                 ld      bc,$0000        ; R#0
                 call    wrtvdp
@@ -1165,8 +1165,6 @@ init_vdp:
 
                 ld      bc,$F507        ; R#7
                 call    wrtvdp
-
-                in      a,(VDP_STAT)    ;　ラッチの初期化
 
                 ld      hl,B_Font
 
@@ -1295,8 +1293,6 @@ init_sc5:
                 ld      a,$05
                 ld      (SCRMOD),a
 
-                in      a,(VDP_STAT)    ; latch reset
-
                 call    chgclr
 
                 ld      a,(RG0SAV)
@@ -1357,8 +1353,6 @@ init_sc6:
 
                 ld      a,$06
                 ld      (SCRMOD),a
-
-                in      a,(VDP_STAT)    ; latch reset
 
                 call    chgclr
 
@@ -1536,14 +1530,24 @@ init_sc8:
 
 ;--------------------------------
 ; $00C3 CLS
-; Function : clear the screen
-; Input: BAKCLR, Z-Flag has to be low
-; Registers: AF, BC, DE
+; Clears the screen.
+; Input:   BAKCLR,
+;          Z-Flag has to be low if the main ROM version of CLS is called;
+;          in the sub ROM version of CVS the Z-Flag is ignored.
+; Changes: AF, BC, DE
 ;TODO: add optional borders to text based screens
-cls:
+;      -> Should that happen in CLS?
+cls_z:
                 ret     nz
-                push    hl
+cls:
                 ld      a,(SCRMOD)
+        IF VDP = TMS99X8
+                cp      4
+        ELSE
+                cp      9
+        ENDIF
+                ret     nc                      ; Out of range?
+                push    hl
                 ld      hl,cls_table
                 call    jump_table
                 pop     hl
