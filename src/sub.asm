@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.9 2004/12/19 21:34:19 manuelbi Exp $
+; $Id: sub.asm,v 1.10 2004/12/20 02:14:53 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -51,10 +51,12 @@
 
 ; 0085h DOGRPH  ƒ‰ƒCƒ“•`‰æ
                 ds      $0085 - $,$C9
-		jp      dogrph
+                ei
+                jp      dogrph
 
 ; 0089h GRPPRT
                 ds      $0089 - $,$C9
+                ei
                 jp      grpprt
 
 ; $00D1 CHGMOD Set screen mode.
@@ -79,49 +81,57 @@
 
 ; 0141h INIPLT
                 ds      $0141 - $,$C9
+                ei
                 jp      iniplt
 
 ; 0145h RSTPLT
                 ds      $0145 - $,$C9
+                ei
                 jp      rstplt
 
 ; 0149h GETPLT
                 ds      $0149 - $,$C9
+                ei
                 jp      getplt
 
 ; 0149D SETPLT
                 ds      $014D - $,$C9
+                ei
                 jp      setplt
 
 ; 017Dh BEEP
                 ds      $017D - $,$C9
+                ei
                 jp      beep
 
 ; 0181h PROMPT
                 ds      $0181 - $,$C9
+                ei
                 jp      prompt
 
 ; 01ADh NEWPAD
                 ds      $01AD - $,$C9
+                ei
                 jp      newpad
 
 ; $01B5 CHGMDP Set screen mode, initialise palette.
-; Input:   A = screen mode
-; Changes: all
                 ds      $01B5 - $,$C9
                 ei
                 jp      chgmdp
 
 ; 01BDh KNJPRT
                 ds      $01BD - $,$C9
+                ei
                 jp      knjprt
 
 ; 01F5h REDCLK
                 ds      $01F5 - $,$C9
+                ei
                 jp      redclk
 
 ; 01F9h WRTCLK
                 ds      $01F9 - $,$C9
+                ei
                 jp      wrtclk
 
 ; End of entry points, catch non-implemented calls.
@@ -341,6 +351,8 @@ newpad_text:    db      "NEWPAD",0
 
 ;-------------------------------------
 ; $01B5 CHGMDP
+; Input:   A = screen mode
+; Changes: all
 chgmdp:
                 call    chgmod
                 ; TODO: Initialise palette.
