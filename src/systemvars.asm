@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.23 2005/01/05 09:30:28 bifimsx Exp $
+; $Id: systemvars.asm,v 1.24 2005/01/09 02:33:42 mthuurne Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -538,16 +538,25 @@ MCLFLG:         equ     $F958
 ; work area for sound and queueing and RS232
 ; ------------------------------------------
 
-; in the MSX2, the RS232 addresses are used for VDP purposes
-
+; F959-F971: Variables for three music queues and one RS232 queue
+; F959: VOICAQ put position
+; F95A: VOICAQ get position
+; F95B: VOICAQ putback flag
+; F95C: VOICAQ size
+; F95D: VOICAQ address
+; F95F-F964: VOICBQ
+; F965-F96A: VOICCQ
+; F96B-F970: RS2IQ
 QUETAB:         equ     $F959
-QUEBAK:         equ     $F971
-VOICAQ:         equ     $F975
-VOICBQ:         equ     $F9F5
-VOICCQ:         equ     $FA75
 
-; FAF5-FB34: queue for RS232
-RS2IQ:          equ     $FAF5
+; Putback characters for queues. TODO: what purpose do these have exactly?
+QUEBAK:         equ     $F971
+
+; Buffers for queues.
+VOICAQ:         equ     $F975           ; Voice A queue
+VOICBQ:         equ     $F9F5           ; Voice B queue
+VOICCQ:         equ     $FA75           ; Voice C queue
+RS2IQ:          equ     $FAF5           ; RS232   queue
 
 ; in MSX2 the content of RS2IQ is used differently:
 DPPAGE:         equ     $FAF5           ; Display page (SCR5+)
