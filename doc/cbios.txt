@@ -1,53 +1,50 @@
-$Id: cbios.en.txt,v 1.1.1.1 2004/11/27 02:23:55 mthuurne Exp $
+$Id: cbios.txt,v 1.1 2004/12/12 18:41:24 mthuurne Exp $
 
-/--------------------------------------------------------------
-/ C-BIOS ver 0.17
-/        Copyright(c) 2002-2003 BouKiCHi.  All rights reserved.
-/        Copyright(c) 2003 Reikan.  All rights reserved.
-/--------------------------------------------------------------
+C-BIOS 0.18
+===========
 
-This software is a substitute of BIOS which is needed
-when running MSX emulator.
-It is targeted for running cartridge image.
-Never use without reading LICENSE.
+This software is a substitute BIOS which is can be used for running MSX
+emulators. It currently supports only execution of cartridge image ("ROMs").
+Before you use it, you should read and accept the license (see below).
 
+On the C-BIOS web site, you can download newer versions, download the source
+code, and report bugs.
 
-* USAGE
-
-Combine files with running SETB.BAT.
-Then you will found CBIOS.ROM is generated.
-Specify it as BIOS on emulator or rename to MSX.ROM.
-
-When you boot with pressing SHIFT key, it will go into dump-mode.
+http://cbios.sourceforge.net/
 
 
-* LICENSE
+License
+-------
 
- Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
- Copyright (c) 2003 Reikan.  All rights reserved.
- 
- Redistribution and use in source and binary forms, with or without
- modification, are permitted provided that the following conditions
- are met:
- 1. Redistributions of source code must retain the above copyright
-    notice, this list of conditions and the following disclaimer.
- 2. Redistributions in binary form must reproduce the above copyright
-    notice, this list of conditions and the following disclaimer in the
-    documentation and/or other materials provided with the distribution.
- 
- THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
- IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
- OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
- IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
- INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
- NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
- DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
- THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
- (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
- THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+Copyright (c) 2003 Reikan.  All rights reserved.
+Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
+Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+Copyright (c) 2004 Patrick van Arkel.  All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions
+are met:
+1. Redistributions of source code must retain the above copyright
+   notice, this list of conditions and the following disclaimer.
+2. Redistributions in binary form must reproduce the above copyright
+   notice, this list of conditions and the following disclaimer in the
+   documentation and/or other materials provided with the distribution.
+
+THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 
-* HISTORY
+History
+-------
 
 ver 0.01  Initial
 ver 0.02  2002-08-15(JST)
@@ -135,18 +132,22 @@ ver 0.17  2003-08-10(JST)
           * Changed LICENSE.
            New LICENSE will be suitable in various situations.
            e.g. use as a firmware for hand-made hardware.
+ver 0.18  2004-12-??(CET)
+          * First release since moving to SourceForge.
+          * Much improved support for MSX2 games.
+          * Graphical boot logo.
+          * Included machine config files for several MSX emulators.
+          * Various bug fixes.
 
 
-* SPECIAL THANKS
+Special Thanks
+--------------
+
 People uploading MSX information to the internet.
 People developing any kind of emulators.
 All users.
 
-Font edit tool
+Font edit tool:
  Gameboy Tile Designer version 2.2
  Copyright H. Mulder 1999
-
-Assembler
- as80 - assembler for 8080, 8085 and Z80 microprocessors.
- Copyright 1990-1994, Frank A. Vorstenbosch, Kingswood Software.
 
