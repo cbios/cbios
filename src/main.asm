@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.59 2004/12/31 03:37:22 mthuurne Exp $
+; $Id: main.asm,v 1.60 2005/01/01 05:29:59 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -29,7 +29,6 @@
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
 
-                include "hardware.asm"
                 include "systemvars.asm"
                 include "hooks.asm"
 
@@ -101,7 +100,7 @@ vdp_dw:         db      VDP_DATA        ; VDP書き込みポート
 ; $002B IDBYT1
                 ds      $002B - $
 idbyt1:
-; Basic ROM version 
+; Basic ROM version
 ; 7 6 5 4 3 2 1 0
 ; | | | | +-+-+-+-- Character set
 ; | | | |           0 = Japanese, 1 = International (ASCII), 2=Korean
@@ -112,7 +111,7 @@ idbyt1:
                 db      $21 ; ?? TODO Dutch MSX value: $91
 ; $002C IDBYT2
 idbyt2:
-; Basic ROM version 
+; Basic ROM version
 ; 7 6 5 4 3 2 1 0
 ; | | | | +-+-+-+-- Keyboard type
 ; | | | |           0 = Japanese, 1 = International (QWERTY)
@@ -611,7 +610,7 @@ ram_ok:
 
                 call    init_ram
 
-                call    check_expanded                                
+                call    check_expanded
                 call    chksubpos
                 call    check_rom
 
@@ -1243,7 +1242,7 @@ check_expanded_lp:
 
                 ; SSL register present -> slot expanded.
                 ld      b,$80
-                ld      a,e             
+                ld      a,e
                 jr      check_expanded_next
 check_expanded_not:
                 ; SSL register present -> slot expanded.
@@ -1268,7 +1267,7 @@ check_expanded_next:
 ;----------------------
 ;サブロム位置の検出
 chksubpos:
-                
+
                 ld      bc,$0400
                 ;ld     de,$fa00        ; debug
                 ld      hl,EXP_TBL
@@ -1829,7 +1828,7 @@ cl_jp:          equ     rdprim+(m_cl_jp-m_rdprim)
 ;           if not, it generates SYNTAX ERROR, otherwise it goes to CHRGTR
 ;           (#0010)
 ;Input:     set the character to be tested in [HL] and the character to be
-;           compared next to RST instruction which calls this routine (inline 
+;           compared next to RST instruction which calls this routine (inline
 ;           parameter)
 ;Output:    HL is increased by one and A receives [HL], When the tested character
 ;           is numerical, the CY flag is set the end of the statement (00h or
@@ -1874,7 +1873,7 @@ rdslt:
                 rlca
                 and     $03
                 ld      l,a             ; L = page number
-                
+
                 ld      b,a
                 ld      a,$FC
                 call    rdsft
@@ -2994,7 +2993,7 @@ gicini:
                 ld      e,$B8
                 ld      a,$07
                 call    wrtpsg
-                
+
                 ld      e,$80           ; TODO: What about strobe and trigger?
                 ld      a,$0F
                 call    wrtpsg
