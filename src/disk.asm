@@ -1,4 +1,5 @@
-; C-BIOS Disk ROM file - based on WD2793 FDC
+; $Id$
+; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ;
@@ -22,7 +23,9 @@
 ; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
+
                 org     $4000
+
                 db      "AB"
                 dw      init            ; init
                 dw      0               ; statement
@@ -31,42 +34,53 @@
                 dw      0,0,0
 
 ; $4010 DSKIO
-                ds      $4010-$,$FF
-                jp      dskIO
+                ds      $4010 - $,$FF
+                jp      dskio
+
 ; $4013 DSKCHG
-                ds      $4013-$,$C9
-                jp      dskChg
+                ds      $4013 - $
+                jp      dskchg
+
 ; $4016 GETDPB
-                ds      $4016-$,$C9
-                jp      getDpb
+                ds      $4016 - $
+                jp      getdpb
+
 ; $4019 CHOICE
-                ds      $4019-$,$C9
+                ds      $4019 - $
                 jp      choice
+
 ; $401C DSKFMT
-                ds      $401C-$,$C9
-                jp      dskFmt
+                ds      $401C - $
+                jp      dskfmt
+
 ; $401F LOC_DS - stop motor of drives connected to this interface
-                ds      $401F-$,$C9
+                ds      $401F - $
                 jp      loc_ds
+
 ; $4022 BASIC
-                ds      $4022-$,$C9
+                ds      $4022 - $
                 jp      basic
 
                 scf
 ; $4026 FORMAT
-                ds      $4026-$,$C9
+                ds      $4026 - $
                 jp      format
+
 ; $4029 DSKSTP - stop motor of drives on all interfaces
-                ds      $4029-$,$C9
-                jp      dskStp
+                ds      $4029 - $
+                jp      dskstp
+
 ; $402D DSKSLT
-                ds      $402D-$,$00
+                ds      $402D - $,$00
                 jp      dskslt
-;
+
+;--------------------------------
 init:
-                ld      hl,tInit
+                ld      hl,init_text
                 jp      print_debug
-;
+init_text:      db      "C-DISK is initializing",0
+
+;--------------------------------
 ; DSKIO
 ; Input:   F  = NC to read, C to write
 ;          A  = Drive number (0=A:)
@@ -86,15 +100,17 @@ init:
 ;              12 = Other errors
 ;          B  = Always the number of sectors transferred
 ; NOTE: This routine is still stubbed
-dskIO:
+dskio:
                 push    hl
                 push    af
-                ld      hl,tDskIO
+                ld      hl,dskio_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+dskio_text:     db      "disk: DSKIO ($4010) called",0
+
+;--------------------------------
 ; DSKCHG
 ; Input:   A  = Drive number (0=A:)
 ;          B  = Media Descriptor
@@ -118,15 +134,17 @@ dskIO:
 ;          read the bootsector or the first FAT sectoe for a disk media
 ;          descriptor and transfer a new DPB as with GETDPB.
 ; NOTE: This routine is still stubbed
-dskChg:
+dskchg:
                 push    hl
                 push    af
-                ld      hl,tDskChg
+                ld      hl,dskchg_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+dskchg_text:    db      "disk: DSKCHG ($4013) called",0
+
+;--------------------------------
 ; GETDPB
 ; Input:   A  = Drive number (0=A:)
 ;          B  = First byte of FAT (media descriptor)
@@ -153,23 +171,29 @@ dskChg:
 ;          FATSIZ     $0F       1    Number of sectors used for FAT
 ;          FIRDIR     $10       2    Logical sector number of first directory
 ; NOTE: This routine is still stubbed
-getDpb:
+getdpb:
                 push    hl
                 push    af
-                ld      hl,tGetDpb
+                ld      hl,getdpb_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+getdpb_text:    db      "disk: GETDPB ($4016) called",0
+
+;--------------------------------
 ; CHOICE
 ; Output:  HL = Address of ASCIIz string containing the text with choices
 ;               for DSKFMT. If there are no choices (only one format sup-
 ;               ported) HL=0
 choice:
-                ld      hl,tChoice
+                ld      hl,choice_text
                 ret
-;
+choice_text:    db      13,10,"1 - Single sided, 80 tracks"
+                db      13,10,"2 - Double sided, 80 tracks"
+                db      13,10,0
+
+;--------------------------------
 ; DSKFMT
 ; Input:   A  = Choice specified by user: 1-9. See CHOICE
 ;          D  = Drive number (0=A:)
@@ -191,38 +215,44 @@ choice:
 ;          descriptor ar first byte, $FF at the second/third byte and
 ;          rest filled with $00) and clears the root directory (full $00).
 ; NOTE: This routine is still stubbed
-dskFmt:
+dskfmt:
                 push    hl
                 push    af
-                ld      hl,tDskFmt
+                ld      hl,dskfmt_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+dskfmt_text:    db      "disk: DSKFMT ($401C) called",0
+
+;--------------------------------
 ; LOC_DS
 ; Note:    Stop motor for all drives on THIS interface.
 loc_ds:
                 push    hl
                 push    af
-                ld      hl,tLoc_ds
+                ld      hl,loc_ds_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+loc_ds_text:    db      "disk: LOC_DS ($401F) called",0
+
+;--------------------------------
 ; BASIC
 ; Note:    Warmboots to BASIC.
 ; NOTE: This routine is still stubbed
 basic:
                 push    hl
                 push    af
-                ld      hl,tBasic
+                ld      hl,basic_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+basic_text:     db      "disk: BASIC ($4022) called",0
+
+;--------------------------------
 ; FORMAT
 ; Note:    Like CALL FORMAT, FORMAT (DOS) and BIOS routine $0147.
 ;          Display CHOICE, wait for input and do DSKFMT.
@@ -230,53 +260,47 @@ basic:
 format:
                 push    hl
                 push    af
-                ld      hl,tFormat
+                ld      hl,format_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+format_text:    db      "disk: FORMAT ($4026) called",0
+
+;--------------------------------
 ; DSKSTP
 ; Note:    Stop motor for all drives on all interfaces. Interslot-calls
 ;          LOC_DS for all detected interfaces.
 ; NOTE: This routine is still stubbed
-dskStp:
+dskstp:
                 push    hl
                 push    af
-                ld      hl,tDskStp
+                ld      hl,dskstp_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+dskstp_text:    db      "disk: DSKSTP ($4029) called",0
+
+;--------------------------------
 ; DSKSLT
 ; Output:  Address $F348 keeps the slot where the DISK-ROM is found.
 ; NOTE: This routine is still stubbed
-dskSlt:
+dskslt:
                 push    hl
                 push    af
-                ld      hl,tDskSlt
+                ld      hl,dskslt_text
                 call    print_debug
                 pop     af
                 pop     hl
                 ret
-;
+dskslt_text:    db      "disk: DSKSLT ($402D) called",0
+
+;--------------------------------
+
+                include "hardware.asm"
                 include "debug.asm"
-;
-tInit:          db      "C-DISK is initializing",0
-;
-tDskIO:         db      "Address $4010 called (DSKIO)",0
-tDskChg:        db      "Address $4013 called (DSKCHG)",0
-tGetDpb:        db      "Address $4016 called (GETDPB)",0
-tDskFmt:        db      "Address $401C called (DSKFMT)",0
-tLoc_ds:        db      "Address $401F called (LOC_DS)",0
-tBasic:         db      "Address $4022 called (BASIC)",0
-tFormat:        db      "Address $4026 called (FORMAT)",0
-tDskStp:        db      "Address $4029 called (DSKSTP)",0
-tDskSlt:        db      "Address $402D called (DSKSLT)",0
-;
-tChoice:        db      13,10,"1 - Single sided, 80 tracks"
-                db      13,10,"2 - Double sided, 80 tracks"
-                db      13,10,0
-;
-                ds      $4000-($-$4000),$FF
+
+;--------------------------------
+
+                ds      $8000 - $,$FF
