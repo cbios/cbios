@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.7 2004/12/22 08:19:36 andete Exp $
+; $Id: systemvars.asm,v 1.8 2004/12/22 08:42:25 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -141,6 +141,7 @@ MLTATR:         equ     $F3D7
 MLTPAT:         equ     $F3D9
 
 ; F3DB: keyclick when a key is pressed: 0: no, 1: yes
+; SCREEN ,,n will write to this address
 CLIKSW:         equ     $F3DB
 
 ; F3DC: line where the cursor is located
@@ -151,6 +152,11 @@ CSRY:           equ     $F3DC
 ; starts to count at 1 for the leftmost column
 CSRX:           equ     $F3DD
 
+; F3DE: function key definition shown: 0: no, >0: yes
+CNSDFG:         equ     $F3DE
+
+; F3DF-D3E6: storage for the last written value towards VDP registers 0 till 7
+; this is needed because these registers are write only
 RG0SAV:         equ     $F3DF
 RG1SAV:         equ     $F3E0
 RG2SAV:         equ     $F3E1
@@ -159,10 +165,97 @@ RG4SAV:         equ     $F3E3
 RG5SAV:         equ     $F3E4
 RG6SAV:         equ     $F3E5
 RG7SAV:         equ     $F3E6
+; F3E7: last read value of VDP register 8
 STATFL:         equ     $F3E7
 
+; F3E8: information about the joystick and space bar
+; 7 6 5 4 3 2 1 0
+; | | | |       +-- Space bar, trig(0) (0 = pressed)
+; | | | +---------- Stick 1, Trigger 1 (0 = pressed)
+; | | +------------ Stick 1, Trigger 2 (0 = pressed)
+; | +-------------- Stick 2, Trigger 1 (0 = pressed)
+; +---------------- Stick 2, Trigger 2 (0 = pressed)
+TRGFLG:         equ     $F3E8
+
+; F3E9: code for the standard foreground color (ini:15)
+FORCLR:         equ     $F3E9
+
+; F3EA: code for the standard background color (ini:4)
+BAKCLR:         equ     $F3EA
+
+; F3EB: code for the standard border color (ini:7)
+BDRCLR:         equ     $F3EB
+
+; F3EC-F3EE: Jump instruction used by Basic LINE command.
+; The routines used are: RIGHTC, LEFTC, UPC and DOWNC
+MAXUPD:         equ     $F3EC
+
+; ??? this was already defined ???
+PSG_DBG:        equ     $F3EC           ; デバッグ用フラグ
+
+; F3EF-F3F1: Jump instruction used by Basic LINE command.
+; The routines used are: RIGHTC, LEFTC, UPC and DOWNC
+MINUPD:         equ     $F3EF
+
+; F3F2: working color, as used for graphical operations
+; normally equals to the foreground color (ini:15)
+ATRBYT:         equ     $F3F2
+
+; F3F3-F3F4: starting value of the address of the queue-table
+; the queue-table contains 4 queue's: 3 for sound and one for RS232
+; (ini: QUETAB ($F959))
+QUEUES:         equ     $F3F3
+
+; F3F5: CLOAD flag =0 when CLOAD =255 when CLOAD?
+FRCNEW:         equ     $F3F5
+
+; F3F6: VDP-interupt counter that counts from 3 to 0, when it reaches zero, the
+; keyboard matrix is scanned, and the counters is reset at 3
+SCNCNT:         equ     $F3F6
+
+; F3F7: key repeat counter. Runs from 13 to 0, and is changed when SCNCNT is changed
+; if the key remained the same. If it reaches 0, keyrepetition starts. If another key
+; is pressed the value is reset at 13.
+REPCNT:         equ     $F3F7
+
+; F3F8-F3F9: first free space in the inputbuffer of the keyboard
+; everytime a key is added to the inputbuffer, this address is incremented,
+; when it equals to GETPNT, the buffer is full
+; the buffer is located at KEYBUF
 PUTPNT:         equ     $F3F8           ; キーバッファへのポインタ
+
+; F3FA-F3FB: address in inputbuffer of first character that is not yet read
+; everytime a key is read from the buffer it is incremented
+; the buffer is located at KEYBUF
 GETPNT:         equ     $F3FA           ; キーバッファへのポインタ
+
+; F3FC-F400: memory area for tape system parameters for 1200 baud
+; F3FC: length of  low signal for 0     (ini:83)
+; F3FD: length of high signal for 0     (ini:92)
+; F3FE: length of  low signal for 1     (ini:38)
+; F3FF: length of high signal for 1     (ini:45)
+; F400: length of synchronization block (ini:15)
+CS120:          equ     $F3FC
+
+; F401-F405: memory area for tape system parameters for 1200 baud
+; F401: length of  low signal for 0     (ini:37)
+; F402: length of high signal for 0     (ini:45)
+; F403: length of  low signal for 1     (ini:14)
+; F404: length of high signal for 1     (ini:22)
+; F405: length of synchronization block (ini:31)
+CS240:          equ     $F401
+
+; F406-F407: lenghts of signal for 0 for the current speed of the tape system
+; either equal to the content of F3FC-F3FD or the content of F401-F402
+LOW_:           equ     $F406 ; real name: LOW, but doesn't compile?
+
+; F408-F409: lenghts of signal for 1 for the current speed of the tape system
+; either equal to the content of F3FE-F3FF or the content of F403-F404
+HIGH_:          equ     $F408 ; real name: HIGH, but doesn't compile?
+
+; F40A: lenghts of synchronization block for the current speed of the tape system
+; either equal to the content of F400 or the content of F405
+HEADER:         equ     $F40A
 
 ; ---------------------------
 ; basic interpreter work area
@@ -173,12 +266,6 @@ NAMBAS:         equ     $F922
 CGPBAS:         equ     $F924
 PATBAS:         equ     $F926
 ATRBAS:         equ     $F928
-
-FORCLR:         equ     $F3E9
-BAKCLR:         equ     $F3EA
-BDRCLR:         equ     $F3EB
-
-PSG_DBG:        equ     $F3EC           ; デバッグ用フラグ
 
 ; --------------------
 ; filesystem work area
