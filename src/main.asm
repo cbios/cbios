@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.18 2004/12/18 17:19:16 mthuurne Exp $
+; $Id: main.asm,v 1.19 2004/12/18 17:28:27 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -312,6 +312,7 @@ romid:
 
                 ds      $0200 - $
 
+                include "util.asm"
                 include "debug.asm"
                 include "video.asm"
                 include "logo.asm"

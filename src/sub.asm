@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.6 2004/12/10 01:23:07 mthuurne Exp $
+; $Id: sub.asm,v 1.7 2004/12/18 05:03:58 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -125,6 +125,7 @@
 ; End of entry points, catch not-implemented calls.
                 ds      $0200 - $,$C9
 
+                include "util.asm"
                 include "debug.asm"
                 include "video.asm"
 
