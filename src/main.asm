@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.23 2004/12/20 20:33:04 andete Exp $
+; $Id: main.asm,v 1.24 2004/12/21 00:14:08 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2308,6 +2308,7 @@ sound_stat:
 ; Changes: AF
 chgsnd:
                 ld      a,$0E           ; $0E = command to reset bit 7
+                or      a
                 jr      z,chgsnd_write
                 inc     a               ; $0F = command to set bit 7
 chgsnd_write:
