@@ -1,4 +1,4 @@
-; $Id: debug.asm,v 1.1 2004/12/10 01:13:56 mthuurne Exp $
+; $Id: debug.asm,v 1.2 2004/12/27 00:20:59 mthuurne Exp $
 ; C-BIOS debug routines
 ; These routines should not be used in release builds of C-BIOS, but they can
 ; be useful for developers and testers.
@@ -27,21 +27,67 @@
 ;
 
 ;--------------------------------
-; Print string to openMSX debug device.
+; Print string to openMSX debug device as a separate line.
 ; Input:   HL = address of zero-terminated string
 ; Changes: HL, AF
 print_debug:
                 ld      a,$23
                 out     (DBG_CTRL),a
-print_debug_lp:
-                ld      a,(hl)
-                inc     hl
-                or      a
-                jr      z,print_debug_done
-                out     (DBG_DATA),a
-                jr      print_debug_lp
-print_debug_done:
+                call    print_debug_asciiz
                 ld      a,$00
                 out     (DBG_CTRL),a
                 ret
 
+;--------------------------------
+; Print string to openMSX debug device  as part of an existing line.
+; Input:   HL = address of zero-terminated string
+; Changes: HL, AF
+print_debug_asciiz:
+                ld      a,(hl)
+                inc     hl
+                or      a
+                ret     z
+                out     (DBG_DATA),a
+                jr      print_debug_asciiz
+
+;--------------------------------
+; Print nibble in hexidecimal format as part of an existing line.
+; Input:   A = nibble to print (bit 7-4 are ignored)
+; Changes: AF
+print_debug_hexnibble:
+                and     $0F
+                cp      10
+                jr      nc,print_debug_hexnibble_letter
+                add     a,'0'
+                out     (DBG_DATA),a
+                ret
+print_debug_hexnibble_letter:
+                add     a,'A' - 10
+                out     (DBG_DATA),a
+                ret
+
+;--------------------------------
+; Print byte in hexidecimal format as part of an existing line.
+; Input:   A = byte to print
+; Changes: AF
+print_debug_hexbyte:
+                push    af
+                rrca
+                rrca
+                rrca
+                rrca
+                call    print_debug_hexnibble
+                pop     af
+                call    print_debug_hexnibble
+                ret
+
+;--------------------------------
+; Print word in hexidecimal format as part of an existing line.
+; Input:   HL = word to print
+; Changes: HL, AF
+print_debug_hexword:
+                ld      a,h
+                call    print_debug_hexbyte
+                ld      a,l
+                call    print_debug_hexbyte
+                ret
