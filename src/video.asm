@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.8 2004/12/18 19:46:36 bifimsx Exp $
+; $Id: video.asm,v 1.9 2004/12/19 02:59:19 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -206,25 +206,22 @@ vdp_data_rep_lp:
 ;----------------------------------
 ;005Fh CHGMOD   画面モードの変更
 chgmod:
-                or      a
-                jp      z,init_txt      ; screen 0
-                dec     a
-                jp      z,init_txt32    ; screen 1
-                dec     a
-                jp      z,init_grp      ; screen 2
-                dec     a
-;                jp     z,init_mlt       ; screen 3
-                dec     a
-;                jp     z,init_sc4       ; screen 4
-                dec     a
-                jp      z,init_sc5      ; screen 5
-                dec     a
-;                jp      z,init_sc6      ; screen 6
-                dec     a
-                jp      z,init_sc7      ; screen 7
-                dec     a
-;                jp      z,init_sc8      ; screen 8
-                ret
+                ; Guard against non-existing screen mode.
+                cp      9
+                ret     nc
+                ; Redirect to initialisation routine.
+                ld      hl,chgmod_tbl
+                jp      jump_table
+chgmod_tbl:
+                dw      init_txt        ; SCREEN0
+                dw      init_txt32      ; SCREEN1
+                dw      init_grp        ; SCREEN2
+                dw      init_mlt        ; SCREEN3
+                dw      init_sc4        ; SCREEN4
+                dw      init_sc5        ; SCREEN5
+                dw      init_sc6        ; SCREEN6
+                dw      init_sc7        ; SCREEN7
+                dw      init_sc8        ; SCREEN8
 
 ;--------------------------------
 ;0062h CHGCLR
@@ -808,6 +805,20 @@ clr_text32:
                 ret
 
 ;------------------------------
+; Initialise SCREEN3 (multi-colour mode).
+init_mlt:
+                ld      hl,init_mlt_text
+                jp      print_debug
+init_mlt_text:  db      "SCREEN3",0
+
+;------------------------------
+; Initialise SCREEN4 (graphics 3).
+init_sc4:
+                ld      hl,init_sc4_text
+                jp      print_debug
+init_sc4_text:  db      "SCREEN4",0
+
+;------------------------------
 ;screen 5の初期化.
 init_sc5:
                 ld      a,$05
@@ -918,6 +929,13 @@ init_sc5:
                 ret
 
 ;------------------------------
+; Initialise SCREEN6 (graphics 5).
+init_sc6:
+                ld      hl,init_sc6_text
+                jp      print_debug
+init_sc6_text:  db      "SCREEN6",0
+
+;------------------------------
 ;VDPをスクリーン7で初期化する。
 init_sc7:
                 ld      a,$07
@@ -1002,4 +1020,11 @@ init_sc7:
                 call    clrspr_spritemode2
                 call    enascr
                 ret
+
+;------------------------------
+; Initialise SCREEN8 (graphics 7).
+init_sc8:
+                ld      hl,init_sc8_text
+                jp      print_debug
+init_sc8_text:  db      "SCREEN8",0
 
