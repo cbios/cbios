@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.11 2004/12/22 12:37:26 andete Exp $
+; $Id: systemvars.asm,v 1.12 2004/12/22 12:58:22 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -373,8 +373,20 @@ CONTXT:         equ     $F666
 ; $1F: double real (1 byte exp, 7 bytes BCD)
 CONSAV:         equ     $F668
 
-; F669: work
+; F669: work area for evaluation of expressions: contains type of last evaluated number
+; constant; the value is in CONLO, for values of CONTYP, see VALTYP
+; Strings are never contant in BASIC!
+CONTYP:         equ     $F669
 
+; F66A-F671: work area for evaluation of expressions: contains the value of the last
+; evaluated number contant; value starts at F66A, and takes bytes as needed for the type
+CONLO:          equ     $F66A
+
+; F672-F673: upper limit of memory area reserved for strings, contains the upper address
+; that is allowed to be used
+MEMSIZ:         equ     $F672
+
+; F674-F675: top of stack; also first byte below string area
 STKTOP:         equ     $F674
 
 NAMBAS:         equ     $F922
