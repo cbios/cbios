@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.69 2005/01/04 03:34:10 mthuurne Exp $
+; $Id: main.asm,v 1.70 2005/01/04 14:56:29 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -3075,7 +3075,6 @@ stmotr:
                 res     4,a
                 dec     b
                 jr      z,stmotr_set
-                jr      stmotr_nop
                 pop     bc
                 ret
 
