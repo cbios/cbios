@@ -1,4 +1,4 @@
-; $Id$
+; $Id: main.asm,v 1.1.1.1 2004/11/27 02:23:57 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -29,123 +29,123 @@
 ;---------------------------------------------------
 ; I/Oとフックの定義
 
-PRN_STAT:       equ $90        ; プリンタのステータス
-VDP_RP:         equ $98        ; VDPポート読み出し
-VDP_STAT:       equ $99        ; VDPステータス、ラッチリセット。
-PSL_STAT:       equ $A8        ; スロットステータス
-KBD_STAT:       equ $A9        ; キーボードステータス
-GIO_REGS:       equ $AA        ; 総合IOレジスタ
-PPI_REGS:       equ $AB        ; PPIレジスタ
+PRN_STAT:       equ     $90             ; プリンタのステータス
+VDP_RP:         equ     $98             ; VDPポート読み出し
+VDP_STAT:       equ     $99             ; VDPステータス、ラッチリセット。
+PSL_STAT:       equ     $A8             ; スロットステータス
+KBD_STAT:       equ     $A9             ; キーボードステータス
+GIO_REGS:       equ     $AA             ; 総合IOレジスタ
+PPI_REGS:       equ     $AB             ; PPIレジスタ
 
-PSG_REGS:       equ $A0        ; PSGレジスタ番号
-PSG_DATA:       equ $A1        ; PSGデータ
-PSG_STAT:       equ $A2        ; PSGステータス
+PSG_REGS:       equ     $A0             ; PSGレジスタ番号
+PSG_DATA:       equ     $A1             ; PSGデータ
+PSG_STAT:       equ     $A2             ; PSGステータス
 
-MAP_REG1:       equ $FC        ; RAMマッパー 0000h-3FFFh
-MAP_REG2:       equ $FD        ; RAMマッパー 4000h-7FFFh
-MAP_REG3:       equ $FE        ; RAMマッパー 8000h-BFFFh
-MAP_REG4:       equ $FF        ; RAMマッパー C000h-FFFFh
+MAP_REG1:       equ     $FC             ; RAMマッパー 0000h-3FFFh
+MAP_REG2:       equ     $FD             ; RAMマッパー 4000h-7FFFh
+MAP_REG3:       equ     $FE             ; RAMマッパー 8000h-BFFFh
+MAP_REG4:       equ     $FF             ; RAMマッパー C000h-FFFFh
 
-VDP_DATA:       equ $98        ; VDPデータ書き込み
-VDP_ADDR:       equ $99        ; VDPアドレス
-VDP_PALT:       equ $9A        ; VDPパレットラッチ
-VDP_REGS:       equ $9B        ; VDPレジスタアクセス
+VDP_DATA:       equ     $98             ; VDPデータ書き込み
+VDP_ADDR:       equ     $99             ; VDPアドレス
+VDP_PALT:       equ     $9A             ; VDPパレットラッチ
+VDP_REGS:       equ     $9B             ; VDPレジスタアクセス
 
-H_KEYI:         equ $FD9A      ; キーボード割り込みフック
-H_TIMI:         equ $FD9F      ; タイマー割り込みフック
-H_NMI:          equ $FDD6      ; NMIフック
-H_STKE:         equ $FEDA      ; スタックエラーフック
+H_KEYI:         equ     $FD9A           ; キーボード割り込みフック
+H_TIMI:         equ     $FD9F           ; タイマー割り込みフック
+H_NMI:          equ     $FDD6           ; NMIフック
+H_STKE:         equ     $FEDA           ; スタックエラーフック
 
-STKTOP:         equ $F674
+STKTOP:         equ     $F674
 
-EXP_TBL:        equ $FCC1      ; スロット情報テーブル
-SLT_TBL:        equ $FCC5      ; スロット情報
+EXP_TBL:        equ     $FCC1           ; スロット情報テーブル
+SLT_TBL:        equ     $FCC5           ; スロット情報
 
-EXBRSA:         equ $FAF8      ; サブロム位置
-SSL_REGS:       equ $FFFF      ; 拡張スロット選択レジスタ
+EXBRSA:         equ     $FAF8           ; サブロム位置
+SSL_REGS:       equ     $FFFF           ; 拡張スロット選択レジスタ
 
 ;----------------------------------------------
 ; ワークエリア
 
-GRPNAM:         equ $F3C7      ; Screen2 Name
-GRPCOL:         equ $F3C9      ; Screen2 Color
-GRPCGP:         equ $F3CB      ; Screen2 CG pattern
-GRPATR:         equ $F3CD      ; Screen2 Attribute
-GRPPAT:         equ $F3CF      ; Screen2 Sprite pattern
+GRPNAM:         equ     $F3C7           ; Screen2 Name
+GRPCOL:         equ     $F3C9           ; Screen2 Color
+GRPCGP:         equ     $F3CB           ; Screen2 CG pattern
+GRPATR:         equ     $F3CD           ; Screen2 Attribute
+GRPPAT:         equ     $F3CF           ; Screen2 Sprite pattern
 
-TXTNAM:         equ $F3B3
-TXTCOL:         equ $F3B5
-TXTCGP:         equ $F3B7
-TXTATR:         equ $F3B9
-TXTPAT:         equ $F3BB
+TXTNAM:         equ     $F3B3
+TXTCOL:         equ     $F3B5
+TXTCGP:         equ     $F3B7
+TXTATR:         equ     $F3B9
+TXTPAT:         equ     $F3BB
 
-T32NAM:         equ $F3BD
-T32COL:         equ $F3BF
-T32CGP:         equ $F3C1
-T32ATR:         equ $F3C3
-T32PAT:         equ $F3C5
+T32NAM:         equ     $F3BD
+T32COL:         equ     $F3BF
+T32CGP:         equ     $F3C1
+T32ATR:         equ     $F3C3
+T32PAT:         equ     $F3C5
 
-NAMBAS:         equ $F922
-CGPBAS:         equ $F924
-PATBAS:         equ $F926
-ATRBAS:         equ $F928
+NAMBAS:         equ     $F922
+CGPBAS:         equ     $F924
+PATBAS:         equ     $F926
+ATRBAS:         equ     $F928
 
-MLTNAM:         equ $F3D2      ; Screen3 Name
-MLTCOL:         equ $F3D4      ; Screen3 Color
-MLTCGP:         equ $F3D6      ; Screen3 CG pattern
-MLTATR:         equ $F3D8      ; Screen3 Attribute
-MLTPAT:         equ $F3DA      ; Screen3 Sprite pattern
+MLTNAM:         equ     $F3D2           ; Screen3 Name
+MLTCOL:         equ     $F3D4           ; Screen3 Color
+MLTCGP:         equ     $F3D6           ; Screen3 CG pattern
+MLTATR:         equ     $F3D8           ; Screen3 Attribute
+MLTPAT:         equ     $F3DA           ; Screen3 Sprite pattern
 
-CLIKSW:         equ $F3DB      ; Key Click.
+CLIKSW:         equ     $F3DB           ; Key Click.
 
-STATFL:         equ $F3E7
-RG0SAV:         equ $F3DF
-RG1SAV:         equ $F3E0
+STATFL:         equ     $F3E7
+RG0SAV:         equ     $F3DF
+RG1SAV:         equ     $F3E0
 
-RG4SAV:         equ $F3E3
+RG4SAV:         equ     $F3E3
 
-RG8SAV:         equ $FFE7
+RG8SAV:         equ     $FFE7
 
-CLIKFL:         equ $FBD9
-OLDKEY:         equ $FBDA
-NEWKEY:         equ $FBE5
-KEYBUF:         equ $FBF0
+CLIKFL:         equ     $FBD9
+OLDKEY:         equ     $FBDA
+NEWKEY:         equ     $FBE5
+KEYBUF:         equ     $FBF0
 
-PUTPNT:         equ $F3F8      ; キーバッファへのポインタ
-GETPNT:         equ $F3FA      ; キーバッファへのポインタ
-LIMPNT:         equ $FC17      ; キーバッファへのポインタ
+PUTPNT:         equ     $F3F8           ; キーバッファへのポインタ
+GETPNT:         equ     $F3FA           ; キーバッファへのポインタ
+LIMPNT:         equ     $FC17           ; キーバッファへのポインタ
 
-BOTTOM:         equ $FC48
-HIMEM:          equ $FC4A
+BOTTOM:         equ     $FC48
+HIMEM:          equ     $FC4A
 
-JIFFY:          equ $FC9E      ; タイマーカウンタ
-SCRMOD:         equ $FCAF
+JIFFY:          equ     $FC9E           ; タイマーカウンタ
+SCRMOD:         equ     $FCAF
 
-FORCLR:         equ $F3E9
-BAKCLR:         equ $F3EA
-BDRCLR:         equ $F3EB
+FORCLR:         equ     $F3E9
+BAKCLR:         equ     $F3EA
+BDRCLR:         equ     $F3EB
 
-PSG_DBG:        equ $F3EC      ; デバッグ用フラグ
+PSG_DBG:        equ     $F3EC           ; デバッグ用フラグ
 
-CSRY:           equ $F3DC      ; カーソール位置(Y座標)
-CSRX:           equ $F3DD      ; カーソール位置(X座標)
+CSRY:           equ     $F3DC           ; カーソール位置(Y座標)
+CSRX:           equ     $F3DD           ; カーソール位置(X座標)
 
-LINL40:         equ $F3AE
-LINL32:         equ $F3AF
-LINLEN:         equ $F3B0      ; 行数.
-CRTCNT:         equ $F3B1      ; 画面の桁数
+LINL40:         equ     $F3AE
+LINL32:         equ     $F3AF
+LINLEN:         equ     $F3B0           ; 行数.
+CRTCNT:         equ     $F3B1           ; 画面の桁数
 
-LINWRK:         equ $FC18      ; 40桁分のバッファ
+LINWRK:         equ     $FC18           ; 40桁分のバッファ
 
-ESCCNT:         equ $FCA7      ; ESC用カウンタ.
+ESCCNT:         equ     $FCA7           ; ESC用カウンタ.
 
 ;-----------------
 ; デバッグルーチン用メモリ
 ;-----------------
 
-DISPADDR:       equ $E010   ; ダンプアドレス用メモリ
-LASTSTAC:       equ $E000
-SP_REGS:        equ $E002 
+DISPADDR:       equ     $E010           ; ダンプアドレス用メモリ
+LASTSTAC:       equ     $E000
+SP_REGS:        equ     $E002
 
 ;---------------------
 ; ジャンプテーブル
@@ -164,8 +164,8 @@ chkram:
 
                 ds      $0006 - $
 
-rdvdpa:         db      VDP_DATA ; VDP読み出しポート
-wrvdpa:         db      VDP_DATA ; VDP書き込みポート
+rdvdpa:         db      VDP_DATA        ; VDP読み出しポート
+wrvdpa:         db      VDP_DATA        ; VDP書き込みポート
 
 ;0008h SYNCHR
 synchr:
@@ -220,7 +220,7 @@ romid:
                 ds      $0030 - $
                 jp      call_lf
 
-;0038h INT_38   割り込みルーチン(RST38,VBlank,Timer...) 
+;0038h INT_38   割り込みルーチン(RST38,VBlank,Timer...)
                 ds      $0038 - $
                 jp      int_start
 
@@ -256,7 +256,7 @@ romid:
                 ds      $0050 - $
                 jp      vdp_setrd
 
-;0053h SETWRT  .. VRAM書き込みアドレスの設定  
+;0053h SETWRT  .. VRAM書き込みアドレスの設定
                 ds      $0053 - $
                 jp      vdp_setwrt
 
@@ -264,19 +264,19 @@ romid:
                 jp      vdp_fillmem
 
                 ds      $0059 - $
-                jp      vdp_ldirmv   ; VRAM -> Memory
+                jp      vdp_ldirmv      ; VRAM -> Memory
 
                 ds      $005C - $
-                jp      vdp_data_rep ; Memory -> VRAM
+                jp      vdp_data_rep    ; Memory -> VRAM
 
 ;005Fh VDPスクリーンモードの変更
                 ds      $005F - $
                 jp      chgmod
-                        
+
 ;0062h CHGCLR
                 ds      $0062 - $
                 jp      chgclr
-                
+
 ;0066h INT_NMI .. NMI割り込み
                 ds      $0066 - $
                 jp      nmi_int
@@ -482,7 +482,7 @@ chk_wrt_ram:               ; ページ３のRAMをチェックする。
                 and     $03
                 rrca
                 rrca
-                or      e     
+                or      e
                 out     (PSL_STAT),a    ; A = BBxxxxxx
 
                 ld      a,(SSL_REGS)
@@ -495,7 +495,7 @@ chk_wrt_ram:               ; ページ３のRAMをチェックする。
                 rrca
                 rrca
                 or      e
-                ld      (SSL_REGS),a    ; A = EExxxxxx 
+                ld      (SSL_REGS),a    ; A = EExxxxxx
                 ld      e,a
 
                 ld      a,$12
@@ -532,7 +532,7 @@ ram_ok:
                 ld      (EXP_TBL+1),a
                 ld      (EXP_TBL+2),a
                 ld      (EXP_TBL+3),a
- 
+
 ; you can write the memory.
 
 ;----------------------
@@ -672,7 +672,7 @@ stst_skip:
                 jp      z,sh_keyboard
                 bit     0,a
                 jp      z,debug_mode
- 
+
                 ld      hl,str_crlf
                 call    prn_text
 
@@ -690,7 +690,7 @@ stst_skip:
 ; BIOSデバッグルーチン
 ; ------
 ; HL ... NEWKEYのアドレス .
-; 
+;
 sh_keyboard:
                 call    init_vdp
 kbd_lp:
@@ -750,7 +750,7 @@ debug_mode:
                 ld      (CSRY),a
 
                 ld      hl,$4000        ; ページ1から表示する。
-                ld      (DISPADDR),hl 
+                ld      (DISPADDR),hl
 
                 ld      ix,(LASTSTAC)
                 call    vout_hex16
@@ -807,7 +807,7 @@ dump_keywait:
                 ld      e,$02
 
                 ld      a,($E008)
-                ld      d,a 
+                ld      d,a
 
                 ld      a,$08
                 call    in_keyboard
@@ -821,7 +821,7 @@ dump_keywait:
 dumpkey_loop:
                 halt
                 ld      a,($E008)
-                ld      d,a 
+                ld      d,a
 
                 ld      a,$08
                 call    in_keyboard
@@ -904,12 +904,12 @@ init_vdp:
                 ld      bc,$0000        ; R#0
                 call    wrt_vdp
                 ld      bc,$7001        ; R#1
-                call    wrt_vdp 
-                ld      bc,$0002        ; R#2  
+                call    wrt_vdp
+                ld      bc,$0002        ; R#2
                 call    wrt_vdp
                 ld      bc,$8003        ; R#3
                 call    wrt_vdp
-                ld      bc,$0104        ; R#4  
+                ld      bc,$0104        ; R#4
                 call    wrt_vdp
 
                 call    clr_text40
@@ -970,7 +970,7 @@ clr_text32:
 ; RAMの初期化
 
 init_ram:
-                
+
 ; ワークエリア初期化。
                 ld      a,$00
                 ld      hl,$F380
@@ -988,7 +988,7 @@ init_ram:
                 ldir
 
 ;キーマトリクスの初期化。
-                ld      a,$FF 
+                ld      a,$FF
                 ld      hl,OLDKEY
                 ld      (hl),a
                 ld      de,OLDKEY+1
@@ -996,14 +996,14 @@ init_ram:
                 ldir
 
 ;キーバッファの初期化。
-                ld      a,$00 
+                ld      a,$00
                 ld      hl,KEYBUF
                 ld      (hl),a
                 ld      de,KEYBUF+1
                 ld      bc,39
                 ldir
 
-                ld      a,$00 
+                ld      a,$00
                 ld      hl,$FFE7 ; RG8SAV
                 ld      (hl),a
                 ld      de,$FFE7+1
@@ -1016,7 +1016,7 @@ init_ram:
                 ld      (GETPNT),hl
 
                 ld      hl,$8000
-                ld      (BOTTOM),hl     ; ページ1,2はROM。ページ3,4はRAM.  
+                ld      (BOTTOM),hl     ; ページ1,2はROM。ページ3,4はRAM.
 
                 ld      hl,$F380
                 ld      (HIMEM),hl      ; 使用可能メモリの上限
@@ -1194,7 +1194,7 @@ prn_reg:
                 add     a,a
                 add     a,a
                 ld      c,a
-                
+
                 ld      hl,reg_tbl
                 add     hl,bc
 
@@ -1408,7 +1408,7 @@ chk_rom_loop:
                 jr      c,chk_p3        ; A-$40 < 0
                 cp      $80
                 jr      nc,chk_p3       ; A-$80 >= 0
-                jp      chk_rom_ok 
+                jp      chk_rom_ok
 ;
 chk_p3:
                 ld      h,$80
@@ -1416,20 +1416,20 @@ chk_p3:
                 push    bc
                 call    enaslt
                 pop     bc
-                
+
                 ld      a,($8003)
                 cp      $80
                 jr      c,no_cart       ; A-$80 < 0
                 cp      $C0
                 jr      nc,no_cart      ; A-$C0 >= 0
-                jp      chk_rom_ok 
+                jp      chk_rom_ok
 ;
 no_cart:
                 inc     b
                 ld      a,b
                 and     $7F
                 cp      $10
-                jr      nz,chk_rom_loop 
+                jr      nz,chk_rom_loop
 
 chk_rom_ng:
                 ld      h,$40
@@ -1445,7 +1445,7 @@ chk_rom_ok:
 ;----------------------------------
 p3_chk:
                 ld      a,($8000)
-                cp      'A' 
+                cp      'A'
                 jp      z,page_set0
 
                 ret
@@ -1468,8 +1468,8 @@ page_set0:
                 and     $03             ; 00000011
                 rlca
                 rlca
-                or      d           
-                ld      (SSL_REGS),a 
+                or      d
+                ld      (SSL_REGS),a
 
                 ld      a,c
                 and     $F3
@@ -1496,7 +1496,7 @@ curs2de:
                 cp      (hl)
                 jr      nz,c2d_scr1
                 ld      hl,(TXTNAM)
-                ld      de,40           ; text40 
+                ld      de,40           ; text40
                 jr      c2d_do
 c2d_scr1:
                 ld      hl,(T32NAM)
@@ -1906,10 +1906,10 @@ lp_u001:
                 ret
 
 ;--------------------------------
-wrt_vdp: 
+wrt_vdp:
 ; 0047h WRTVDP
 ;in:B = VDP データ , C = レジスタ番号
-; dest af,b 
+; dest af,b
                 push    hl
                 di
                 ld      a,b
@@ -1966,8 +1966,8 @@ wrt_vrm:
                 ret
 
 ;--------------------------------
-;in de bc 
-;dest. af de bc 
+;in de bc
+;dest. af de bc
 vdp_ldirmv:
                 call    vdp_setrd
                 ex      (sp),ix
@@ -1993,8 +1993,8 @@ vdp_reg1chk:
                 ret
 
 ;--------------------------------
-;in hl de bc 
-;dest. af de bc 
+;in hl de bc
+;dest. af de bc
 vdp_data_rep:
                 ex      de,hl
                 call    vdp_setwrt
@@ -2464,7 +2464,7 @@ tcol_lp:
                 ld      b,a
                 ld      c,5
                 call    wrt_vdp         ; write VDP R#5
-                
+
                 ld      hl,(T32PAT)
                 ld      a,h
                 rrca
@@ -2831,7 +2831,7 @@ sound_init:
                 call    sound_out
                 inc     a
                 call    sound_out
-                inc     a   
+                inc     a
                 call    sound_out
                 inc     a
 
@@ -2880,7 +2880,7 @@ set_slotreg:
                 ret
 
 ;--------------------------------
-; 013Eh 
+; 013Eh
 vdp_stat_in:
                 in      a,(VDP_STAT)
                 ret
@@ -2918,7 +2918,7 @@ in_joy:
                 rrca
                 cpl
                 and     $0F             ; 0000RDUL
-       
+
                 push    hl
                 ld      hl,joypos_kbd_tbl
                 ld      b,0
@@ -2958,7 +2958,6 @@ sel_stc1:
                 ei
                 cpl
                 and     $0F             ; 0000RLDU
-                
 
                 ld      hl,joypos_joy_tbl
                 ld      b,0
@@ -3067,7 +3066,7 @@ int_start:
                 push    de
                 push    bc
                 push    af
-                exx  
+                exx
                 ex      af,af'
                 push    hl
                 push    de
@@ -3259,7 +3258,7 @@ call_basic_intr:
 ;in DE=メッセージのアドレス。
 
 print_error:
-                in      a,(VDP_STAT) ; reset Latch 
+                in      a,(VDP_STAT) ; reset Latch
                 ld      hl,vdp_bios
                 ld      b,$0C
                 ld      c,VDP_ADDR
@@ -3334,12 +3333,12 @@ disk_intr:
 
                 ; セクターサイズ / 0x20(ファイル構造体)
 
-                ld      b,5        
+                ld      b,5
 shift_adr:
                 and     a
                 rr      h
                 rr      l
-                djnz    shift_adr        
+                djnz    shift_adr
 
                 ld      ($E100),hl
 
@@ -3395,7 +3394,6 @@ ext_lp:
                 jr      nz,file_lp
 
 end_lp:
-                
                 jp      hang_up_mode
 
 ;        ld      de,str_disk
@@ -3419,7 +3417,6 @@ disk_error:
                 call    prn_text
 
                 jp      hang_up_mode
-                
 
 
 ;---------------------------------
@@ -3500,12 +3497,12 @@ str_nocart:
                 db      "        Cartridge not found.",$00
 
 str_run:
-                ;       [0123456789012345678901234567890123456789] 
+                ;       [0123456789012345678901234567890123456789]
                 db      $0D,$0A,$0D,$0A
                 db      "           Starting...",$00
 
 str_s_test:
-                ;       [0123456789012345678901234567890123456789] 
+                ;       [0123456789012345678901234567890123456789]
                 db      $0D,$0A,$0D,$0A
                 db      "           SOUND TEST MODE",$00
 
