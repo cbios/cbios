@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.6 2004/12/22 07:55:57 andete Exp $
+; $Id: systemvars.asm,v 1.7 2004/12/22 08:19:36 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -63,76 +63,93 @@ CRTCNT:         equ     $F3B1
 ; F3B2: # of positions within a tabulator-column (ini:14)
 CLMLST:         equ     $F3B2
 
-; F3B3-F3B4: BASE(0): name table of SCREEN 0 (ini:$0000)
+; F3B3-F3B4: BASE(0): name table address for SCREEN 0 (ini:$0000)
 ; used to initialize NAMBAS when SCREEN 0 is activated
 TXTNAM:         equ     $F3B3
 
-; F3B5-F3B6: BASE(1): color table of SCREEN 0, unused? (ini:$0000)
+; F3B5-F3B6: BASE(1): color table address for SCREEN 0, unused? (ini:$0000)
 TXTCOL:         equ     $F3B5
 
-; F3B7-F3B8: BASE(2): pattern table of SCREEN 0 (ini:$0800)
+; F3B7-F3B8: BASE(2): pattern table address for SCREEN 0 (ini:$0800)
 ; used to initialize CGPBAS when SCREEN 0 is activated
 TXTCGP:         equ     $F3B7
 
-; F3B9-F3BA: BASE(3): sprite attribute table of SCREEN 0, unused (ini:$0000)
+; F3B9-F3BA: BASE(3): sprite attribute table address for SCREEN 0, unused (ini:$0000)
 ; used to initialize ATRBAS when SCREEN 0 is activated
 TXTATR:         equ     $F3B9
 
-; F3BB-F3BC: BASE(4): sprite pattern table of SCREEN 0, unused (ini:$0000)
+; F3BB-F3BC: BASE(4): sprite pattern table address for SCREEN 0, unused (ini:$0000)
 ; used to initialize PATBAS when SCREEN 0 is activated
 TXTPAT:         equ     $F3BB
 
-; F3BD-F3BE: BASE(5): nametable of SCREEN 1 (ini:$1800)
+; F3BD-F3BE: BASE(5): nametable address for SCREEN 1 (ini:$1800)
 ; used to initialize NAMBAS when SCREEN 1 is activated
 T32NAM:         equ     $F3BD
 
-; F3BF-F3C0: BASE(6): color table of SCREEN 1 (ini:$2000)
+; F3BF-F3C0: BASE(6): color table address for SCREEN 1 (ini:$2000)
 T32COL:         equ     $F3BF
 
-; F3C1-F3C2: BASE(7): pattern table of SCREEN 1 (ini:$0000)
+; F3C1-F3C2: BASE(7): pattern table address for SCREEN 1 (ini:$0000)
 ; used to initialize CGPBAS when SCREEN 1 is activated
 T32CGP:         equ     $F3C1
 
-; F3C3-F3C4: BASE(8): sprite attribute table of SCREEN 1 (ini:$1B00)
+; F3C3-F3C4: BASE(8): sprite attribute table address for SCREEN 1 (ini:$1B00)
 ; used to initialize ATRBAS when SCREEN 1 is activated
 T32ATR:         equ     $F3C3
 
-; F3C5-F3C6: BASE(9)
+; F3C5-F3C6: BASE(9): sprite pattern table address for SCREEN 1 (ini:$0800)
+; used to initialize PATBAS when SCREEN 1 is activated
 T32PAT:         equ     $F3C5
 
-; F3C7-F3C8: BASE(10)
-GRPNAM:         equ     $F3C7           ; Screen2 Name
+; F3C7-F3C8: BASE(10): name table address for SCREEN 2 (ini:$1800)
+; used to initialize NAMBAS when SCREEN 2 is activated
+GRPNAM:         equ     $F3C7
 
-; F3C9-F3CA: BASE(11)
+; F3C9-F3CA: BASE(11): color table address for SCREEN 2 (ini:$2000)
 GRPCOL:         equ     $F3C9           ; Screen2 Color
 
-; F3CB-F3CC: BASE(12)
-GRPCGP:         equ     $F3CB           ; Screen2 CG pattern
+; F3CB-F3CC: BASE(12): pattern table address for SCREEN 2 (ini:$0000)
+; used to initialize CGPBAS when SCREEN 2 is activated
+GRPCGP:         equ     $F3CB
 
-; F3CD-F3CE: BASE(13)
-GRPATR:         equ     $F3CD           ; Screen2 Attribute
+; F3CD-F3CE: BASE(13): sprite attribute table address for SCREEN 2 (ini:$1B00)
+; used to initialize ATRBAS when SCREEN 2 is activated
+GRPATR:         equ     $F3CD
 
-; F3CF-F3D0: BASE(14)
-GRPPAT:         equ     $F3CF           ; Screen2 Sprite pattern
+; F3CF-F3D0: BASE(14): sprite pattern table address for SCREEN 2 (ini:$3800)
+; used to initialize PATBAS when SCREEN 2 is activated
+GRPPAT:         equ     $F3CF
 
-; F3D1-F3D2: BASE(15)
-MLTNAM:         equ     $F3D1           ; Screen3 Name
+; F3D1-F3D2: BASE(15): name table address for SCREEN 3 (ini:$0800)
+; used to initialize NAMBAS when SCREEN 3 is activated
+MLTNAM:         equ     $F3D1
 
-; F3D3-F3D4: BASE(16)
-MLTCOL:         equ     $F3D3           ; Screen3 Color
+; F3D3-F3D4: BASE(16): color table address for SCREEN 3 (ini:$0000)
+; the color table is unused in SCREEN 3
+MLTCOL:         equ     $F3D3
 
-; F3D5-F3D6: BASE(17)
-MLTCGP:         equ     $F3D5           ; Screen3 CG pattern
+; F3D5-F3D6: BASE(17): pattern table address for SCREEN 3 (ini:$0000)
+; used to initialize CGPBAS when SCREEN 3 is activated
+MLTCGP:         equ     $F3D5
 
-; F3D7-F3D8: BASE(18)
-MLTATR:         equ     $F3D7           ; Screen3 Attribute
+; F3D7-F3D8: BASE(18): sprite attribute table address for SCREEN 3 (ini:$1B00)
+; used to initialize ATRBAS when SCREEN 3 is activated
+MLTATR:         equ     $F3D7
 
-; F3D9-F3DA: BASE(19)
-MLTPAT:         equ     $F3D9           ; Screen3 Sprite pattern
+; F3D9-F3DA: BASE(19): sprite pattern table address for SCREEN 3 (ini:$3800)
+; used to initialize PATBAS when SCREEN 3 is activated
+MLTPAT:         equ     $F3D9
 
-CLIKSW:         equ     $F3DB           ; Key Click.
-CSRY:           equ     $F3DC           ; カーソール位置(Y座標)
-CSRX:           equ     $F3DD           ; カーソール位置(X座標)
+; F3DB: keyclick when a key is pressed: 0: no, 1: yes
+CLIKSW:         equ     $F3DB
+
+; F3DC: line where the cursor is located
+; starts to count at 1 for the topmost line
+CSRY:           equ     $F3DC
+
+; F3DD: column where the cursor is located
+; starts to count at 1 for the leftmost column
+CSRX:           equ     $F3DD
 
 RG0SAV:         equ     $F3DF
 RG1SAV:         equ     $F3E0
@@ -147,6 +164,9 @@ STATFL:         equ     $F3E7
 PUTPNT:         equ     $F3F8           ; キーバッファへのポインタ
 GETPNT:         equ     $F3FA           ; キーバッファへのポインタ
 
+; ---------------------------
+; basic interpreter work area
+
 STKTOP:         equ     $F674
 
 NAMBAS:         equ     $F922
@@ -160,10 +180,23 @@ BDRCLR:         equ     $F3EB
 
 PSG_DBG:        equ     $F3EC           ; デバッグ用フラグ
 
+; --------------------
+; filesystem work area
+
+; ------------------------
+; screen routine work area
+
+; --------------------------------------
+; work area for sound and queueing and RS232
+; in the MSX2, the RS232 addresses are used for other purposes
+
 DPPAGE:         equ     $FAF5           ; Display page (SCR5+)
 ACPAGE:         equ     $FAF6           ; Active page (SCR5+)
 
 EXBRSA:         equ     $FAF8           ; サブロム位置
+
+; -----------------------------------------------
+; settings for screen editor and interrupt system
 
 CLIKFL:         equ     $FBD9
 OLDKEY:         equ     $FBDA
@@ -184,10 +217,29 @@ SLT_TBL:        equ     $FCC5           ; スロット情報
 JIFFY:          equ     $FC9E           ; timer counter
 SCRMOD:         equ     $FCAF
 
+; ---------------------------
+; storage of slot information
+
+; ------------------------------
+; storage of ROM-page parameters
+
+; ------------
+; system hooks
+
+; system hooks are defined in hooks.asm
+
+; ------------------
+; storage of VDP8-23
+
 RG8SAV:         equ     $FFE7
 
+; ----------------------
+; extra slot information
 
+; ---------------------------
+; subslot switching addresses
 
-
+; -------
+; the end
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
