@@ -1,8 +1,9 @@
-$Id: ChangeLog,v 1.112 2005/02/06 19:17:41 bifimsx Exp $
+$Id: ChangeLog,v 1.113 2005/02/07 00:39:09 mthuurne Exp $
 
 2005-02-06 Maarten ter Huurne <maarten@treewalker.org>
     * Call FILVRM instead of BIGFIL on MSX1 in CLRSPR.
       Fixes sprites of The Fantasm Soldier Valis on MSX1.
+    * Wait until VDP command is done before returning from CLS.
 
 2005-02-06 Albert Beevendorp
     * added some more version specific compilation

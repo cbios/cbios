@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.52 2005/02/06 19:16:48 bifimsx Exp $
+; $Id: video.asm,v 1.53 2005/02/07 00:39:08 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1733,11 +1733,8 @@ cls_bitmap:
                 ld      (DY),hl
                 ld      a,$C0
                 ld      (L_OP),a
-cls_bitmap_ce:
-                ld      a,2
-                call    vdpsta
-                bit     0,a
-                jr      nz,cls_bitmap_ce
+
+                call    wait_ce
 
                 di
                 ld      a,32
@@ -1749,7 +1746,21 @@ cls_bitmap_ce:
                 ld      hl,SX
                 otir
                 ei
+
+                ; Although it's not good performance wise to wait here,
+                ; it seems programs depend on it.
+                ; For example, Lucasarts logo in Koronis Rift.
+                call    wait_ce
+
                 ret
+
+wait_ce:
+                ld      a,2
+                call    vdpsta
+                rra
+                jr      c,wait_ce
+                ret
+
         ENDIF
 
 ; $0105 GETPAT
