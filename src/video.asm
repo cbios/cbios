@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.21 2004/12/28 00:28:59 ccfg Exp $
+; $Id: video.asm,v 1.22 2004/12/28 19:08:43 andete Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -796,6 +796,10 @@ bigfil_lp:
 ; Note: If an odd-numbered 32K page is active and HL >= $8000,
 ;       16-bit wrap around occurs.
 nsetrd:
+                ld      a,(ACPAGE)
+                or      a
+                jr      z,nsetrd_32k
+
                 ld      a,(SCRMOD)
                 cp      5
                 jp      c,vdp_setrd
@@ -837,6 +841,10 @@ nsetrd_32k:     push    hl
 ; Note: If an odd-numbered 32K page is active and HL >= $8000,
 ;       16-bit wrap around occurs.
 nsetwr:
+                ld      a,(ACPAGE)
+                or      a
+                jr      z,nsetwr_32k
+
                 ld      a,(SCRMOD)
                 cp      5
                 jp      c,vdp_setwrt

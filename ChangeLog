@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.53 2004/12/29 12:03:07 andete Exp $
+$Id: ChangeLog,v 1.54 2004/12/29 14:49:22 andete Exp $
+
+2004-12-29 Albert Beevendorp
+    * Changed detection order of NSETRD and NSETWR
+      Fixes graphical glitches in 1942
 
 2004-12-29 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Select 8x8 sprites before running a ROM. Fixes American Truck.
