@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.51 2004/12/30 10:26:41 andete Exp $
+; $Id: main.asm,v 1.52 2004/12/30 10:28:55 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -423,6 +423,10 @@ romid:
                 ds      $0159 - $
                 jp      calbas
 
+; ---------------
+; MSX2 BIOS calls
+; ---------------
+
 ; $015C SUBROM   Calls a routine in the subrom.
                 ds      $015C - $
                 jp      subrom
@@ -454,6 +458,26 @@ romid:
 ; $0177 NWRVRM   Like WRTVRM, but supports 128K of VRAM.
                 ds      $0177 - $
                 jp      nwrvrm
+
+; ----------------
+; MSX2+ BIOS calls
+; ----------------
+
+; $017A RDBTST
+
+; $017D WRBTST
+
+; ---------------------
+; MSX TurboR BIOS calls
+; ---------------------
+
+; $0180 CHGCPU
+
+; $0183 GETCPU
+
+; $0186 PCMPLY
+
+; $0189 PCMREC
 
 ; -------------------
 ; start up code（リセット時に呼び出される）
