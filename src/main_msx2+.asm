@@ -1,7 +1,8 @@
-; $Id$
+; $Id: main_msx2+.asm,v 1.1 2005/01/01 22:46:04 mthuurne Exp $
 ; C-BIOS main ROM for MSX2+ machines
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2005 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -27,6 +28,7 @@
                 include "hardware.asm"
 
 VDP:            equ     V9958
+MODEL_MSX:      equ     MODEL_MSX2P
 
                 include "main.asm"
 

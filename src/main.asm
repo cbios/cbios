@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.60 2005/01/01 05:29:59 ccfg Exp $
+; $Id: main.asm,v 1.61 2005/01/01 22:43:32 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -6,7 +6,7 @@
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
-; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -129,9 +129,23 @@ romid:
 ;  1 = MSX 2
 ;  2 = MSX 2+
 ;  3 = MSX turbo R
-                db      0 ; 0 .. msx1 ,1 .. msx2
+        IF MODEL_MSX = MODEL_MSX1
+                db      0
+                db      0
+        ENDIF
+        IF MODEL_MSX = MODEL_MSX2
+                db      1
+                db      0
+        ENDIF
+        IF MODEL_MSX = MODEL_MSX2P
+                db      2
+                db      0
+        ENDIF
+        IF MODEL_MSX = MODEL_MSXTR
+                db      3
 ; Bit 0: if 1 then MSX-MIDI is present internally (MSX turbo R only)
-                db      0 ; ??
+                db      1
+        ENDIF
 ; Reserved
                 db      0
 

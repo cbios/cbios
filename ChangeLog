@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.70 2005/01/01 22:46:00 mthuurne Exp $
+$Id: ChangeLog,v 1.71 2005/01/02 10:50:14 bifimsx Exp $
+
+2005-01-02 Joost Yervante Damad <joost@lumatec.be>
+    * model dependant romid in main.asm
 
 2005-01-02 Albert Beevendorp
     * adjusted make.bat to compile the version dependent ROMs

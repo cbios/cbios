@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.6 2004/12/30 12:15:23 andete Exp $
+; $Id: hardware.asm,v 1.7 2005/01/01 22:37:04 mthuurne Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -6,7 +6,7 @@
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
-; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -79,5 +79,11 @@ SSL_REGS:       equ     $FFFF           ; secondary slot select registers
 TMS99X8:        equ     $9918
 V9938:          equ     $9938
 V9958:          equ     $9958
+
+; MSX models:
+MODEL_MSX1      equ     0
+MODEL_MSX2      equ     1
+MODEL_MSX2P     equ     2
+MODEL_MSXTR     equ     3
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
