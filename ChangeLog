@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.36 2004/12/25 04:33:43 mthuurne Exp $
+$Id: ChangeLog,v 1.37 2004/12/25 18:28:47 ccfg Exp $
+
+2004-12-25 Albert Beevendorp
+    * Added CLS routines
 
 2004-12-25 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Fixed CHGMOD to clear only the sprite attribute table instead of

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.32 2004/12/25 04:33:44 mthuurne Exp $
+; $Id: main.asm,v 1.33 2004/12/25 04:42:53 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2344,23 +2344,6 @@ beep:
                 pop     hl
                 ret
 beep_text:      db      "BEEP",0
-
-;--------------------------------
-; $00C3 CLS
-; Function : clear the screen
-; Input: BAKCLR, Z-Flag has to be low
-; Registers: AF, BC, DE
-;NOTE: this implementation is still a stub!
-cls:
-                push    hl
-                push    af
-                ld      hl,cls_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-cls_text:       db      "CLS",0
-
 
 ;--------------------------------
 ;00C6h  ÉJÅ[É\ÉãÇê›íËÇ∑ÇÈ
