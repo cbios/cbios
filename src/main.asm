@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.75 2005/01/08 01:03:01 mthuurne Exp $
+; $Id: main.asm,v 1.76 2005/01/08 05:01:22 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2725,17 +2725,27 @@ chput_escape_up:
 
 ; Cursor down.
 chput_escape_down:
-                ; TODO: Implement.
+                ld      hl,(CSRY)
+                inc     l
+                ld      a,(CRTCNT)
+                cp      l
+                call    nc,posit
                 jr      chput_escape_exit
 
 ; Cursor right.
 chput_escape_right:
-                ; TODO: Implement.
+                ld      hl,(CSRY)
+                inc     h
+                ld      a,(LINLEN)
+                cp      h
+                call    nc,posit
                 jr      chput_escape_exit
 
 ; Cursor left.
 chput_escape_left:
-                ; TODO: Implement.
+                ld      hl,(CSRY)
+                dec     h
+                call    nz,posit
                 jr      chput_escape_exit
 
 ; Clear screen and set cursor to home.

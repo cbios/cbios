@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.89 2005/01/08 01:10:20 mthuurne Exp $
+$Id: ChangeLog,v 1.90 2005/01/08 05:01:22 ccfg Exp $
 
 2005-01-08 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented control codes in CHPUT.
+    * Implemented ESC-B, ESC-C and ESC-D in CHPUT.
 
 2005-01-07 Maarten ter Huurne <maarten@treewalker.org>
     * First implementation steps towards a disk ROM.
