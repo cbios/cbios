@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.1 2004/12/05 06:13:09 mthuurne Exp $
+; $Id: video.asm,v 1.2 2004/12/07 23:29:47 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -181,7 +181,13 @@ ldir_lp1:
 ;dest. af de bc
 vdp_data_rep:
                 ex      de,hl
+                ld      a,(SCRMOD)
+                cp      4
+                jr      nc,vdp_data_rep_new
                 call    vdp_setwrt
+                jr      lp_vd_rep
+vdp_data_rep_new:
+                call    nsetwr
 lp_vd_rep:
                 ld      a,(de)
                 out     (VDP_DATA),a
@@ -531,6 +537,143 @@ sft_lp:
 chknew:
                 ld      a,(SCRMOD)
                 cp      5
+                ret
+
+;--------------------------------
+; 016Bh BIGFIL
+; Fills VRAM with a fixed value.
+; Like FILVRM, but supports 128K of VRAM.
+; Input:   HL = VRAM start address
+;    (ACPAGE) = active VRAM page
+;          BC = number of bytes to fill
+;          A  = value to fill VRAM with
+; Changes: AF, BC
+bigfil:
+                push    af
+                call    nsetwr
+                dec     bc
+                inc     c
+                ld      a,b
+                ld      b,c
+                ld      c,a
+                inc     c
+                pop     af
+bigfil_lp:
+                out     (VDP_DATA),a
+                djnz    bigfil_lp
+                dec     c
+                jr      nz,bigfil_lp
+                ret
+
+;--------------------------------
+; 016Eh NSETRD
+; Set VRAM address and read mode.
+; Like SETRD, but supports 128K of VRAM.
+; Input:   HL = VRAM address
+;    (ACPAGE) = active VRAM page
+; Changes: AF
+; Note: If an odd-numbered 32K page is active and HL >= $8000,
+;       16-bit wrap around occurs.
+nsetrd:
+                ld      a,(SCRMOD)
+                cp      5
+                jp      c,vdp_setrd
+                cp      7
+                ld      a,(ACPAGE)
+                jr      c,nsetrd_32k    ; SCREEN5/6 -> 32K pages
+                add     a,a             ; SCREEN7/8 -> 64K pages
+nsetrd_32k:     push    hl
+                and     $03             ; A  =  0   0   0   0   0   0   P1  P0
+                rrca
+                ld      l,a             ; L  =  P0  0   0   0   0   0   0   P1
+                and     $80             ; A  =  P0  0   0   0   0   0   0   0
+                xor     h               ; A  = A15 A14 A13 A12 A11 A10  A9  A8
+                rla                     ; CF = A15
+                rl      l               ; L  =  0   0   0   0   0   0   P1 A15
+                rla                     ; CF = A14
+                ld      a,l
+                rla                     ; A  =  0   0   0   0   0   P1 A15 A14
+                di
+                out     (VDP_ADDR),a    ; A16..A14
+                ld      a,$8E
+                out     (VDP_ADDR),a    ; R#14
+                pop     hl
+                ld      a,l
+                out     (VDP_ADDR),a    ; A7..A0
+                ld      a,h
+                and     $3F
+                out     (VDP_ADDR),a    ; A13..A8
+                ei
+                ret
+
+;--------------------------------
+; 0171h NSETWR
+; Set VRAM address and write mode.
+; Like SETWRT, but supports 128K of VRAM.
+; Input:   HL = VRAM address
+;    (ACPAGE) = active VRAM page
+; Changes: AF
+; Note: If an odd-numbered 32K page is active and HL >= $8000,
+;       16-bit wrap around occurs.
+nsetwr:
+                ld      a,(SCRMOD)
+                cp      5
+                jp      c,vdp_setwrt
+                cp      7
+                ld      a,(ACPAGE)
+                jr      c,nsetwr_32k    ; SCREEN5/6 -> 32K pages
+                add     a,a             ; SCREEN7/8 -> 64K pages
+nsetwr_32k:     push    hl
+                and     $03             ; A  =  0   0   0   0   0   0   P1  P0
+                rrca
+                ld      l,a             ; L  =  P0  0   0   0   0   0   0   P1
+                and     $80             ; A  =  P0  0   0   0   0   0   0   0
+                xor     h               ; A  = A15 A14 A13 A12 A11 A10  A9  A8
+                rla                     ; CF = A15
+                rl      l               ; L  =  0   0   0   0   0   0   P1 A15
+                rla                     ; CF = A14
+                ld      a,l
+                rla                     ; A  =  0   0   0   0   0   P1 A15 A14
+                di
+                out     (VDP_ADDR),a    ; A16..A14
+                ld      a,$8E
+                out     (VDP_ADDR),a    ; R#14
+                pop     hl
+                ld      a,l
+                out     (VDP_ADDR),a    ; A7..A0
+                ld      a,h
+                and     $3F
+                or      $40
+                out     (VDP_ADDR),a    ; A13..A8
+                ei
+                ret
+
+;--------------------------------
+; 0174h NRDVRM
+; Read a byte from VRAM.
+; Leaves the VRAM in read mode at the byte after the one read.
+; Like RDVRM, but supports 128K of VRAM.
+; Input:   HL = VRAM address
+;    (ACPAGE) = active VRAM page
+; Output:   A = the byte read
+nrdvrm:
+                call    nsetrd
+                in      a,(VDP_DATA)
+                ret
+
+;--------------------------------
+; 0177h NWRVRM
+; Write a byte to VRAM.
+; Leaves the VRAM in write mode at the byte after the one written.
+; Like WRTVRM, but supports 128K of VRAM.
+; Input:   HL = VRAM address
+;    (ACPAGE) = active VRAM page
+;           A = the byte to write
+nwrvrm:
+                push    af
+                call    nsetwr
+                pop     af
+                out     (VDP_DATA),a
                 ret
 
 ;--------------------

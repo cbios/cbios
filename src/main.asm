@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.11 2004/12/07 16:41:47 bifimsx Exp $
+; $Id: main.asm,v 1.12 2004/12/07 23:29:47 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -285,12 +285,33 @@ romid:
                 ds      $0165 - $
                 jp      chknew
 
+;016Bh BIGFIL   Like FILVRM, but supports 128K of VRAM.
+                ds      $016B - $
+                jp      bigfil
+
+;016Eh NSETRD   Like SETRD, but supports 128K of VRAM.
+                ds      $016E - $
+                jp      nsetrd
+
+;0171h NSETWR   Like SETWRT, but supports 128K of VRAM.
+                ds      $0171 - $
+                jp      nsetwr
+
+;0174h NRDVRM   Like RDVRM, but supports 128K of VRAM.
+                ds      $0174 - $
+                jp      nrdvrm
+
+;0177h NWRVRM   Like WRTVRM, but supports 128K of VRAM.
+                ds      $0177 - $
+                jp      nwrvrm
+
 ; -------------------
 ; スタートアップコード（リセット時に呼び出される）
 ; -------------------
 
                 ds      $0200 - $
 
+                include "debug.asm"
                 include "video.asm"
 
 soft_reset:
