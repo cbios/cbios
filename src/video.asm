@@ -1,10 +1,10 @@
-; $Id: video.asm,v 1.37 2005/01/03 00:17:46 ccfg Exp $
+; $Id: video.asm,v 1.38 2005/01/03 05:46:30 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
-; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
@@ -204,6 +204,7 @@ filvrm_lp:
 ;            HL - Start address of VRAM
 ; Registers: All
 ldirmv:
+        IF VDP != TMS99X8
                 ld      a,(SCRMOD)
                 cp      4
                 jr      nc,ldirmv_new
@@ -212,6 +213,9 @@ ldirmv:
 ldirmv_new:
                 call    nsetrd
 ldirmv_cont:
+        ELSE
+                call    setrd
+        ENDIF
                 ex      de,hl
                 dec     bc
                 inc     c
@@ -234,6 +238,7 @@ ldirmv_lp:
 ; Registers: All
 ldirvm:
                 ex      de,hl
+        IF VDP != TMS99X8
                 ld      a,(SCRMOD)
                 cp      4
                 jr      nc,ldirvm_new
@@ -242,6 +247,9 @@ ldirvm:
 ldirvm_new:
                 call    nsetwr
 ldirvm_cont:
+        ELSE
+                call    setwrt
+        ENDIF
                 ex      de,hl
                 dec     bc
                 inc     c
@@ -265,7 +273,11 @@ ldirvm_lp:
 ; Registers: All
 chgmod:
                 ; Guard against non-existing screen mode.
+        IF VDP != TMS99X8
                 cp      9
+        ELSE
+                cp      4
+        ENDIF
                 ret     nc
                 ; Redirect to initialisation routine.
                 ld      hl,chgmod_tbl
@@ -275,11 +287,13 @@ chgmod_tbl:
                 dw      init32          ; SCREEN1
                 dw      inigrp          ; SCREEN2
                 dw      inimlt          ; SCREEN3
+        IF VDP != TMS99X8
                 dw      init_sc4        ; SCREEN4
                 dw      init_sc5        ; SCREEN5
                 dw      init_sc6        ; SCREEN6
                 dw      init_sc7        ; SCREEN7
                 dw      init_sc8        ; SCREEN8
+        ENDIF
 
 ;--------------------------------
 ; $0062 CHGCLR
@@ -433,10 +447,12 @@ initxt:
                 ld      (SCRMOD),a
                 ld      (OLDSCR),a
 
+        IF VDP != TMS99X8
                 ; No VRAM pages.
                 xor     a
                 ld      (DPPAGE),a
                 ld      (ACPAGE),a
+        ENDIF
 
                 ; Line length.
                 ld      a,(LINL40)
@@ -503,9 +519,11 @@ init32:
                 ld      a,(LINL32)
                 ld      (LINLEN),a
 
+        IF VDP != TMS99X8
                 xor     a
                 ld      (DPPAGE),a
                 ld      (ACPAGE),a
+        ENDIF
                 call    sett32
                 call    clrspr_attr_spritemode1
                 call    cls_screen1
@@ -543,9 +561,11 @@ inigrp_lp:
                 ld      hl,(GRPPAT)
                 ld      (PATBAS),hl
 
+        IF VDP != TMS99X8
                 xor     a
                 ld      (DPPAGE),a
                 ld      (ACPAGE),a
+        ENDIF
                 call    setgrp
                 call    clrspr_attr_spritemode1
                 call    cls_screen2
@@ -1096,6 +1116,7 @@ init_font:
                 ld      bc,$0800
                 jp      ldirvm
 
+        IF VDP != TMS99X8
 ;------------------------------
 ; Initialise SCREEN4 (graphic 3).
 init_sc4:
@@ -1419,6 +1440,7 @@ init_sc8:
                 call    clrspr_attr_spritemode2
                 call    cls_screen8
                 jp      enascr
+        ENDIF
 
 ;--------------------------------
 ; $00C3 CLS
@@ -1440,11 +1462,13 @@ cls_table:
                 dw      cls_screen1
                 dw      cls_screen2
                 dw      cls_screen3
+        IF VDP != TMS99X8
                 dw      cls_screen2             ; SCREEN 4 = SCREEN 2
                 dw      cls_screen5
                 dw      cls_screen6
                 dw      cls_screen7
                 dw      cls_screen8
+        ENDIF
 
 cls_screen0:
                 ld      a,(LINLEN)
@@ -1478,6 +1502,7 @@ cls_screen2:
 cls_screen3:
                 ret
 
+        IF VDP != TMS99X8
 cls_screen5:
                 ld      a,(BAKCLR)
                 and     15
@@ -1554,6 +1579,7 @@ cls_bitmap_ce:
                 otir
                 ei
                 ret
+        ENDIF
 
 ; $0105 GETPAT
 ; Function : Returns current pattern of a character
