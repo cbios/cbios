@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.34 2004/12/25 19:44:40 bifimsx Exp $
+; $Id: main.asm,v 1.35 2004/12/28 00:33:05 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -566,10 +566,11 @@ start_game:
                 ld      hl,stack_error
                 push    hl
 
-                ; Note: Without this, Girly Block hangs on startup.
-                ;       Coincidence? Anyway, let's keep this for now.
-                ei
-                halt
+                ; MSX BIOS starts cartridges using inter-slot call,
+                ; so interrupts are disabled when cartridge code starts.
+                ; For example the game "Girly Block" depends on this.
+                ; So we have to disable interrupts as well.
+                di
 
                 ld      a,($4000)
                 cp      'A'
