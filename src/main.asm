@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.4 2004/12/04 03:55:52 mthuurne Exp $
+; $Id: main.asm,v 1.5 2004/12/05 04:46:20 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -26,33 +26,7 @@
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
 
-;---------------------------------------------------
-; I/Oとフックの定義
-
-PRN_STAT:       equ     $90             ; プリンタのステータス
-VDP_RP:         equ     $98             ; VDPポート読み出し
-VDP_STAT:       equ     $99             ; VDPステータス、ラッチリセット。
-PSL_STAT:       equ     $A8             ; スロットステータス
-KBD_STAT:       equ     $A9             ; キーボードステータス
-GIO_REGS:       equ     $AA             ; 総合IOレジスタ
-PPI_REGS:       equ     $AB             ; PPIレジスタ
-
-PSG_REGS:       equ     $A0             ; PSGレジスタ番号
-PSG_DATA:       equ     $A1             ; PSGデータ
-PSG_STAT:       equ     $A2             ; PSGステータス
-
-MAP_REG1:       equ     $FC             ; RAMマッパー 0000h-3FFFh
-MAP_REG2:       equ     $FD             ; RAMマッパー 4000h-7FFFh
-MAP_REG3:       equ     $FE             ; RAMマッパー 8000h-BFFFh
-MAP_REG4:       equ     $FF             ; RAMマッパー C000h-FFFFh
-
-VDP_DATA:       equ     $98             ; VDPデータ書き込み
-VDP_ADDR:       equ     $99             ; VDPアドレス
-VDP_PALT:       equ     $9A             ; VDPパレットラッチ
-VDP_REGS:       equ     $9B             ; VDPレジスタアクセス
-
-SSL_REGS:       equ     $FFFF           ; 拡張スロット選択レジスタ
-
+                include "hardware.asm"
                 include "systemvars.asm"
                 include "hooks.asm"
 
