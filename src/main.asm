@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.68 2005/01/04 02:52:38 mthuurne Exp $
+; $Id: main.asm,v 1.69 2005/01/04 03:34:10 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2945,14 +2945,15 @@ dspfnk_text:    db      "DSPFNK",0
 ; Forces the screen to be in the text mode.
 ; Input: SCRMOD, OLDSCR
 ; Changes: all
-; TODO: should call H.TOTE; ?should directly use INITXT or INIT32?
 totext:
-;                call H_TOTE
                 ld      a,(SCRMOD)
                 cp      2
                 ret     c
                 ld      a,(OLDSCR)
-                jp      chgmod
+                call    H_TOTE
+                or      a
+                jp      z,initxt
+                jp      init32
 
 ;--------------------------------
 ; $00E1 TAPION
@@ -3062,16 +3063,26 @@ tapoof_text:    db      "TAPOOF",0
 ; Input:   A = action: #00 stops motor, #01 starts motor,
 ;                      #FF inverts current state
 ; Changes: AF
-; NOTE: This implementation is still a stub!
 stmotr:
-                push    hl
-                push    af
-                ld      hl,stmotr_text
-                call    print_debug
-                pop     af
-                pop     hl
+                push    bc
+                ld      b,a
+                in      a,(GIO_REGS)
+                inc     b
+                jr      z,stmotr_inv
+                set     4,a
+                dec     b
+                jr      z,stmotr_set
+                res     4,a
+                dec     b
+                jr      z,stmotr_set
+                jr      stmotr_nop
+                pop     bc
                 ret
-stmotr_text:    db      "STMOTR",0
+
+stmotr_inv:     xor     16
+stmotr_set:     out     (GIO_REGS),a
+                pop     bc
+                ret
 
 ;--------------------------------------
 ;0156h  KILBUF  キーバッファをクリア。
@@ -3474,16 +3485,14 @@ putq_text:      db      "PUTQ",0
 ; Input    : A  - #00 is lamp on
 ;             not #00 is lamp off
 ; Registers: AF
-; NOTE     : This implementation is still a stub!
 chgcap:
-                push    hl
-                push    af
-                ld      hl,chgcap_text
-                call    print_debug
-                pop     af
-                pop     hl
+                or      a
+                in      a,(GIO_REGS)
+                res     6,a
+                jr      nz,chgcap_on
+                set     6,a
+chgcap_on:      out     (GIO_REGS),a
                 ret
-chgcap_text:    db      "CHGCAP",0
 
 ;--------------------------------
 ; $014D OUTDLP
