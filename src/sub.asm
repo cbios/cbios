@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.10 2004/12/20 02:14:53 mthuurne Exp $
+; $Id: sub.asm,v 1.11 2004/12/21 00:51:51 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -176,30 +176,6 @@ grpprt:
                 pop     hl
                 ret
 grpprt_text:    db      "GRPPRT",0
-
-;-------------------------------------
-; $0131 VDPSTA
-; Read VDP status register.
-; Input:   A = number of status register
-; Output:  A = value read
-; Changes: F
-vdpsta:
-                di
-                ; Select desired status register.
-                out     (VDP_ADDR),a
-                ld      a,$80 + 15
-                out     (VDP_ADDR),a
-                ; Read status register.
-                in      a,(VDP_STAT)
-                push    af
-                ; Restore status register 0.
-                xor     a
-                out     (VDP_ADDR),a
-                ld      a,$80 + 15
-                out     (VDP_ADDR),a
-                ei
-                pop     af
-                ret
 
 ;-------------------------------------
 ; $013D SETPAG

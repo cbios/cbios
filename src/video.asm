@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.11 2004/12/19 11:23:53 manuelbi Exp $
+; $Id: video.asm,v 1.12 2004/12/21 03:30:10 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -741,6 +741,34 @@ nwrvrm:
                 call    nsetwr
                 pop     af
                 out     (VDP_DATA),a
+                ret
+
+
+; VDP routines which only exist in sub rom, but are useful for C-BIOS internal
+; use as well:
+
+;-------------------------------------
+; $0131(sub) VDPSTA
+; Read VDP status register.
+; Input:   A = number of status register
+; Output:  A = value read
+; Changes: F
+vdpsta:
+                di
+                ; Select desired status register.
+                out     (VDP_ADDR),a
+                ld      a,$80 + 15
+                out     (VDP_ADDR),a
+                ; Read status register.
+                in      a,(VDP_STAT)
+                push    af
+                ; Restore status register 0.
+                xor     a
+                out     (VDP_ADDR),a
+                ld      a,$80 + 15
+                out     (VDP_ADDR),a
+                ei
+                pop     af
                 ret
 
 
