@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.38 2004/12/29 03:18:20 ccfg Exp $
+; $Id: main.asm,v 1.39 2004/12/29 03:23:08 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2038,7 +2038,8 @@ chg_psl:
 
                 pop     hl
                 ret
-; 0028h GETYPR
+;--------------------------------
+; $0028 GETYPR
 ;NOTE: this implementation is still a stub!
 getypr:
                 push    hl
@@ -2051,7 +2052,7 @@ getypr:
 getypr_text:    db      "GETYPR",0
 
 ;--------------------------------
-; 0030h CALLLF
+; $0030 CALLLF
 call_lf:
                 ex      af,af'
                 exx
@@ -2061,6 +2062,7 @@ call_lf:
                 ld      e,(hl)
                 inc     hl
                 ld      d,(hl)
+                inc     hl
                 push    de              ; IX = call address
                 pop     ix
                 push    af              ; IY = slot
@@ -2070,7 +2072,8 @@ call_lf:
                 exx
                 jp      cal_slt         ; Perform inter-slot call.
 
-; 003Bh INITIO
+;--------------------------------
+; $003B INITIO
 ;Function:  Initialises the device
 ;Registers: All
 ;NOTE: this implementation is still a stub!
@@ -2084,6 +2087,7 @@ initio:
                 ret
 initio_text:    db      "INITIO",0
 
+;--------------------------------
 ; $0099 STRTMS
 ; Function : Tests whether the PLAY statement is being executed as a background
 ;            task. If not, begins to execute the PLAY statement
@@ -2101,7 +2105,7 @@ strtms_text:    db      "STRTMS",0
 
 
 ;--------------------------------
-;009Ch  CHSNS
+; $009C CHSNS
 ch_sns:
                 push    hl
                 push    de
@@ -2122,7 +2126,7 @@ no_chr:
                 ret
 
 ;--------------------------------
-;009Fh  CHGET
+; $009F CHGET
 ch_get:
                 ld      a,$00
                 push    hl
