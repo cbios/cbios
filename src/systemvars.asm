@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.25 2005/01/15 00:01:01 ccfg Exp $
+; $Id: systemvars.asm,v 1.26 2005/03/21 16:09:59 ccfg Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -666,12 +666,10 @@ SAVENT:         equ     $FCBF
 ; FCC1-FCC4: Information for each primary slot. The most significant bit is
 ; set if the primary slot is found to be expanded.
 EXPTBL:         equ     $FCC1
-EXP_TBL:        equ     $FCC1           ; スロット情報テーブル
 
 ; FCC5-FCC8: Duplicate the contents of the four possible secondary slot
 ; registers.
 SLTTBL:         equ     $FCC5
-SLT_TBL:        equ     $FCC5           ; スロット情報
 
 ; FCC9-FD08: Information for any extension ROMs found during the power-up
 ; ROM search.

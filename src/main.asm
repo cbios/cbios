@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.98 2005/02/20 00:29:48 mthuurne Exp $
+; $Id: main.asm,v 1.99 2005/02/20 12:36:54 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -686,7 +686,7 @@ cant_wrt:
                 jp      print_error
 
 ram_ok:
-                ld      hl,SLT_TBL + 3
+                ld      hl,SLTTBL + 3
                 ld      (hl),e          ; Expanded slot
 
 ; Yes,You can write the memory after the routine.
@@ -962,13 +962,13 @@ start_cartprog_found:
                 ld      e,a
                 add     a,'0'
                 call    chput
-                ld      hl,EXP_TBL
+                ld      hl,EXPTBL
                 add     hl,de
                 bit     7,(hl)
                 jr      z,start_cartprog_notexp
                 ld      a,'.'
                 call    chput
-                ld      hl,SLT_TBL
+                ld      hl,SLTTBL
                 add     hl,de
                 ld      a,(hl)
                 rrca
@@ -1340,11 +1340,11 @@ init_ram:
 
 ;----------------------
 ; Check which slots are expanded.
-; Initialises EXP_TBL for all 4 slots.
+; Initialises EXPTBL for all 4 slots.
 check_expanded:
                 ; Prepare to iterate over slots [0..3].
                 di
-                ld      hl,EXP_TBL
+                ld      hl,EXPTBL
                 in      a,(PSL_STAT)
                 ld      d,a             ; D = saved value from port $A8
                 and     $3F
@@ -1405,7 +1405,7 @@ check_expanded_next:
 chksubpos:
 
                 ld      bc,$0400
-                ld      hl,EXP_TBL
+                ld      hl,EXPTBL
 pri_subpos_loop:
                 push    bc
                 push    hl

@@ -282,7 +282,7 @@ ssl_dup_lp:
 
                 ; (SLTTBL + PP) <- RegC
 
-                ld      hl,SLT_TBL
+                ld      hl,SLTTBL
 
                 ld      a,d
                 and     $03             ; A = 000000PP
@@ -366,7 +366,7 @@ select_subslot_next:
                 ld      c,a
                 ld      b,0
                 ld      a,l             ; A = value written to SSL_REGS
-                ld      hl,SLT_TBL
+                ld      hl,SLTTBL
                 add     hl,bc
                 ld      (hl),a
                 ret
@@ -402,7 +402,7 @@ restore_subslot:
                 and     $03             ; A = 000000SS
                 ld      c,a
                 ld      b,0
-                ld      hl,SLT_TBL
+                ld      hl,SLTTBL
                 add     hl,bc
                 ld      (hl),e
                 ret
