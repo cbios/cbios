@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.72 2005/01/04 15:57:19 mthuurne Exp $
+; $Id: main.asm,v 1.73 2005/01/05 21:48:03 manuelbi Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2445,17 +2445,31 @@ chput:
 
                 ; CTRL code
                 cp      $00
-                jr      z,chput_exit
+                jp      z,chput_exit
                 cp      $07
-                jr      z,chput_beep
+                jp      z,chput_ctrl_beep
                 cp      $08
-                jr      z,back_spc
-                cp      $0D
-                jr      z,ctrl_cr
+                jp      z,chput_ctrl_left
+                cp      $09
+                jp      z,chput_ctrl_tab
                 cp      $0A
-                jr      z,ctrl_lf
+                jp      z,chput_ctrl_lf
+                cp      $0B
+                jp      z,chput_ctrl_home
+                cp      $0C
+                jp      z,chput_ctrl_clear
+                cp      $0D
+                jp      z,chput_ctrl_cr
                 cp      $1B
-                jr      z,chput_start_escape
+                jp      z,chput_start_escape
+                cp      $1C
+                jp      z,chput_ctrl_right
+                cp      $1D
+                jp      z,chput_ctrl_left
+                cp      $1E
+                jp      z,chput_ctrl_up
+                cp      $1F
+                jp      z,chput_ctrl_down
 
                 ; Charactor code
                 push    af
@@ -2504,13 +2518,16 @@ set_curs:
                 call    curs2hl
                 jp      setwrt
 
-chput_beep:
+; Generate a beep.
+chput_ctrl_beep:
                 push    bc
                 call    beep
                 pop     bc
                 jr      chput_exit
 
-back_spc:
+; Cursor left.
+; TODO: This should only move the cursor.
+chput_ctrl_left:
                 ld      a,(CSRX)
                 cp      2
                 jr      c,chput_exit
@@ -2521,14 +2538,13 @@ back_spc:
                 out     (VDP_DATA),a
                 jr      chput_exit
 
-; 0Dh CR
-ctrl_cr:
-                ld      a,1
-                ld      (CSRX),a
+; Cursor to next tabulator-column intersection.
+chput_ctrl_tab:
+                ; TODO: Implement.
                 jr      chput_exit
 
-; 0Ah LF  line feed
-ctrl_lf:
+; Line feed.
+chput_ctrl_lf:
                 ld      a,(CRTCNT)
                 ld      e,a
                 ld      a,(CSRY)
@@ -2541,6 +2557,38 @@ lf_scroll:
                 call    scroll_txt
                 jr      chput_exit
 
+; Set cursor to home.
+chput_ctrl_home:
+                ; TODO: Implement.
+                jr      chput_exit
+
+; Clear screen and set cursor to home.
+chput_ctrl_clear:
+                ; TODO: Implement.
+                jr      chput_exit
+
+; Carriage return.
+chput_ctrl_cr:
+                ld      a,1
+                ld      (CSRX),a
+                jr      chput_exit
+
+; Cursor right.
+chput_ctrl_right:
+                ; TODO: Implement.
+                jr      chput_exit
+
+; Cursor up.
+chput_ctrl_up:
+                ; TODO: Implement.
+                jr      chput_exit
+
+; Cursor down.
+chput_ctrl_down:
+                ; TODO: Implement.
+                jr      chput_exit
+
+; Handle escape sequences.
 chput_escape:                           ; A = escape state (ESCCNT)
                 ld      d,0             ; D = next state
                 dec     a
@@ -2566,12 +2614,35 @@ chput_escape:                           ; A = escape state (ESCCNT)
                 ld      d,0
                 cp      'A'
                 jr      z,chput_escape_up
-                ; TODO: Implement other sequences.
+                cp      'B'
+                jr      z,chput_escape_down
+                cp      'C'
+                jr      z,chput_escape_right
+                cp      'D'
+                jr      z,chput_escape_left
+                cp      'E'
+                jr      z,chput_escape_cls
+                cp      'H'
+                jr      z,chput_escape_home
+                cp      'J'
+                jr      z,chput_escape_erase_to_eos
+                cp      'j'
+                jr      z,chput_escape_cls
+                cp      'K'
+                jr      z,chput_escape_erase_to_eol
+                cp      'L'
+                jr      z,chput_escape_insert
+                cp      'l'
+                jr      z,chput_escape_erase_line
+                cp      'M'
+                jr      z,chput_escape_delete_line
+
 chput_escape_exit:
                 ld      a,d
                 ld      (ESCCNT),a
                 jp      chput_exit
 
+; Change shape of cursor.
 chput_escape_curshapex:
                 ; Seen: <ESC>x
                 pop     af
@@ -2584,6 +2655,7 @@ chput_escape_curshapey:
                 ; TODO: Implement.
                 jr      chput_escape_exit
 
+; Locate cursor.
 chput_escape_locate1:
                 ; Seen: <ESC>Y
                 pop     af
@@ -2597,10 +2669,61 @@ chput_escape_locate2:
                 ; TODO: Implement.
                 jr      chput_escape_exit
 
+; Cursor up.
 chput_escape_up:
                 ld      hl,(CSRY)
                 dec     l
                 call    nz,posit
+                jr      chput_escape_exit
+
+; Cursor down.
+chput_escape_down:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Cursor right.
+chput_escape_right:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Cursor left.
+chput_escape_left:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Clear screen and set cursor to home.
+chput_escape_cls:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Set cursor to home (top left).
+chput_escape_home:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Erase to end of screen.
+chput_escape_erase_to_eos:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Erase to end of line.
+chput_escape_erase_to_eol:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Insert a line and scroll the rest of the screen down.
+chput_escape_insert:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Erase entire line.
+chput_escape_erase_line:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Delete a line and scroll the rest of the screen up.
+chput_escape_delete_line:
+                ; TODO: Implement.
                 jr      chput_escape_exit
 
 ; scroll routine
