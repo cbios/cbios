@@ -34,6 +34,7 @@ What a BIOS does when CHKRAM is called
 - init PTRFIL (0)
 - init at 0: PRMLEN NOFUNS PRMLN2 FUNACT PRMSTK SUBFLG
 - round BOTTOM
+- call CHKSLZ: search slots for subrom and search slots for AB extensions
 - init TXTTAB
 - reset TRCFLG, AUTFLG, PTRFLG
 - write 2 zeros to start of TXTTAB
