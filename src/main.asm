@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.85 2005/01/12 01:41:33 mthuurne Exp $
+; $Id: main.asm,v 1.86 2005/01/13 16:00:25 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1362,7 +1362,6 @@ check_expanded_next:
 chksubpos:
 
                 ld      bc,$0400
-                ;ld     de,$fa00        ; debug
                 ld      hl,EXP_TBL
 pri_subpos_loop:
                 push    bc
@@ -1403,20 +1402,14 @@ sub_subpos_loop:
 chk_subpos:
                 ld      c,a
                 ld      (EXBRSA),a
-                ;ld     (de),a          ; debug
-                ;inc    de              ; debug
 
                 ld      hl,0
                 call    rd_subpos
-                ;ld     (de),a          ; debug
-                ;inc    de              ; debug
                 cp      "C"
                 jr      nz,chk_subpos_notfound
 
                 inc     hl
                 call    rd_subpos
-                ;ld     (de),a          ; debug
-                ;inc    de              ; debug
                 cp      "D"
 
 chk_subpos_notfound:
@@ -1429,11 +1422,9 @@ chk_subpos_notfound:
 rd_subpos:
                 ld      a,c
                 push    bc
-                ;push   de              ; debug
                 push    hl
                 call    rdslt
                 pop     hl
-                ;pop    de              ; debug
                 pop     bc
                 ret
         ENDIF
@@ -2058,7 +2049,7 @@ chget_char:
                 inc     hl
                 ; See comment in keyint (below label key_store).
                 ld      a,l
-                cp      $00FF & (KEYBUF + 40)
+                cp      $00FF & (KEYBUF + 40)           ; tniasm AND i.s.o. &
                 jr      nz,chget_nowrap
                 ld      hl,KEYBUF
 chget_nowrap:
@@ -3537,7 +3528,7 @@ key_store:
                 ;       FE18, it wraps back to FBF0.
                 inc     hl
                 ld      a,l
-                cp      $00FF & (KEYBUF + 40)
+                cp      $00FF & (KEYBUF + 40)           ; tniasm AND i.s.o. &
                 jr      nz,key_store_nowrap
                 ld      hl,KEYBUF
 key_store_nowrap:
