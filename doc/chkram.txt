@@ -38,7 +38,8 @@ What a BIOS does when CHKRAM is called
 	* search for subrom (CD)
 		- call INIT via interslot call if not zero
 	* for each slot:
-		- check for AB in 4000, then 8000, in order of slots, also look at expanded slots in order
+		- check for AB in 4000, then 8000, then 0000 in order of slots, also look at expanded slots in order
+			!! please note that if in 8000 AB is found it no longer looks at 0000
 		- call INIT via interslot call ( at vblank ) if not zero
 		- write purpose of slots in SLTADR
 		- if it's a BASIC rom, start it
