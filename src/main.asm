@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.92 2005/01/20 19:06:39 bifimsx Exp $
+; $Id: main.asm,v 1.93 2005/02/06 03:05:16 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -40,6 +40,8 @@
 DISPADDR:       equ     $E010           ; ダンプアドレス用メモリ
 LASTSTAC:       equ     $E000
 SP_REGS:        equ     $E002
+
+COMPILE_FONT:   equ     YES
 
 ;---------------------
 ; jump table
@@ -3875,6 +3877,9 @@ vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84
                 db      $F5,$87,$00,$40
 
+
+                ds      $1bbf - $
+                include "font.asm"
 
                 include "logo.asm"
 ; ????
