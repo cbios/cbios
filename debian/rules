@@ -52,9 +52,12 @@ install: build
 	# cp -rf configs/blueMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
 	# prepare for openMSX specially
 	cp -rf configs/openMSX/* $(CURDIR)/debian/tmp/usr/share/openmsx/machines
-	ln -s ../../../../cbios/cbios_main.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX1/roms/cbios_main.rom
-	ln -s ../../../../cbios/cbios_main.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2/roms/cbios_main.rom
+	ln -s ../../../../cbios/cbios_main_msx1.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX1/roms/cbios_main_msx1.rom
+	ln -s ../../../../cbios/cbios_main_msx2.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2/roms/cbios_main_msx2.rom
 	ln -s ../../../../cbios/cbios_sub.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2/roms/cbios_sub.rom
+	ln -s ../../../../cbios/cbios_main_msx2+.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_main_msx2+.rom
+	ln -s ../../../../cbios/cbios_sub.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_sub.rom
+	ln -s ../../../../cbios/cbios_music.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_music.rom
 
 
 # Build architecture-independent files here.
