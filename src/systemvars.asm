@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.17 2004/12/22 21:11:14 manuelbi Exp $
+; $Id: systemvars.asm,v 1.18 2004/12/22 21:23:35 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -33,15 +33,16 @@
 ;-------------------
 ; help function area
 ;-------------------
+; Note: Functions defined in "main.asm" are disabled here.
 
 ; F380-F384: interslot read
-RDPRIM:         equ     $F380
+;RDPRIM:         equ     $F380
 
 ; F385-F38B: interslot read
-WRPRIM:         equ     $F385
+;WRPRIM:         equ     $F385
 
 ; F38C-F399: interslot call
-CLPRIM:         equ     $F38C
+;CLPRIM:         equ     $F38C
 
 ; F39A-F3AD: workarea for the DEF USR statement
 ; this area is initialized with the 10 times the value $475A, which gives
