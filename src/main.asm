@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.78 2005/01/08 05:46:15 ccfg Exp $
+; $Id: main.asm,v 1.79 2005/01/08 07:48:00 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -2742,11 +2742,49 @@ chput_escape_home:
 
 ; Erase to end of screen.
 chput_escape_erase_to_eos:
-                ; TODO: Implement.
+                ld      hl,(CSRY)
+                push    hl
+chput_escape_erase_to_eos_loop:
+                call    chput_erase
+                ld      hl,(CSRY)
+                ld      h,1
+                inc     l
+                ld      (CSRY),hl
+                ld      a,(CRTCNT)
+                cp      l
+                jr      nc,chput_escape_erase_to_eos_loop
+                pop     hl
+                ld      (CSRY),hl
                 jr      chput_escape_exit
 
 ; Erase to end of line.
 chput_escape_erase_to_eol:
+                call    chput_erase
+                jr      chput_escape_exit
+
+; Insert a line and scroll the rest of the screen down.
+chput_escape_insert:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Erase entire line.
+chput_escape_erase_line:
+                ld      a,(CSRX)
+                push    af
+                ld      a,1
+                ld      (CSRX),a
+                call    chput_erase
+                pop     af
+                ld      (CSRX),a
+                jr      chput_escape_exit
+
+; Delete a line and scroll the rest of the screen up.
+chput_escape_delete_line:
+                ; TODO: Implement.
+                jr      chput_escape_exit
+
+; Erase to end of line.
+chput_erase:
                 push    bc
 
                 ; Calculate the number of bytes to erase.
@@ -2766,22 +2804,7 @@ chput_escape_erase_to_eol:
                 call    filvrm
 
                 pop     bc
-                jr      chput_escape_exit
-
-; Insert a line and scroll the rest of the screen down.
-chput_escape_insert:
-                ; TODO: Implement.
-                jr      chput_escape_exit
-
-; Erase entire line.
-chput_escape_erase_line:
-                ; TODO: Implement.
-                jr      chput_escape_exit
-
-; Delete a line and scroll the rest of the screen up.
-chput_escape_delete_line:
-                ; TODO: Implement.
-                jr      chput_escape_exit
+                ret
 
 ; scroll routine
 scroll_txt:

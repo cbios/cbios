@@ -1,11 +1,12 @@
-$Id: ChangeLog,v 1.92 2005/01/08 05:46:14 ccfg Exp $
+$Id: ChangeLog,v 1.93 2005/01/08 07:47:59 ccfg Exp $
 
 2005-01-08 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented control codes in CHPUT.
     * Implemented ESC-B, ESC-C and ESC-D (cursor down, right and left) in
       CHPUT.
     * Implemented ESC-E, ESC-j and ESC-H (clear screen and cursor home).
-    * Implemented ESC-K (erase to end of line).
+    * Implemented ESC-K, ESC-J and ESC-l (erase to end of line, erase to end
+      of screen and erase line).
     * Rewrote character output part of CHPUT.
 
 2005-01-07 Maarten ter Huurne <maarten@treewalker.org>
