@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.26 2004/12/30 09:15:30 andete Exp $
+; $Id: sub.asm,v 1.27 2004/12/30 13:09:12 andete Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -29,6 +29,10 @@
 ;
 
                 include "hardware.asm"
+
+; Note: VDP could also be V9958, but for the subrom there is no difference.
+VDP:            equ     V9938
+
                 include "systemvars.asm"
                 include "hooks.asm"
 
@@ -827,17 +831,17 @@ bltdm_text:     db      "BLTDM",0
 ;            [ 9]   Read X-position
 ;            [10]   Read Y-position
 ;            [11]   Read lightpen-status (#FF if pressed)
-; 
+;
 ;            [12]   Read mouse/trackball in port 1
 ;            [13]   Read X-offset
 ;            [14]   Read Y-offset
 ;            [15]   No function (always #00)
-; 
+;
 ;            [16]   Read mouse/trackball in port 2
 ;            [17]   Read X-offset
 ;            [18]   Read Y-offset
 ;            [19]   No function (always #00)
-; 
+;
 ; Output:    A  - Read value
 ; Registers: All
 ; NOTE: this implementation is still a stub!
@@ -933,7 +937,7 @@ wrtclk:
                 pop     bc
                 ret
 
-; Empty space until end of page.                
+; Empty space until end of page.
                 ds      $4000 - $
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
