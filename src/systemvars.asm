@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.13 2004/12/22 13:04:35 andete Exp $
+; $Id: systemvars.asm,v 1.14 2004/12/22 13:16:56 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -392,10 +392,76 @@ MEMSIZ:         equ     $F672
 ; F674-F675: top of stack; also first byte below string area
 STKTOP:         equ     $F674
 
-NAMBAS:         equ     $F922
-CGPBAS:         equ     $F924
-PATBAS:         equ     $F926
-ATRBAS:         equ     $F928
+; F676-F677: start address of current basic program, set at initialization, and
+; not changed by OS (ini:$8001)
+TXTTAB:         equ     $F676
+
+; F678-F679: address of first unused string-descriptor in TEMPST
+; (ini:value of TEMPST)
+TEMPPT:         equ     $F678
+
+; F67A-F697: work area for evaluation of string expressions; this area has space
+; for 10 string descriptors of 3 bytes; these can be used for temporarely results
+; of string arythmetics
+TEMPST:         equ     $F67A
+
+; F698-F69A: work area for evaluation of string expressions; this contains the
+; string descriptor of the intermediate result
+DSCTMP:         equ     $F698
+
+; F69B-F69C: first address within the string memory area that is still free
+; the string area is filled backwards, soo the lower the value, the less space
+; remains (ini: value of MEMSIZ)
+FRETOP:         equ     $F69B
+TEMP3:          equ     $F69D
+TEMP8:          equ     $F69F
+ENDFOR:         equ     $F6A1
+DATLIN:         equ     $F6A3
+SUBFLG:         equ     $F6A5
+FLKINP:         equ     $F6A6
+TEMP:           equ     $F6A7
+PTRFLG:         equ     $F6A9
+AUTFLG:         equ     $F6AA
+AUTLIN:         equ     $F6AB
+AUTINC:         equ     $F6AD
+SAVTXT:         equ     $F6AF
+SAVSTK:         equ     $F6B1
+ERRLIN:         equ     $F6B3
+DOT:            equ     $F6B5
+ERRTXT:         equ     $F6B7
+ONELIN:         equ     $F6B9
+ONEFLG:         equ     $F6BB
+TEMP2:          equ     $F6BC
+OLDLIN:         equ     $F6BE
+OLDTXT:         equ     $F6C0
+VARTAB:         equ     $F6C2
+ARYTAB:         equ     $F6C4
+STREND:         equ     $F6C6
+DATPTR:         equ     $F6C8
+DEFTBL:         equ     $F6CA
+PRMSTK:         equ     $F6E4
+PRMLEN:         equ     $F6E6
+PARM1:          equ     $F6E8
+PRMDRV:         equ     $F74C
+PRMLN2:         equ     $F74E
+PARM2:          equ     $F750
+PRMFLG:         equ     $F7B4
+ARYTA2:         equ     $F7B5
+NOFUNS:         equ     $F7B7
+TEMP9:          equ     $F7B8
+FUNACT:         equ     $F7BA
+SWPTMP:         equ     $F7BC
+TRCFLG:         equ     $F7C4
+FBUFFR:         equ     $F7C5
+DECTMP:         equ     $F7F0
+DECTM2:         equ     $F7F2
+DECCNT:         equ     $F7F4
+DAC:            equ     $F7F6
+HOLD8:          equ     $F806
+HOLD2:          equ     $F836
+HOLD:           equ     $F83E
+ARG:            equ     $F847
+RNDX:           equ     $F857
 
 ; --------------------
 ; filesystem work area
@@ -404,6 +470,11 @@ ATRBAS:         equ     $F928
 ; ------------------------
 ; screen routine work area
 ; ------------------------
+
+NAMBAS:         equ     $F922
+CGPBAS:         equ     $F924
+PATBAS:         equ     $F926
+ATRBAS:         equ     $F928
 
 ; --------------------------------------
 ; work area for sound and queueing and RS232
