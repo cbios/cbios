@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.32 2004/12/31 18:12:18 mthuurne Exp $
+; $Id: video.asm,v 1.33 2004/12/31 19:19:38 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -36,8 +36,6 @@
 ; Function : inhibits the screen display
 ; Registers: AF, BC
 disscr:
-                in      a,(VDP_STAT)    ; reset Latch
-
                 ld      a,(RG1SAV)
                 and     $BF
                 ld      b,a
@@ -50,8 +48,6 @@ disscr:
 ; Function : displays the screen
 ; Registers: AF, BC
 enascr:
-                in      a,(VDP_STAT)    ; reset Latch
-
                 ld      a,(RG1SAV)
                 or      $40
                 ld      b,a
@@ -132,10 +128,12 @@ wrtvrm:
 ; Registers: AF
 setrd:
                 di
-                xor     a                       ; <msx2>
-                out     (VDP_ADDR),a            ; should be removed for
-                ld      a,128+14                ; the MSX1 ROM images
-                out     (VDP_ADDR),a            ; </msx2>
+        IF VDP != TMS99X8
+                xor     a
+                out     (VDP_ADDR),a
+                ld      a,128+14
+                out     (VDP_ADDR),a
+        ENDIF
 
                 ld      a,l
                 out     (VDP_ADDR),a
@@ -152,10 +150,12 @@ setrd:
 ; Registers: AF
 setwrt:
                 di
-                xor     a                       ; <msx2>
-                out     (VDP_ADDR),a            ; should be removed for
-                ld      a,128+14                ; the MSX1 ROM images
-                out     (VDP_ADDR),a            ; </msx2>
+        IF VDP != TMS99X8
+                xor     a
+                out     (VDP_ADDR),a
+                ld      a,128+14
+                out     (VDP_ADDR),a
+        ENDIF
 
                 ld      a,l
                 out     (VDP_ADDR),a
@@ -176,7 +176,11 @@ setwrt:
 ; Note: Strange behaviour... it seems to use 16-bit addressing
 filvrm:
                 push    af
-                call    nsetwr                  ; MSX1 should do SETWRT
+        IF VDP = TMS99X8
+                call    setwrt
+        ELSE
+                call    nsetwr
+        ENDIF
                 dec     bc
                 inc     c
                 ld      a,b
@@ -1264,8 +1268,6 @@ init_sc7:
                 ld      a,$07
                 ld      (SCRMOD),a
 
-                in      a,(VDP_STAT)    ; reset latch 
-
                 call    chgclr
 
                 ld      a,(RG0SAV)
@@ -1323,8 +1325,6 @@ init_sc7:
 init_sc8:
                 ld      a,$08
                 ld      (SCRMOD),a
-
-                in      a,(VDP_STAT)    ; reset latch 
 
                 call    chgclr
 
