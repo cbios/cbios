@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.51 2005/02/06 04:08:02 mthuurne Exp $
+; $Id: video.asm,v 1.52 2005/02/06 19:16:48 bifimsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -422,9 +422,9 @@ clrspr:
                 call    clrspr_attr
 
 ; Clear sprite colour table.
-                ld      a,c
-                cp      209             ; sprite mode 1?
-                jr      z,clrspr_col_skip
+                ld      a,(SCRMOD)
+                cp      4               ; sprite mode 1?
+                jr      c,clrspr_col_skip
                 ld      hl,(PATBAS)
                 dec     h
                 dec     h               ; HL = (PATBAS) - 512
@@ -438,8 +438,11 @@ clrspr_col_skip:
                 ld      hl,(PATBAS)
                 ld      bc,256 * 8
                 xor     a
+        IF VDP = TMS99X8
+                call    filvrm
+        ELSE
                 call    bigfil
-
+        ENDIF
                 ret
 
 ;--------------------------------
