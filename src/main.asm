@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.1.1.1 2004/11/27 02:23:57 mthuurne Exp $
+; $Id: main.asm,v 1.2 2004/11/27 02:34:03 mthuurne Exp $
 ; C-BIOS ver 0.17
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.

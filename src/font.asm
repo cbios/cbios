@@ -1,4 +1,4 @@
-; $Id$
+; $Id: font.asm,v 1.1.1.1 2004/11/27 02:23:55 mthuurne Exp $
 ; Fontdata for C-BIOS
 ;
 ; Copyright (c) 2002 BouKiCHi.  All rights reserved.
