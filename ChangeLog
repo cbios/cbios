@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.56 2004/12/29 17:10:19 bifimsx Exp $
+$Id: ChangeLog,v 1.57 2004/12/29 19:16:56 mthuurne Exp $
+
+2004-12-29 Manuel Bilderbeek <manuel@msxnet.org>
+    * Replaced the font with a new font donated by Eric Boon. Thanks a lot!
 
 2004-12-29 Maarten ter Huurne <maarten@treewalker.org>
     * Fixed register trashing by RDSLT and WRSLT.
