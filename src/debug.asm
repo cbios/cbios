@@ -1,4 +1,4 @@
-; $Id$
+; $Id: debug.asm,v 1.1 2004/12/10 01:13:56 mthuurne Exp $
 ; C-BIOS debug routines
 ; These routines should not be used in release builds of C-BIOS, but they can
 ; be useful for developers and testers.
@@ -32,16 +32,16 @@
 ; Changes: HL, AF
 print_debug:
                 ld      a,$23
-                out     ($2E),a
+                out     (DBG_CTRL),a
 print_debug_lp:
                 ld      a,(hl)
                 inc     hl
                 or      a
                 jr      z,print_debug_done
-                out     ($2F),a
+                out     (DBG_DATA),a
                 jr      print_debug_lp
 print_debug_done:
                 ld      a,$00
-                out     ($2E),a
+                out     (DBG_CTRL),a
                 ret
 
