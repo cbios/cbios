@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.13 2004/12/18 17:19:15 mthuurne Exp $
+$Id: ChangeLog,v 1.14 2004/12/18 19:47:06 bifimsx Exp $
+
+2004-12-18 Joost Yervante Damad <joost@lumatec.be>
+	* add debian/ directory, provides debian packaging
 
 2004-12-18 Albert Beevendorp
     * fixed a bug in CHGCLR which resulted in a different bordercolor

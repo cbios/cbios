@@ -1,0 +1,8 @@
+cbios for Debian
+----------------
+
+This package installs the rom files in the /usr/share/cbios directory.
+Config files for other emulators can be found under /usr/share/cbios/configs,
+the config files for openMSX are installed in the openMSX directories.
+
+ -- Joost Yervante Damad <joost@lumatec.be>, Sun, 12 Dec 2004 15:17:19 +0100

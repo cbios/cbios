@@ -1,0 +1,20 @@
+cbios (0.18-2) unstable; urgency=low
+
+  * 0.18 upstream release
+ 
+ -- Joost Yervante Damad <joost@lumatec.be>  Sat, 18 Dec 2004 21:05:43 +0100
+
+cbios (0.18-1) unstable; urgency=low
+
+  * 0.18 pre-release
+  * install C-CBIOS MSX1 & MSX2 in openMSX directory
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Mon, 13 Dec 2004 10:00:42 +0100
+
+cbios (20041211-1) unstable; urgency=low
+
+  * Initial Release.
+  * fix install target for rules file
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Sun, 12 Dec 2004 15:17:19 +0100
+
