@@ -183,6 +183,7 @@ calslt_restore:
 ; Done:
                 ex      af,af'
                 exx
+		ei			; some program hopes for calslt what it returns with EI
                 ret
 
 ;--------------------------------
