@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.113 2005/02/07 00:39:09 mthuurne Exp $
+$Id: ChangeLog,v 1.114 2005/02/07 01:27:29 mthuurne Exp $
+
+2005-02-09 Maarten ter Huurne <maarten@treewalker.org>
+    * Released C-BIOS 0.20.
 
 2005-02-06 Maarten ter Huurne <maarten@treewalker.org>
     * Call FILVRM instead of BIGFIL on MSX1 in CLRSPR.
