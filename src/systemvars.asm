@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.3 2004/12/21 02:06:16 mthuurne Exp $
+; $Id: systemvars.asm,v 1.4 2004/12/21 20:08:55 andete Exp $
 ; C-BIOS system variable declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -30,7 +30,7 @@
 
 
 ;----------------------------------------------
-; ワークエリア
+; work area
 
 LINL40:         equ     $F3AE
 LINL32:         equ     $F3AF
