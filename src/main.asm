@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.97 2005/02/15 22:32:00 BouKiCHi Exp $
+; $Id: main.asm,v 1.97 2005/02/16 08:48:45 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -739,6 +739,27 @@ start_game:
                 ld      a,$01
                 call    chgmod
 
+                ; Select RAM in page 2.
+                ; This assumes the same slot used for page 3 also has RAM in
+                ; slot 2.
+                in      a,(PSL_STAT)
+                and     $CF
+                ld      c,a
+                rrca
+                rrca
+                and     $30
+                or      c
+                out     (PSL_STAT),a
+                ld      a,(SSL_REGS)
+                cpl
+                and     $CF
+                ld      c,a
+                rrca
+                rrca
+                and     $30
+                or      c
+                ld      (SSL_REGS),a
+
                 ld      hl,stack_error
                 push    hl
                 ld      hl,boot_stage2
@@ -787,27 +808,6 @@ boot_stage2:
                 xor     a
                 ; TODO: Find out or invent name for $FB29.
                 ld      ($FB29),a
-
-                ; Select RAM in page 2.
-                ; This assumes the same slot used for page 3 also has RAM in
-                ; slot 2.
-                in      a,(PSL_STAT)
-                and     $CF
-                ld      c,a
-                rrca
-                rrca
-                and     $30
-                or      c
-                out     (PSL_STAT),a
-                ld      a,(SSL_REGS)
-                cpl
-                and     $CF
-                ld      c,a
-                rrca
-                rrca
-                and     $30
-                or      c
-                ld      (SSL_REGS),a
 
                 ; This is the hook the disk ROM uses for booting.
                 call    H_RUNC

@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.117 2005/02/15 22:32:00 BouKiCHi Exp $
+$Id: ChangeLog,v 1.117 2005/02/16 08:50:18 bkc_alpha Exp $
+
+2005-02-19 Maarten ter Huurne <maarten@treewalker.org>
+    * Select RAM in page 2 already on first boot attempt.
+      Fixes one particular variant of Boulder Dash.
 
 2005-02-15 BouKiCHi
     * Translate main.asm to English
