@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.3 2004/12/05 06:16:22 mthuurne Exp $
+; $Id: sub.asm,v 1.4 2004/12/05 15:22:34 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -56,6 +56,11 @@
 ; 0089h GRPPRT
                 ds      $0089 - $,$C9
                 ret
+
+; $00D1 CHGMOD Set screen mode.
+                ds      $00D1 - $,$C9
+                ei
+                jp      chgmod
 
 ; $013D SETPAG Switches display page.
 ; Input:   DPPAGE
