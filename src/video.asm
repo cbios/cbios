@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.16 2004/12/23 04:22:41 mthuurne Exp $
+; $Id: video.asm,v 1.17 2004/12/25 02:47:05 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -287,35 +287,9 @@ clrspr:
                 ld      a,(SCRMOD)
                 or      a
                 ret     z               ; no sprites in SCREEN0
-                cp      4
-                jr      c,clrspr_spritemode1
 
-; Note: This label is called directly by external routines.
-clrspr_spritemode2:                     
-                ld      c,217           ; Y coordinate
-                jr      clrspr_spritemode_start
-
-; Note: This label is called directly by external routines.
-clrspr_spritemode1:
-                ld      c,209           ; Y coordinate
-
-clrspr_spritemode_start:
-; Initialise sprite attribute table.
-                ld      hl,(ATRBAS)
-                call    nsetwr
-                ld      b,32
-clrspr_attr_lp:
-                ld      a,c             ; Y coordinate
-                out     (VDP_DATA),a
-                ld      a,0
-                out     (VDP_DATA),a    ; X coordinate
-                ld      a,32
-                sub     b
-                out     (VDP_DATA),a    ; pattern number
-                ld      a,(FORCLR)
-                and     $0F
-                out     (VDP_DATA),a    ; colour
-                djnz    clrspr_attr_lp
+; Clear sprite attribute table.
+                call    clrspr_attr
 
 ; Clear sprite colour table.
                 ld      a,c
@@ -336,6 +310,47 @@ clrspr_col_skip:
                 xor     a
                 call    bigfil
 
+                ret
+
+;--------------------------------
+; Clear sprite attribute table.
+clrspr_attr:
+                ld      a,(SCRMOD)
+                cp      4
+                jr      c,clrspr_attr_spritemode1
+
+; Note: This label is called directly by external routines.
+clrspr_attr_spritemode2:
+                ld      e,217           ; Y coordinate
+                jr      clrspr_attr_spritemode_start
+
+; Note: This label is called directly by external routines.
+clrspr_attr_spritemode1:
+                ld      e,209           ; Y coordinate
+
+clrspr_attr_spritemode_start:
+                ld      hl,(ATRBAS)
+                call    nsetwr
+                ld      a,(FORCLR)
+                ld      d,a
+                ld      bc,$2000        ; B = 32 = counter, C = pattern index
+clrspr_attr_lp:
+                ld      a,e
+                out     (VDP_DATA),a    ; Y coordinate
+                ld      a,0
+                out     (VDP_DATA),a    ; X coordinate
+                ld      a,c
+                out     (VDP_DATA),a    ; pattern number
+                inc     c
+                call    gspsiz
+                jr      nc,clrspr_attr_8
+                inc     c
+                inc     c
+                inc     c
+clrspr_attr_8:
+                ld      a,d
+                out     (VDP_DATA),a    ; color
+                djnz    clrspr_attr_lp
                 ret
 
 ;--------------------------------
@@ -464,7 +479,7 @@ tcol_lp:
                 ld      bc,$0800
                 call    vdp_data_rep    ; init Font
 
-                call    clrspr_spritemode1
+                call    clrspr_attr_spritemode1
 
                 ld      a,(LINL32)
                 ld      (LINLEN),a
@@ -530,7 +545,7 @@ init_grp_lp:
                 call    adr_sft         ; R#6: GRPPAT
                 pop     ix
 
-                call    clrspr_spritemode1
+                call    clrspr_attr_spritemode1
                 call    enascr
                 ret
 
@@ -1008,7 +1023,7 @@ init_sc4_lp:
                 ld      bc,$000B        ; B = $00, C = 11
                 call    wrt_vdp         ; VDP R#11
 
-                call    clrspr_spritemode1
+                call    clrspr_attr_spritemode1
                 ld      bc,$000E        ; B = $00, C = 14
                 call    wrt_vdp         ; VDP R#14
 
@@ -1071,7 +1086,7 @@ init_sc5:
                 ld      bc,$000D
                 call    wrt_vdp         ; VDP R#13
 
-                call    clrspr_spritemode2
+                call    clrspr_attr_spritemode2
                 call    enascr
                 ret
 
@@ -1136,7 +1151,7 @@ init_sc7:
                 ld      bc,$000D
                 call    wrt_vdp         ; VDP R#13
 
-                call    clrspr_spritemode2
+                call    clrspr_attr_spritemode2
                 call    enascr
                 ret
 
@@ -1193,7 +1208,7 @@ init_sc8:
                 ld      bc,$000D
                 call    wrt_vdp         ; VDP R#13
 
-                call    clrspr_spritemode2
+                call    clrspr_attr_spritemode2
                 call    enascr
                 ret
 

@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.35 2004/12/25 02:47:05 ccfg Exp $
+$Id: ChangeLog,v 1.36 2004/12/25 04:33:43 mthuurne Exp $
+
+2004-12-25 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Fixed CHGMOD to clear only the sprite attribute table instead of
+      calling CLRSPR.
 
 2004-12-25 Maarten ter Huurne <maarten@treewalker.org>
     * Added stubs for FNKSB, ERAFNK, DSPFNK and TOTEXT.
