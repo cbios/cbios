@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.99 2005/02/20 12:36:54 mthuurne Exp $
+; $Id: main.asm,v 1.100 2005/03/21 16:13:17 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1238,12 +1238,14 @@ init_ram:
                 ld      bc,39
                 ldir
 
+        IF VDP != TMS99X8
                 ld      a,$00
                 ld      hl,RG8SAV
                 ld      (hl),a
                 ld      de,RG8SAV + 1
                 ld      bc,15
                 ldir
+        ENDIF
 
 ; Set address pointer
                 ld      hl,KEYBUF
@@ -1256,7 +1258,7 @@ init_ram:
                 ; I don't know exactly what is stored between $F168 and $F380,
                 ; but the disk ROM needs some space there, so I'll just
                 ; reserve all of it.
-                ld      hl,$F168
+                ld      hl,$F380        ; was $F168, but needs to be changed by disk ROM
                 ld      (HIMEM),hl      ; limit of usable memory
                 ld      (STKTOP),hl     ; position of BASIC stack
 

@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.119 2005/02/23 21:57:54 bkc_alpha Exp $
+$Id: ChangeLog,v 1.120 2005/03/18 23:58:02 ccfg Exp $
+
+2005-03-26 Albert Beevendorp
+    * Reset initial HIMEM value to $F380.
+      Fixes Young Sherlock. The disk ROM should alter HIMEM itself
 
 2005-03-19 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Disable interrupts around VRAM writes.
