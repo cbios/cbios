@@ -1,4 +1,4 @@
-; $Id: hooks.asm,v 1.5 2004/12/28 19:34:39 manuelbi Exp $
+; $Id: hooks.asm,v 1.6 2004/12/29 10:01:46 andete Exp $
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -28,8 +28,8 @@
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 ;
 
-; called at start of interrupt subroutine, before it has been checked if interrupt
-; was from VDP; used by e.g. RS232
+; called at start of interrupt subroutine, before it has been checked if
+; the interrupt was from VDP; used by e.g. RS232
 H_KEYI:         equ     $FD9A
 
 ; called at start of interrupt subroutine, when it is clear that
@@ -218,7 +218,8 @@ H_DEVN:         equ     $FEC1
 ; BASIC interpreter hook
 H_GEND:         equ     $FEC6
 
-; called when clearing variables during the preparation of a RUN statement
+; Called when clearing variables during the preparation of a RUN statement.
+; Also used by the disk ROM to start boot sequence.
 H_RUNC:         equ     $FECB
 
 ; called when doing CLEAR
