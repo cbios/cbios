@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# $Id: basic.rb,v 1.2 2005/04/18 17:39:12 andete Exp $
+# $Id: basic.rb,v 1.3 2005/04/18 18:30:40 andete Exp $
 #
 # ruby script for generating BASIC parsing related assembler
 #
@@ -299,16 +299,27 @@ encodings.each {|encoding|
     puts "        db \"#{encoding.string}\", $#{encoding.hex}"
 }
 
-# 1.2 generate token string address table
-puts "\ntoken_string_address_table:"
-(0..255).each {|i|
+# 1.2 generate token string address jump table
+puts "\ntoken_string_address_jump_table:"
+(0..0xFF).each {|i|
     hex = sprintf "%02x", i
-    encoding = token_string_map[i]
     if token_string_map.has_key?(i)
         puts "       dw token_string_#{hex}"
     else
         puts "       dw $0000                ; $#{hex}"
     end
-
 }
+
+# 1.3 generate extended token string address jump table
+puts "\next_token_string_address_jump_table:"
+(0..0xFF).each {|i|
+    hex = sprintf "%02x", i
+    if ext_token_string_map.has_key?(i)
+        puts "       dw ext_token_string_#{hex}"
+    else
+        puts "       dw $0000                ; $#{hex}"
+    end
+}
+
+
 # vim:ts=4:expandtab:
