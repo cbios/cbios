@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.9 2005/01/01 22:47:18 mthuurne Exp $
+# $Id: Makefile,v 1.10 2005/02/08 07:55:08 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -10,6 +10,9 @@ PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
 ROMS:=main_msx1 main_msx2 main_msx2+ sub music disk
 ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
+
+# If needed override location of pasmo.
+PASMO=pasmo
 
 # Mark all logical targets as such.
 .PHONY: all dist clean
@@ -29,7 +32,7 @@ ifeq ($(Z80_ASSEMBLER),sjasm)
 	@sjasm -l $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 ifeq ($(Z80_ASSEMBLER),pasmo)
-	@pasmo -I src $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+	@$(PASMO) -I src $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 
 # Include main dependency files.
