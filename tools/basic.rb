@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# $Id: basic.rb,v 1.1 2005/04/18 17:33:28 andete Exp $
+# $Id: basic.rb,v 1.2 2005/04/18 17:39:12 andete Exp $
 #
 # ruby script for generating BASIC parsing related assembler
 #
@@ -33,10 +33,15 @@
 
 
 class ByteEncoding
-    def initialize(string, byte, extended)
+    def initialize(string, token, extended)
         @string = string        # characters representing the token
-        @byte = byte            # the byte token
+        @token = token          # the token byte
         @extended = extended    # extended (0xFF prefix)
+    end
+    attr_reader :string, :token, :extended
+
+    def hex
+        sprintf "%02x", @token
     end
 end
 
@@ -265,4 +270,45 @@ encodings = [
     ByteEncoding.new("\\",      0xFC,    false),
 ]
 
+# 0 preparation
+
+# 0.1 generate token => string maps and the other way around
+token_string_map = {}
+ext_token_string_map = {}
+string_token_map = {}
+ext_string_token_map = {}
+encodings.each {|encoding|
+    if encoding.extended
+        ext_token_string_map[encoding.token] = encoding.string
+        ext_string_token_map[encoding.string] = encoding.token
+    else
+        token_string_map[encoding.token] = encoding.string
+        string_token_map[encoding.string] = encoding.token
+    end
+}
+
+# 1 generate token => string code
+
+# 1.1 generate token string table
+encodings.each {|encoding|
+    ext = ""
+    if encoding.extended
+        ext ="ext_"
+    end
+    puts "#{ext}token_string_#{encoding.hex}"
+    puts "        db \"#{encoding.string}\", $#{encoding.hex}"
+}
+
+# 1.2 generate token string address table
+puts "\ntoken_string_address_table:"
+(0..255).each {|i|
+    hex = sprintf "%02x", i
+    encoding = token_string_map[i]
+    if token_string_map.has_key?(i)
+        puts "       dw token_string_#{hex}"
+    else
+        puts "       dw $0000                ; $#{hex}"
+    end
+
+}
 # vim:ts=4:expandtab:
