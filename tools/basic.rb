@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# $Id: basic.rb,v 1.3 2005/04/18 18:30:40 andete Exp $
+# $Id: basic.rb,v 1.4 2005/04/18 18:54:43 andete Exp $
 #
 # ruby script for generating BASIC parsing related assembler
 #
@@ -273,21 +273,21 @@ encodings = [
 # 0 preparation
 
 # 0.1 generate token => string maps and the other way around
-token_string_map = {}
-ext_token_string_map = {}
-string_token_map = {}
-ext_string_token_map = {}
+$token_string_map = {}
+$ext_token_string_map = {}
+$string_token_map = {}
+$ext_string_token_map = {}
 encodings.each {|encoding|
     if encoding.extended
-        ext_token_string_map[encoding.token] = encoding.string
-        ext_string_token_map[encoding.string] = encoding.token
+        $ext_token_string_map[encoding.token] = encoding.string
+        $ext_string_token_map[encoding.string] = encoding.token
     else
-        token_string_map[encoding.token] = encoding.string
-        string_token_map[encoding.string] = encoding.token
+        $token_string_map[encoding.token] = encoding.string
+        $string_token_map[encoding.string] = encoding.token
     end
 }
 
-# 1 generate token => string code
+# 1 generate token => string tables
 
 # 1.1 generate token string table
 encodings.each {|encoding|
@@ -299,27 +299,73 @@ encodings.each {|encoding|
     puts "        db \"#{encoding.string}\", $#{encoding.hex}"
 }
 
-# 1.2 generate token string address jump table
-puts "\ntoken_string_address_jump_table:"
+# 1.2 generate token string address table
+puts "\ntoken_string_address_table:"
 (0..0xFF).each {|i|
     hex = sprintf "%02x", i
-    if token_string_map.has_key?(i)
+    if $token_string_map.has_key?(i)
         puts "       dw token_string_#{hex}"
     else
         puts "       dw $0000                ; $#{hex}"
     end
 }
 
-# 1.3 generate extended token string address jump table
-puts "\next_token_string_address_jump_table:"
+# 1.3 generate extended token string address table
+puts "\next_token_string_address_table:"
 (0..0xFF).each {|i|
     hex = sprintf "%02x", i
-    if ext_token_string_map.has_key?(i)
+    if $ext_token_string_map.has_key?(i)
         puts "       dw ext_token_string_#{hex}"
     else
         puts "       dw $0000                ; $#{hex}"
     end
 }
 
+# 2 generate string => token parse tree
+
+class ParseTreeElement < Hash
+    def initialize(parent, char, token)
+        @parent = parent
+        @char = char
+        @token = token
+    end
+
+    def dump(indent)
+        (0..indent).each {|x|
+            print "    "
+        }
+        puts "|#{@char} #{$token_string_map[@token]}|"
+        each_value {|child|
+            child.dump(indent+1)
+        }
+    end
+end
+
+parseTreeRoot = {}
+extParseTreeRoot = {}
+
+def parse(node, stringTail, token)
+    len = stringTail.length
+    stringTail = stringTail[1..len]
+    return if stringTail == ""
+    char = stringTail[0..0]
+    if not node.has_key?(char)
+        node[char] = ParseTreeElement.new(node, char, token)
+    end
+    node2 = node[char]
+    parse(node2, stringTail, token)
+end
+
+$string_token_map.each{|string, token|
+    char = string[0..0]
+    if not parseTreeRoot.has_key?(char)
+        parseTreeRoot[char] = ParseTreeElement.new(nil, char, token)
+    end
+    parse(parseTreeRoot[char], string, token)
+}
+
+parseTreeRoot.each_value{|val|
+    val.dump(0)
+}
 
 # vim:ts=4:expandtab:
