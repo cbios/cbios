@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# $Id: basic.rb,v 1.4 2005/04/18 18:54:43 andete Exp $
+# $Id: basic.rb,v 1.5 2005/04/18 19:57:24 andete Exp $
 #
 # ruby script for generating BASIC parsing related assembler
 #
@@ -321,9 +321,9 @@ puts "\next_token_string_address_table:"
     end
 }
 
-# 2 generate string => token parse tree
+# 2 generate string => token tree
 
-class ParseTreeElement < Hash
+class TokenTreeElement < Hash
     def initialize(parent, char, token)
         @parent = parent
         @char = char
@@ -341,8 +341,8 @@ class ParseTreeElement < Hash
     end
 end
 
-parseTreeRoot = {}
-extParseTreeRoot = {}
+tokenTreeRoot = {}
+extTokenTreeRoot = {}
 
 def parse(node, stringTail, token)
     len = stringTail.length
@@ -350,7 +350,7 @@ def parse(node, stringTail, token)
     return if stringTail == ""
     char = stringTail[0..0]
     if not node.has_key?(char)
-        node[char] = ParseTreeElement.new(node, char, token)
+        node[char] = TokenTreeElement.new(node, char, token)
     end
     node2 = node[char]
     parse(node2, stringTail, token)
@@ -358,13 +358,13 @@ end
 
 $string_token_map.each{|string, token|
     char = string[0..0]
-    if not parseTreeRoot.has_key?(char)
-        parseTreeRoot[char] = ParseTreeElement.new(nil, char, token)
+    if not tokenTreeRoot.has_key?(char)
+        tokenTreeRoot[char] = TokenTreeElement.new(nil, char, token)
     end
-    parse(parseTreeRoot[char], string, token)
+    parse(tokenTreeRoot[char], string, token)
 }
 
-parseTreeRoot.each_value{|val|
+tokenTreeRoot.each_value{|val|
     val.dump(0)
 }
 
