@@ -1,8 +1,12 @@
 #!/usr/bin/env ruby
 
-# $Id: main_msx2.asm,v 1.2 2005/01/02 11:28:20 andete Exp $
+# $Id: basic.rb,v 1.1 2005/04/18 17:33:28 andete Exp $
 #
 # ruby script for generating BASIC parsing related assembler
+#
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+# !This is Experimental Work In Progress, and might turn out not be useful!
+# !!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 #
 # Copyright (c) 2005 Joost Yervante Damad.  All rights reserved.
 #
