@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# $Id: basic.rb,v 1.5 2005/04/18 19:57:24 andete Exp $
+# $Id: basic.rb,v 1.6 2005/04/18 20:08:14 andete Exp $
 #
 # ruby script for generating BASIC parsing related assembler
 #
@@ -272,18 +272,18 @@ encodings = [
 
 # 0 preparation
 
-# 0.1 generate token => string maps and the other way around
-$token_string_map = {}
-$ext_token_string_map = {}
-$string_token_map = {}
-$ext_string_token_map = {}
+# 0.1 generate token => encoding & string => encoding maps
+$token_encoding_map = {}
+$ext_token_encoding_map = {}
+$string_encoding_map = {}
+$ext_string_encoding_map = {}
 encodings.each {|encoding|
     if encoding.extended
-        $ext_token_string_map[encoding.token] = encoding.string
-        $ext_string_token_map[encoding.string] = encoding.token
+        $ext_token_encoding_map[encoding.token] = encoding
+        $ext_string_encoding_map[encoding.string] = encoding
     else
-        $token_string_map[encoding.token] = encoding.string
-        $string_token_map[encoding.string] = encoding.token
+        $token_encoding_map[encoding.token] = encoding
+        $string_encoding_map[encoding.string] = encoding
     end
 }
 
@@ -303,7 +303,7 @@ encodings.each {|encoding|
 puts "\ntoken_string_address_table:"
 (0..0xFF).each {|i|
     hex = sprintf "%02x", i
-    if $token_string_map.has_key?(i)
+    if $token_encoding_map.has_key?(i)
         puts "       dw token_string_#{hex}"
     else
         puts "       dw $0000                ; $#{hex}"
@@ -314,7 +314,7 @@ puts "\ntoken_string_address_table:"
 puts "\next_token_string_address_table:"
 (0..0xFF).each {|i|
     hex = sprintf "%02x", i
-    if $ext_token_string_map.has_key?(i)
+    if $ext_token_encoding_map.has_key?(i)
         puts "       dw ext_token_string_#{hex}"
     else
         puts "       dw $0000                ; $#{hex}"
@@ -324,17 +324,22 @@ puts "\next_token_string_address_table:"
 # 2 generate string => token tree
 
 class TokenTreeElement < Hash
-    def initialize(parent, char, token)
+    def initialize(parent, char, encoding)
         @parent = parent
         @char = char
-        @token = token
+        @encoding = encoding
     end
+    attr_reader :parent, :char, :encoding
 
     def dump(indent)
         (0..indent).each {|x|
             print "    "
         }
-        puts "|#{@char} #{$token_string_map[@token]}|"
+        if not encoding.extended
+            puts "|#{@char} #{encoding.string} #{encoding.token}|"
+        else
+            puts "|#{@char} #{encoding.string} #{encoding.token} ext|"
+        end
         each_value {|child|
             child.dump(indent+1)
         }
@@ -342,30 +347,37 @@ class TokenTreeElement < Hash
 end
 
 tokenTreeRoot = {}
-extTokenTreeRoot = {}
 
-def parse(node, stringTail, token)
+def parse(node, stringTail, encoding)
     len = stringTail.length
     stringTail = stringTail[1..len]
     return if stringTail == ""
     char = stringTail[0..0]
     if not node.has_key?(char)
-        node[char] = TokenTreeElement.new(node, char, token)
+        node[char] = TokenTreeElement.new(node, char, encoding)
     end
     node2 = node[char]
-    parse(node2, stringTail, token)
+    parse(node2, stringTail, encoding)
 end
 
-$string_token_map.each{|string, token|
+$string_encoding_map.each{|string, encoding|
     char = string[0..0]
     if not tokenTreeRoot.has_key?(char)
-        tokenTreeRoot[char] = TokenTreeElement.new(nil, char, token)
+        tokenTreeRoot[char] = TokenTreeElement.new(nil, char, encoding)
     end
-    parse(tokenTreeRoot[char], string, token)
+    parse(tokenTreeRoot[char], string, encoding)
 }
 
-tokenTreeRoot.each_value{|val|
-    val.dump(0)
+$ext_string_encoding_map.each{|string, encoding|
+    char = string[0..0]
+    if not tokenTreeRoot.has_key?(char)
+        tokenTreeRoot[char] = TokenTreeElement.new(nil, char, encoding)
+    end
+    parse(tokenTreeRoot[char], string, encoding)
+}
+
+tokenTreeRoot.each_value{|node|
+    node.dump(0)
 }
 
 # vim:ts=4:expandtab:
