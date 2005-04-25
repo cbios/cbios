@@ -1,6 +1,6 @@
 #!/usr/bin/env ruby
 
-# $Id: basic.rb,v 1.6 2005/04/18 20:08:14 andete Exp $
+# $Id: basic.rb,v 1.7 2005/04/25 18:43:35 andete Exp $
 #
 # ruby script for generating BASIC parsing related assembler
 #
@@ -321,37 +321,54 @@ puts "\next_token_string_address_table:"
     end
 }
 
-# 2 generate string => token tree
+# 2 generate string => encoding tree
 
 class TokenTreeElement < Hash
     def initialize(parent, char, encoding)
         @parent = parent
         @char = char
         @encoding = encoding
+        @match = false
     end
-    attr_reader :parent, :char, :encoding
+    attr_reader :parent, :char, :encoding, :match
+    attr_writer :match
+
+    def to_s
+        matchS = ""
+        if @match
+            matchS="match"
+        end
+        ext = ""
+        if @encoding.extended
+            ext = "ff"
+        end
+        if @match
+            return "|#{@char} #{@encoding.string} 0x#{ext}#{@encoding.hex}|"
+        else
+            return "|#{@char}|"
+        end
+    end
 
     def dump(indent)
         (0..indent).each {|x|
             print "    "
         }
-        if not encoding.extended
-            puts "|#{@char} #{encoding.string} #{encoding.token}|"
-        else
-            puts "|#{@char} #{encoding.string} #{encoding.token} ext|"
-        end
+        puts self
         each_value {|child|
             child.dump(indent+1)
         }
     end
 end
 
-tokenTreeRoot = {}
+$tokenTreeRoot = {}
 
 def parse(node, stringTail, encoding)
     len = stringTail.length
     stringTail = stringTail[1..len]
-    return if stringTail == ""
+    if stringTail == ""
+        node.match = true
+        return
+    end
     char = stringTail[0..0]
     if not node.has_key?(char)
         node[char] = TokenTreeElement.new(node, char, encoding)
@@ -360,24 +377,81 @@ def parse(node, stringTail, encoding)
     parse(node2, stringTail, encoding)
 end
 
+# prepopulate with 1-char ones
+$string_encoding_map.each{|string, encoding|
+    if string.length == 1
+        if not $tokenTreeRoot.has_key?(string)
+            $tokenTreeRoot[string] = TokenTreeElement.new(nil, string, encoding)
+            $tokenTreeRoot[string].match = true
+        end
+    end
+}
+
 $string_encoding_map.each{|string, encoding|
     char = string[0..0]
-    if not tokenTreeRoot.has_key?(char)
-        tokenTreeRoot[char] = TokenTreeElement.new(nil, char, encoding)
+    if not $tokenTreeRoot.has_key?(char)
+        $tokenTreeRoot[char] = TokenTreeElement.new(nil, char, encoding)
     end
-    parse(tokenTreeRoot[char], string, encoding)
+    parse($tokenTreeRoot[char], string, encoding)
 }
 
 $ext_string_encoding_map.each{|string, encoding|
     char = string[0..0]
-    if not tokenTreeRoot.has_key?(char)
-        tokenTreeRoot[char] = TokenTreeElement.new(nil, char, encoding)
+    if not $tokenTreeRoot.has_key?(char)
+        $tokenTreeRoot[char] = TokenTreeElement.new(nil, char, encoding)
     end
-    parse(tokenTreeRoot[char], string, encoding)
+    parse($tokenTreeRoot[char], string, encoding)
 }
 
-tokenTreeRoot.each_value{|node|
+$tokenTreeRoot.each_value{|node|
     node.dump(0)
 }
+
+# 3. generate matching code
+#
+# matching means in essence: find the deepest node that matches
+# in practice this is the last node
+
+puts
+puts "; basic token matcher"
+puts ";"
+puts "; input:"
+puts ";         HL: pointer to \0 terminated char buffer"
+puts ";"
+puts "; output:"
+puts ";         HL: pointer to first char after parsed token"
+puts ";         A : token"
+puts ";         Z-flag: 0 == not extended, 1 == extended"
+puts
+
+# in ruby:
+
+def match_rec(node, string)
+    retval = nil
+    if node.match
+        retval = node
+    end
+    return nil if string == ""
+    len = string.length
+    stringTail = string[1..len]
+    char = stringTail[0..0]
+    if node.has_key?(char)
+        recval = match_rec(node[char], stringTail)
+        retval = recval if recval != nil
+    end
+    return retval
+end
+
+
+def match(string)
+    char = string[0..0]
+    node = $tokenTreeRoot[char]
+    return match_rec(node, string)
+end
+
+testString = "ABSFOO"
+puts "\n#{testString} matched: #{match(testString)}"
+testString = "FOO LOF$00"
+puts "\n#{testString} matched: #{match(testString)}"
 
 # vim:ts=4:expandtab:
