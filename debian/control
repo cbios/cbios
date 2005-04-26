@@ -1,6 +1,6 @@
 Source: cbios
 Section: misc
-Priority: optional
+Priority: extra
 Maintainer: Joost Yervante Damad <joost@lumatec.be>
 Build-Depends: debhelper (>= 4.0.0), pasmo, docbook-to-man
 Recommends: openmsx
