@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.100 2005/03/21 16:13:17 ccfg Exp $
+; $Id: main.asm,v 1.101 2005/03/26 07:32:36 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -691,86 +691,6 @@ ram_ok:
 
 ; Yes,You can write the memory after the routine.
 
-;----------------------
-; User interface
-;----------------------
-
-                ld      hl,$F300
-                ld      sp,hl           ; set $F300 to stack pointer
-
-                call    init_ram
-
-                call    check_expanded
-        IF VDP != TMS99X8
-                call    chksubpos
-        ENDIF
-                call    check_rom
-
-;                in      a,(PSL_STAT)
-;                ld      ($F000),a
-;                call    p3_chk
-
-                call    init_vdp
-
-                xor     a
-                ld      (PSG_DBG),a
-
-                call    gicini
-
-                ei
-
-                call    disp_info
-                call    start_cartprog
-
-;----------------------
-;Execute program in the cartridge
-;----------------------
-
-start_game:
-                ; Select 8x8 sprites, the logo needed them to be 16x16.
-;                ld      a,(RG1SAV)
-;                and     $FD
-;                ld      b,a
-;                ld      c,$01
-;                call    wrtvdp
-
-                ld      a,29
-                ld      (LINL32),a
-                ld      a,$01
-                call    chgmod
-
-                ld      hl,stack_error
-                push    hl
-                ld      hl,boot_stage2
-                push    hl
-
-                ; Some cartridges have buggy initialisation code.
-                ; By postponing the interrupt as long as possible,
-                ; there is a better chance they will boot correctly.
-                ; For example the game "Koronis Rift" depends on this.
-                ei
-                halt
-
-                ; MSX BIOS starts cartridges using inter-slot call,
-                ; so interrupts are disabled when cartridge code starts.
-                ; For example the game "Girly Block" depends on this.
-                ; So we have to disable interrupts as well.
-                di
-
-                ; TODO: also support cartridges that have their rom located
-                ; in slot 0; for example the game "Beam Rider"
-                ; TODO: if game ends up being a BASIC program, display an error!
-                ; TODO: support multiple ROMS
-                ; TODO: use a different text for initialising the disk ROM (not "cartridge found")
-                ; TODO: it should set up the related system vars properly
-
-                ld      a,($4000)
-                cp      'A'
-                jr      nz,p2_run
-                ld      a,($4003)
-                cp      $40
-                jp      c,p0_run        ; I can't return anymore!
-
                 ; Select RAM in page 2.
                 ; This assumes the same slot used for page 3 also has RAM in
                 ; slot 2.
@@ -792,92 +712,260 @@ start_game:
                 or      c
                 ld      (SSL_REGS),a
 
-                ld      hl,($4002)      ; A start address of the cartridge
-                jp      (hl)            ; Execute...
+;----------------------
+; User interface
+;----------------------
 
-p2_run:
-                ld      hl,($8002)      ; A start address of the cartridge
-                jp      (hl)            ; Execute..
+                ld      hl,$F300
+                ld      sp,hl           ; set $F300 to stack pointer
 
-boot_stage2:
-                ; Set up hooks and system vars so NMS8250 disk ROM will try
-                ; to load and execute the boot sector.
-                ld      a,1
-                ld      (DEVICE),a
+                call    init_ram
+
+                call    check_expanded
+        IF VDP != TMS99X8
+                call    chksubpos
+        ENDIF
+;                call    check_rom
+
+;                in      a,(PSL_STAT)
+;                ld      ($F000),a
+;                call    p3_chk
+
+                call    init_vdp
+
                 xor     a
-                ; TODO: Find out or invent name for $FB29.
-                ld      ($FB29),a
+                ld      (PSG_DBG),a
 
-                ; This is the hook the disk ROM uses for booting.
-                call    H_RUNC
+                call    gicini
 
+                ei
+
+                call    disp_info
+;                call    start_cartprog
+
+                call    search_roms
+                call H_STKE
+                call    run_basic_roms
+
+                ld      hl,$0113
+                call    posit
+                ld      hl,str_nocart
+                call    prn_text
+
+                ei
+hang:
+                halt
+                jr      hang
+
+;----------------------
+; Search for any extension ROMs and initialize them.
+search_roms:
+                ; Clear SLTATR.
+                ld      hl,SLTATR
+                ld      de,SLTATR+1
+                ld      bc,4*4*4-1
+                ld      (hl),0
+                ldir
+
+                ; Search for ROMs.
+                ld      hl,EXPTBL
+                xor     a               ; A = input for RDSLT
+search_roms_lp:
+                push    hl
+                or      (hl)
+search_roms_lp_sub:
+                ld      hl,$4000
+                call    search_roms_check
+                call    z,search_roms_init
+                ld      hl,$8000
+                call    search_roms_check
+                call    z,search_roms_init
+                bit     7,a
+                jr      z,search_roms_next_slot
+                add     a,4             ; Select next subslot.
+                ld      b,a
+                and     $0C
+                ld      a,b
+                jr      nz,search_roms_lp_sub
+search_roms_next_slot:
+                pop     hl              ; Select next slot.
+                inc     hl
+                inc     a
+                and     $03
+                jr      nz,search_roms_lp
+                ret
+
+                ; Helper routine to read two bytes from a given slot.
+search_roms_read:
+                ld      b,a             ; Save the input for RDSLT in B.
+                call    rdslt
+                inc     hl
+                push    af
+                ld      a,b
+                call    rdslt
+                inc     hl
+                ld      d,a
+                pop     af
+                ld      e,a
+                ld      a,b
+                ret
+
+                ; Check whether the ROM is present or not.
+search_roms_check:
+                push    de
+                push    hl
+                call    search_roms_read
+                ld      hl,$4241        ; "AB"
+                call    dcompr          ; ZF is set if the ROM is present.
+                ld      a,b
+                pop     hl
+                pop     de
+                ret
+
+                ; Initialize the ROM and set up the related system variables.
+search_roms_init:
+                ; Output a message to show that a ROM is found.
+                push    hl
+                push    af
+                ld      hl,$0112
+                call    posit
+                ld      hl,str_slot
+                call    prn_text
+                pop     af
+                push    af
+                ld      b,a
+                and     $03
+                add     a,'0'
+                call    chput
+                ld      a,b
+                bit     7,b
+                jr      z,search_roms_init_wait
+                ld      a,'.'
+                call    chput
+                ld      a,b
+                rrca
+                rrca
+                and     $03
+                add     a,'0'
+                call    chput
+search_roms_init_wait:
+                ld      a,' '
+                call    chput
+                call    chput
+                ld      b,120
+                call    wait_key07
+                pop     af
+                pop     hl
+
+                ; Read the initialization address and initialize the ROM.
+                inc     hl
+                inc     hl
+                call    search_roms_address
+                jr      z,search_roms_init_statement
+                push    de
+                pop     ix
+                push    af
+                pop     iy
+                ; Some cartridges have buggy initialisation code.
+                ; By postponing the interrupt as long as possible,
+                ; there is a better chance they will boot correctly.
+                ; For example the game "Koronis Rift" depends on this.
+                ei
+                halt
+                push    af
+                push    hl
+                call    calslt
+                di
+                pop     hl
+                pop     af
+
+                ; Check if the addresses are valid.
+search_roms_init_statement:
+                ld      c,0
+                call    search_roms_address
+                jr      z,search_roms_init_device
+                set     5,c
+search_roms_init_device:
+                call    search_roms_address
+                jr      z,search_roms_init_basic
+                set     6,c
+search_roms_init_basic:
+                call    search_roms_address
+                jr      z,search_roms_init_variables
+                set     7,c
+
+                ; Set up the related system variables.
+search_roms_init_variables:
+                ld      b,a             ; A = x000sspp
+                and     $0C
+                ld      e,a
+                ld      a,b
+                rlca
+                rlca
+                rlca
+                rlca
+                and     $30
+                or      e               ; A = 00ppss00
+                ld      e,a
+                ld      a,h
+                rlca
+                rlca
+                and     $03
+                or      e               ; A = 00ppssPP
+                ld      hl,SLTATR
+                ld      d,0
+                ld      e,a
+                add     hl,de
+                ld      (hl),c
+                ld      a,b
+                ret
+
+                ; Read an address and check whether it is valid or not.
+search_roms_address:
+                push    bc
+                call    search_roms_read
+                ld      a,d
+                or      e               ; ZF is not set if the address is
+                ld      a,b             ; correct.
+                pop     bc
+                ret
+
+;----------------------
+; Run any BASIC roms found.
+run_basic_roms:
+                ld      hl,SLTATR
+                ld      b,64
+run_basic_roms_lp:
+                ld      a,(hl)
+                bit     7,a
+                jr      z,run_basic_roms_next
+                push    hl
+                ld      hl,$0112
+                call    posit
+                ld      hl,str_basic
+                call    prn_text
+                pop     hl
+run_basic_roms_next:
+                inc     hl
+                djnz    run_basic_roms_lp
+                ret
+
+;boot_stage2:
+;                ; Set up hooks and system vars so NMS8250 disk ROM will try
+;                ; to load and execute the boot sector.
+;                ld      a,1
+;                ld      (DEVICE),a
+;                xor     a
+;                ; TODO: Find out or invent name for $FB29.
+;                ld      ($FB29),a
+;
+;                ; This is the hook the disk ROM uses for booting.
+;                call    H_RUNC
+;
 ; We couldn't boot anything, instead show disk contents.
 ; TODO: This breaks boot of MG2, so disabled for now.
 ;                jp      disk_intr
-                ret                     ; goto stack_error
-
-HYPER_ADRS:     equ     $c000 ; Where the routine will put?
-
-
-;-----------------------
-;p0_run  We have to jump to the hell where anyone can't control
-;-----------------------
-p0_run:
-                ld      hl,hyper_p0_jump
-                ld      de,HYPER_ADRS
-                ld      bc,hyper_p0_jump_end - hyper_p0_jump
-                ldir
-
-                in      a,(PSL_STAT)
-                rrca
-                rrca
-                and     $03             ; 000000PP
-                ld      d,$00
-                ld      e,a
-                ld      c,a
-                ld      hl,EXPTBL
-                add     hl,de
-                ld      a,(EXPTBL)
-                bit     7,(hl)
-                jr      z,p0_noexp
-                inc     hl
-                inc     hl
-                inc     hl
-                inc     hl
-                ld      a,(hl)
-                and     $fc
-                or      e
-                ld      (hl),a
-                ld      d,a             ; D = expanded slot register
-                ld      a,e
-                rrca
-                rrca
-                ld      b,a             ; B = PP000000
-                in      a,(PSL_STAT)
-                ld      e,a             ; E = old primary slot reg
-                and     $3f
-                or      b
-                out     (PSL_STAT),a
-
-                ld      a,d
-                ld      (SSL_REGS),a
-                ld      a,e
-                out     (PSL_STAT),a
-
-p0_noexp:
-                ld      hl,($8002)      ; an address of the cartridge start
-                jp      HYPER_ADRS
-
-;-------------------
-hyper_p0_jump:
-; in : Reg C = Primary slot under the cartridge
-                in      a,(PSL_STAT)
-                and     $fc
-                or      c
-                out     (PSL_STAT),a
-                jp      (hl)
-hyper_p0_jump_end:      equ     $
-
+;                ret                     ; goto stack_error
 
 ;-------------------------------
 ; Display infomation
@@ -930,69 +1018,6 @@ disp_info:
                 call    prn_text
 
                 jp      logo_show
-
-;----------------------------
-start_cartprog:
-; If a cartridge exist in the slot,execute program in the slot
-
-                ld      hl,$0112
-                call    posit
-
-                ld      a,($4000)
-                cp      'A'
-                jr      z,start_cartprog_found
-                ld      a,($8000)
-                cp      'A'
-                jr      z,start_cartprog_found
-
-                ld      hl,str_nocart
-                call    prn_text
-
-                jp      hang_up_mode
-
-start_cartprog_found:
-                ld      hl,str_slot
-                call    prn_text
-
-                call    rslreg
-                rrca
-                rrca
-                and     $03
-                ld      d,$00
-                ld      e,a
-                add     a,'0'
-                call    chput
-                ld      hl,EXPTBL
-                add     hl,de
-                bit     7,(hl)
-                jr      z,start_cartprog_notexp
-                ld      a,'.'
-                call    chput
-                ld      hl,SLTTBL
-                add     hl,de
-                ld      a,(hl)
-                rrca
-                rrca
-                and     $03
-                add     a,'0'
-                call    chput
-start_cartprog_notexp:
-
-                ld      b,120           ; 2sec wait (1 = 1/60sec)
-                call    wait_key07      ; wait routine
-
-                bit     5,a
-                jp      z,sh_keyboard
-                bit     0,a
-                jp      z,debug_mode
-
-                ld      hl,str_crlf
-                call    prn_text
-
-                ld      hl,str_run
-                call    prn_text
-
-                ret
 
 ; ------
 ; BIOS debug routine
@@ -1199,7 +1224,7 @@ down_addr:
                 ret
 
 on_start:
-                jp      start_game
+                jp      search_roms
 
 ;------------------------
 ; Initialize RAM
@@ -3860,6 +3885,9 @@ str_proginfo:
 str_slot:
                 ;       [01234567890123456789012345678901]
                 db      "Cartridge found in slot: ",$00
+str_basic:
+                ;       [01234567890123456789012345678901]
+                db      "Cannot execute a BASIC ROM. ",$00
 
 ;-------------------------------------
 ; error messages

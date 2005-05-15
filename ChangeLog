@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.120 2005/03/18 23:58:02 ccfg Exp $
+$Id: ChangeLog,v 1.121 2005/03/26 07:32:57 bifimsx Exp $
+
+2005-05-16 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Rewrote the cartridge search code.
+      It isn't finished yet and may break things, please test.
 
 2005-03-26 Albert Beevendorp
     * Reset initial HIMEM value to $F380.
