@@ -1,7 +1,13 @@
-$Id: ChangeLog,v 1.122 2005/05/15 23:30:47 ccfg Exp $
+$Id: ChangeLog,v 1.123 2005/05/16 18:20:46 mthuurne Exp $
 
 2005-05-16 Maarten ter Huurne <maarten@treewalker.org>
     * Committed RuMSX configs with some fixes from Rudolf Lechleitner.
+    * Reset vertical scroll register in CHGMOD.
+      Fixes problem in "The Cockpit" when you start the game before the title
+      scroll is finished.
+    * Refactored code for setting the number of lines (192/212) and for turning
+      off page blinking: now this code is always executed on V9938/58, even for
+      MSX1 modes.
 
 2005-05-16 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Rewrote the cartridge search code.

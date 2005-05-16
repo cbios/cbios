@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.54 2005/02/07 01:27:30 mthuurne Exp $
+; $Id: video.asm,v 1.55 2005/03/18 23:58:03 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -314,6 +314,26 @@ chgmod_tbl:
 ; TODO: Now that we rewrite most regs at the end of CHGMOD,
 ;       the ini* routines can just update RG?SAV instead of calling wrtvdp.
 chgmod_finish:
+                ; Generic state resets.
+        IF VDP != TMS99X8
+                ld      hl,RG8SAV+9-8
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,chgmod_finish_lines_212
+                res     7,(hl)          ; 192 lines mode
+                jr      chgmod_finish_lines_end
+chgmod_finish_lines_212:
+                set     7,(hl)          ; 212 lines mode
+chgmod_finish_lines_end:
+                ; Turn off page blinking.
+                xor     a
+                ld      (RG8SAV+13-8),a
+                ; Reset vertical scrolling.
+                xor     a
+                ld      (RG8SAV+23-8),a
+        ENDIF
+
+                ; Write new values from system RAM to the VDP.
                 di
                 ; Write R#0 - R#7.
                 ld      hl,RG0SAV
@@ -547,7 +567,6 @@ initxt_width40:
                 ld      (PATBAS),hl
 
                 ; Update VDP regs and VRAM.
-                call    disscr
                 call    chgclr
                 call    settxt
         IF COMPILE_FONT != NO
@@ -1344,18 +1363,12 @@ init_sc4_lp:
                 xor     a
                 call    set_base_address
 
-                ld      a,(RG8SAV+9-8)
-                and     $7F             ; 192 lines mode
-                ld      b,a
-                ld      c,9
-                call    wrtvdp          ; VDP R#9
-
                 ; TODO: This should be done for SCREEN2 as well,
                 ;       but on MSX1 these regs don't exist.
-                ld      bc,$000A        ; B = $00, C = 10
-                call    wrtvdp          ; VDP R#10
-                ld      bc,$000B        ; B = $00, C = 11
-                call    wrtvdp          ; VDP R#11
+                ld      hl,RG8SAV+10-8
+                ld      (hl),0          ; VDP R#10
+                inc     hl
+                ld      (hl),0          ; VDP R#11
 
                 call    clrspr_attr_spritemode1
                 ld      bc,$000E        ; B = $00, C = 14
@@ -1413,16 +1426,6 @@ init_sc5:
                 ld      bc,$0F06        ; B = $0F, C = 6
                 call    wrtvdp          ; VDP R#6
 
-                ld      a,(RG8SAV+9-8)
-                or      $80             ; 212 lines mode
-                ld      b,a
-                ld      c,9
-                call    wrtvdp          ; VDP R#9
-
-                ; Turn off page blinking.
-                ld      bc,$000D
-                call    wrtvdp          ; VDP R#13
-
                 call    clrspr_attr_spritemode2
                 call    cls_screen5
                 jp      chgmod_finish
@@ -1473,16 +1476,6 @@ init_sc6:
                 ; Set sprite pattern table base.
                 ld      bc,$0F06        ; B = $0F, C = 6
                 call    wrtvdp          ; VDP R#6
-
-                ld      a,(RG8SAV+9-8)
-                or      $80             ; 212 lines mode
-                ld      b,a
-                ld      c,9
-                call    wrtvdp          ; VDP R#9
-
-                ; Turn off page blinking.
-                ld      bc,$000D
-                call    wrtvdp          ; VDP R#13
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen6
@@ -1535,16 +1528,6 @@ init_sc7:
                 ld      bc,$1E06        ; B = $1E, C = 6
                 call    wrtvdp          ; write VDP R#6
 
-                ld      a,(RG8SAV+9-8)
-                or      $80             ; 212 lines mode
-                ld      b,a
-                ld      c,9
-                call    wrtvdp          ; VDP R#9
-
-                ; Turn off page blinking.
-                ld      bc,$000D
-                call    wrtvdp          ; VDP R#13
-
                 call    clrspr_attr_spritemode2
                 call    cls_screen7
                 jp      chgmod_finish
@@ -1594,16 +1577,6 @@ init_sc8:
                 ; Set sprite pattern table base.
                 ld      bc,$1E06        ; B = $1E, C = 6
                 call    wrtvdp          ; write VDP R#6
-
-                ld      a,(RG8SAV+9-8)
-                or      $80             ; 212 lines mode
-                ld      b,a
-                ld      c,9
-                call    wrtvdp          ; VDP R#9
-
-                ; Turn off page blinking.
-                ld      bc,$000D
-                call    wrtvdp          ; VDP R#13
 
                 call    clrspr_attr_spritemode2
                 call    cls_screen8
