@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.121 2005/03/26 07:32:57 bifimsx Exp $
+$Id: ChangeLog,v 1.122 2005/05/15 23:30:47 ccfg Exp $
+
+2005-05-16 Maarten ter Huurne <maarten@treewalker.org>
+    * Committed RuMSX configs with some fixes from Rudolf Lechleitner.
 
 2005-05-16 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Rewrote the cartridge search code.
