@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.124 2005/05/16 23:24:23 mthuurne Exp $
+$Id: ChangeLog,v 1.125 2005/05/17 06:32:13 bifimsx Exp $
 
 2005-05-17 Albert Beevendorp
     * Added V9938 version of the logo
@@ -8,6 +8,8 @@ $Id: ChangeLog,v 1.124 2005/05/16 23:24:23 mthuurne Exp $
       - main texts are printed in both pattern mode and graphical mode
       - TODO: get rid of the "Cartridge found in slot: 3.3" when there is
         no cart inserted in graphical mode.
+      - TODO: find a decent place to restore the palette when booting an
+        MSX1 game on MSX2
 
 2005-05-16 Maarten ter Huurne <maarten@treewalker.org>
     * Committed RuMSX configs with some fixes from Rudolf Lechleitner.
