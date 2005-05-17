@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.101 2005/03/26 07:32:36 bifimsx Exp $
+; $Id: main.asm,v 1.102 2005/05/15 23:30:48 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -747,8 +747,15 @@ ram_ok:
                 call H_STKE
                 call    run_basic_roms
 
+        IF VDP = TMS99X8
                 ld      hl,$0113
                 call    posit
+        ELSE
+                ld      hl,0
+                ld      (GXPOS),hl
+                ld      hl,$12 *8
+                ld      (GYPOS),hl
+        ENDIF
                 ld      hl,str_nocart
                 call    prn_text
 
@@ -827,8 +834,15 @@ search_roms_init:
                 ; Output a message to show that a ROM is found.
                 push    hl
                 push    af
+        IF VDP = TMS99X8
                 ld      hl,$0112
                 call    posit
+        ELSE
+                ld      hl,0
+                ld      (GXPOS),hl
+                ld      hl,$11 *8
+                ld      (GYPOS),hl
+        ENDIF
                 ld      hl,str_slot
                 call    prn_text
                 pop     af
@@ -836,22 +850,47 @@ search_roms_init:
                 ld      b,a
                 and     $03
                 add     a,'0'
+        IF VDP = TMS99X8
                 call    chput
+        ELSE
+                ld      ix,$89
+                call    extrom
+        ENDIF
                 ld      a,b
                 bit     7,b
                 jr      z,search_roms_init_wait
                 ld      a,'.'
+        IF VDP = TMS99X8
                 call    chput
+        ELSE
+                ld      ix,$89
+                call    extrom
+        ENDIF
                 ld      a,b
                 rrca
                 rrca
                 and     $03
                 add     a,'0'
+        IF VDP = TMS99X8
                 call    chput
+        ELSE
+                ld      ix,$89
+                call    extrom
+        ENDIF
 search_roms_init_wait:
                 ld      a,' '
+        IF VDP = TMS99X8
                 call    chput
+        ELSE
+                ld      ix,$89
+                call    extrom
+        ENDIF
+        IF VDP = TMS99X8
                 call    chput
+        ELSE
+                ld      ix,$89
+                call    extrom
+        ENDIF
                 ld      b,120
                 call    wait_key07
                 pop     af
@@ -940,8 +979,15 @@ run_basic_roms_lp:
                 bit     7,a
                 jr      z,run_basic_roms_next
                 push    hl
+        IF VDP = TMS99X8
                 ld      hl,$0112
                 call    posit
+        ELSE
+                ld      hl,0
+                ld      (GXPOS),hl
+                ld      hl,$11 *8
+                ld      (GYPOS),hl
+        ENDIF
                 ld      hl,str_basic
                 call    prn_text
                 pop     hl
@@ -980,42 +1026,6 @@ disp_info:
                 jp      z,debug_mode
 
 ; Display program infomation
-
-                call    init32
-
-                ld      a,5
-                ld      (BAKCLR),a
-                ld      (BDRCLR),a
-                call    chgclr
-
-                ; Set up SCREEN 2 mirrored
-                ld      bc,0 +256* 2
-                call    wrtvdp
-                ld      bc,3 +256* 159
-                call    wrtvdp
-                ld      bc,4 +256* 0
-                call    wrtvdp
-
-                ; Fill the color table
-                ld      a,(FORCLR)
-                and     15
-                rlca
-                rlca
-                rlca
-                rlca
-                ld      b,a
-                ld      a,(BAKCLR)
-                and     15
-                or      b
-                ld      bc,2048
-                ld      hl,(GRPCOL)
-                call    filvrm
-
-                ; Print program info.
-                ld      hl,$0101
-                call    posit
-                ld      hl,str_proginfo
-                call    prn_text
 
                 jp      logo_show
 
@@ -1718,7 +1728,15 @@ prn_str_disp:
                 ld      a,(hl)
                 or      a
                 jp      z,nul_term
-                call    chput
+                push    bc
+                ld      b,a
+                ld      a,(SCRMOD)
+                cp      5
+                ld      a,b
+                pop     bc
+                call    c,chput
+                ld      ix,$89
+                call    nc,extrom
                 inc     hl
                 jr      prn_str_disp
 nul_term:
@@ -3880,7 +3898,7 @@ disk_error:
 
 str_proginfo:
                 ;       [01234567890123456789012345678901]
-                db      "C-BIOS 0.20a        cbios.sf.net",$00
+                db      "C-BIOS 0.21         cbios.sf.net",$00
 
 str_slot:
                 ;       [01234567890123456789012345678901]
@@ -3946,7 +3964,7 @@ str_de_oe:
 str_nocart:
                 ;       [0123456789012345678901234567890123456789]
                 db      $0D,$0A
-                db      "No cartridge found.",$0D,$0A,"Please restart your MSX (or emu-lator), with a cartridge inser- ted.",$00
+                db      "No cartridge found.",$0D,$0A,"Please restart your MSX (or e-",$0D,$0A,"mulator), with a cartridge in-",$0D,$0A,"serted.",$00
 ; TODO change it to db      "No cartridge found.",$0D,$0A,"Please restart your MSX (or emu-lator), with a cartridge inser- ted or press any key to reboot.",$00 as soon as the reboot is implemented.
 
 str_run:

@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.40 2005/02/07 02:52:18 mthuurne Exp $
+; $Id: sub.asm,v 1.41 2005/02/08 06:47:43 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -485,6 +485,14 @@ grpprt_sub:
                 push    bc
                 push    de
                 push    hl
+
+                ; NOTE: I'm not sure whether or not this part
+                ; should be implemented at all
+                cp      10
+                jr      z,grpprt_lf
+                cp      13
+                jr      z,grpprt_cr
+
                 call    getpat
 
                 ld      hl,(GXPOS)
@@ -500,6 +508,13 @@ grpprt_sub:
 
                 ld      (NX),bc
                 ld      (NY),bc
+
+                ld      hl,PATWRK
+                rlc     (hl)
+                ld      a,(ATRBYT)
+                jr      c,grpprt_init
+                ld      a,(BAKCLR)
+grpprt_init:    ld      (CDUMMY),a
                 call    exec_cmd
 
                 ld      a,(hl)
@@ -514,8 +529,9 @@ grpprt_sub:
                 ei
 
                 ld      b,8                     ; number of lines
+                ld      c,7                     ; number of pixels
                 ld      hl,PATWRK
-grpprt_line:    ld      c,8                     ; number of pixels
+
 grpprt_loop:    rlc     (hl)
                 ld      a,(ATRBYT)
                 jr      c,grpprt_out
@@ -524,11 +540,23 @@ grpprt_out:     out     (VDP_REGS),a            ; write pixel color
                 dec     c
                 jr      nz,grpprt_loop
                 inc     hl
-                djnz    grpprt_line
+                ld      c,8                     ; number of pixels
+                djnz    grpprt_loop
+grpprt_end:
                 pop     hl
                 pop     de
                 pop     bc
                 ret
+
+grpprt_lf:      ld      hl,(GYPOS)
+                ld      bc,8
+                add     hl,bc
+                ld      (GYPOS),hl
+                jr      grpprt_end
+
+grpprt_cr:      ld      hl,0
+                ld      (GXPOS),hl
+                jr      grpprt_end
 
 ;-------------------------------------
 ; $0091 MAPXYC
@@ -1027,9 +1055,9 @@ bltmv_cont:
 
                 push    hl
                 call    exec_cmd
-                ld      a,(hl)
-                and     $0F
-                or      $A0                     ; LMCM
+                ;ld      a,(hl)
+                ;and     $0F
+                ld      a,$A0                   ; LMCM
                 out     (c),a
                 ei
                 pop     hl
@@ -1041,8 +1069,10 @@ bltmv_pixel:
                 ld      a,2
                 call    vdpsta
                 bit     7,a                     ; transmit ready?
-                jr      z,bltmv_end
-
+                jr      nz,bltmv_do
+                bit     0,a
+                jr      nz,bltmv_pixel
+bltmv_do:
                 push    bc
                 ld      a,7
                 call    vdpsta

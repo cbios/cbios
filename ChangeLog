@@ -1,4 +1,13 @@
-$Id: ChangeLog,v 1.123 2005/05/16 18:20:46 mthuurne Exp $
+$Id: ChangeLog,v 1.124 2005/05/16 23:24:23 mthuurne Exp $
+
+2005-05-17 Albert Beevendorp
+    * Added V9938 version of the logo
+      - moved some portions of the TMS99x8 logo from main.asm to logo.asm
+      - made prn_text in main.asm multi-screenmode ready
+      - fixed a bug in grpprt_sub in sub.asm
+      - main texts are printed in both pattern mode and graphical mode
+      - TODO: get rid of the "Cartridge found in slot: 3.3" when there is
+        no cart inserted in graphical mode.
 
 2005-05-16 Maarten ter Huurne <maarten@treewalker.org>
     * Committed RuMSX configs with some fixes from Rudolf Lechleitner.
