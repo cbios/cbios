@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.41 2005/02/08 06:47:43 mthuurne Exp $
+; $Id: sub.asm,v 1.42 2005/05/17 06:31:38 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -783,7 +783,7 @@ palette_vram_table:
                 dw      $fa80           ; SCREEN 8
 
 palette_vram_init:
-                dw      $000,$000,$611,$733,$117,$327,$115,$627
+                dw      $000,$000,$611,$733,$117,$327,$151,$627
                 dw      $171,$373,$661,$664,$411,$265,$555,$777
 
 ;-------------------------------------
@@ -1055,8 +1055,8 @@ bltmv_cont:
 
                 push    hl
                 call    exec_cmd
-                ;ld      a,(hl)
-                ;and     $0F
+                ld      a,(hl)
+                and     $0F
                 ld      a,$A0                   ; LMCM
                 out     (c),a
                 ei
