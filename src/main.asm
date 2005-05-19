@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.102 2005/05/15 23:30:48 ccfg Exp $
+; $Id: main.asm,v 1.103 2005/05/17 06:31:38 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -743,8 +743,9 @@ ram_ok:
                 call    disp_info
 ;                call    start_cartprog
 
+
                 call    search_roms
-                call H_STKE
+                call    H_STKE
                 call    run_basic_roms
 
         IF VDP = TMS99X8
@@ -893,6 +894,11 @@ search_roms_init_wait:
         ENDIF
                 ld      b,120
                 call    wait_key07
+
+        IF VDP != TMS99X8
+                call    init_video_to_run
+        ENDIF
+
                 pop     af
                 pop     hl
 
@@ -968,6 +974,15 @@ search_roms_address:
                 ld      a,b             ; correct.
                 pop     bc
                 ret
+
+        IF VDP != TMS99X8
+;----------------------
+;Call some initializer to be default as well as official.
+init_video_to_run:
+                call    init32
+                ld      ix,$0141 ; call INIPLT
+                jp      extrom
+        ENDIF
 
 ;----------------------
 ; Run any BASIC roms found.
