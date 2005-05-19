@@ -1,4 +1,10 @@
-$Id: ChangeLog,v 1.125 2005/05/17 06:32:13 bifimsx Exp $
+$Id: ChangeLog,v 1.126 2005/05/17 06:36:25 bifimsx Exp $
+
+2005-05-19 Albert Beevendorp
+    * fixed 1 palette color. Thanks to BouKiCHi for spotting it
+    * BouKiCHi has made a fix to restore the palette when booting a game
+      but it doesn't print the 'not found' text on the intro screen
+      anymore like the TMS99X8 version does
 
 2005-05-17 Albert Beevendorp
     * Added V9938 version of the logo
