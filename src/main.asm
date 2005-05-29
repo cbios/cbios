@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.105 2005/05/29 01:32:28 mthuurne Exp $
+; $Id: main.asm,v 1.106 2005/05/29 01:48:13 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -725,11 +725,6 @@ ram_ok:
         IF VDP != TMS99X8
                 call    chksubpos
         ENDIF
-;                call    check_rom
-
-;                in      a,(PSL_STAT)
-;                ld      ($F000),a
-;                call    p3_chk
 
                 call    init_vdp
 
@@ -1326,108 +1321,6 @@ prn_str_disp:
                 inc     hl
                 jr      prn_str_disp
 nul_term:
-                ret
-
-;---------------------------------------------
-check_rom:
-                ld      b,$80
-chk_rom_loop:
-                ld      h,$40
-                ld      a,b
-                push    bc
-                call    enaslt
-                pop     bc
-
-                ld      a,($4000)
-                cp      'A'
-                jr      nz,chk_p3
-
-                ld      a,($4003)
-                cp      $40
-                jr      c,chk_p3        ; A-$40 < 0
-                cp      $80
-                jr      nc,chk_p3       ; A-$80 >= 0
-                jp      chk_rom_ok
-chk_p3:
-                ld      h,$80
-                ld      a,b
-                push    bc
-                call    enaslt
-                pop     bc
-
-                ld      a,($8000)
-                cp      'A'
-                jr      nz,no_cart
-
-                ld      a,($8003)
-                cp      $80
-                jr      c,chk_p0       ; A-$80 < 0
-                cp      $C0
-                jr      nc,chk_p0      ; A-$C0 >= 0
-                jp      chk_rom_ok
-
-chk_p0:
-                ld      h,a
-                ld      a,($8002)
-                or      h
-                jr      z,no_cart      ; (INIT) == 0
-                jp      chk_rom_ok
-
-no_cart:
-                inc     b
-                ld      a,b
-                and     $7F
-                cp      $10
-                jr      nz,chk_rom_loop
-
-chk_rom_ng:
-                ld      h,$40
-                ld      a,$80
-
-                push    bc
-                call    enaslt
-                pop     bc
-
-chk_rom_ok:
-                ret
-
-;----------------------------------
-p3_chk:
-                ld      a,($8000)
-                cp      'A'
-                jp      z,page_set0
-
-                ret
-
-page_set0:
-                call    rslreg
-                ld      c,a
-                and     $3F             ; 00111111
-                ld      b,a
-                and     $03             ; 000000AA
-                rrca
-                rrca
-                or      b               ; AABBBBAA
-                out     (PSL_STAT),a
-
-                ld      a,(SSL_REGS)
-                cpl
-                and     $F3             ; 11110011
-                ld      d,a
-                and     $03             ; 00000011
-                rlca
-                rlca
-                or      d
-                ld      (SSL_REGS),a
-
-                ld      a,c
-                and     $F3
-                ld      c,a
-                and     $03
-                rlca
-                rlca
-                or      c
-                out     (PSL_STAT),a
                 ret
 
 ;--------------------------------
