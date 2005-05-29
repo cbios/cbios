@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.103 2005/05/17 06:31:38 bifimsx Exp $
+; $Id: main.asm,v 1.104 2005/05/19 16:58:34 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -791,10 +791,8 @@ search_roms_lp_sub:
                 bit     7,a
                 jr      z,search_roms_next_slot
                 add     a,4             ; Select next subslot.
-                ld      b,a
-                and     $0C
-                ld      a,b
-                jr      nz,search_roms_lp_sub
+                bit     4,a
+                jr      z,search_roms_lp_sub
 search_roms_next_slot:
                 pop     hl              ; Select next slot.
                 inc     hl
@@ -820,14 +818,10 @@ search_roms_read:
 
                 ; Check whether the ROM is present or not.
 search_roms_check:
-                push    de
-                push    hl
                 call    search_roms_read
                 ld      hl,$4241        ; "AB"
                 call    dcompr          ; ZF is set if the ROM is present.
                 ld      a,b
-                pop     hl
-                pop     de
                 ret
 
                 ; Initialize the ROM and set up the related system variables.
@@ -841,7 +835,7 @@ search_roms_init:
         ELSE
                 ld      hl,0
                 ld      (GXPOS),hl
-                ld      hl,$11 *8
+                ld      hl,$11 * 8
                 ld      (GYPOS),hl
         ENDIF
                 ld      hl,str_slot
@@ -854,7 +848,7 @@ search_roms_init:
         IF VDP = TMS99X8
                 call    chput
         ELSE
-                ld      ix,$89
+                ld      ix,$0089
                 call    extrom
         ENDIF
                 ld      a,b
@@ -864,7 +858,7 @@ search_roms_init:
         IF VDP = TMS99X8
                 call    chput
         ELSE
-                ld      ix,$89
+                ld      ix,$0089
                 call    extrom
         ENDIF
                 ld      a,b
@@ -875,7 +869,7 @@ search_roms_init:
         IF VDP = TMS99X8
                 call    chput
         ELSE
-                ld      ix,$89
+                ld      ix,$0089
                 call    extrom
         ENDIF
 search_roms_init_wait:
@@ -883,17 +877,17 @@ search_roms_init_wait:
         IF VDP = TMS99X8
                 call    chput
         ELSE
-                ld      ix,$89
+                ld      ix,$0089
                 call    extrom
         ENDIF
         IF VDP = TMS99X8
                 call    chput
         ELSE
-                ld      ix,$89
+                ld      ix,$0089
                 call    extrom
         ENDIF
                 ld      b,120
-                call    wait_key07
+                call    wait_b
 
         IF VDP != TMS99X8
                 call    init_video_to_run
@@ -1715,23 +1709,6 @@ vout_hex8:
 wait_b:
                 halt
                 djnz    wait_b
-                ret
-
-;------------------------
-; wait routine
-; caution,already EI when call the rouine
-; in .... B = loop frequency
-; out ... A = 7th of keymatrix
-; dest .. RegC
-wait_key07:
-                ld      c,$FF
-wk07_lp:
-                halt
-                ld      a,(NEWKEY + 6)
-                and     c
-                ld      c,a
-                djnz    wk07_lp
-                ld      a,c
                 ret
 
 ;------------------------
