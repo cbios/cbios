@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.104 2005/05/19 16:58:34 bifimsx Exp $
+; $Id: main.asm,v 1.105 2005/05/29 01:32:28 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -740,7 +740,7 @@ ram_ok:
 
                 ei
 
-                call    disp_info
+                call    logo_show
 ;                call    start_cartprog
 
 
@@ -1022,228 +1022,6 @@ run_basic_roms_next:
 ;                jp      disk_intr
 ;                ret                     ; goto stack_error
 
-;-------------------------------
-; Display infomation
-;-------------------------------
-disp_info:
-
-; Go to debug_mode if pressed shift key
-;
-                ld      a,$06
-                call    snsmat
-                bit     0,a
-                jp      z,debug_mode
-
-; Display program infomation
-
-                jp      logo_show
-
-; ------
-; BIOS debug routine
-; ------
-; HL ... address of NEWKEY.
-;
-sh_keyboard:
-                call    init_vdp
-kbd_lp:
-                ld      a,1
-                ld      (CSRX),a
-                ld      (CSRY),a
-                ld      hl,NEWKEY
-
-                ld      b,10
-kbd_byteread:
-                push    bc
-                ld      a,(hl)
-                inc     hl
-                ld      b,8
-kbd_shift:
-                rlca
-                push    af
-                jr      c,kbd_on
-;Bit[n] = 0
-                ld      a,'0'
-                call    chput
-                pop     af
-                jr      kbd_lpchk
-;Bit[n] = 1
-kbd_on:
-                ld      a,'1'
-                call    chput
-                pop     af
-kbd_lpchk:
-                djnz    kbd_shift
-                pop     bc
-                ld      a,$0D
-                call    chput
-                ld      a,$0A
-                call    chput
-
-                djnz    kbd_byteread
-
-                jr      kbd_lp
-
-
-sh_debug:
-                ex      (sp),hl
-                ld      (LASTSTAC),hl
-
-debug_mode:
-                ; Sink a return code into hooks
-                ld      a,$C9
-                ld      (H_KEYI),a
-                ld      (H_TIMI),a
-
-                call    init_vdp
-
-                ld      a,1
-                ld      (CSRX),a
-                ld      a,1
-                ld      (CSRY),a
-
-                ld      hl,$4000        ; display from page1
-                ld      (DISPADDR),hl
-
-                ld      ix,(LASTSTAC)
-                call    vout_hex16
-
-                ld      a,' '
-                call    chput
-
-                ld      ix,(SP_REGS)
-                call    vout_hex16
-loop_dump:
-                call    disp_dump
-                call    dump_keywait
-                jr      loop_dump
-
-
-;-----------------
-; routines for dump
-;-----------------
-
-disp_dump:
-
-                ld      a,1
-                ld      (CSRX),a
-                ld      a,3
-                ld      (CSRY),a
-
-                ld      ix,(DISPADDR)
-                ld      c,$10           ; RegC = rows
-
-dump_lp:
-                push    bc
-                call    vout_hex16
-                pop     bc
-                ld      a,':'
-                call    chput
-                ld      b,$10           ; RegB = cols
-d16_lp:
-                ld      a,(ix+0)
-                push    bc
-                call    vout_hex8
-                pop     bc
-                inc     ix
-                djnz    d16_lp
-
-                dec     c
-                jr      nz,dump_lp
-
-                ret
-
-;-------------------------
-; wait for key loop
-dump_keywait:
-
-                ld      e,$02
-
-                ld      a,($E008)
-                ld      d,a
-
-                ld      a,$08
-                call    snsmat
-
-                cp      d
-                jr      z,dumpkey_loop
-                ; case of A != E008
-                ld      ($E008),a
-                ld      e,$10
-
-dumpkey_loop:
-                halt
-                ld      a,($E008)
-                ld      d,a
-
-                ld      a,$08
-                call    snsmat
-
-                dec     e
-                jr      z,skip_kchk
-                cp      d
-                jr      z,dumpkey_loop
-
-skip_kchk:
-                push    af
-                ld      a,$06
-                call    snsmat
-                bit     0,a
-                jr      nz,norm
-                ld      iy,$1000
-                jr      bit_chk
-norm:
-                ld      iy,$0100
-bit_chk:
-                pop     af
-
-                bit     7,a
-                jr      z,on_pagedown
-                bit     6,a
-                jr      z,on_down
-                bit     5,a
-                jr      z,on_up
-                bit     4,a
-                jr      z,on_pageup
-
-                ld      ($E008),a
-
-                ld      a,$07
-                call    snsmat
-
-                bit     1,a
-                jr      z,on_start
-
-                jr      dumpkey_loop
-
-on_pagedown:
-                push    iy
-                pop     bc
-                jr      up_addr
-on_pageup:
-                push    iy
-                pop     bc
-                jr      down_addr
-on_down:
-                ld      bc,$0010
-                jr      up_addr
-on_up:
-                ld      bc,$0010
-                jr      down_addr
-
-up_addr:
-                ld      hl,($E010)
-                add     hl,bc
-                ld      ($E010),hl
-                ret
-down_addr:
-                ld      hl,($E010)
-                and     a
-                sbc     hl,bc
-                ld      ($E010),hl
-                ret
-
-on_start:
-                jp      search_roms
 
 ;------------------------
 ; Initialize RAM
@@ -1519,190 +1297,6 @@ rd_subpos:
         ENDIF
 
 ;------------------------
-;
-;Display register ( for debug )
-;
-dbg_reg:
-                push    ix
-                push    iy
-                push    hl
-                push    de
-                push    bc
-                push    af
-
-                ld      iy,6
-
-                ld      a,1
-                ld      (CSRX),a
-                ld      a,14
-                ld      (CSRY),a
-
-dbg_loop:
-                pop     ix
-                call    prn_hex
-
-                dec     iy
-
-                push    iy
-                pop     bc
-
-                xor     a
-                or      c
-
-                jr      nz,dbg_loop
-                pop     ix
-                push    ix
-                jp      prn_hex ; display Reg.PC
-
-
-;------------------------
-prn_hex:
-;BC = Reg
-                call    prn_reg
-                call    vout_hex16
-
-                ld      a,' '
-                call    chput
-
-                ret
-
-;------------------------
-prn_reg:
-;
-                push    hl
-                push    bc
-                push    iy
-                pop     bc
-
-                ld      a,c
-                add     a,a
-                add     a,a
-                ld      c,a
-
-                ld      hl,reg_tbl
-                add     hl,bc
-
-                ld      b,3
-reg_lp:
-                ld      a,(hl)
-                inc     hl
-                call    chput
-                djnz    reg_lp
-
-                pop     bc
-                pop     hl
-                ret
-
-;------------------------
-vout_hex16:
-;Display 16bit hex number
-;IX = number
-;dest = BC,HL,AF
-                ; RegB upper 4bit
-                ld      hl,hex_tbl
-                push    ix
-                pop     bc
-
-                ld      a,b
-                rlca
-                rlca
-                rlca
-                rlca
-                and     $0F
-
-                ld      b,0
-                ld      c,a
-                add     hl,bc
-                ld      a,(hl)
-                call    chput
-
-
-                ; RegB lower 4bit
-                ld      hl,hex_tbl
-                push    ix
-                pop     bc
-
-                ld      a,b
-                and     $0F
-
-                ld      b,0
-                ld      c,a
-                add     hl,bc
-                ld      a,(hl)
-                call    chput
-
-                ; RegC upper 4bit
-                ld      hl,hex_tbl
-                push    ix
-                pop     bc
-
-                ld      a,c
-                rlca
-                rlca
-                rlca
-                rlca
-                and     $0F
-
-                ld      b,0
-                ld      c,a
-                add     hl,bc
-                ld      a,(hl)
-                call    chput
-
-                ; RegC lower 4bit
-                ld      hl,hex_tbl
-                push    ix
-                pop     bc
-
-                ld      a,c
-                and     $0F
-
-                ld      b,0
-                ld      c,a
-                add     hl,bc
-                ld      a,(hl)
-                call    chput
-
-                ret
-
-;------------------------
-vout_hex8:
-;display 8bit-width hex
-;A = êîíl
-;dest = BC,HL,AF
-                push    af ; the stack will use lower 4bit
-
-                ; RegA upper 4bit
-
-                ld      hl,hex_tbl
-                rlca
-                rlca
-                rlca
-                rlca
-                and     $0F
-
-                ld      b,0
-                ld      c,a
-                add     hl,bc
-                ld      a,(hl)
-                call    chput
-
-                pop     af
-
-                ; RegA lower 4bit
-                ld      hl,hex_tbl
-
-                and     $0F
-
-                ld      b,0
-                ld      c,a
-                add     hl,bc
-                ld      a,(hl)
-                call    chput
-
-                ret
-
-;------------------------
 ; wait routine
 ; caution,already EI when call the rouine
 ; B = frequency of loop
@@ -1727,32 +1321,11 @@ prn_str_disp:
                 ld      a,b
                 pop     bc
                 call    c,chput
-                ld      ix,$89
+                ld      ix,$0089
                 call    nc,extrom
                 inc     hl
                 jr      prn_str_disp
 nul_term:
-                ret
-
-;-------------------------
-check_sum:
-                xor     a
-                ld      bc,$4000
-                ld      hl,$4000
-                ld      de,$0000
-csum_lp:
-                ld      a,(hl)
-                add     a,e
-                ld      e,a
-                jr      nc,csum_nc
-                inc     d
-csum_nc:
-                inc     hl
-                dec     bc
-
-                ld      a,b
-                or      c
-                jr      nz,csum_lp
                 ret
 
 ;---------------------------------------------
@@ -3486,11 +3059,6 @@ kilbuf:
 ;------------------
 
 keyint:
-;for debug
-;                push    hl
-;                ld  hl,$3232
-;                ex (sp),hl
-
                 push    hl
                 push    de
                 push    bc
@@ -3680,14 +3248,8 @@ extrom:
 
 ;------------------------------------
 hang_up_mode:
-                ld      a,$06
-                call    snsmat
-                bit     0,a
-                jp      z,debug_mode
-
+                di
                 halt
-
-                jr      hang_up_mode
 
 ;------------------------------------
 ; Called if the stack underflows.
