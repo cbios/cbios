@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.106 2005/05/29 01:48:13 mthuurne Exp $
+; $Id: main.asm,v 1.107 2005/05/29 01:54:54 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -813,10 +813,12 @@ search_roms_read:
 
                 ; Check whether the ROM is present or not.
 search_roms_check:
+                push    hl
                 call    search_roms_read
                 ld      hl,$4241        ; "AB"
                 call    dcompr          ; ZF is set if the ROM is present.
                 ld      a,b
+                pop     hl
                 ret
 
                 ; Initialize the ROM and set up the related system variables.
