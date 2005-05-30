@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.107 2005/05/29 01:54:54 mthuurne Exp $
+; $Id: main.asm,v 1.108 2005/05/29 02:05:17 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -736,22 +736,26 @@ ram_ok:
                 ei
 
                 call    logo_show
-;                call    start_cartprog
+                ld      b,120
+                call    wait_b
+                ld      a,5
+                ld      (BAKCLR),a
+                ld      (BDRCLR),a
+                ld      a,29
+                ld      (LINL32),a
+                call    init32
+        IF VDP != TMS99X8
+                ld      ix,$0141 ; call INIPLT
+                call    extrom
+        ENDIF
 
+                ld      hl,str_proginfo
+                call    prn_text
 
                 call    search_roms
                 call    H_STKE
                 call    run_basic_roms
 
-        IF VDP = TMS99X8
-                ld      hl,$0113
-                call    posit
-        ELSE
-                ld      hl,0
-                ld      (GXPOS),hl
-                ld      hl,$12 *8
-                ld      (GYPOS),hl
-        ENDIF
                 ld      hl,str_nocart
                 call    prn_text
 
@@ -826,15 +830,6 @@ search_roms_init:
                 ; Output a message to show that a ROM is found.
                 push    hl
                 push    af
-        IF VDP = TMS99X8
-                ld      hl,$0112
-                call    posit
-        ELSE
-                ld      hl,0
-                ld      (GXPOS),hl
-                ld      hl,$11 * 8
-                ld      (GYPOS),hl
-        ENDIF
                 ld      hl,str_slot
                 call    prn_text
                 pop     af
@@ -842,53 +837,23 @@ search_roms_init:
                 ld      b,a
                 and     $03
                 add     a,'0'
-        IF VDP = TMS99X8
                 call    chput
-        ELSE
-                ld      ix,$0089
-                call    extrom
-        ENDIF
                 ld      a,b
                 bit     7,b
-                jr      z,search_roms_init_wait
+                jr      z,search_roms_init_skip
                 ld      a,'.'
-        IF VDP = TMS99X8
                 call    chput
-        ELSE
-                ld      ix,$0089
-                call    extrom
-        ENDIF
                 ld      a,b
                 rrca
                 rrca
                 and     $03
                 add     a,'0'
-        IF VDP = TMS99X8
                 call    chput
-        ELSE
-                ld      ix,$0089
-                call    extrom
-        ENDIF
-search_roms_init_wait:
-                ld      a,' '
-        IF VDP = TMS99X8
+search_roms_init_skip:
+                ld      a,$0D
                 call    chput
-        ELSE
-                ld      ix,$0089
-                call    extrom
-        ENDIF
-        IF VDP = TMS99X8
+                ld      a,$0A
                 call    chput
-        ELSE
-                ld      ix,$0089
-                call    extrom
-        ENDIF
-                ld      b,120
-                call    wait_b
-
-        IF VDP != TMS99X8
-                call    init_video_to_run
-        ENDIF
 
                 pop     af
                 pop     hl
@@ -966,15 +931,6 @@ search_roms_address:
                 pop     bc
                 ret
 
-        IF VDP != TMS99X8
-;----------------------
-;Call some initializer to be default as well as official.
-init_video_to_run:
-                call    init32
-                ld      ix,$0141 ; call INIPLT
-                jp      extrom
-        ENDIF
-
 ;----------------------
 ; Run any BASIC roms found.
 run_basic_roms:
@@ -985,15 +941,6 @@ run_basic_roms_lp:
                 bit     7,a
                 jr      z,run_basic_roms_next
                 push    hl
-        IF VDP = TMS99X8
-                ld      hl,$0112
-                call    posit
-        ELSE
-                ld      hl,0
-                ld      (GXPOS),hl
-                ld      hl,$11 *8
-                ld      (GYPOS),hl
-        ENDIF
                 ld      hl,str_basic
                 call    prn_text
                 pop     hl
@@ -1307,23 +1254,24 @@ wait_b:
 ; HL = string
 
 prn_text:
-prn_str_disp:
-                ld      a,(hl)
-                or      a
-                jp      z,nul_term
-                push    bc
-                ld      b,a
                 ld      a,(SCRMOD)
                 cp      5
-                ld      a,b
-                pop     bc
-                call    c,chput
-                ld      ix,$0089
-                call    nc,extrom
+                jr      nc,prn_text_graph
+prn_text_char:
+                ld      a,(hl)
+                or      a
+                ret     z
+                call    chput
                 inc     hl
-                jr      prn_str_disp
-nul_term:
-                ret
+                jr      prn_text_char
+prn_text_graph:
+                ld      a,(hl)
+                or      a
+                ret     z
+                ld      ix,$0089
+                call    extrom
+                inc     hl
+                jr      prn_text_graph
 
 ;--------------------------------
 ; Determine bytes per line in the current text mode.
@@ -3346,15 +3294,17 @@ disk_error:
 ;---------------------------------
 
 str_proginfo:
-                ;       [01234567890123456789012345678901]
-                db      "C-BIOS 0.21         cbios.sf.net",$00
+                ;       [01234567890123456789012345678]
+                db      "C-BIOS 0.21      cbios.sf.net"
+                db      $0D,$0A,$0D,$0A,$0D,$0A,$00
 
 str_slot:
-                ;       [01234567890123456789012345678901]
-                db      "Cartridge found in slot: ",$00
+                ;       [01234567890123456789012345678]
+                db      "Init ROM in slot: ",$00
+
 str_basic:
-                ;       [01234567890123456789012345678901]
-                db      "Cannot execute a BASIC ROM. ",$00
+                ;       [01234567890123456789012345678]
+                db      "Cannot execute a BASIC ROM.",$0D,$0A,$00
 
 ;-------------------------------------
 ; error messages
@@ -3411,20 +3361,15 @@ str_de_oe:
                 db      "Other Error",$0D,$0A,$00
 
 str_nocart:
-                ;       [0123456789012345678901234567890123456789]
-                db      $0D,$0A
-                db      "No cartridge found.",$0D,$0A,"Please restart your MSX (or e-",$0D,$0A,"mulator), with a cartridge in-",$0D,$0A,"serted.",$00
-; TODO change it to db      "No cartridge found.",$0D,$0A,"Please restart your MSX (or emu-lator), with a cartridge inser- ted or press any key to reboot.",$00 as soon as the reboot is implemented.
-
-str_run:
-                ;       [0123456789012345678901234567890123456789]
+                ;       [01234567890123456789012345678]
                 db      $0D,$0A,$0D,$0A
-                db      "Starting...",$00
-
-hex_tbl:
-                db      "0123456789ABCDEF",$00
-reg_tbl:
-                db      "PC: IY: IX: HL: DE: BC: AF: ",$00
+                db      "No cartridge found.",$0D,$0A
+                db      $0D,$0A
+                db      "This version of C-BIOS can",$0D,$0A
+                db      "only start cartridges.",$0D,$0A
+                db      "Please restart your MSX",$0D,$0A
+                db      "(emulator) with a cartridge",$0D,$0A
+                db      "inserted.",$00
 
 ; scan code table
 scode_tbl:

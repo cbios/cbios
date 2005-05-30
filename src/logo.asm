@@ -30,12 +30,6 @@ logo_show:
                 ld      hl,(GRPCOL)
                 call    filvrm
 
-                ; Print program info.
-                ld      hl,$0101
-                call    posit
-                ld      hl,str_proginfo
-                call    prn_text
-
                 ld      hl,(CGPBAS)
                 ld      bc,8 * logo_patoffset
                 add     hl,bc
@@ -525,15 +519,6 @@ glare_loop:
 
                 djnz    glare_loop
 
-                ; Print program info.
-                ld      hl,0
-                ld      (GXPOS),HL
-                ld      hl,0
-                ld      (GYPOS),HL
-                ld      a,0
-                ld      (L_OP),a
-                ld      hl,str_proginfo
-                call    prn_text
                 ret
 
 setpalette:     di
