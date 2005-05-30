@@ -1,4 +1,13 @@
-$Id: ChangeLog,v 1.126 2005/05/17 06:36:25 bifimsx Exp $
+$Id: ChangeLog,v 1.127 2005/05/19 16:59:25 bifimsx Exp $
+
+2005-05-29 Maarten ter Huurne <maarten@treewalker.org>
+    * Removed leftover code from the debugger.
+    * Changed boot sequence:
+        1. Show logo
+        2. Switch to SCREEN1
+        3. Initialise ROMs
+      This should solve the problems we had with non-standard palettes and
+      confusing messages about cartridges that were (not) found.
 
 2005-05-19 Albert Beevendorp
     * fixed 1 palette color. Thanks to BouKiCHi for spotting it
