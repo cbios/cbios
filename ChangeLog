@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.127 2005/05/19 16:59:25 bifimsx Exp $
+$Id: ChangeLog,v 1.128 2005/05/30 00:22:09 mthuurne Exp $
+
+2005-05-30 Maarten ter Huurne <maarten@treewalker.org>
+    * Fixed the exit (pop) part of the interrupt routine to $0D02.
+      The game "Hacker" jumps directly to this address.
 
 2005-05-29 Maarten ter Huurne <maarten@treewalker.org>
     * Removed leftover code from the debugger.

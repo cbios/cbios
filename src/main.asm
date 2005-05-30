@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.108 2005/05/29 02:05:17 mthuurne Exp $
+; $Id: main.asm,v 1.109 2005/05/30 00:21:46 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -600,15 +600,16 @@ romid:
 ; $0189 PCMREC
 
 ; -------------------
-; start up codeÅicall this one when reset)
-; -------------------
 
                 ds      $0200 - $
 
                 include "util.asm"
-                include "debug.asm"
-                include "video.asm"
                 include "slot.asm"
+                include "debug.asm"
+
+; The game "Hacker" jumps directly to this location.
+                ds      $0D02 - $
+                jp      int_end
 
 ; $0000 CHKRAM
 ; Function : Tests RAM and sets RAM slot for the system
@@ -3178,6 +3179,8 @@ lp_strprn:
 
                 ds      $1bbf - $
                 include "font.asm"
+
+                include "video.asm"
 
 ;------------------------------------
 ; disk routine
