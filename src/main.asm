@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.109 2005/05/30 00:21:46 mthuurne Exp $
+; $Id: main.asm,v 1.110 2005/05/30 19:07:20 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -616,24 +616,13 @@ romid:
 ; Registers: All
 ; Remark   : After this, a jump must be made to INIT, for further initialisation.
 chkram:
-;for debug
-;                ex      (sp),hl
-;                ld      (LASTSTAC),hl
-;
-;                ld      hl,$0000
-;                add     hl,sp
-;                ld      (SP_REGS),hl
-;
-;                ld      hl,$F300
-
-;Initialize interface
-
+                ; Initialize interface
                 ld      a,$82
                 out     (PPI_REGS),a
                 ld      a,$50
                 out     (GIO_REGS),a
 
-;Initialize memory bank
+                ; Initialize memory bank
                 xor     a
                 out     (MAP_REG4),a
                 inc     a
@@ -787,7 +776,14 @@ search_roms_lp_sub:
                 call    z,search_roms_init
                 ld      hl,$8000
                 call    search_roms_check
+                push    af
                 call    z,search_roms_init
+                pop     af              ; If a ROM is found at $8000, don't
+                jr      z,search_roms_no; look at $0000 anymore.
+                ld      hl,$0000
+                call    search_roms_check
+                call    z,search_roms_init
+search_roms_no:
                 bit     7,a
                 jr      z,search_roms_next_slot
                 add     a,4             ; Select next subslot.

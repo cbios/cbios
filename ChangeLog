@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.128 2005/05/30 00:22:09 mthuurne Exp $
+$Id: ChangeLog,v 1.129 2005/05/30 19:07:21 mthuurne Exp $
+
+2005-05-31 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Check for and initialise cartridges that are located at $0000.
 
 2005-05-30 Maarten ter Huurne <maarten@treewalker.org>
     * Fixed the exit (pop) part of the interrupt routine to $0D02.
