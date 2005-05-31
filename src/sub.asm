@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.42 2005/05/17 06:31:38 bifimsx Exp $
+; $Id: sub.asm,v 1.43 2005/05/19 16:50:09 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -210,7 +210,14 @@ COMPILE_FONT:   equ     NO
                 jp      scanl
 
 ; $00C9 NVBXLN
+                ds      $00C9 - $,$C9
+                ei
+                jp      nvbxln
+
 ; $00CD NVBXFL
+                ds      $00CD - $,$C9
+                ei
+                jp      nvbxfl
 
 ; $00D1 CHGMOD Set screen mode.
                 ds      $00D1 - $,$C9
@@ -614,6 +621,48 @@ tleftc:
                 pop     hl
                 ret
 tleftc_text:    db      "TRIGHT",0
+
+;-------------------------------------
+; $00C9 NVBXLN
+; Function : Draws an open rectangle.
+; Input    : BC = start x
+;            DE = start y
+;            GXPOS = end x (inclusive)
+;            GYPOS = end y (inclusive)
+;            ATRBYT = attribute
+;            LOGOPR = logic operation
+; Changes  : all
+; Notes    : use only in SCREEN 5-8
+nvbxln:
+                push    hl
+                push    af
+                ld      hl,nvbxln_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+nvbxln_text:    db      "NVBXLN",0
+
+;-------------------------------------
+; $00CD NVBXFL
+; Function : Draws a filled rectangle.
+; Input    : BC = start x
+;            DE = start y
+;            GXPOS = end x (inclusive)
+;            GYPOS = end y (inclusive)
+;            ATRBYT = attribute
+;            LOGOPR = logic operation
+; Changes  : all
+; Notes    : use only in SCREEN 5-8
+nvbxfl:
+                push    hl
+                push    af
+                ld      hl,nvbxfl_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+nvbxfl_text:    db      "NVBXFL",0
 
 ;-------------------------------------
 ; $0119 CLRTXT
