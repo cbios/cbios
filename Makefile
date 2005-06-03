@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.10 2005/02/08 07:55:08 mthuurne Exp $
+# $Id: Makefile,v 1.11 2005/04/18 16:36:03 andete Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -24,7 +24,7 @@ ifeq ($(Z80_ASSEMBLER),sjasm)
 .DELETE_ON_ERROR: $(ROMS_FULLPATH)
 endif
 
-derived/bin/cbios_%.rom: vdep/%.asm
+$(ROMS_FULLPATH): derived/bin/cbios_%.rom: vdep/%.asm
 	@echo "Assembling: $(<:vdep/%=src/%)"
 	@mkdir -p $(@D)
 	@mkdir -p derived/lst
