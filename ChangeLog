@@ -1,9 +1,10 @@
-$Id: ChangeLog,v 1.130 2005/05/31 12:44:11 ccfg Exp $
+$Id: ChangeLog,v 1.131 2005/06/03 00:12:26 mthuurne Exp $
 
 2005-06-02 Maarten ter Huurne <maarten@treewalker.org>
     * Changed register saving in WRTVDP implementation:
       - do not save regs >= 24 on V9938
       - save regs 25, 26, 27 on V9958 in correct location
+    * Contrary to what the documentation says, EXTROM does not change IY.
 
 2005-05-31 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Check for and initialise cartridges that are located at $0000.

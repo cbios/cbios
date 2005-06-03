@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.110 2005/05/30 19:07:20 mthuurne Exp $
+; $Id: main.asm,v 1.111 2005/05/31 12:44:11 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3080,11 +3080,14 @@ subrom:
 ;                 CALL EXTROM
 extrom:
                 ex      af,af'
+                push    iy
                 ld      a,(EXBRSA)
                 push    af
                 pop     iy              ; IYH = slot ID
                 ex      af,af'
-                jp      calslt          ; Perform inter-slot call.
+                call    calslt          ; Perform inter-slot call.
+                pop     iy
+                ret
 
 ;------------------------------------
 hang_up_mode:
