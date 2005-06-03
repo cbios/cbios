@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.26 2005/03/21 16:09:59 ccfg Exp $
+; $Id: systemvars.asm,v 1.27 2005/03/21 16:13:18 ccfg Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -714,12 +714,21 @@ RG8SAV:         equ     $FFE7
 ; FFF7: slot address of main-rom
 ;?????:         equ     $FFF7
 
+; ------------------
+; storage of VDP25-27
+; ------------------
+
+; FFFA-FFFC: storage of VDP 25-27
+RG25SAV:         equ     $FFFA
+
 ; ---------------------------
 ; subslot switching addresses
 ; ---------------------------
 
 ; FFFF: subslot switching address
-;?????:         equ     $FFFF
+; This is not actually a system variable, it is a hardware register:
+;   SSL_REGS (see hardware.asm).
+
 ; -------
 ; the end
 ; -------

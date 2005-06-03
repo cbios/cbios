@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.55 2005/03/18 23:58:03 ccfg Exp $
+; $Id: video.asm,v 1.56 2005/05/16 23:24:23 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -62,13 +62,6 @@ enascr:
 ; Output   : RG0SAV(F3DF)-RG7SAV(F3E6)
 ; Registers: AF, BC
 wrtvdp:
-        IF VDP = TMS99X8
-                ld      a,c
-                and     63
-                cp      8
-                ret     nc
-        ENDIF
-                push    hl
                 di
                 ld      a,b
                 out     (VDP_ADDR),a
@@ -77,35 +70,35 @@ wrtvdp:
                 out     (VDP_ADDR),a
                 ei
 
-                push    bc
+                push    hl
+                ld      hl,RG0SAV
         IF VDP != TMS99X8
                 ld      a,c
-                and     $3F
-                sub     8
-                jr      nc,rg8_sav
+                cp      8
+                jr      c,wrtvdp_sav
         ENDIF
+        IF VDP = V9938
+                cp      24
+                jr      nc,wrtvdp_nosav
+                ld      hl,RG8SAV - 8
+        ENDIF
+        IF VDP = V9958
+                ld      hl,RG8SAV - 8
+                cp      24
+                jr      c,wrtvdp_sav
+                jr      z,wrtvdp_nosav
+                cp      28
+                jr      nc,wrtvdp_nosav
+                ld      hl,RG25SAV - 25
+        ENDIF
+wrtvdp_sav:
                 ld      a,b
                 ld      b,0
-                ld      hl,RG0SAV
                 add     hl,bc
                 ld      (hl),a
-                pop     bc
+wrtvdp_nosav:
                 pop     hl
                 ret
-
-        IF VDP != TMS99X8
-rg8_sav:
-                ld      c,a
-
-                ld      a,b
-                ld      b,0
-                ld      hl,RG8SAV
-                add     hl,bc
-                ld      (hl),a
-                pop     bc
-                pop     hl
-                ret
-        ENDIF
 
 ;--------------------------------
 ; $004A RDVRM
