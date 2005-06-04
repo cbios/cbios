@@ -1,4 +1,4 @@
-$Id: cbios.txt,v 1.6 2005/01/03 10:57:55 andete Exp $
+$Id: cbios.txt,v 1.7 2005/02/08 07:56:41 mthuurne Exp $
 
 C-BIOS 0.20
 ===========
@@ -162,7 +162,14 @@ ver 0.20  2005-02-09(CET)
             is not enabled in the configurations.
           * Stubbed all non-implemented calls.
           * Various bug fixes.
-
+ver 0.21
+          * Fixed RuMSX configuration files.
+          * Changed boot sequence: Show logo, switch to SCREEN 1 and search
+            for ROMs.
+          * Rewrote ROM search code; now all ROMs are recognized.
+          * New boot logo for MSX2 and MSX2+.
+          * Improved video code; fixes several games.
+          * Various bug fixes.
 
 Special Thanks
 --------------
