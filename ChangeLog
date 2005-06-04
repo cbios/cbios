@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.133 2005/06/04 19:16:00 boukichi Exp $
+$Id: ChangeLog,v 1.133 2005/06/04 10:20:02 bkc_alpha Exp $
 
 2005-06-04 BouKiCHi
     * Changed Reg.C will be slot number when boots a cartridge.
+    * Added a ret instruction before chkram routine this will fix Bifamu 
 
 2005-06-02 Maarten ter Huurne <maarten@treewalker.org>
     * Changed register saving in WRTVDP implementation:
