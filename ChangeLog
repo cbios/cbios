@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.131 2005/06/03 00:12:26 mthuurne Exp $
+$Id: ChangeLog,v 1.133 2005/06/04 19:16:00 boukichi Exp $
+
+2005-06-04 BouKiCHi
+    * Changed Reg.C will be slot number when boots a cartridge.
 
 2005-06-02 Maarten ter Huurne <maarten@treewalker.org>
     * Changed register saving in WRTVDP implementation:

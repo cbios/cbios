@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.111 2005/05/31 12:44:11 ccfg Exp $
+; $Id: main.asm,v 1.112 2005/06/03 01:08:17 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -860,6 +860,9 @@ search_roms_init_skip:
                 inc     hl
                 call    search_roms_address
                 jr      z,search_roms_init_statement
+
+                ; Reg.C is using some games for slot number
+                ld      c,a
                 push    de
                 pop     ix
                 push    af
