@@ -1,6 +1,6 @@
-$Id: cbios.txt,v 1.7 2005/02/08 07:56:41 mthuurne Exp $
+$Id: cbios.txt,v 1.8 2005/06/04 21:11:39 ccfg Exp $
 
-C-BIOS 0.20
+C-BIOS 0.21
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
