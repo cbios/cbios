@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.113 2005/06/04 10:17:49 bkc_alpha Exp $
+; $Id: main.asm,v 1.114 2005/06/04 20:14:44 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2706,6 +2706,7 @@ kbd_spc:
                 jr      spc_off
 spc_on:
                 ld      a,$FF
+                or      a
                 ret
 spc_off:
                 xor     a
