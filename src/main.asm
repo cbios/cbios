@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.114 2005/06/04 20:14:44 bkc_alpha Exp $
+; $Id: main.asm,v 1.115 2005/06/06 15:33:51 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2695,23 +2695,16 @@ joypos_kbd_tbl:
 ;                 #FF trigger button pressed
 ; Registers: All
 gttrig:
-                cp      $00
-                jr      z,kbd_spc
-                jr      joy_trig
-kbd_spc:
-                ld      a,$08
-                call    snsmat
-                and     $01
-                jr      z,spc_on
-                jr      spc_off
-spc_on:
-                ld      a,$FF
                 or      a
-                ret
-spc_off:
-                xor     a
+                jr      nz,joy_trig
+; Keyboard (spacebar)
+                ld      a,$08
+                call    snsmat          ; bit0 = 0 -> space pressed
+                or      $FE             ; FE -> pressed, FF -> not pressed
+                inc     a               ; FF -> pressed, 00 -> not pressed
                 ret
 
+; Joystick triggers
 joy_trig:
                 di
                 dec     a
