@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.134 2005/06/04 20:46:21 vampier Exp $
+$Id: ChangeLog,v 1.135 2005/06/06 15:38:07 bkc_alpha Exp $
+
+2005-06-07 Maarten ter Huurne <maarten@treewalker.org>
+    * Added NVBXFL implementation by BouKiCHi, with a minor bugfix by me.
+    * Released C-BIOS 0.21.
 
 2005-06-07 BouKiCHi
     * Fixed Space bar works correctly when uses GTTRIG
@@ -7,7 +11,7 @@ $Id: ChangeLog,v 1.134 2005/06/04 20:46:21 vampier Exp $
 
 2005-06-04 BouKiCHi
     * Changed Reg.C will be slot number when boots a cartridge.
-    * Added a ret instruction before chkram routine this will fix Bifamu 
+    * Added a ret instruction before chkram routine this will fix Bifamu
 
 2005-06-02 Maarten ter Huurne <maarten@treewalker.org>
     * Changed register saving in WRTVDP implementation:
