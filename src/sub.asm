@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.44 2005/05/31 00:12:37 mthuurne Exp $
+; $Id: sub.asm,v 1.45 2005/06/06 15:36:40 bkc_alpha Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -644,14 +644,14 @@ nvbxln:
                 ld      (DY),de
 
                 ld      hl,(GXPOS)
-                and     a,a
+                and     a
                 sbc     hl,bc
                 ld      (NX),hl
 
                 ld      hl,$0000
                 ld      (NY),hl
 
-                xor     a,a
+                xor     a
                 ld      (ARG_),a
                 ld      a,(ATRBYT)
                 ld      (CDUMMY),a
