@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.116 2005/06/06 19:44:05 mthuurne Exp $
+; $Id: main.asm,v 1.117 2005/06/06 19:52:36 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -749,6 +749,22 @@ ram_ok:
                 call    H_STKE
                 call    run_basic_roms
 
+                ; Set up hooks and system vars so NMS8250 disk ROM will try
+                ; to load and execute the boot sector.
+                ld      a,1
+                ld      (DEVICE),a
+                xor     a
+                ; TODO: Find out or invent name for $FB29.
+                ld      ($FB29),a
+
+                ; This is the hook the disk ROM uses for booting.
+                call    H_RUNC
+
+; We couldn't boot anything, instead show disk contents.
+; TODO: This breaks boot of MG2, so disabled for now.
+;                jp      disk_intr
+;                ret                     ; goto stack_error
+
                 ld      hl,str_nocart
                 call    prn_text
 
@@ -951,24 +967,6 @@ run_basic_roms_next:
                 inc     hl
                 djnz    run_basic_roms_lp
                 ret
-
-;boot_stage2:
-;                ; Set up hooks and system vars so NMS8250 disk ROM will try
-;                ; to load and execute the boot sector.
-;                ld      a,1
-;                ld      (DEVICE),a
-;                xor     a
-;                ; TODO: Find out or invent name for $FB29.
-;                ld      ($FB29),a
-;
-;                ; This is the hook the disk ROM uses for booting.
-;                call    H_RUNC
-;
-; We couldn't boot anything, instead show disk contents.
-; TODO: This breaks boot of MG2, so disabled for now.
-;                jp      disk_intr
-;                ret                     ; goto stack_error
-
 
 ;------------------------
 ; Initialize RAM
