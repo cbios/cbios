@@ -1,7 +1,7 @@
-; $Id: sub.asm,v 1.43 2005/05/19 16:50:09 bifimsx Exp $
+; $Id: sub.asm,v 1.44 2005/05/31 00:12:37 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
-; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
@@ -124,7 +124,7 @@ COMPILE_FONT:   equ     NO
 ; $0079 DOBOXF  (BASIC)
 ; $0081 BOXLIN  (BASIC)
 
-; $0085 DOGRPH  ƒ‰ƒCƒ“•`‰æ
+; $0085 DOGRPH  Draws a line
                 ds      $0085 - $,$C9
                 ei
                 jp      dogrph
@@ -634,13 +634,68 @@ tleftc_text:    db      "TRIGHT",0
 ; Changes  : all
 ; Notes    : use only in SCREEN 5-8
 nvbxln:
-                push    hl
-                push    af
-                ld      hl,nvbxln_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,(ACPAGE)
+                ld      d,a
+                push    de
+
+                ; (BC,DE)-(GXPOS,DE)
+
+                ld      (DX),bc
+                ld      (DY),de
+
+                ld      hl,(GXPOS)
+                and     a,a
+                sbc     hl,bc
+                ld      (NX),hl
+
+                ld      hl,$0000
+                ld      (NY),hl
+
+                xor     a,a
+                ld      (ARG_),a
+                ld      a,(ATRBYT)
+                ld      (CDUMMY),a
+
+                call    exec_line
+
+                ;  (BC,GYPOS)-(GXPOS,GYPOS)
+
+                ld      hl,(GYPOS)
+                ld      a,(ACPAGE)
+                ld      h,a
+                ld      (DY),hl
+                call    exec_line
+
+                ;  (BC,DE)-(BC,GYPOS)
+
+                pop     de
+                ld      (DY),de
+
+                ld      a,1
+                ld      (ARG_),a
+
+                ld      a,(GYPOS)
+                sub     a,e
+                ld      (NX),a
+                call    exec_line
+
+                ;  (GXPOS,DE)-(GSPOS,GYPOS)
+
+                ld      hl,(GXPOS)
+                ld      (DX),hl
+                call    exec_line
                 ret
+
+exec_line:
+                call    exec_cmd
+
+                ld      a,(LOGOPR)
+                and     $0f
+                or      $70             ; LINE
+                out     (c),a
+                ei
+                ret
+
 nvbxln_text:    db      "NVBXLN",0
 
 ;-------------------------------------
