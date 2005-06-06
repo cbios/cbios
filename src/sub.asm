@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.47 2005/06/06 18:48:21 bkc_alpha Exp $
+; $Id: sub.asm,v 1.48 2005/06/06 21:21:41 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -696,8 +696,6 @@ exec_line:
                 ei
                 ret
 
-nvbxln_text:    db      "NVBXLN",0
-
 ;-------------------------------------
 ; $00CD NVBXFL
 ; Function : Draws a filled rectangle.
@@ -710,14 +708,47 @@ nvbxln_text:    db      "NVBXLN",0
 ; Changes  : all
 ; Notes    : use only in SCREEN 5-8
 nvbxfl:
-                push    hl
-                push    af
-                ld      hl,nvbxfl_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      hl,(GYPOS)
+                rst     $20
+                jr      nc,nvbxfl_lty
+                ex      de,hl
+nvbxfl_lty:
+                and     a
+                sbc     hl,de
+                inc     hl
+                ld      (NY),hl
+
+                ld      a,(ACPAGE)
+                ld      d,a
+                ld      (DY),de
+
+                push    bc
+                pop     de
+
+                ld      hl,(GXPOS)
+                rst     $20
+                jr      nc,nvbxfl_ltx
+                ex      de,hl
+nvbxfl_ltx:
+                and     a
+                sbc     hl,de
+                inc     hl
+                ld      (NX),hl
+                ld      (DX),de
+
+                xor     a
+                ld      (ARG_),a
+                ld      a,(ATRBYT)
+                ld      (CDUMMY),a
+
+                call    exec_cmd
+
+                ld      a,(LOGOPR)
+                and     $0F
+                or      $80             ; LMMV
+                out     (c),a
+                ei
                 ret
-nvbxfl_text:    db      "NVBXFL",0
 
 ;-------------------------------------
 ; $0119 CLRTXT
@@ -958,8 +989,8 @@ setscr_text:    db      "SETSCR",0
 exec_cmd:
                 ld      a,2
                 call    vdpsta
-                bit     0,a
-                jr      nz,exec_cmd
+                rra
+                jr      c,exec_cmd
 
                 di
                 ld      a,32
