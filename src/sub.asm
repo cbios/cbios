@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.46 2005/06/06 18:32:48 bkc_alpha Exp $
+; $Id: sub.asm,v 1.47 2005/06/06 18:48:21 bkc_alpha Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -675,7 +675,7 @@ nvbxln:
                 ld      (ARG_),a
 
                 ld      a,(GYPOS)
-                sub     a
+                sub     e
                 ld      (NX),a
                 call    exec_line
 
