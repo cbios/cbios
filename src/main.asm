@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.115 2005/06/06 15:33:51 bkc_alpha Exp $
+; $Id: main.asm,v 1.116 2005/06/06 19:44:05 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2693,6 +2693,7 @@ joypos_kbd_tbl:
 ;            4 = port 2, button B
 ; Output   : A  - #00 trigger button not pressed
 ;                 #FF trigger button pressed
+; Note     : Some programs rely on ZF to be set according to the value in A.
 ; Registers: All
 gttrig:
                 or      a
