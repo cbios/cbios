@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.137 2005/06/07 03:12:57 ccfg Exp $
+$Id: ChangeLog,v 1.138 2005/06/07 03:16:23 ccfg Exp $
+
+2005-06-08 BouKiCHi
+    * Changed SNSCNT is flipping.
 
 2005-06-07 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented CHRGTR.

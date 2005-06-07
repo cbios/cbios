@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.119 2005/06/07 03:12:59 ccfg Exp $
+; $Id: main.asm,v 1.120 2005/06/07 03:16:24 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3006,6 +3006,10 @@ keyint:
                 cpl
                 and     $01
                 ld      (TRGFLG),a
+
+                ld      a,(SCNCNT)  ; test
+                xor     $01
+                ld      (SCNCNT),a
 
                 ; TODO: MSX BIOS doesn't scan the full keyboard on every
                 ;       interrupt, see SCNCNT (F3F6).
