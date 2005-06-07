@@ -20,7 +20,7 @@ manpage.1: manpage.sgml
   <!ENTITY dhfirstname "<firstname>Joost</firstname>">
   <!ENTITY dhsurname   "<surname>Damad</surname>">
   <!-- Please adjust the date whenever revising the manpage. -->
-  <!ENTITY dhdate      "<date>December 12, 2004</date>">
+  <!ENTITY dhdate      "<date>Tue,  7 Jun 2005</date>">
   <!-- SECTION should be 1-8, maybe w/ subsection other parameters are
        allowed: see man(7), man(1). -->
   <!ENTITY dhsection   "<manvolnum>7</manvolnum>">
@@ -79,6 +79,9 @@ manpage.1: manpage.sgml
     <para>C-BIOS is an open source BIOS for MSX computers. C-BIOS can be shipped with MSX emulators so they are usable out-of-the-box.</para>
 
 	<para>Details about the BIOS calls available in the ROM files can be found at http://map.tni.nl/ but keep in mind the C-BIOS is work in progress and does not support all BIOS calls yet.</para>
+
+	<para>C-BIOS comes in three versions currently. C-BIOS_MSX1 is compatible with MSX1 machines, C-BIOS_MSX2 is compatible with MSX2 machines and C-BIOS_MSX2+ is compatible with MSX2+ machines.
+	</para>
   </refsect1>
   <refsect1>
     <title>SEE ALSO</title>
