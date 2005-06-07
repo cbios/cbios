@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.117 2005/06/06 19:52:36 mthuurne Exp $
+; $Id: main.asm,v 1.118 2005/06/06 23:41:15 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1076,6 +1076,20 @@ init_ram:
                 ld      (MLTATR),hl
                 ld      hl,$3800
                 ld      (MLTPAT),hl
+
+; Initialise QUETAB.
+                ld      hl,QUETAB
+                ld      (QUEUES),hl
+                ld      hl,VOICAQ
+                ld      (QUETAB+0*6+4),hl
+                ld      hl,VOICBQ
+                ld      (QUETAB+1*6+4),hl
+                ld      hl,VOICCQ
+                ld      (QUETAB+2*6+4),hl
+                ld      a,$7F
+                ld      (QUETAB+0*6+3),a
+                ld      (QUETAB+1*6+3),a
+                ld      (QUETAB+2*6+3),a
 
 ; other settings
                 ld      a,39
@@ -2779,34 +2793,79 @@ gtpdl_text:     db      "GTPDL",0
 
 ;--------------------------------
 ; $00F6 LFTQ
-; Function : Gives number of bytes in queue
-; Output   : A  - length of queue in bytes
-; Remark   : Internal use
-; NOTE     : This implementation is still a stub!
+; Give the number of bytes left in a queue.
+; In:      A  = queue number
+; Out:     HL = number of bytes left
+; Changes: AF, BC, HL
 lftq:
-                push    hl
-                push    af
-                ld      hl,lftq_text
-                call    print_debug
-                pop     af
-                pop     hl
+                call    calc_queue_address
+                ld      b,(hl)          ; B = put position
+                inc     b
+                inc     hl
+                ld      a,(hl)          ; A = get position
+                sub     b               ; (getpos - putpos) & size
+                inc     hl
+                inc     hl
+                and     (hl)
+                ld      l,a
+                ld      h,$00           ; Queues are smaller than 256 bytes.
                 ret
-lftq_text:      db      "LFTQ",0
 
 ;--------------------------------
 ; $00F9 PUTQ
-; Function : Put byte in queue
-; Remark   : Internal use
-; NOTE     : This implementation is still a stub!
+; Put a byte in a queue.
+; In:      A  = queue number
+;          E  = data
+; Out:     ZF = set if the queue is full
+; Changes: AF, BC, HL
 putq:
+                ; Check whether the queue is full.
+                call    calc_queue_address
+                ld      a,(hl)
+                inc     a
+                ld      b,a             ; B = put position + 1
+                inc     hl
+                sub     (hl)
+                ret     z
+
+                ; Save the new put position.
+                ld      a,b
+                inc     hl
+                inc     hl
                 push    hl
-                push    af
-                ld      hl,putq_text
-                call    print_debug
-                pop     af
+                and     (hl)            ; (putpos + 1) & size
+                dec     hl
+                dec     hl
+                dec     hl
+                ld      (hl),a
+
+                ; Put the data byte in the queue.
                 pop     hl
+                inc     hl
+                ld      a,(hl)          ; Get the buffer address.
+                inc     hl
+                ld      h,(hl)
+                ld      l,a
+                dec     b               ; Add putpos.
+                ld      c,b
+                ld      b,0
+                add     hl,bc
+                ld      (hl),e
+                or      1
                 ret
-putq_text:      db      "PUTQ",0
+
+                ; Calculate the address to the start of queue control block.
+                ; A = queue number
+calc_queue_address:
+                ld      hl,(QUEUES)     ; See QUETAB in systemvars.asm.
+                ld      b,a             ; (queue number * 5)
+                rlca
+                rlca
+                add     a,b
+                ld      c,a
+                ld      b,0
+                add     hl,bc
+                ret
 
 ;--------------------------------
 ; $0132 CHGCAP

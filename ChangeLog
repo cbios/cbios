@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.135 2005/06/06 15:38:07 bkc_alpha Exp $
+$Id: ChangeLog,v 1.136 2005/06/06 23:43:50 mthuurne Exp $
+
+2005-06-07 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Implemented LFTQ and PUTQ.
+    * Initialise music queue variables.
 
 2005-06-07 Maarten ter Huurne <maarten@treewalker.org>
     * Added NVBXFL implementation by BouKiCHi, with a minor bugfix by me.
