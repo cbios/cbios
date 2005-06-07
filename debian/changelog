@@ -1,8 +1,9 @@
-cbios (0.20-2) unstable; urgency=low
+cbios (0.21-1) unstable; urgency=low
 
+  * new upstream release
   * change priority from optional to extra
 
- -- Joost Yervante Damad <joost@lumatec.be>  Tue, 26 Apr 2005 20:36:28 +0200
+ -- Joost Yervante Damad <joost@lumatec.be>  Tue,  7 Jun 2005 19:32:40 +0200
 
 cbios (0.20-1) unstable; urgency=low
 
