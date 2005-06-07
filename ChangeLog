@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.136 2005/06/06 23:43:50 mthuurne Exp $
+$Id: ChangeLog,v 1.137 2005/06/07 03:12:57 ccfg Exp $
+
+2005-06-07 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Implemented CHRGTR.
 
 2005-06-07 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented LFTQ and PUTQ.

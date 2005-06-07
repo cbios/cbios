@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.118 2005/06/06 23:41:15 mthuurne Exp $
+; $Id: main.asm,v 1.119 2005/06/07 03:12:59 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1386,26 +1386,38 @@ synchr:
 synchr_text:    db      "SYNCHR",0
 
 ;-------------------------------------
-; 0010h CHRGTR
-;Function:  Gets the next character (or token) of the Basic-text
-;Input:     HL - Address last character
-;Output:    HL - points to the next character
-;           A  - contains the character
-;           C  - flag set if it's a number
-;           Z  - flag set if it's the end of the statement
-;Registers: AF, HL
-;NOTE: this implementation is still a stub!
-;TODO: call H_CHRG
+; $0010 CHRGTR
+; Read the next program character.
+; In:      HL = pointer to the program text
+; Out:     A  = the next program character
+;          HL = pointer to the next program character
+;          ZF = set if it's the end of statement
+;          CF = set if it's a number
+; Changes: AF, HL
 chrgtr:
-;               call    H_CHRG
-                push    hl
-                push    af
-                ld      hl,chrgtr_text
-                call    print_debug
-                pop     af
-                pop     hl
+                call    H_CHRG
+chrgtr_lp:
+                ld      a,(hl)
+                inc     hl
+                ; Check for the end of statement.
+                cp      $00             ; end of line
+                ret     z
+                cp      $3A             ; statement separator
+                ret     z
+                ; Check for digits.
+                cp      '0'
+                jr      c,chrgtr_no_digit
+                cp      '9'+1
+                ret     c
+chrgtr_no_digit:
+                ; Skip whitespace.
+                cp      $20             ; space
+                jr      z,chrgtr_lp
+                cp      $09             ; tab
+                jr      z,chrgtr_lp
+                ; Otherwise it's a normal program character.
+                or      a               ; Clear CF and ZF.
                 ret
-chrgtr_text:    db      "CHRGTR",0
 
 ;-------------------------------------
 ; $0018 OUTDO
