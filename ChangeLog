@@ -1,7 +1,12 @@
-$Id: ChangeLog,v 1.138 2005/06/07 03:16:23 ccfg Exp $
+$Id: ChangeLog,v 1.139 2005/06/07 15:24:57 bkc_alpha Exp $
 
 2005-06-08 BouKiCHi
     * Changed SNSCNT is flipping.
+    * Removed EI from end of calslt and Added EI to EXTROM.
+    * Changed EXTROM's alternative registers to save.
+    * Changed CHGMOD's interrupt to be enable when it is SCREEN 5.
+      - TODO: investigate needs enable interrupt or not
+              when the case of other screenmode.
 
 2005-06-07 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Implemented CHRGTR.
