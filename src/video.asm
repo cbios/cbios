@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.56 2005/05/16 23:24:23 mthuurne Exp $
+; $Id: video.asm,v 1.57 2005/06/03 00:12:27 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -276,7 +276,7 @@ ldirvm_lp:
                 ret
 
 ;----------------------------------
-; $005F CHGMOD   âÊñ ÉÇÅ[ÉhÇÃïœçX
+; $005F CHGMOD  Changes screen mode
 ; Function : Switches to given screenmode
 ; Input    : A  - screen mode
 ; Registers: All
@@ -1392,6 +1392,7 @@ init_sc5:
 
                 ld      a,(RG1SAV)
                 and     $E7             ; MASK 11100111
+                or      $20             ; doesn't stop interrupt
                 ld      b,a
                 inc     c
                 call    wrtvdp          ; VDP R#1
