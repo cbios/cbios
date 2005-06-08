@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.120 2005/06/07 03:16:24 ccfg Exp $
+; $Id: main.asm,v 1.121 2005/06/07 15:21:15 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3153,14 +3153,53 @@ subrom:
 ; Remark   : Use: LD IX,address
 ;                 CALL EXTROM
 extrom:
+                push af
+		push hl
+                push ix ; for test remember remove!
+                pop  hl
+                ld   a,$20
+                out  ($2e),a
+                ld   a,h
+                out  ($2f),a
+                ld   a,l
+                out  ($2f),a
+                pop  hl
+                pop  af
+
+                ; EXTROM needs to save alternative registers
+                ; and when call with certain status, returns with EI
                 ex      af,af'
+                exx
+                push    af
+                push    bc
+                push    de
+                push    hl
+                ld      a,i
+                push    af
+                exx
+
                 push    iy
                 ld      a,(EXBRSA)
                 push    af
                 pop     iy              ; IYH = slot ID
+                
                 ex      af,af'
                 call    calslt          ; Perform inter-slot call.
+
                 pop     iy
+
+                ex      af,af'
+                exx
+                pop     af
+                jp      po,extrom_skip_ei
+                ei
+extrom_skip_ei:
+                pop     hl
+                pop     de
+                pop     bc
+                pop     af
+                exx
+                ex      af,af'
                 ret
 
 ;------------------------------------
