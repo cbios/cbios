@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.121 2005/06/07 15:21:15 bkc_alpha Exp $
+; $Id: main.asm,v 1.122 2005/06/08 09:31:14 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -979,6 +979,14 @@ init_ram:
                 ld      (hl),a
                 ld      de,$F381
                 ld      bc,$0C7D
+                ldir
+
+; Initialize Disk work
+                ld      a,$C9
+                ld      hl,$F300
+                ld      (hl),a
+                ld      de,$F301
+                ld      bc,$007F
                 ldir
 
 ; initialize hook area with $C9 (assembler code for ret)
