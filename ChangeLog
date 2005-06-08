@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.139 2005/06/07 15:24:57 bkc_alpha Exp $
+$Id: ChangeLog,v 1.140 2005/06/08 09:33:18 bkc_alpha Exp $
+
+2005-06-09 BouKiCHi
+    * Improved init_ram to fill up $F300-$F380 with ret instruction.
 
 2005-06-08 BouKiCHi
     * Changed SNSCNT is flipping.
