@@ -9,6 +9,7 @@ goto no_error
 echo Error! build.bat should calls from make.bat,please run make.bat
 GOTO no_error
 :PASM
+echo Assembling %1.asm
 pasmo -d %1.asm ..\derived\bin\cbios_%1.rom > ..\derived\lst\cbios_%1.sym
 if errorlevel 1 goto error
 goto no_error
