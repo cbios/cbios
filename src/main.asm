@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.122 2005/06/08 09:31:14 bkc_alpha Exp $
+; $Id: main.asm,v 1.123 2005/06/08 21:42:24 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1558,11 +1558,16 @@ strtms_text:    db      "STRTMS",0
 ; Output   : Z-flag set if buffer is filled
 ; Registers: AF
 chsns:
+                ei
                 push    hl
                 push    de
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)
                 rst     $20
+                ld      a,$ff
+                jr      nz,chsns_inbuf
+                xor     a
+chsns_inbuf:
                 pop     de
                 pop     hl
                 ret
@@ -2649,6 +2654,7 @@ gtstck:
                 ld      c,a
                 add     hl,bc
                 ld      a,(hl)
+                ld      de,$0000
                 pop     hl
                 pop     bc
                 and     a
