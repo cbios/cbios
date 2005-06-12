@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.141 2005/06/08 21:43:34 bkc_alpha Exp $
+$Id: ChangeLog,v 1.142 2005/06/10 11:41:29 bkc_alpha Exp $
+
+2005-06-12 BouKiCHi
+    * Changed GTSTCK to use DE register
+    * Implimented GRPPRT on SCREEN 2
 
 2005-06-10 BouKiCHi
     * Changed GTSTCK returns DE = 0
