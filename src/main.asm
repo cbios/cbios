@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.123 2005/06/08 21:42:24 bkc_alpha Exp $
+; $Id: main.asm,v 1.124 2005/06/10 11:40:42 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2632,7 +2632,7 @@ format:
 ; $00D5 GTSTCK
 ; Function : Returns the joystick status
 ; Input    : A  - Joystick number to test (0 = cursors, 1 = port 1, 2 = port 2)
-; Output   : A  - Direction
+; Output   : A  - Direction,D = $00(when A=0)
 ; Registers: All
 gtstck:
                 push    bc
@@ -2650,11 +2650,10 @@ gtstck:
 
                 push    hl
                 ld      hl,joypos_kbd_tbl
-                ld      b,0
-                ld      c,a
-                add     hl,bc
+                ld      d,0
+                ld      e,a
+                add     hl,de
                 ld      a,(hl)
-                ld      de,$0000
                 pop     hl
                 pop     bc
                 and     a
