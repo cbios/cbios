@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.57 2005/06/03 00:12:27 mthuurne Exp $
+; $Id: video.asm,v 1.58 2005/06/08 09:28:55 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
@@ -1009,16 +1009,101 @@ gspsiz:
 ; $008D GRPPRT
 ; Function:  Places a character on graphic screen
 ; Input:     A  - Character
-;            ATRBYT for attribute
+;            GRPACX , GRPACY : X, Y coordinate
+;            FORCLR
+; Input (SCREEN 5 and above) :
 ;            LOGOPR for logical operator
-; NOTE: this implementation is still a stub!
+; NOTE : the function doesn't support without SCREEN 2
+;        and also slower yet.
+; Register : AF ???
 grpprt:
-                push    hl
                 push    af
-                ld      hl,grpprt_text
-                call    print_debug
+                ld      a,(SCRMOD)
+                cp      2
+                jr      z,grpprt_sc2
                 pop     af
+                ret
+
+grpprt_sc2:
+                pop     af
+                push    hl
+                push    de
+                push    bc
+                push    af
+
+                push    af
+                call    getpat
+                pop     af
+
+                ld      hl,(GRPACY) ; YADRS = Y * 32
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+
+                ld      bc,(GRPACX) ; XADRS = X & 0xF8
+
+                ld      b,$00
+
+                ld      a,c
+                and     $F8
+                ld      c,a
+
+                add     hl,bc
+
+                push    hl
+
+                ld      bc,(GRPCGP)
+                add     hl,bc
+
+                ld      b,$08
+                ld      de,PATWRK
+grpprt_lp:
+
+                ld      a,(de)
+                call    wrtvrm
+                inc     hl
+                inc     de
+
+                djnz    grpprt_lp
+
                 pop     hl
+
+                ld      bc,$2000 ; color table base
+                add     hl,bc
+                ld      a,(FORCLR)
+                ld      (ATRBYT),a
+
+                rlca
+                rlca
+                rlca
+                rlca
+                ld      c,a
+                ld      b,$08   ; fill attribute
+grpprt_lp2:
+                push    af
+                call    rdvrm
+                and     $0f
+                or      c
+                call    wrtvrm
+                pop     af
+                inc     hl
+
+                djnz    grpprt_lp2
+
+;                call    wrtvrm
+
+                ld      hl,(GRPACX)
+                ld      bc,$0008
+                add     hl,bc
+                ld      (GRPACX),hl
+
+                pop     af
+                pop     bc
+                pop     de
+                pop     hl
+
                 ret
 grpprt_text:    db      "GRPPRT",0
 
@@ -1209,7 +1294,7 @@ vdpsta:
 
 
 ;--------------------
-;VDPÉãÅ[É`ÉìÇÃèâä˙âª
+;Initializes VDP routine
 ;--------------------
 
 init_vdp:
@@ -1373,7 +1458,7 @@ init_sc4_lp:
 sc4atr:         dw      $1E00
 
 ;------------------------------
-;screen 5ÇÃèâä˙âª.
+;Initializes SCREEN 5
 init_sc5:
                 ; Disable video output.
                 call    disscr
@@ -1874,26 +1959,19 @@ tdownc_text:    db      "TDOWNC",0
 ; Function : Scales X and Y coordinates
 ; NOTE     : This implementation is still a stub!
 scalxy:
-                push    hl
-                push    af
-                ld      hl,scalxy_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      bc,(GRPACX)
+                ld      de,(GRPACY)
                 ret
 scalxy_text:    db      "SCALXY",0
 
 ;--------------------------------
 ; $0111 MAPXY
 ; Function : Places cursor at current cursor address
-; NOTE     : This implementation is still a stub!
+; Input    : BC = X coordinate,DE=Y coordinate
+; NOTE     : This is a test version
 mapxy:
-                push    hl
-                push    af
-                ld      hl,mapxy_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld (GRPACX),bc
+                ld (GRPACY),de
                 ret
 mapxy_text:    db      "MAPXY",0
 
