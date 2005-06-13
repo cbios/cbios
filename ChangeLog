@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.142 2005/06/10 11:41:29 bkc_alpha Exp $
+$Id: ChangeLog,v 1.143 2005/06/12 14:01:02 bkc_alpha Exp $
+
+2005-06-13 BouKiCHi
+    * Changed LDIRMV to save HL.
+    * Changed GRPPRT's output position to be correctly.
 
 2005-06-12 BouKiCHi
     * Changed GTSTCK to use DE register
