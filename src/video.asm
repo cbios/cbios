@@ -1,7 +1,7 @@
-; $Id: video.asm,v 1.58 2005/06/08 09:28:55 bkc_alpha Exp $
+; $Id: video.asm,v 1.59 2005/06/12 14:00:12 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
-; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
@@ -207,7 +207,8 @@ filvrm_lp:
 ; Input    : BC - blocklength
 ;            DE - Start address of memory
 ;            HL - Start address of VRAM
-; Registers: All
+; Registers: AF BC DE
+; Note     : the function doesn't destroy HL
 ldirmv:
         IF VDP != TMS99X8
                 ld      a,(SCRMOD)
@@ -221,6 +222,7 @@ ldirmv_cont:
         ELSE
                 call    setrd
         ENDIF
+                push    hl
                 ex      de,hl
                 dec     bc
                 inc     c
@@ -234,6 +236,7 @@ ldirmv_lp:
                 dec     a
                 jr      nz,ldirmv_lp
                 ei
+                pop     hl
                 ret
 
 ;--------------------------------
@@ -1044,11 +1047,24 @@ grpprt_sc2:
 
                 ld      bc,(GRPACX) ; XADRS = X & 0xF8
 
-                ld      b,$00
+                ld      a,$ff
+                ld      (CMASK),a
 
+                ld      a,c
+                and     $07
+                jr      z,grpprt_mask_ed
+                ld      b,a
+                ld      a,$ff
+grpprt_mask_lp:
+                and     a
+                rra
+                djnz    grpprt_mask_lp
+                ld      (CMASK),a
+grpprt_mask_ed:
                 ld      a,c
                 and     $F8
                 ld      c,a
+                ld      b,$00
 
                 add     hl,bc
 
@@ -1057,16 +1073,16 @@ grpprt_sc2:
                 ld      bc,(GRPCGP)
                 add     hl,bc
 
-                ld      b,$08
-                ld      de,PATWRK
-grpprt_lp:
-
-                ld      a,(de)
-                call    wrtvrm
-                inc     hl
-                inc     de
-
-                djnz    grpprt_lp
+                ld      a,(GRPACX)
+                and     $07
+                push    af
+                call    grpprt_chr
+                ld      a,(CMASK)
+                xor     $ff
+                ld      (CMASK),a
+                
+                pop     af
+                call    grpprt_chr
 
                 pop     hl
 
@@ -1075,16 +1091,13 @@ grpprt_lp:
                 ld      a,(FORCLR)
                 ld      (ATRBYT),a
 
-                rlca
-                rlca
-                rlca
-                rlca
+                and     $0f
                 ld      c,a
-                ld      b,$08   ; fill attribute
+                ld      b,$10   ; fill attribute
 grpprt_lp2:
                 push    af
                 call    rdvrm
-                and     $0f
+                and     $f0
                 or      c
                 call    wrtvrm
                 pop     af
@@ -1105,6 +1118,42 @@ grpprt_lp2:
                 pop     hl
 
                 ret
+
+; A = X MOD 8
+grpprt_chr:
+                inc     a
+                ld      c,a
+                ld      b,$08
+                ld      de,PATWRK
+grpprt_lp:
+                push    bc
+                ld      a,(de)
+                xor     $ff
+grpprt_sft_lp:
+                dec     c
+                jr      z,grpprt_sft_ed
+                rrca
+                jr      grpprt_sft_lp
+grpprt_sft_ed:
+                ld      c,a
+                ld      a,(CMASK)
+                and     c
+                ld      c,a
+                ld      a,(CMASK)
+                xor     $ff
+                ld      b,a
+                call    rdvrm
+                and     b
+                or      c
+
+                call    wrtvrm
+                inc     hl
+                inc     de
+                pop     bc
+                djnz    grpprt_lp
+                ret
+
+
 grpprt_text:    db      "GRPPRT",0
 
 ;--------------------------------
