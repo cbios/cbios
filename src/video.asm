@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.59 2005/06/12 14:00:12 bkc_alpha Exp $
+; $Id: video.asm,v 1.60 2005/06/13 11:10:09 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1050,6 +1050,9 @@ grpprt_sc2:
                 ld      a,$ff
                 ld      (CMASK),a
 
+                ld      a,(FORCLR)
+                ld      (ATRBYT),a
+
                 ld      a,c
                 and     $07
                 jr      z,grpprt_mask_ed
@@ -1068,8 +1071,6 @@ grpprt_mask_ed:
 
                 add     hl,bc
 
-                push    hl
-
                 ld      bc,(GRPCGP)
                 add     hl,bc
 
@@ -1078,34 +1079,11 @@ grpprt_mask_ed:
                 push    af
                 call    grpprt_chr
                 ld      a,(CMASK)
-                xor     $ff
+                cpl
                 ld      (CMASK),a
                 
                 pop     af
                 call    grpprt_chr
-
-                pop     hl
-
-                ld      bc,$2000 ; color table base
-                add     hl,bc
-                ld      a,(FORCLR)
-                ld      (ATRBYT),a
-
-                and     $0f
-                ld      c,a
-                ld      b,$10   ; fill attribute
-grpprt_lp2:
-                push    af
-                call    rdvrm
-                and     $f0
-                or      c
-                call    wrtvrm
-                pop     af
-                inc     hl
-
-                djnz    grpprt_lp2
-
-;                call    wrtvrm
 
                 ld      hl,(GRPACX)
                 ld      bc,$0008
@@ -1119,6 +1097,75 @@ grpprt_lp2:
 
                 ret
 
+; A = Pattern , B = Pattern in VRAM
+grpprt_attr:
+                push    af
+                push    hl
+                push    bc
+                push    de
+
+                ld      d,a   ; D = Pattern of charactor
+                ld      e,b   ; E = Pattern in VRAM
+
+                ld      bc,$2000 ; color table base
+                add     hl,bc
+                ld      c,a
+                ld      a,(ATRBYT)
+                and     $0f
+                ld      b,a
+                call    rdvrm
+
+                push    af    ; A = an attribute in VRAM
+                and     $0f
+                cp      b
+                jr      z,grpprt_attr_black
+                pop     af
+                push    af
+                rrca
+                rrca
+                rrca
+                rrca
+                and     $0f
+                cp      b
+                jr      nz,grpprt_attr_nomatch
+                pop     af
+grpprt_attr_end:
+                pop     de
+                pop     bc
+                pop     hl
+                pop     af
+                ret
+grpprt_attr_black:
+                pop     af
+grpprt_attr_blk_end:
+                pop     de
+                pop     bc
+                pop     hl
+                pop     af
+                cpl
+                ret
+grpprt_attr_nomatch:
+                ld      a,e
+                or      d
+                cp      $ff
+                jr      z,grpprt_attr_make_black
+                pop     af
+                rlc     b
+                rlc     b
+                rlc     b
+                rlc     b
+                and     $0f
+                or      b
+                call    wrtvrm
+                jr      grpprt_attr_end
+grpprt_attr_make_black:
+                pop     af
+                and     $f0
+                or      b
+                call    wrtvrm
+                jr      grpprt_attr_blk_end
+
+
 ; A = X MOD 8
 grpprt_chr:
                 inc     a
@@ -1127,23 +1174,24 @@ grpprt_chr:
                 ld      de,PATWRK
 grpprt_lp:
                 push    bc
+                call    rdvrm
+                ld      b,a
                 ld      a,(de)
-                xor     $ff
+                call    grpprt_attr
 grpprt_sft_lp:
                 dec     c
                 jr      z,grpprt_sft_ed
                 rrca
                 jr      grpprt_sft_lp
 grpprt_sft_ed:
-                ld      c,a
+                ld      c,a   
                 ld      a,(CMASK)
                 and     c
-                ld      c,a
+                ld      c,a       ; charactor with mask
+
                 ld      a,(CMASK)
-                xor     $ff
-                ld      b,a
-                call    rdvrm
-                and     b
+                cpl
+                and     b         ; B = pattern in VRAM
                 or      c
 
                 call    wrtvrm

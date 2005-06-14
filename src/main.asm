@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.124 2005/06/10 11:40:42 bkc_alpha Exp $
+; $Id: main.asm,v 1.125 2005/06/12 13:59:29 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2796,6 +2796,7 @@ gtpad:
                 call    print_debug
                 pop     af
                 pop     hl
+                xor     a  ; haywire
                 ret
 gtpad_text:     db      "GTPAD",0
 
@@ -2883,9 +2884,10 @@ putq:
                 ; A = queue number
 calc_queue_address:
                 ld      hl,(QUEUES)     ; See QUETAB in systemvars.asm.
-                ld      b,a             ; (queue number * 5)
+                ld      b,a             ; (queue number * 6)
                 rlca
                 rlca
+                add     a,b
                 add     a,b
                 ld      c,a
                 ld      b,0
@@ -2998,9 +3000,9 @@ keyint:
                 call    H_KEYI
                 in      a,(VDP_STAT)
                 or      a
-                jp      p,int_end
+                jp      p,int_end       ; ???
                 ld      (STATFL),a      ; save status
-
+                jp      p,int_end       ; a certain game needs the jump
                 call    H_TIMI
 
                 ld      hl,(JIFFY)
