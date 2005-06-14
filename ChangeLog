@@ -1,10 +1,11 @@
-$Id: ChangeLog,v 1.144 2005/06/13 11:10:35 bkc_alpha Exp $
+$Id: ChangeLog,v 1.145 2005/06/14 18:03:21 bkc_alpha Exp $
 
 2005-06-15 BouKiCHi
     * Improved GRPPRT changes attribute correctly.
     * Fixed PUTQ and LFTQ's address calculation.
     * Added jump instruction before H_TIMI.
     * Added haywire to GTPAD(doesn't return without $00 now).
+    * Added locale condition define and Japanese localized font
 
 2005-06-13 BouKiCHi
     * Changed LDIRMV to save HL.

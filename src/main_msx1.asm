@@ -1,4 +1,4 @@
-; $Id: main_msx1.asm,v 1.1 2005/01/01 22:46:04 mthuurne Exp $
+; $Id: main_msx1.asm,v 1.2 2005/01/02 11:28:20 andete Exp $
 ; C-BIOS main ROM for MSX1 machines
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
@@ -29,6 +29,7 @@
 
 VDP:            equ     TMS99X8
 MODEL_MSX:      equ     MODEL_MSX1
+LOCALE:         equ     LOCAL_EN
 
                 include "main.asm"
 

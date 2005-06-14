@@ -1,7 +1,7 @@
-; $Id: hardware.asm,v 1.10 2005/02/06 19:13:27 bifimsx Exp $
+; $Id: hardware.asm,v 1.11 2005/02/07 07:03:30 bifimsx Exp $
 ; C-BIOS hardware related declarations
 ;
-; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
+; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
@@ -49,7 +49,7 @@ PSG_STAT:       equ     $A2             ; PSG value read port
 
 PSL_STAT:       equ     $A8             ; slot status
 KBD_STAT:       equ     $A9             ; keyboard status
-GIO_REGS:       equ     $AA             ; ëççáIOÉåÉWÉXÉ^
+GIO_REGS:       equ     $AA             ; General IO Register
 PPI_REGS:       equ     $AB             ; PPI register
 
 RTC_ADDR:       equ     $B4             ; RTC address
@@ -85,6 +85,10 @@ MODEL_MSX1:     equ     0
 MODEL_MSX2:     equ     1
 MODEL_MSX2P:    equ     2
 MODEL_MSXTR:    equ     3
+
+; Locales:
+LOCAL_EN:       equ     $00
+LOCAL_JP:       equ     $01
 
 ; BOOLEAN VALUES
 YES:            equ     1
