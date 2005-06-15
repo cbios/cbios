@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.125 2005/06/12 13:59:29 bkc_alpha Exp $
+; $Id: main.asm,v 1.126 2005/06/14 17:59:30 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3104,8 +3104,78 @@ key_bit_next:
                 inc     de
                 djnz    key_chk_lp
                 ret
+
+
 key_store:
                 push    af
+                ld      a,b
+
+                cp      $05
+                jr      z,key_chk_fnk1
+                cp      $04
+                jr      z,key_chk_fnk2
+                jp      key_ascii
+
+; Put function string into buffer
+key_chk_fnk1:
+                ; F1-F3
+                ld      a,c
+                cp      $03 ; F1
+                jr      nz,key_chk_f2
+                ld      a,$00
+                jr      put_key_fnk
+key_chk_f2:
+                cp      $02 ; F2
+                jr      nz,key_chk_f3
+                ld      a,$01
+                jr      put_key_fnk
+key_chk_f3:
+                cp      $01 ; F3
+                jr      nz,key_ascii ; return to normal process
+                ld      a,$02
+                jr      put_key_fnk
+key_chk_fnk2:
+                ; F4-F5
+                ld      a,c
+                cp      $08 ; F4
+                jr      nz,key_chk_f5
+                ld      a,$03
+                jr      put_key_fnk
+key_chk_f5:
+                cp      $07 ; F5
+                jr      nz,key_ascii
+                ld      a,$04
+                jr      put_key_fnk
+put_key_fnk:
+                push   hl
+                push   bc
+                push   de
+                rlca
+                rlca
+                rlca
+                rlca
+                ld     hl,FNKSTR
+                ld     d,$00
+                ld     e,a
+                add    hl,de
+                ex     de,hl
+put_key_fnk_lp:
+                ld     a,(de)
+                and    a
+                jr     z,put_key_fnk_nul
+                push   de
+                call   key_put_into_buf
+                pop    de
+                inc    de
+                jr     put_key_fnk_lp
+put_key_fnk_nul:
+                pop    de
+                pop    bc
+                pop    hl
+                jr     key_store_end2
+
+; Check scan table
+key_ascii:
                 ld      a,(hl)          ; get ASCII value
                 and     a               ; dead key?
                 jr      z,key_store_end2
@@ -3113,7 +3183,16 @@ key_store:
                 ; Since a full buffer is indicated by PUTPNT == GETPNT - 1,
                 ; it is always safe to store a character, but if the buffer
                 ; is full, PUTPNT cannot be increased.
+
                 push    hl
+                call    key_put_into_buf
+                pop     hl
+key_store_end2:
+                pop     af
+                jp      key_bit_next
+
+;--------------------------------
+key_put_into_buf:
                 ld      hl,(PUTPNT)
                 ld      (hl),a
                 ; Note: Ashguine 2 has a bug: it puts KEYBUF at FDF0 iso FBF0
@@ -3133,13 +3212,9 @@ key_store_nowrap:
                 ld      de,(GETPNT)
                 rst     $20
                 pop     de
-                jr      z,key_store_end
+                ret     z
                 ld      (PUTPNT),hl
-key_store_end:
-                pop     hl
-key_store_end2:
-                pop     af
-                jr      key_bit_next
+                ret
 
 
 ;--------------------------------
