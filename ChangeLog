@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.145 2005/06/14 18:03:21 bkc_alpha Exp $
+$Id: ChangeLog,v 1.146 2005/06/14 20:01:14 bkc_alpha Exp $
+
+2005-06-16 BouKiCHi
+    * Added recognize function key in keychk
 
 2005-06-15 BouKiCHi
     * Improved GRPPRT changes attribute correctly.
