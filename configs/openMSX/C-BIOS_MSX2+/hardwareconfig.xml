@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.1 2005/01/01 22:53:50 mthuurne Exp $ -->
+<!-- $Id: hardwareconfig.xml,v 1.2 2005/01/01 23:02:47 mthuurne Exp $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -23,6 +23,14 @@
         <rom>
           <!--sha1:cbios_main_msx2+.rom-->
           <filename>roms/cbios_main_msx2+.rom</filename>
+        </rom>
+      </ROM>
+
+      <ROM id="C-BIOS Logo ROM">
+        <mem base="0x8000" size="0x4000"/>
+        <rom>
+          <!--sha1:cbios_logo_msx2+.rom-->
+          <filename>roms/cbios_logo_msx2+.rom</filename>
         </rom>
       </ROM>
     </primary>
