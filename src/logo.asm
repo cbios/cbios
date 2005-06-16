@@ -1,19 +1,51 @@
+; C-BIOS logo ROM
+;
+; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
+;
+; Redistribution and use in source and binary forms, with or without
+; modification, are permitted provided that the following conditions
+; are met:
+; 1. Redistributions of source code must retain the above copyright
+;    notice, this list of conditions and the following disclaimer.
+; 2. Redistributions in binary form must reproduce the above copyright
+;    notice, this list of conditions and the following disclaimer in the
+;    documentation and/or other materials provided with the distribution.
+;
+; THIS SOFTWARE IS PROVIDED BY THE AUTHOR ``AS IS'' AND ANY EXPRESS OR
+; IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE IMPLIED WARRANTIES
+; OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE ARE DISCLAIMED.
+; IN NO EVENT SHALL THE AUTHOR BE LIABLE FOR ANY DIRECT, INDIRECT,
+; INCIDENTAL, SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT
+; NOT LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+; DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+; THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+; (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
+; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+;
+
+                include "systemvars.asm"
+
+		org	$8000
+;
+logo_ident:	db	"C-BIOS Logo ROM",$FF
+
 logo_show:
         IF VDP = TMS99X8
-                call    init32
+                call    $6f
 
                 ld      a,5
                 ld      (BAKCLR),a
                 ld      (BDRCLR),a
-                call    chgclr
+                call    $62
 
                 ; Set up SCREEN 2 mirrored
                 ld      bc,0 +256* 2
-                call    wrtvdp
+                call    $47
                 ld      bc,3 +256* 159
-                call    wrtvdp
+                call    $47
                 ld      bc,4 +256* 0
-                call    wrtvdp
+                call    $47
 
                 ; Fill the color table
                 ld      a,(FORCLR)
@@ -28,7 +60,7 @@ logo_show:
                 or      b
                 ld      bc,2048
                 ld      hl,(GRPCOL)
-                call    filvrm
+                call    $56
 
                 ld      hl,(CGPBAS)
                 ld      bc,8 * logo_patoffset
@@ -36,7 +68,7 @@ logo_show:
                 ex      de,hl
                 ld      bc,8 * logo_npatterns
                 ld      hl,logo_patterns
-                call    ldirvm
+                call    $5c
 
                 ld      hl,(GRPCOL)
                 ld      bc,8 * logo_patoffset
@@ -44,7 +76,7 @@ logo_show:
                 ex      de,hl
                 ld      bc,8 * logo_ncolors
                 ld      hl,logo_colors
-                call    ldirvm
+                call    $5c
 
                 ld      hl,(NAMBAS)
                 ld      bc,logo_namoffset
@@ -57,7 +89,7 @@ plot_logo_nam:
                 push    hl
                 push    de
                 ld      bc,logo_width
-                call    ldirvm
+                call    $5c
                 pop     hl                      ; value of DE
                 ld      bc,32
                 add     hl,bc
@@ -339,25 +371,26 @@ logo_height:    equ     ($ - logo_names) / logo_width
                 ld      hl,0
                 ld      (BAKCLR),hl
                 ld      a,5
-                call    chgmod
+                call    $5f
 
                 ld      hl,palette1
                 call    setpalette
 
-                call    disscr
+                call    $41
 
                 ld      hl,256
                 ld      (BAKCLR),hl
-                call    chgclr
+                call    $62
 
                 ld      a,(RG8SAV+1)
                 and     127
                 ld      b,a
                 ld      c,9
-                call    wrtvdp
+                call    $47
 
 wait_ce_logo:   ld      a,2
-                call    vdpsta
+		ld	ix,$131
+                call    $15f
                 bit     0,a
                 jr      nz,wait_ce_logo
 
@@ -395,7 +428,8 @@ wait_ce_logo:   ld      a,2
                 otir
 
 loop_logo:      ld      a,2
-                call    vdpsta
+		ld	ix,$131
+                call    $15f
                 bit     0,a
                 jr      z,done_logo
 
@@ -418,7 +452,7 @@ done_logo:      ld      bc,32
                 ld      hl,logo_ver
                 call    prn_text
 
-                call    enascr
+                call    $44
 
 palette_loop:
                 ld      b,16
@@ -530,6 +564,26 @@ setpalette:     di
                 otir
                 ei
                 ret
+
+prn_text:
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,prn_text_graph
+prn_text_char:
+                ld      a,(hl)
+                or      a
+                ret     z
+                call    $a2
+                inc     hl
+                jr      prn_text_char
+prn_text_graph:
+                ld      a,(hl)
+                or      a
+                ret     z
+                ld      ix,$0089
+                call    $15f
+                inc     hl
+                jr      prn_text_graph
 
 logo_hmmc:      dw      0
                 dw      0
@@ -788,4 +842,4 @@ msx2logodata:
 ;
         ENDIF
 ;
-                ds      $6000 - $,$ff
+                ds      $c000 - $,$ff

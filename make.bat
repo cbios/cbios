@@ -9,10 +9,10 @@ IF %1.==tniasm. GOTO TASM
 echo usage make.bat [pasmo or tniasm]
 GOTO QUIT
 :TASM
-FOR %%i IN (main_msx1;main_msx2;main_msx2+;sub;music;disk) DO call ..\build %%i
+FOR %%i IN (main_msx1;main_msx2;main_msx2+;sub;music;disk;logo_msx1;logo_msx2;logo_msx2+) DO call ..\build %%i
 GOTO END
 :PASM
-FOR %%i IN (main_msx1;main_msx2;main_msx2+;sub;music;disk) DO call ..\build %%i pasmo
+FOR %%i IN (main_msx1;main_msx2;main_msx2+;sub;music;disk;logo_msx1;logo_msx2;logo_msx2+) DO call ..\build %%i pasmo
 :END
 del *.tmp >> NUL
 cd ..

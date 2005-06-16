@@ -20,18 +20,24 @@ xcopy configs\RuMSX\*.* derived\configs\RuMSX /s /e /y >nul
 del derived\configs\RuMSX\README.TXT
 
 echo Copying system files
+copy derived\bin\cbios_logo_msx1.rom derived\configs\openMSX\share\machines\C-BIOS_MSX1\roms /y >nul
+copy derived\bin\cbios_logo_msx2.rom derived\configs\openMSX\share\machines\C-BIOS_MSX2\roms /y >nul
 copy derived\bin\cbios_main_msx1.rom derived\configs\openMSX\share\machines\C-BIOS_MSX1\roms /y >nul
 copy derived\bin\cbios_main_msx2.rom derived\configs\openMSX\share\machines\C-BIOS_MSX2\roms /y >nul
 copy derived\bin\cbios_sub.rom derived\configs\openMSX\share\machines\C-BIOS_MSX2\roms /y >nul
 rem copy derived\bin\cbios_disk.rom derived\configs\openMSX\share\machines\C-BIOS_MSX2\roms /y >nul
+copy "derived\bin\cbios_logo_msx2+.rom" "derived\configs\openMSX\share\machines\C-BIOS_MSX2+\roms" /y >nul
 copy "derived\bin\cbios_main_msx2+.rom" "derived\configs\openMSX\share\machines\C-BIOS_MSX2+\roms" /y >nul
 copy derived\bin\cbios_sub.rom "derived\configs\openMSX\share\machines\C-BIOS_MSX2+\roms" /y >nul
 copy derived\bin\cbios_music.rom "derived\configs\openMSX\share\machines\C-BIOS_MSX2+\roms" /y >nul
 rem copy derived\bin\cbios_disk.rom "derived\configs\openMSX\share\machines\C-BIOS_MSX2+\roms" /y >nul
+copy derived\bin\cbios_logo_msx1.rom "derived\configs\blueMSX\Machines\MSX - C-BIOS" /y >nul
+copy derived\bin\cbios_logo_msx2.rom "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
 copy derived\bin\cbios_main_msx1.rom "derived\configs\blueMSX\Machines\MSX - C-BIOS" /y >nul
 copy derived\bin\cbios_main_msx2.rom "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
 copy derived\bin\cbios_sub.rom "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
 rem copy derived\bin\cbios_disk.rom "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
+copy "derived\bin\cbios_logo_msx2+.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS" /y >nul
 copy "derived\bin\cbios_main_msx2+.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS" /y >nul
 copy derived\bin\cbios_sub.rom "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS" /y >nul
 copy derived\bin\cbios_music.rom "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS" /y >nul

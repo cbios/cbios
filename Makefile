@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.12 2005/06/03 21:49:00 mthuurne Exp $
+# $Id: Makefile,v 1.13 2005/06/06 21:40:38 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -8,7 +8,7 @@ PACKAGE:=cbios
 VERSION:=0.21
 PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
-ROMS:=main_msx1 main_msx2 main_msx2+ sub music disk
+ROMS:=main_msx1 main_msx2 main_msx2+ sub music disk logo_msx1 logo_msx2 logo_msx2+
 ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # If needed override location of pasmo.

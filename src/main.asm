@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.127 2005/06/15 20:50:18 bkc_alpha Exp $
+; $Id: main.asm,v 1.128 2005/06/16 14:41:03 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -728,7 +728,42 @@ ram_ok:
 
                 ei
 
-                call    logo_show
+		ld	b,15
+		ld	de,logo_ident
+		ld	hl,$8000
+logo_check:
+		push	bc
+		push	hl
+		push	de
+		ld	a,(EXPTBL)
+		call	rdslt
+		pop	hl
+		pop	de
+		pop	bc
+		cp	(hl)
+		jr	nz,logo_none
+		ex	de,hl
+		inc	de
+		inc	hl
+		djnz	logo_check
+
+		ld	ix,$8010
+		ld	iy,(EXPTBL -1)
+                call    calslt
+		jr	logo_done
+
+logo_none:
+                ld      a,5
+                ld      (BAKCLR),a
+                ld      (BDRCLR),a
+		call	init32
+		ld	hl,logo_default
+		ld	de,(NAMBAS)
+		ld	bc,logo_default_length
+		call	ldirvm
+
+logo_done:
+		ei
                 ld      b,120
                 call    wait_b
                 ld      a,5
@@ -772,6 +807,12 @@ ram_ok:
 hang:
                 halt
                 jr      hang
+
+logo_ident:
+		db	"C-BIOS Logo ROM"
+logo_default:
+		db	" C-BIOS v0.21      cbios.sf.net "
+logo_default_length:	equ	$ - logo_default
 
 ;----------------------
 ; Search for any extension ROMs and initialize them.
@@ -3616,8 +3657,6 @@ vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84
                 db      $F5,$87,$00,$40
 
-
-                include "logo.asm"
 ; ????
                 ds      $77CD - $
                 ret
