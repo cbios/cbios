@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.48 2005/06/06 21:21:41 mthuurne Exp $
+; $Id: sub.asm,v 1.49 2005/06/06 23:35:12 mthuurne Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -773,16 +773,46 @@ clrtxt_text:    db      "CLRTXT",0
 ; TODO: Does it do more? Maybe something involving ACPAGE?
 setpag:
 ; TODO: This is valid for SCREEN5, but what about other modes?
+; TODO: Change many register used ATRBAS,PATBAS
+
+                push    hl
+                push    de
+                push    bc
+
+                ld      hl,(NAMBAS)
+                rlc     h
+                rlc     h
                 ld      a,(DPPAGE)
                 rrca
                 rrca
                 rrca
-                or      $1F
-                push    bc
+                add     a,h
+                or      $1f
+
                 ld      b,a             ; B = R#2 data
                 ld      c,2
                 call    wrtvdp          ; write VDP R#2
+
+                ld      a,(DPPAGE)      ; DP = A16 A15
+                ld      c,a
+                xor     a
+                ld      hl,(ATRBAS)
+                add     hl,hl
+                adc     a,a
+                or      c
+                ld      l,a
+                ld      a,$03
+                or      h
+                ld      b,a ; VDP Reg $05 data
+                ld      c,$05
+                call    wrtvdp
+                ld      b,l ; VDP Reg $0B data
+                ld      c,$0b
+                call    wrtvdp
+
                 pop     bc
+                pop     de
+                pop     hl
                 ret
 
 ;-------------------------------------

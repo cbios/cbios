@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.126 2005/06/14 17:59:30 bkc_alpha Exp $
+; $Id: main.asm,v 1.127 2005/06/15 20:50:18 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1127,6 +1127,12 @@ init_ram:
                 ld      hl,(4)
                 ld      (CGPNT+1),hl
 
+; set up hook
+                ld      a,$c3
+                ld      hl,chput
+                ld      (H_OUTD+1),hl
+                ld      (H_OUTD),a
+
                 ret
 
 ;----------------------
@@ -1434,8 +1440,11 @@ chrgtr_no_digit:
 ; Remark   : Used in basic, in ML it's pretty difficult
 ; TODO     : call H_OUTD
 outdo:
-;                call    H_OUTD
-                jp      chput
+                push    af
+                call    H_OUTD
+                pop     af
+                ret
+;                jp      chput
 
 ;--------------------------------
 ; $001A ISFLIO
