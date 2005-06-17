@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.128 2005/06/16 14:41:03 bkc_alpha Exp $
+; $Id: main.asm,v 1.129 2005/06/16 20:18:41 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3293,19 +3293,6 @@ subrom:
 ; Remark   : Use: LD IX,address
 ;                 CALL EXTROM
 extrom:
-                push af
-		push hl
-                push ix ; for test remember remove!
-                pop  hl
-                ld   a,$20
-                out  ($2e),a
-                ld   a,h
-                out  ($2f),a
-                ld   a,l
-                out  ($2f),a
-                pop  hl
-                pop  af
-
                 ; EXTROM needs to save alternative registers
                 ; and when call with certain status, returns with EI
                 ex      af,af'
