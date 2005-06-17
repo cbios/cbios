@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.148 2005/06/16 14:41:34 bkc_alpha Exp $
+$Id: ChangeLog,v 1.149 2005/06/16 20:21:48 bifimsx Exp $
+
+2005-06-18 BouKiCHi
+    * Removed extrom's debug print for address check.
 
 2005-06-16 Albert Beevendorp
     * seperated logo.asm from main.asm
