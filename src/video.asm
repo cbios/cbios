@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.60 2005/06/13 11:10:09 bkc_alpha Exp $
+; $Id: video.asm,v 1.61 2005/06/14 17:59:30 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1034,43 +1034,16 @@ grpprt_sc2:
                 push    bc
                 push    af
 
-                push    af
                 call    getpat
-                pop     af
 
-                ld      hl,(GRPACY) ; YADRS = Y * 32
-                add     hl,hl
-                add     hl,hl
-                add     hl,hl
-                add     hl,hl
-                add     hl,hl
-
-                ld      bc,(GRPACX) ; XADRS = X & 0xF8
-
-                ld      a,$ff
-                ld      (CMASK),a
+                ld      de,(GRPACY)
+                ld      bc,(GRPACX)
+                call    mapxy
 
                 ld      a,(FORCLR)
                 ld      (ATRBYT),a
 
-                ld      a,c
-                and     $07
-                jr      z,grpprt_mask_ed
-                ld      b,a
-                ld      a,$ff
-grpprt_mask_lp:
-                and     a
-                rra
-                djnz    grpprt_mask_lp
-                ld      (CMASK),a
-grpprt_mask_ed:
-                ld      a,c
-                and     $F8
-                ld      c,a
-                ld      b,$00
-
-                add     hl,bc
-
+                ld      hl,(CLOC)
                 ld      bc,(GRPCGP)
                 add     hl,bc
 
@@ -2062,13 +2035,45 @@ scalxy:
 scalxy_text:    db      "SCALXY",0
 
 ;--------------------------------
-; $0111 MAPXY
+; $0111 MAPXYC
 ; Function : Places cursor at current cursor address
 ; Input    : BC = X coordinate,DE=Y coordinate
+; Register : AF,D,HL
 ; NOTE     : This is a test version
 mapxy:
-                ld (GRPACX),bc
-                ld (GRPACY),de
+                push    bc
+                ld      (GRPACX),bc
+                ld      (GRPACY),de
+                ld      hl,(GRPACY)
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                ld      l,$00
+                ld      b,$00
+
+                ld      a,$ff
+                ld      (CMASK),a
+                ld      a,c
+                and     $07
+                jr      z,mapxy_mask_ed
+                ld      b,a
+                ld      a,$ff
+mapxy_mask_lp:
+                and     a
+                rra
+                djnz    mapxy_mask_lp
+                ld      (CMASK),a
+mapxy_mask_ed:
+                ld      a,c
+                and     $F8
+                ld      c,a
+                ld      b,$00
+                add     hl,bc
+
+                ld      (CLOC),hl
+                pop     bc
                 ret
 mapxy_text:    db      "MAPXY",0
 
