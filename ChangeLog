@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.150 2005/06/17 18:22:48 bkc_alpha Exp $
+$Id: ChangeLog,v 1.151 2005/06/18 12:22:39 bifimsx Exp $
 
 2005-06-18 Albert Beevendorp
     * adjusted blueMSX configs to include the logo rom
+    * adjusted NLMSX configs to include the logo rom
 
 2005-06-18 BouKiCHi
     * Removed extrom's debug print for address check.
