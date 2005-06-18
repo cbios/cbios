@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.153 2005/06/18 17:05:22 bkc_alpha Exp $
+$Id: ChangeLog,v 1.154 2005/06/18 19:36:58 bkc_alpha Exp $
 
 2005-06-19 BouKiCHi
     * Splited MAPXYC routine from GRPPRT routine
@@ -6,6 +6,7 @@ $Id: ChangeLog,v 1.153 2005/06/18 17:05:22 bkc_alpha Exp $
       TODO : investigate more detail
     * Implemented FETCHC
     * Implemented dummy BASIC statements
+    * Improved BREAKX returns value
 
 2005-06-18 Albert Beevendorp
     * adjusted blueMSX configs to include the logo rom
