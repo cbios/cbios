@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.131 2005/06/18 19:34:34 bkc_alpha Exp $
+; $Id: main.asm,v 1.132 2005/06/18 20:39:13 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -608,7 +608,7 @@ romid:
                 include "debug.asm"
 
 ; The game "Hacker" jumps directly to this location.
-                ds      $0D01 - $
+                ds      $0D10 - $
 
 ; for wrong jumper as jumps into bios directly,put RET instruction there
                 ret
