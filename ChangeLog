@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.155 2005/06/18 20:40:50 bkc_alpha Exp $
+$Id: ChangeLog,v 1.156 2005/06/18 21:15:38 bkc_alpha Exp $
 
 2005-06-19 BouKiCHi
     * Splited MAPXYC routine from GRPPRT routine
@@ -7,7 +7,7 @@ $Id: ChangeLog,v 1.155 2005/06/18 20:40:50 bkc_alpha Exp $
     * Implemented FETCHC
     * Implemented dummy BASIC statements
     * Improved BREAKX returns value
-    * Changed chkram's start address
+    * Changed around $0d02 to actual instructions(not jump)
 
 2005-06-18 Albert Beevendorp
     * adjusted blueMSX configs to include the logo rom
