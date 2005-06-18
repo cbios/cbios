@@ -608,11 +608,23 @@ romid:
                 include "debug.asm"
 
 ; The game "Hacker" jumps directly to this location.
-                ds      $0D10 - $
-
-; for wrong jumper as jumps into bios directly,put RET instruction there
+                ds      $0D01 - $
+; for all wrong jumper,put RET instruction there
+                ret 
+                pop     ix  ; $0D02
+                pop     iy
+                pop     af
+                pop     bc
+                pop     de
+                pop     hl
+                exx
+                ex      af,af'
+                pop     af
+                pop     bc
+                pop     de
+                pop     hl
+                ei
                 ret
-                jp      int_end
 
 ; $0000 CHKRAM
 ; Function : Tests RAM and sets RAM slot for the system
