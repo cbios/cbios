@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.132 2005/06/18 20:39:13 bkc_alpha Exp $
+; $Id: main.asm,v 1.134 2005/06/18 21:41:35 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -607,7 +607,9 @@ romid:
                 include "slot.asm"
                 include "debug.asm"
 
-; The game "Hacker" jumps directly to this location.
+; The game "Hacker" jumps directly to this location($0D02).
+; Star force calls $0D0E.
+
                 ds      $0D01 - $
 ; for all wrong jumper,put RET instruction there
                 ret 
