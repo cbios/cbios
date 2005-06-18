@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.151 2005/06/18 12:22:39 bifimsx Exp $
+$Id: ChangeLog,v 1.152 2005/06/18 12:57:54 bifimsx Exp $
+
+2005-06-19 BouKiCHi
+    * Splited MAPXYC routine from GRPPRT routine
+    * Fixed MAPXYC's position Y is rounded down
+      TODO : investigate more detail
 
 2005-06-18 Albert Beevendorp
     * adjusted blueMSX configs to include the logo rom
