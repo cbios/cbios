@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.129 2005/06/16 20:18:41 bifimsx Exp $
+; $Id: main.asm,v 1.130 2005/06/17 18:21:54 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3643,6 +3643,8 @@ scode_tbl_shift:
 vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84
                 db      $F5,$87,$00,$40
+
+                include "statements.asm"
 
 ; ????
                 ds      $77CD - $

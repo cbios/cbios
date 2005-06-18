@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.61 2005/06/14 17:59:30 bkc_alpha Exp $
+; $Id: video.asm,v 1.62 2005/06/18 16:58:10 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2082,14 +2082,9 @@ mapxy_text:    db      "MAPXY",0
 ; Function : Gets current cursor addresses mask pattern
 ; Output   : HL - Cursor address
 ;            A  - Mask pattern
-; NOTE     : This implementation is still a stub!
 fetchc:
-                push    hl
-                push    af
-                ld      hl,fetchc_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,(CMASK)
+                ld      hl,(CLOC)
                 ret
 fetchc_text:    db      "FETCHC",0
 
