@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.130 2005/06/17 18:21:54 bkc_alpha Exp $
+; $Id: main.asm,v 1.131 2005/06/18 19:34:34 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2265,18 +2265,20 @@ qinlin_text:    db      "QINLIN",0
 breakx:
                 in      a,(GIO_REGS)
                 and     $F0
+                or      $07
+                out     (GIO_REGS),a
+                in      a,(KBD_STAT)
+                and     $10             ; check STOP, also resets CF
+                ret     nz              ; some programs like to return with $10
+
+                in      a,(GIO_REGS)
+                and     $F0
                 or      $06
                 out     (GIO_REGS),a
                 in      a,(KBD_STAT)
                 and     $02             ; check CTRL, also resets CF
                 ret     nz
-                in      a,(GIO_REGS)
-                and     $F0
-                or      $07
-                out     (GIO_REGS),a
-                in      a,(KBD_STAT)
-                and     $10             ; check STOP, also resets CF
-                ret     nz
+
                 scf
                 ret
 
