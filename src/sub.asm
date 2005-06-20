@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.49 2005/06/06 23:35:12 mthuurne Exp $
+; $Id: sub.asm,v 1.50 2005/06/16 14:41:03 bkc_alpha Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1159,6 +1159,9 @@ bltvm_loop:
                 bit     7,a                     ; transmit ready?
                 jr      z,bltvm_loop
 
+                ld      a,b
+                and     a                       ; zero check (for SC8)
+                jr      z,bltvm_next
 bltvm_byte:
                 push    bc
                 xor     a
@@ -1176,7 +1179,7 @@ bltvm_pixel:
                 pop     bc
                 ld      c,a
                 djnz    bltvm_byte              ; until the complete byte is done
-
+bltvm_next:
                 inc     hl
                 ld      c,(hl)                  ; get the next byte
 

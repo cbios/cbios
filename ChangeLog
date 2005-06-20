@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.156 2005/06/18 21:15:38 bkc_alpha Exp $
+$Id: ChangeLog,v 1.157 2005/06/18 21:44:23 bkc_alpha Exp $
+
+2005-06-20 BouKiCHi
+    * Changed BLTVM's behavior in SCREEN 8 to check zero before djnz.
 
 2005-06-19 BouKiCHi
     * Splited MAPXYC routine from GRPPRT routine
