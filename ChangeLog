@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.157 2005/06/18 21:44:23 bkc_alpha Exp $
+$Id: ChangeLog,v 1.158 2005/06/20 10:06:27 bkc_alpha Exp $
+
+2005-06-21 Albert Beevendorp
+    * fixed a bug in the clock chip access routines
+      fixes clock chip storage in Palette Editor (and all other
+      titles using it)
 
 2005-06-20 BouKiCHi
     * Changed BLTVM's behavior in SCREEN 8 to check zero before djnz.

@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.50 2005/06/16 14:41:03 bkc_alpha Exp $
+; $Id: sub.asm,v 1.51 2005/06/20 10:06:27 bkc_alpha Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1404,6 +1404,7 @@ knjprt_text:    db      "KNJPRT",0
 ; Output:    A  - Read value in lowest four bits
 ; Registers: F
 redclk:
+                push    bc
                 ld      a,13
                 out     (RTC_ADDR),a
                 ld      a,c
@@ -1412,12 +1413,16 @@ redclk:
                 rrca
                 rrca
                 and     3
-                or      8
+                ld      b,a
+                in      a,(RTC_DATA)
+                or      b
+                pop     bc
                 out     (RTC_DATA),a
                 ld      a,c
                 and     15
                 out     (RTC_ADDR),a
                 in      a,(RTC_DATA)
+                and     15
                 ret
 
 ;-------------------------------------
@@ -1432,6 +1437,7 @@ redclk:
 wrtclk:
                 push    bc
                 ld      b,a
+                push    bc
                 ld      a,13
                 out     (RTC_ADDR),a
                 ld      a,c
@@ -1440,12 +1446,16 @@ wrtclk:
                 rrca
                 rrca
                 and     3
-                or      8
+                ld      b,a
+                in      a,(RTC_DATA)
+                or      b
+                pop     bc
                 out     (RTC_DATA),a
                 ld      a,c
                 and     15
                 out     (RTC_ADDR),a
                 ld      a,b
+                and     15
                 out     (RTC_DATA),a
                 pop     bc
                 ret
