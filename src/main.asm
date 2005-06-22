@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.134 2005/06/18 21:41:35 bkc_alpha Exp $
+; $Id: main.asm,v 1.135 2005/06/18 21:51:23 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2789,7 +2789,7 @@ joypos_kbd_tbl:
 ; $00D8 GTTRIG
 ; Function : Returns current trigger status
 ; Input    : A  - trigger button to test
-;            0 = spacebar
+;            0 = spacebar(included A-1 = minus)
 ;            1 = port 1, button A
 ;            2 = port 2, button A
 ;            3 = port 1, button B
@@ -2799,8 +2799,11 @@ joypos_kbd_tbl:
 ; Note     : Some programs rely on ZF to be set according to the value in A.
 ; Registers: All
 gttrig:
+                cp      4
+                jr      nc,gttrig_space ; if value of A is above 4,go space routine
                 or      a
                 jr      nz,joy_trig
+gttrig_space:
 ; Keyboard (spacebar)
                 ld      a,$08
                 call    snsmat          ; bit0 = 0 -> space pressed

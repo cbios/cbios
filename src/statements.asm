@@ -1,4 +1,4 @@
-; $Id: statements.asm,v 0.001 2005/06/17 18:21:54 bkc_alpha Exp $
+; $Id: statements.asm,v 1.1 2005/06/18 19:34:35 bkc_alpha Exp $
 ; C-BASIC statements
 ;
 ; Copyright (c) 2005 BouKiCHi.  All rights reserved.
@@ -29,11 +29,26 @@
 ; part of ROM Basic
                 ds      $3193 - $
 
+;-----------------------------
+;$3193 - Multiply
+; In  : HL,DE
+; Out : HL and DAC
+; Regs : unknown
+; Note : this routine is not correctly yet
 multiple:
-                push    de
-                ld      de,$
-                call    rombas
-                pop     de
+                push    bc
+                push    hl
+                pop     bc
+multiple_lp:
+                dec     de
+                ld      a,e
+                or      d
+                jr      z,multiple_fin
+                add     hl,bc
+                jr      multiple_lp
+multiple_fin:
+
+                pop     bc
                 ret
 
 
