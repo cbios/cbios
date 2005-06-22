@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.135 2005/06/18 21:51:23 bkc_alpha Exp $
+; $Id: main.asm,v 1.136 2005/06/22 11:00:04 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2799,8 +2799,8 @@ joypos_kbd_tbl:
 ; Note     : Some programs rely on ZF to be set according to the value in A.
 ; Registers: All
 gttrig:
-                cp      4
-                jr      nc,gttrig_space ; if value of A is above 4,go space routine
+                cp      5
+                jr      nc,gttrig_space ; if value of A is above 5,go space routine
                 or      a
                 jr      nz,joy_trig
 gttrig_space:

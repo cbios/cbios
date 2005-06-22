@@ -1,7 +1,7 @@
-$Id: ChangeLog,v 1.159 2005/06/21 20:05:16 bifimsx Exp $
+$Id: ChangeLog,v 1.160 2005/06/22 11:00:03 bkc_alpha Exp $
 
 2005-06-22 BouKiCHi
-    * Fixed GTTRIG to get status of space when Reg.A is above 4.
+    * Fixed GTTRIG to get status of space when Reg.A is above 5.
     * Implemented multiply of BASIC statements temporarily.
 
 2005-06-21 Albert Beevendorp
