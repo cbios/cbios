@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.136 2005/06/22 11:00:04 bkc_alpha Exp $
+; $Id: main.asm,v 1.137 2005/06/22 14:13:02 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3084,6 +3084,12 @@ keyint:
                 ;       space claimed is a lot.
                 ;ei
 
+                ; Riseout needs to shift Reg.R between odd or even value
+                ld      a,r
+                and     $01
+                jr      z,skip_shift
+                nop
+skip_shift:
                 xor     a
                 ld      (CLIKFL),a
                 call    gttrig
