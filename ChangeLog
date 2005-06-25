@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.161 2005/06/22 14:12:49 bkc_alpha Exp $
+$Id: ChangeLog,v 1.162 2005/06/24 20:57:19 bkc_alpha Exp $
 
 2005-06-25 BouKiCHi
     * Improved Reg.R is not fixing at odd or even when call key_int.
+    * Changed the way of timing adjustment.
 
 2005-06-22 BouKiCHi
     * Fixed GTTRIG to get status of space when Reg.A is above 5.

@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.137 2005/06/22 14:13:02 bkc_alpha Exp $
+; $Id: main.asm,v 1.138 2005/06/24 20:57:19 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3048,9 +3048,13 @@ kilbuf:
                 ld      (PUTPNT),hl
                 ret
 
-;------------------
-; interrupt routine code
-;------------------
+;--------------------------------
+; Interrupt routine ($0038h)
+;--------------------------------
+; some games uses Reg.R and the routine effects the register's value.
+; if you want to add something to the routine,please try the following first
+;
+; Riseout , Replicart
 
 keyint:
                 push    hl
@@ -3084,12 +3088,9 @@ keyint:
                 ;       space claimed is a lot.
                 ;ei
 
-                ; Riseout needs to shift Reg.R between odd or even value
-                ld      a,r
-                and     $01
-                jr      z,skip_shift
+                ; Riseout needs that count of RegR in the routine is not even number
                 nop
-skip_shift:
+
                 xor     a
                 ld      (CLIKFL),a
                 call    gttrig
