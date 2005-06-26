@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.52 2005/06/21 20:05:19 bifimsx Exp $
+; $Id: sub.asm,v 1.53 2005/06/26 04:44:50 bkc_alpha Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -880,6 +880,7 @@ rstplt_loop:    in      a,(VDP_DATA)
 ; Output:    B  - RRRRBBBB
 ;            C  - xxxxGGGG
 getplt:
+                push    hl
                 push    af
                 call    palette_vram
                 pop     af
@@ -892,6 +893,7 @@ getplt:
                 ld      b,a
                 in      a,(VDP_DATA)
                 ld      c,a
+                pop     hl
                 ret
 
 ;-------------------------------------
