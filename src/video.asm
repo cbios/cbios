@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.62 2005/06/18 16:58:10 bkc_alpha Exp $
+; $Id: video.asm,v 1.63 2005/06/18 19:34:35 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -209,6 +209,7 @@ filvrm_lp:
 ;            HL - Start address of VRAM
 ; Registers: AF BC DE
 ; Note     : the function doesn't destroy HL
+; Note     : the routine doesn't change IM
 ldirmv:
         IF VDP != TMS99X8
                 ld      a,(SCRMOD)
@@ -230,12 +231,10 @@ ldirmv_cont:
                 ld      b,c
                 inc     a
                 ld      c,VDP_DATA
-                di
 ldirmv_lp:
                 inir
                 dec     a
                 jr      nz,ldirmv_lp
-                ei
                 pop     hl
                 ret
 
@@ -245,6 +244,7 @@ ldirmv_lp:
 ; Input    : BC - blocklength
 ;            DE - Start address of VRAM
 ;            HL - Start address of memory
+; Note     : the routine doesn't change IM
 ; Registers: All
 ldirvm:
                 ex      de,hl
@@ -267,12 +267,10 @@ ldirvm_cont:
                 ld      b,c
                 inc     a
                 ld      c,VDP_DATA
-                di
 ldirvm_lp:
                 otir
                 dec     a
                 jr      nz,ldirvm_lp
-                ei
                 ; Note: Without this, Quinpl shows glitches.
                 ; TODO: Investigate why.
                 ex      de,hl

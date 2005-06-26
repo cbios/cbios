@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.51 2005/06/20 10:06:27 bkc_alpha Exp $
+; $Id: sub.asm,v 1.52 2005/06/21 20:05:19 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -788,13 +788,34 @@ setpag:
                 rrca
                 add     a,h
                 or      $1f
-
                 ld      b,a             ; B = R#2 data
                 ld      c,2
                 call    wrtvdp          ; write VDP R#2
 
-                ld      a,(DPPAGE)      ; DP = A16 A15
+                ld      a,(SCRMOD)
+                cp      7
+                jr      nz,setpag_skip_setrg6
+                ld      a,(RG6SAV)
+                and     $1f
+                ld      b,a
+                ld      a,(DPPAGE)
+                rrca
+                rrca
+                rrca
+                or      b
+                ld      b,a
+                ld      c,6
+                call    wrtvdp          ; write VDP R#6
+
+setpag_skip_setrg6:
+
+                ld      a,(DPPAGE)      ; DP = A16 A15(SC5) A16 (SC7) ??
                 ld      c,a
+                ld      a,(SCRMOD)
+                cp      7
+                jr      nz,setpag_skip_shift
+                sla     c
+setpag_skip_shift:
                 xor     a
                 ld      hl,(ATRBAS)
                 add     hl,hl

@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.162 2005/06/24 20:57:19 bkc_alpha Exp $
+$Id: ChangeLog,v 1.163 2005/06/25 06:50:21 bkc_alpha Exp $
+
+2005-06-26 BouKiCHi
+    * Changed LDIRVM/LDIRMV routine don't change IM.
+    * Improved SETPAG routine to work fine on SCREEN7.
 
 2005-06-25 BouKiCHi
     * Improved Reg.R is not fixing at odd or even when call key_int.
