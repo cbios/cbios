@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.53 2005/06/26 04:44:50 bkc_alpha Exp $
+; $Id: sub.asm,v 1.54 2005/06/26 06:50:18 bkc_alpha Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -879,6 +879,7 @@ rstplt_loop:    in      a,(VDP_DATA)
 ; Input:     A  - Colorcode
 ; Output:    B  - RRRRBBBB
 ;            C  - xxxxGGGG
+; Registers: AF,BC,DE
 getplt:
                 push    hl
                 push    af
