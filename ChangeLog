@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.164 2005/06/26 04:44:50 bkc_alpha Exp $
+$Id: ChangeLog,v 1.165 2005/06/26 06:50:17 bkc_alpha Exp $
+
+2005-06-27 BouKiCHi
+    * Changed CLRSPR's color table to use ATRBAS
 
 2005-06-26 BouKiCHi
     * Changed LDIRVM/LDIRMV routine don't change IM.

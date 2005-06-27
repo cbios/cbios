@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.63 2005/06/18 19:34:35 bkc_alpha Exp $
+; $Id: video.asm,v 1.64 2005/06/26 04:44:50 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -445,9 +445,9 @@ clrspr:
                 ld      a,(SCRMOD)
                 cp      4               ; sprite mode 1?
                 jr      c,clrspr_col_skip
-                ld      hl,(PATBAS)
+                ld      hl,(ATRBAS)
                 dec     h
-                dec     h               ; HL = (PATBAS) - 512
+                dec     h               ; HL = (ATRBAS) - $200
                 ld      bc,32 * 16
                 ld      a,(FORCLR)
                 and     $0F
