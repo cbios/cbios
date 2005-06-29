@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.165 2005/06/26 06:50:17 bkc_alpha Exp $
+$Id: ChangeLog,v 1.166 2005/06/27 13:39:15 bkc_alpha Exp $
 
 2005-06-27 BouKiCHi
     * Changed CLRSPR's color table to use ATRBAS
@@ -427,7 +427,7 @@ $Id: ChangeLog,v 1.165 2005/06/26 06:50:17 bkc_alpha Exp $
     * Added an incomplete TOTEXT implementation.
 
 2004-12-26 Maarten ter Huurne <maarten@treewalker.org>
-    * Added MUSIC ROM stub, which was made by BiFi and BouKiChi.
+    * Added MUSIC ROM stub, which was made by BiFi and BouKiCHi.
 
 2004-12-26 Albert Beevendorp
     * Added compiling of MUSIC-ROM and the DISKROM to the scripts
@@ -511,7 +511,7 @@ $Id: ChangeLog,v 1.165 2005/06/26 06:50:17 bkc_alpha Exp $
 2004-12-18 Maarten ter Huurne <maarten@treewalker.org>
     * Added support for Pasmo to make.bat/build.bat:
       "make pasmo" selects Pasmo instead of tniASM.
-      Patch provided by BouKiChi.
+      Patch provided by BouKiCHi.
     * Keep Kana LED in off state.
     * Released C-BIOS 0.18.
 
@@ -568,98 +568,98 @@ $Id: ChangeLog,v 1.165 2005/06/26 06:50:17 bkc_alpha Exp $
       - Added Makefile.
       - Moved change log from main source file to this file.
 
-2003-08-10 BouKiChi
+2003-08-10 BouKiCHi
     * fixed clear problem in init_txt, init_txt32.
     * fixed scroll in CHPUT on txt40/graphic1 modes.
 
-2003-06-01 BouKiChi
+2003-06-01 BouKiCHi
     * fixed chgmod related. (init_txt, init_txt32 font load added)
     * fixed curs2de, de2curs (screen1 support added)
 
-2003-04-16 BouKiChi
+2003-04-16 BouKiCHi
     * divided sound routine from main kernel.
 
-2002-10-02 BouKiChi
+2002-10-02 BouKiCHi
     * improved init_sc5.
 
-2002-09-26 BouKiChi
+2002-09-26 BouKiCHi
     * fixed keyboard routine.
 
-2002-09-25 BouKiChi
+2002-09-25 BouKiCHi
     * rewrite ENASLT.
     * added init_sc7.
 
-2002-09-23 BouKiChi
+2002-09-23 BouKiCHi
     * added disk routine.
 
-2002-09-22 BouKiChi
+2002-09-22 BouKiCHi
     * fixed init_sc5.
 
-2002-09-19 BouKiChi
+2002-09-19 BouKiCHi
     * improved stroke speed of keyboard input.
     * added scroll routines.
     * fixed init_grp.
 
-2002-09-18 BouKiChi
+2002-09-18 BouKiCHi
     * added CHPUT routine.
     * rewrite curs2de and de2curs routine again.
 
-2002-09-16 BouKiChi
+2002-09-16 BouKiCHi
     * added half of system font.
 
-2002-09-12 BouKiChi
+2002-09-12 BouKiCHi
     * initilize from RG8SAV to RG23
     * ENASLT returns state of disable interrupt.
 
-2002-09-11 BouKiChi
+2002-09-11 BouKiCHi
     * added print_error function.
     * added ROM searching and fixed usage of EXPTBL.
 
-2002-09-10 BouKiChi
+2002-09-10 BouKiCHi
     * improved clearing memory routine.
     * added memory saving trap.
 
-2002-09-08 BouKiChi
+2002-09-08 BouKiCHi
     * fixed WRSLT.
     * added keyboard routine.
     * added GTSTCK and GTTRIG.
 
-2002-08-27 BouKiChi
+2002-08-27 BouKiCHi
     * added sound mode.
     * syntax adjust for other assemblers.
     * fixed RDPRIM.
 
-2002-08-26 BouKiChi
+2002-08-26 BouKiCHi
     * added initialize value of GRP??? and MLT???.
     * re-adjust memory ack function.
     * added calling H.STKE function.
     * re-adjust routines.
 
-2002-08-24 BouKiChi
+2002-08-24 BouKiCHi
     * added INITGRP,CHGMOD and sound_init.
 
-2002-08-21 BouKiChi
+2002-08-21 BouKiCHi
     * name of this project was changed.
 
-2002-08-20 BouKiChi
+2002-08-20 BouKiCHi
     * added initilize table of $fcc2-$fcc4
     * added in_joy and in_trig
     * filesize reduced from 32KB to 16KB.
     * set.bat can be restoring for only 32kb readable emulators.
 
-2002-08-19 BouKiChi
+2002-08-19 BouKiCHi
     * added DCOMPR function and adjusted wait.
 
-2002-08-15 BouKiChi
+2002-08-15 BouKiCHi
     * improved cartridge knowledge.
 
-2002-08-13 BouKiChi
+2002-08-13 BouKiCHi
     * added fonts and key input routine,displayed infomation.
 
-2002-08-09 BouKiChi
+2002-08-09 BouKiCHi
     * it's my birthday,this version was playable games.
 
-2002-08-07 BouKiChi
+2002-08-07 BouKiCHi
     * start development.
 
 # vim:ts=4:expandtab
