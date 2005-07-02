@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.166 2005/06/27 13:39:15 bkc_alpha Exp $
+$Id: ChangeLog,v 1.167 2005/06/29 19:24:14 mthuurne Exp $
+
+2005-07-02 BouKiCHi
+    * Changed GRPPRT to work Y MOD 8 and double printing
 
 2005-06-27 BouKiCHi
     * Changed CLRSPR's color table to use ATRBAS

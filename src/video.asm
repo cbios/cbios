@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.64 2005/06/26 04:44:50 bkc_alpha Exp $
+; $Id: video.asm,v 1.65 2005/06/27 13:39:15 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1045,16 +1045,24 @@ grpprt_sc2:
                 ld      bc,(GRPCGP)
                 add     hl,bc
 
-                ld      a,(GRPACX)
+
+                ld      de,PATWRK
+                ld      a,(GRPACY)
                 and     $07
-                push    af
-                call    grpprt_chr
-                ld      a,(CMASK)
+
+                ld      b,$00
+                ld      c,a
+                add     hl,bc
+                call    grpprt_chr_x
+
+                ld      bc,$00F0
+                add     hl,bc
+                ld      a,(GRPACY)
                 cpl
-                ld      (CMASK),a
-                
-                pop     af
-                call    grpprt_chr
+                and     $07
+                ld      c,a
+
+                call    grpprt_chr_x
 
                 ld      hl,(GRPACX)
                 ld      bc,$0008
@@ -1067,6 +1075,43 @@ grpprt_sc2:
                 pop     hl
 
                 ret
+
+grpprt_chr_x:
+                ld      a,(GRPACX)
+                and     $07
+                push    af
+                push    bc
+                push    de
+                push    hl
+                call    grpprt_chr ; half left
+                ld      a,(GRPACX)
+                and     $07
+                jr      z,grpprt_skip_hr
+                ld      a,(CMASK)
+                cpl
+                ld      (CMASK),a
+                pop     hl
+                ld      bc,$0008
+                add     hl,bc
+                pop     de
+                pop     bc
+                pop     af
+
+                call    grpprt_chr ; half right
+                ld      a,(CMASK)
+                cpl
+                ld      (CMASK),a
+                ret
+grpprt_skip_hr:
+                pop     bc ; HL = the result of last grpprt_chr
+                ld      bc,$0008
+                add     hl,bc
+                pop     bc ; DE = the result of last grpprt_chr
+                pop     bc
+                pop     af
+                ret
+
+
 
 ; A = Pattern , B = Pattern in VRAM
 grpprt_attr:
@@ -1116,8 +1161,8 @@ grpprt_attr_blk_end:
                 cpl
                 ret
 grpprt_attr_nomatch:
-                ld      a,e
-                or      d
+                ld      a,d
+                or      e
                 cp      $ff
                 jr      z,grpprt_attr_make_black
                 pop     af
@@ -1137,12 +1182,17 @@ grpprt_attr_make_black:
                 jr      grpprt_attr_blk_end
 
 
-; A = X MOD 8
+; A = X MOD 8,C = Y MOD 8, HL = CLOC
 grpprt_chr:
+                ld      b,c
                 inc     a
                 ld      c,a
-                ld      b,$08
-                ld      de,PATWRK
+
+                ld      a,$07
+                xor     b
+                inc     a
+                ld      b,a
+
 grpprt_lp:
                 push    bc
                 call    rdvrm
@@ -1160,9 +1210,7 @@ grpprt_sft_ed:
                 and     c
                 ld      c,a       ; charactor with mask
 
-                ld      a,(CMASK)
-                cpl
-                and     b         ; B = pattern in VRAM
+                ld      a,b       ; B = pattern in VRAM
                 or      c
 
                 call    wrtvrm
