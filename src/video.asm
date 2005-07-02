@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.65 2005/06/27 13:39:15 bkc_alpha Exp $
+; $Id: video.asm,v 1.66 2005/07/02 11:02:32 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1271,35 +1271,7 @@ bigfil_lp:
 ; Note: If an odd-numbered 32K page is active and HL >= $8000,
 ;       16-bit wrap around occurs.
 nsetrd:
-                ld      a,(ACPAGE)
-                or      a
-                jr      z,nsetrd_32k
-
-                ld      a,(SCRMOD)
-                cp      5
-                jp      c,setrd
-                cp      7
-                ld      a,(ACPAGE)
-                jr      c,nsetrd_32k    ; SCREEN5/6 -> 32K pages
-                add     a,a             ; SCREEN7/8 -> 64K pages
-nsetrd_32k:     push    hl
-                and     $03             ; A  =  0   0   0   0   0   0   P1  P0
-                rrca
-                ld      l,a             ; L  =  P0  0   0   0   0   0   0   P1
-                and     $80             ; A  =  P0  0   0   0   0   0   0   0
-                xor     h               ; A  = A15 A14 A13 A12 A11 A10  A9  A8
-                rla                     ; CF = A15
-                rl      l               ; L  =  0   0   0   0   0   0   P1 A15
-                rla                     ; CF = A14
-                ld      a,l
-                rla                     ; A  =  0   0   0   0   0   P1 A15 A14
-                di
-                out     (VDP_ADDR),a    ; A16..A14
-                ld      a,$8E
-                out     (VDP_ADDR),a    ; R#14
-                pop     hl
-                ld      a,l
-                out     (VDP_ADDR),a    ; A7..A0
+                call    nset_addr
                 ld      a,h
                 and     $3F
                 out     (VDP_ADDR),a    ; A13..A8
@@ -1316,18 +1288,27 @@ nsetrd_32k:     push    hl
 ; Note: If an odd-numbered 32K page is active and HL >= $8000,
 ;       16-bit wrap around occurs.
 nsetwr:
+                call    nset_addr
+                ld      a,h
+                and     $3F
+                or      $40
+                out     (VDP_ADDR),a    ; A13..A8
+                ei
+                ret
+
+nset_addr:
                 ld      a,(ACPAGE)
                 or      a
-                jr      z,nsetwr_32k
+                jr      z,nset_32k
 
                 ld      a,(SCRMOD)
                 cp      5
                 jp      c,setwrt
                 cp      7
                 ld      a,(ACPAGE)
-                jr      c,nsetwr_32k    ; SCREEN5/6 -> 32K pages
+                jr      c,nset_32k      ; SCREEN5/6 -> 32K pages
                 add     a,a             ; SCREEN7/8 -> 64K pages
-nsetwr_32k:     push    hl
+nset_32k:       push    hl
                 and     $03             ; A  =  0   0   0   0   0   0   P1  P0
                 rrca
                 ld      l,a             ; L  =  P0  0   0   0   0   0   0   P1
@@ -1345,12 +1326,9 @@ nsetwr_32k:     push    hl
                 pop     hl
                 ld      a,l
                 out     (VDP_ADDR),a    ; A7..A0
-                ld      a,h
-                and     $3F
-                or      $40
-                out     (VDP_ADDR),a    ; A13..A8
-                ei
                 ret
+
+
 
 ;--------------------------------
 ; 0174h NRDVRM

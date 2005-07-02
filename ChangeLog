@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.168 2005/07/02 11:02:31 bkc_alpha Exp $
+$Id: ChangeLog,v 1.169 2005/07/02 12:01:55 bifimsx Exp $
+
+2005-07-02 BouKiCHi
+    * Merged a part of NSET?? routines of able to merge.
+    * Removed disk test routine and strings which displays directory.
 
 2005-07-02 Albert Beevendorp
     * Swapped video.asm with slot.asm includes.

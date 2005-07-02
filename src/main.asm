@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.139 2005/06/25 06:50:22 bkc_alpha Exp $
+; $Id: main.asm,v 1.140 2005/07/02 12:01:39 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3449,116 +3449,6 @@ lp_strprn:
                 ;include "video.asm"
                 include "slot.asm"
 
-;------------------------------------
-; disk routine
-;------------------------------------
-
-DISKIO:         equ     phydio ;$4010
-
-; TODO: It seems this routine is currently broken, but it worked before.
-;       It is currently disabled as well, so there is no harm.
-disk_intr:
-                ld      hl,str_flist
-                call    prn_text
-
-                xor     a
-                ld      bc,$01F9
-                ld      de,$0000
-                ld      hl,$C000
-                and     a
-
-                call    DISKIO
-                jp      c,disk_error
-                ld      hl,($C00B)
-
-                ; sector size / 0x20(file structure)
-
-                ld      b,5
-shift_adr:
-                and     a
-                rr      h
-                rr      l
-                djnz    shift_adr
-
-                ld      ($E100),hl
-
-                ld      a,($C010)
-                ld      b,a
-                ld      hl,$0001
-                ld      de,($C016)
-dsk_lp:
-                add     hl,de
-                djnz    dsk_lp
-
-                ex      de,hl
-                xor     a
-                ld      bc,$01F9
-                ld      hl,$C000
-                and     a
-                call    DISKIO
-                jp      c,disk_error
-
-                ld      ix,$C000
-
-                ld      a,($E100)
-                ld      c,a
-
-file_lp:
-                ld      a,(ix+0)
-                and     a
-                jp      z,end_lp
-                ld      b,8
-name_lp:
-                ld      a,(ix+0)
-                inc     ix
-                call    chput
-                djnz    name_lp
-
-                ld      a,'.'
-                call    chput
-
-                ld      b,3
-ext_lp:
-                ld      a,(ix+0)
-                inc     ix
-                call    chput
-                djnz    ext_lp
-
-                ld      de,$0015
-                add     ix,de
-
-                ld      hl,str_crlf
-                call    prn_text
-
-                dec     c
-                jr      nz,file_lp
-
-end_lp:
-                jp      hang_up_mode
-
-;        ld      de,str_disk
-;        jp      print_error
-
-disk_error:
-                push    af
-                ld      hl,str_diskerr
-                call    prn_text
-                pop     af
-                ld      b,0
-                ld      c,a
-                ld      hl,str_de_addr
-                add     hl,bc
-
-                ld      e,(hl)
-                inc     hl
-                ld      d,(hl)
-
-                ex      de,hl
-                call    prn_text
-
-                jp      hang_up_mode
-
-
 ;---------------------------------
 ; system messages
 ;---------------------------------
@@ -3599,36 +3489,6 @@ str_stack_error:
 
 str_crlf:
                 db      $0D,$0A,$00
-
-str_flist:
-                db      $0D,$0A,"--- display disk file list ---",$0D,$0A,$00
-
-str_diskerr:
-                db      "Disk Error:",$00
-
-str_de_addr:
-                dw      str_de_wp
-                dw      str_de_nr
-                dw      str_de_de
-                dw      str_de_se
-                dw      str_de_rn
-                dw      str_de_wf
-                dw      str_de_oe
-
-str_de_wp:
-                db      "Write protected",$0D,$0A,$00
-str_de_nr:
-                db      "Not ready",$0D,$0A,$00
-str_de_de:
-                db      "Data (CRC) error",$0D,$0A,$00
-str_de_se:
-                db      "Seek error",$0D,$0A,$00
-str_de_rn:
-                db      "Record not found",$0D,$0A,$00
-str_de_wf:
-                db      "Write fault",$0D,$0A,$00
-str_de_oe:
-                db      "Other Error",$0D,$0A,$00
 
 str_nocart:
                 ;       [01234567890123456789012345678]
