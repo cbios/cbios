@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.138 2005/06/24 20:57:19 bkc_alpha Exp $
+; $Id: main.asm,v 1.139 2005/06/25 06:50:22 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -604,7 +604,8 @@ romid:
                 ds      $0200 - $
 
                 include "util.asm"
-                include "slot.asm"
+                ;include "slot.asm"
+                include "video.asm"
                 include "debug.asm"
 
 ; The game "Hacker" jumps directly to this location($0D02).
@@ -3445,7 +3446,8 @@ lp_strprn:
                 ds      $1bbf - $
                 include "font.asm"
 
-                include "video.asm"
+                ;include "video.asm"
+                include "slot.asm"
 
 ;------------------------------------
 ; disk routine

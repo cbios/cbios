@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.167 2005/06/29 19:24:14 mthuurne Exp $
+$Id: ChangeLog,v 1.168 2005/07/02 11:02:31 bkc_alpha Exp $
+
+2005-07-02 Albert Beevendorp
+    * Swapped video.asm with slot.asm includes.
+      fixes compile warnings with Pasmo and Sjasm
 
 2005-07-02 BouKiCHi
     * Changed GRPPRT to work Y MOD 8 and double printing
