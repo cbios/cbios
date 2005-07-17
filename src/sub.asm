@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.54 2005/06/26 06:50:18 bkc_alpha Exp $
+; $Id: sub.asm,v 1.55 2005/06/26 06:56:02 bkc_alpha Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -34,6 +34,7 @@
 ; Note: VDP could also be V9958, but for the subrom there is no difference.
 VDP:            equ     V9938
 COMPILE_FONT:   equ     NO
+CALL_SUB:       equ     NO
 
                 include "systemvars.asm"
                 include "hooks.asm"

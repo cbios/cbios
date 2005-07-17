@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.140 2005/07/02 12:01:39 bifimsx Exp $
+; $Id: main.asm,v 1.141 2005/07/02 14:26:39 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -605,6 +605,7 @@ romid:
 
                 include "util.asm"
                 ;include "slot.asm"
+
                 include "video.asm"
                 include "debug.asm"
 

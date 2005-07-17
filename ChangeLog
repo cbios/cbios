@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.169 2005/07/02 12:01:55 bifimsx Exp $
+$Id: ChangeLog,v 1.170 2005/07/02 14:26:39 bkc_alpha Exp $
+
+2005-07-18 BouKiCHi
+    * Splited video routines by condition of model.
+    TODO : investigate the effect of this fix
 
 2005-07-02 BouKiCHi
     * Merged a part of NSET?? routines of able to merge.

@@ -1,4 +1,4 @@
-; $Id: main_msx1.asm,v 1.0 2005/06/14 19:57:10 bkc_alpha Exp $
+; $Id: main_msx1_jp.asm,v 1.1 2005/06/25 07:24:06 bkc_alpha Exp $
 ; C-BIOS main ROM with Japanese font for MSX1 machines
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
@@ -31,6 +31,7 @@
 VDP:            equ     TMS99X8
 MODEL_MSX:      equ     MODEL_MSX1
 LOCALE:         equ     LOCAL_JP
+CALL_SUB:       equ     NO
 
                 include "main.asm"
 

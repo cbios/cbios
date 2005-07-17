@@ -1,4 +1,4 @@
-; $Id: main_msx2.asm,v 1.2 2005/01/02 11:28:20 andete Exp $
+; $Id: main_msx2.asm,v 1.3 2005/06/14 19:57:10 bkc_alpha Exp $
 ; C-BIOS main ROM for MSX2 machines
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
@@ -30,6 +30,7 @@
 VDP:            equ     V9938
 MODEL_MSX:      equ     MODEL_MSX2
 LOCALE:         equ     LOCAL_EN
+CALL_SUB:       equ     YES
 
                 include "main.asm"
 

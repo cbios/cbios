@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.66 2005/07/02 11:02:32 bkc_alpha Exp $
+; $Id: video.asm,v 1.67 2005/07/02 14:26:39 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -282,6 +282,12 @@ ldirvm_lp:
 ; Input    : A  - screen mode
 ; Registers: All
 chgmod:
+        IF CALL_SUB = YES
+                push    ix
+                ld      ix,$00d1
+                jp      subrom
+        ELSE
+
                 ; Guard against non-existing screen mode.
         IF VDP != TMS99X8
                 cp      9
@@ -366,6 +372,7 @@ chgmod_finish_lp:
         ENDIF
                 ei
                 jp      enascr
+        ENDIF
 
 ;--------------------------------
 ; $0062 CHGCLR
@@ -519,6 +526,11 @@ clrspr_attr_8:
 ; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
 ; Registers: All
 initxt:
+        IF CALL_SUB = YES
+                push    ix
+                ld      ix,$00d5 ; INIT
+                jp      subrom
+        ELSE
                 ; Disable video output.
                 call    disscr
 
@@ -568,6 +580,7 @@ initxt_width40:
         ENDIF
                 call    cls_screen0
                 jp      chgmod_finish
+        ENDIF
 
 ;--------------------------------
 ; $006F INIT32
@@ -576,6 +589,11 @@ initxt_width40:
 ; Output   : NAMBAS, CGPBAS, LINLEN, SCRMOD, OLDSCR
 ; Registers: All
 init32:
+        IF CALL_SUB = YES
+                push    ix
+                ld      ix,$00d9
+                jp      subrom
+        ELSE
                 ; Disable video output.
                 call    disscr
 
@@ -614,6 +632,7 @@ init32:
                 call    clrspr_attr_spritemode1
                 call    cls_screen1
                 jp      chgmod_finish
+        ENDIF
 
 ;--------------------------------
 ; $0072 INIGRP
@@ -622,6 +641,11 @@ init32:
 ; Output   : NAMBAS-ATRBAS, SCRMOD
 ; Registers: All
 inigrp:
+        IF CALL_SUB = YES
+                push    ix
+                ld      ix,$00dd
+                jp      subrom
+        ELSE
                 ; Disable video output.
                 call    disscr
 
@@ -661,6 +685,7 @@ inigrp_lp:
                 call    clrspr_attr_spritemode1
                 call    cls_screen2
                 jp      chgmod_finish
+        ENDIF
 
 ;------------------------------
 ; $0075 INIMLT
@@ -669,6 +694,11 @@ inigrp_lp:
 ; Output   : NAMBAS-ATRBAS, SCRMOD
 ; Registers: All
 inimlt:
+        IF CALL_SUB = YES
+                push    ix
+                ld      ix,$00e1
+                jp      subrom
+        ELSE
                 ; Disable video output.
                 call    disscr
 
@@ -719,6 +749,8 @@ inimlt_loop3:
                 call    clrspr_attr_spritemode1
                 call    cls_screen3
                 jp      chgmod_finish
+        ENDIF
+
 
 ;------------------------------
 ; $0078 SETTXT
@@ -1465,6 +1497,7 @@ init_font:
                 jp      ldirvm
         ENDIF
 
+        IF CALL_SUB = NO
         IF VDP != TMS99X8
 ;------------------------------
 ; Initialise SCREEN4 (graphic 3).
@@ -1754,6 +1787,7 @@ init_sc8:
                 call    clrspr_attr_spritemode2
                 call    cls_screen8
                 jp      chgmod_finish
+        ENDIF
         ENDIF
 
 ;--------------------------------
