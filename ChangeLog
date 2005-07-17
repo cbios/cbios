@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.170 2005/07/02 14:26:39 bkc_alpha Exp $
+$Id: ChangeLog,v 1.171 2005/07/17 16:47:16 bkc_alpha Exp $
+
+2005-07-17 Albert Beevendorp (yes, I know it looks strange this way)
+    * Added machine specific conditional BIOS entry compilation,
+      added CHKSLZ and EOL entries and subbed EOL in main.asm
+    * Added the only 2 MSX2+ entries in main.asm
 
 2005-07-18 BouKiCHi
     * Splited video routines by condition of model.

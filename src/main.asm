@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.141 2005/07/02 14:26:39 bkc_alpha Exp $
+; $Id: main.asm,v 1.142 2005/07/17 16:47:16 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -543,6 +543,8 @@ romid:
                 ds      $0159 - $
                 jp      calbas
 
+
+        IF VDP != TMS99X8
 ; ---------------
 ; MSX2 BIOS calls
 ; ---------------
@@ -555,9 +557,17 @@ romid:
                 ds      $015F - $
                 jp      extrom
 
+; $0162 CHKSLZ   Search slots for the subrom
+                ds      $0162 - $
+                jp      chkslz
+
 ; $0165 CHKNEW   Is the current screen mode a bitmap mode?
                 ds      $0165 - $
                 jp      chknew
+
+; $0168 EOL      Deletes to the end of the line
+                ds      $0168 - $
+                jp      eol
 
 ; $016B BIGFIL   Like FILVRM, but supports 128K of VRAM.
                 ds      $016B - $
@@ -579,13 +589,22 @@ romid:
                 ds      $0177 - $
                 jp      nwrvrm
 
+        ENDIF
+
+        IF VDP = V9958
 ; ----------------
 ; MSX2+ BIOS calls
 ; ----------------
 
 ; $017A RDBTST
+                ds      $017A - $
+                jp      rdbtst
 
 ; $017D WRBTST
+                ds      $017D - $
+                jp      wrbtst
+
+        ENDIF
 
 ; ---------------------
 ; MSX TurboR BIOS calls
@@ -614,7 +633,7 @@ romid:
 
                 ds      $0D01 - $
 ; for all wrong jumper,put RET instruction there
-                ret 
+                ret
                 pop     ix  ; $0D02
                 pop     iy
                 pop     af
@@ -744,42 +763,42 @@ ram_ok:
 
                 ei
 
-		ld	b,15
-		ld	de,logo_ident
-		ld	hl,$8000
+                ld      b,15
+                ld      de,logo_ident
+                ld      hl,$8000
 logo_check:
-		push	bc
-		push	hl
-		push	de
-		ld	a,(EXPTBL)
-		call	rdslt
-		pop	hl
-		pop	de
-		pop	bc
-		cp	(hl)
-		jr	nz,logo_none
-		ex	de,hl
-		inc	de
-		inc	hl
-		djnz	logo_check
+                push    bc
+                push    hl
+                push    de
+                ld      a,(EXPTBL)
+                call    rdslt
+                pop     hl
+                pop     de
+                pop     bc
+                cp      (hl)
+                jr      nz,logo_none
+                ex      de,hl
+                inc     de
+                inc     hl
+                djnz    logo_check
 
-		ld	ix,$8010
-		ld	iy,(EXPTBL -1)
+                ld      ix,$8010
+                ld      iy,(EXPTBL -1)
                 call    calslt
-		jr	logo_done
+                jr      logo_done
 
 logo_none:
                 ld      a,5
                 ld      (BAKCLR),a
                 ld      (BDRCLR),a
-		call	init32
-		ld	hl,logo_default
-		ld	de,(NAMBAS)
-		ld	bc,logo_default_length
-		call	ldirvm
+                call    init32
+                ld      hl,logo_default
+                ld      de,(NAMBAS)
+                ld      bc,logo_default_length
+                call    ldirvm
 
 logo_done:
-		ei
+                ei
                 ld      b,120
                 call    wait_b
                 ld      a,5
@@ -825,10 +844,10 @@ hang:
                 jr      hang
 
 logo_ident:
-		db	"C-BIOS Logo ROM"
+                db      "C-BIOS Logo ROM"
 logo_default:
-		db	" C-BIOS v0.21      cbios.sf.net "
-logo_default_length:	equ	$ - logo_default
+                db      " C-BIOS v0.21      cbios.sf.net "
+logo_default_length:    equ     $ - logo_default
 
 ;----------------------
 ; Search for any extension ROMs and initialize them.
@@ -1256,6 +1275,7 @@ check_expanded_next:
         IF VDP != TMS99X8
 ;----------------------
 ;Detect position of subrom
+chkslz:
 chksubpos:
 
                 ld      bc,$0400
@@ -3337,7 +3357,7 @@ extrom:
                 ld      a,(EXBRSA)
                 push    af
                 pop     iy              ; IYH = slot ID
-                
+
                 ex      af,af'
                 call    calslt          ; Perform inter-slot call.
 
@@ -3385,6 +3405,49 @@ calbas:
                 ld      de,str_no_basic_intr
                 jp      print_error
 calbas_text:    db      "CALBAS",0
+
+        IF MODEL_MSX != MODEL_MSX1
+;--------------------------------
+; $0168 EOL
+; Function : Deletes to the end of the line
+; Input    : H  - x-coordinate of cursor
+;            L  - y-coordinate of cursor
+; Registers: All
+; NOTE: this implementation is still a stub!
+eol:
+                push    hl
+                push    af
+                ld      hl,eol_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+eol_text:       db      "EOL",0
+        ENDIF
+
+        IF VDP = V9958
+;--------------------------------
+; $017A RDBTST
+; Function : Read value of $F4 I/O port
+; Input    : None
+; Output   : A = value read (non-inverted)
+; Registers: AF
+rdbtst:
+                in      a,($f4)
+                ret
+
+;--------------------------------
+; $017D WRBTST
+; Function : Read value of $F4 I/O port
+; Input    : A = value to write read (non-inverted)
+;            Bit 7 shows the MSX2+ startup screen when reset,
+;            otherwise it's skipped
+; Output   : None
+; Registers: None
+wrbtst:
+                out     ($f4),a
+                ret
+        ENDIF
 
 ;------------------------------------
 ;Display error
