@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.171 2005/07/17 16:47:16 bkc_alpha Exp $
+$Id: ChangeLog,v 1.172 2005/07/17 17:29:30 bifimsx Exp $
+
+2005-08-14 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Initialise font also in subrom video routines.
 
 2005-07-17 Albert Beevendorp (yes, I know it looks strange this way)
     * Added machine specific conditional BIOS entry compilation,

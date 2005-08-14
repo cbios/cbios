@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.67 2005/07/02 14:26:39 bkc_alpha Exp $
+; $Id: video.asm,v 1.68 2005/07/17 16:47:17 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1463,13 +1463,21 @@ init_vdp:
                 call    wrtvdp
 
         IF COMPILE_FONT != NO
+        IF MODEL_MSX != MODEL_SUBROM
                 ld      hl,B_Font
-
                 ld      de,$0800
                 ld      bc,$0800
                 call    ldirvm
+        ELSE
+                ld      hl,$1BBF
+                ld      de,$0800
+                ld      bc,$0800
+                ld      iy,(EXPTBL)
+                ld      ix,$005C
+                call    calslt
+                ei
         ENDIF
-
+        ENDIF
                 ret
 
 ; TODO: Is it safe to enable this on MSX1 machines?
@@ -1491,10 +1499,21 @@ init_vdp:
 ; Initialise font.
 ; Uploads font to VRAM address specified by CGPBAS.
 init_font:
+        IF MODEL_MSX != MODEL_SUBROM
                 ld      hl,B_Font
                 ld      de,(CGPBAS)
                 ld      bc,$0800
                 jp      ldirvm
+        ELSE
+                ld      hl,$1BBF
+                ld      de,(CGPBAS)
+                ld      bc,$0800
+                ld      iy,(EXPTBL)
+                ld      ix,$005C
+                call    calslt
+                ei
+                ret
+        ENDIF
         ENDIF
 
         IF CALL_SUB = NO

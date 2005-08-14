@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.11 2005/02/07 07:03:30 bifimsx Exp $
+; $Id: hardware.asm,v 1.12 2005/06/14 19:57:10 bkc_alpha Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -85,6 +85,8 @@ MODEL_MSX1:     equ     0
 MODEL_MSX2:     equ     1
 MODEL_MSX2P:    equ     2
 MODEL_MSXTR:    equ     3
+
+MODEL_SUBROM:   equ     4
 
 ; Locales:
 LOCAL_EN:       equ     $00
