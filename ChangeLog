@@ -1,7 +1,9 @@
-$Id: ChangeLog,v 1.172 2005/07/17 17:29:30 bifimsx Exp $
+$Id: ChangeLog,v 1.173 2005/08/14 02:40:05 ccfg Exp $
 
 2005-08-14 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Initialise font also in subrom video routines.
+    * Scan the keyboard only every three interrupts.
+    * Implement keyboard auto-repetition.
 
 2005-07-17 Albert Beevendorp (yes, I know it looks strange this way)
     * Added machine specific conditional BIOS entry compilation,

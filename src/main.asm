@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.142 2005/07/17 16:47:16 bkc_alpha Exp $
+; $Id: main.asm,v 1.143 2005/07/17 17:28:57 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3120,19 +3120,34 @@ keyint:
                 and     $01
                 ld      (TRGFLG),a
 
-                ld      a,(SCNCNT)  ; test
-                xor     $01
+                ; Scan the keyboard every three interrupts.
+                ld      a,(SCNCNT)
+                dec     a
                 ld      (SCNCNT),a
-
-                ; TODO: MSX BIOS doesn't scan the full keyboard on every
-                ;       interrupt, see SCNCNT (F3F6).
-                ; TODO: This can probably be done cheaper as part of the
-                ;       key_in routine.
-                ld      hl,NEWKEY
-                ld      de,OLDKEY
-                ld      bc,$0B
-                ldir
+                jr      nz,int_end
+                ld      a,3
+                ld      (SCNCNT),a
                 call    key_in
+                ; Check whether KEYBUF is empty and if so, decrement REPCNT to
+                ; see if auto-repeating should be started.  The user program
+                ; needs to continuously read characters to allow repetition.
+                ld      hl,(PUTPNT)
+                ld      de,(GETPNT)
+                rst     $20
+                jr      nz,int_end
+                ld      a,(REPCNT)
+                dec     a
+                ld      (REPCNT),a
+                jr      nz,int_end
+                ld      hl,OLDKEY
+                ld      bc,$0BFF
+clear_oldkey:
+                ld      (hl),c
+                inc     hl
+                djnz    clear_oldkey
+                call    key_in
+                ld      a,1
+                ld      (REPCNT),a
 
 int_end:
                 pop     ix
@@ -3186,8 +3201,14 @@ scan_start:
                 ld      b,$0B
 key_chk_lp:
                 ld      a,(de)
+                cp      (ix+0)
+                call    nz,key_set_delay
                 cpl
                 and     (ix+0)
+                ex      af,af'          ; Update OLDKEY.
+                ld      a,(de)
+                ld      (ix+0),a
+                ex      af,af'
                 ; TODO: Optimise scanning if no keys are pressed.
                 ;       That's the most common case by far.
                 ld      c,$08
@@ -3203,6 +3224,13 @@ key_bit_next:
                 djnz    key_chk_lp
                 ret
 
+key_set_delay:
+                ; Set the auto-repeat delay.
+                push    af
+                ld      a,5
+                ld      (REPCNT),a
+                pop     af
+                ret
 
 key_store:
                 push    af
