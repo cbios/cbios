@@ -449,7 +449,7 @@ done_logo:      ld      bc,32
                 ld      a,7
                 ld      (FORCLR),a
                 ld      a,8
-                ld      (L_OP),a
+                ld      (LOGOPR),a
                 ld      hl,logo_ver
                 call    prn_text
 

@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.57 2005/08/14 02:40:06 ccfg Exp $
+; $Id: sub.asm,v 1.58 2005/10/09 13:34:55 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -529,7 +529,7 @@ grpprt_sub:
 grpprt_init:    ld      (CDUMMY),a
                 call    exec_cmd
 
-                ld      a,(hl)
+                ld      a,(LOGOPR)
                 and     15
                 or      $b0
                 out     (c),a
