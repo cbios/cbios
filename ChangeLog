@@ -1,4 +1,11 @@
-$Id: ChangeLog,v 1.173 2005/08/14 02:40:05 ccfg Exp $
+$Id: ChangeLog,v 1.174 2005/08/14 05:57:25 ccfg Exp $
+
+2005-10-09 Albert Beevendorp
+    * fixed a few bugs in GRPPRT in sub.asm
+      FORCLR writes ATRBYT
+      GRPACX / GRPACY should be used in stead of GXPOS / GYPOS
+    * initiated V9958 support in logo.asm
+      updated V9938 logo according to the fixes in GRPPRT
 
 2005-08-14 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Initialise font also in subrom video routines.
