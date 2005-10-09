@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.174 2005/08/14 05:57:25 ccfg Exp $
+$Id: ChangeLog,v 1.175 2005/10/09 13:36:53 bifimsx Exp $
 
 2005-10-09 Albert Beevendorp
     * fixed a few bugs in GRPPRT in sub.asm
@@ -6,6 +6,7 @@ $Id: ChangeLog,v 1.174 2005/08/14 05:57:25 ccfg Exp $
       GRPACX / GRPACY should be used in stead of GXPOS / GYPOS
     * initiated V9958 support in logo.asm
       updated V9938 logo according to the fixes in GRPPRT
+    * updated openMSX and blueMSX machine configs with $F4 reset flag
 
 2005-08-14 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Initialise font also in subrom video routines.

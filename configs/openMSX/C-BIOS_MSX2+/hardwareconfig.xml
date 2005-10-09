@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.2 2005/01/01 23:02:47 mthuurne Exp $ -->
+<!-- $Id: hardwareconfig.xml,v 1.3 2005/06/16 20:19:53 bifimsx Exp $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -107,6 +107,11 @@
     <PrinterPort id="Printer Port">
       <io base="0x90" num="2"/>
     </PrinterPort>
+
+    <F4Device id="F4Device">
+      <io base="0xF4" num="1"/>
+      <inverted>false</inverted>
+    </F4Device>
 
   </devices>
 
