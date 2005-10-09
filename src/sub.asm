@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.56 2005/07/17 16:47:17 bkc_alpha Exp $
+; $Id: sub.asm,v 1.57 2005/08/14 02:40:06 ccfg Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -504,14 +504,17 @@ grpprt_sub:
 
                 call    getpat
 
-                ld      hl,(GXPOS)
+                ld      a,(FORCLR)
+                ld      (ATRBYT),a
+
+                ld      hl,(GRPACX)
                 ld      (DX),HL
                 ld      bc,8
                 add     hl,bc
-                ld      (GXPOS),hl
+                ld      (GRPACX),hl
 
                 ld      a,(ACPAGE)
-                ld      hl,(GYPOS)
+                ld      hl,(GRPACY)
                 ld      h,a
                 ld      (DY),hl
 
@@ -557,14 +560,14 @@ grpprt_end:
                 pop     bc
                 ret
 
-grpprt_lf:      ld      hl,(GYPOS)
+grpprt_lf:      ld      hl,(GRPACY)
                 ld      bc,8
                 add     hl,bc
-                ld      (GYPOS),hl
+                ld      (GRPACY),hl
                 jr      grpprt_end
 
 grpprt_cr:      ld      hl,0
-                ld      (GXPOS),hl
+                ld      (GRPACX),hl
                 jr      grpprt_end
 
 ;-------------------------------------
