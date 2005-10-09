@@ -26,9 +26,9 @@
 
                 include "systemvars.asm"
 
-		org	$8000
+                org     $8000
 ;
-logo_ident:	db	"C-BIOS Logo ROM",$FF
+logo_ident:     db      "C-BIOS Logo ROM",$FF
 
 logo_show:
         IF VDP = TMS99X8
@@ -362,8 +362,9 @@ logo_ver_minor:
                 db      $80,$DC,$DD,$DE,$C2,$DF,$E0,$E1,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E5
 logo_height:    equ     ($ - logo_names) / logo_width
 ;
-        ELSE
+        ENDIF
 ;
+        IF VDP = V9938
                 ld      de,$c000
                 ld      hl,msx2logodata
                 call    unPack
@@ -389,7 +390,7 @@ logo_height:    equ     ($ - logo_names) / logo_width
                 call    $47
 
 wait_ce_logo:   ld      a,2
-		ld	ix,$131
+                ld      ix,$131
                 call    $15f
                 bit     0,a
                 jr      nz,wait_ce_logo
@@ -428,7 +429,7 @@ wait_ce_logo:   ld      a,2
                 otir
 
 loop_logo:      ld      a,2
-		ld	ix,$131
+                ld      ix,$131
                 call    $15f
                 bit     0,a
                 jr      z,done_logo
@@ -442,11 +443,11 @@ done_logo:      ld      bc,32
                 ldir
 
                 ld      hl,22 *8
-                ld      (GXPOS),hl
+                ld      (GRPACX),hl
                 ld      hl,12 *8 +1
-                ld      (GYPOS),hl
+                ld      (GRPACY),hl
                 ld      a,7
-                ld      (ATRBYT),a
+                ld      (FORCLR),a
                 ld      a,8
                 ld      (L_OP),a
                 ld      hl,logo_ver
@@ -839,6 +840,19 @@ msx2logodata:
                 db      $83,$4C,$00,$63,$AF,$08,$44,$7E,$FA,$C8,$80,$EA,$83,$53,$00,$83
                 db      $34,$44,$7E,$FA,$F8,$80,$EF,$01,$BF,$7E,$EC,$2D,$85,$9E,$01,$8F
                 db      $40,$00,$00,$ED,$63,$FB,$FA,$2F,$00,$FF,$F8
+;
+        ENDIF
+;
+        IF VDP = V9958
+
+                call    $17a
+                rla
+                ret     c
+
+                ld      a,$80
+                call    $17d
+                ; MSX2+ logo version
+                ret
 ;
         ENDIF
 ;
