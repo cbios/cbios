@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.68 2005/07/17 16:47:17 bkc_alpha Exp $
+; $Id: video.asm,v 1.69 2005/08/14 02:40:06 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1054,7 +1054,21 @@ grpprt:
                 ld      a,(SCRMOD)
                 cp      2
                 jr      z,grpprt_sc2
+                cp      5
+                jr      nc,grpprt_sc5 ; SCRMOD >= 5
                 pop     af
+                ret
+
+grpprt_sc5:
+                pop     af
+
+        ; TODO: should these routines be merged?
+
+        IF CALL_SUB = YES
+                push    ix
+                ld      ix,$0089
+                jp      subrom
+        ENDIF
                 ret
 
 grpprt_sc2:
