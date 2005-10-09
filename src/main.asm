@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.143 2005/07/17 17:28:57 bifimsx Exp $
+; $Id: main.asm,v 1.144 2005/08/14 05:57:26 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -596,13 +596,13 @@ romid:
 ; MSX2+ BIOS calls
 ; ----------------
 
-; $017A RDBTST
+; $017A RDRES
                 ds      $017A - $
-                jp      rdbtst
+                jp      rdres
 
-; $017D WRBTST
+; $017D WRRES
                 ds      $017D - $
-                jp      wrbtst
+                jp      wrres
 
         ENDIF
 
@@ -3455,24 +3455,24 @@ eol_text:       db      "EOL",0
 
         IF VDP = V9958
 ;--------------------------------
-; $017A RDBTST
+; $017A RDRES
 ; Function : Read value of $F4 I/O port
 ; Input    : None
 ; Output   : A = value read (non-inverted)
 ; Registers: AF
-rdbtst:
+rdres:
                 in      a,($f4)
                 ret
 
 ;--------------------------------
-; $017D WRBTST
+; $017D WRRES
 ; Function : Read value of $F4 I/O port
 ; Input    : A = value to write read (non-inverted)
 ;            Bit 7 shows the MSX2+ startup screen when reset,
 ;            otherwise it's skipped
 ; Output   : None
 ; Registers: None
-wrbtst:
+wrres:
                 out     ($f4),a
                 ret
         ENDIF
