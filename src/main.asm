@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.144 2005/08/14 05:57:26 ccfg Exp $
+; $Id: main.asm,v 1.145 2005/10/09 14:41:43 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1357,7 +1357,7 @@ wait_b:
 
 ;------------------------
 ;prn_text
-; HL = string
+; HL = string with null termination
 
 prn_text:
                 ld      a,(SCRMOD)
@@ -3626,6 +3626,12 @@ vdp_bios:
 
                 include "statements.asm"
 
+; FM Music Macro is calling the routine(seems to display message).
+; in : HL(an address of string with null termination)
+                ds      $6678 - $
+                call    prn_text ; as a substitution
+
+
 ; ????
                 ds      $77CD - $
                 ret
@@ -3676,6 +3682,10 @@ call_sdfscr:
                 pop     hl
                 ret
 unk7E14_text:   db      "unknown@7E14",0
+
+; FM Music Macro is calling this unknown routine.
+                ds      $7E6B - $
+                ret
 
                 ds      $8000 - $
 
