@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.145 2005/10/09 14:41:43 bifimsx Exp $
+; $Id: main.asm,v 1.146 2005/10/13 11:22:17 bkc_alpha Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3458,21 +3458,23 @@ eol_text:       db      "EOL",0
 ; $017A RDRES
 ; Function : Read value of $F4 I/O port
 ; Input    : None
-; Output   : A = value read (non-inverted)
+; Output   : A = value read (inverted)
 ; Registers: AF
 rdres:
                 in      a,($f4)
+                cpl
                 ret
 
 ;--------------------------------
 ; $017D WRRES
 ; Function : Read value of $F4 I/O port
-; Input    : A = value to write read (non-inverted)
+; Input    : A = value to write read (will be inverted)
 ;            Bit 7 shows the MSX2+ startup screen when reset,
 ;            otherwise it's skipped
 ; Output   : None
 ; Registers: None
 wrres:
+                cpl
                 out     ($f4),a
                 ret
         ENDIF

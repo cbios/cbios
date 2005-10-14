@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.3 2005/06/16 20:19:53 bifimsx Exp $ -->
+<!-- $Id: hardwareconfig.xml,v 1.4 2005/10/09 14:58:32 bifimsx Exp $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -110,7 +110,7 @@
 
     <F4Device id="F4Device">
       <io base="0xF4" num="1"/>
-      <inverted>false</inverted>
+      <inverted>true</inverted>
     </F4Device>
 
   </devices>
