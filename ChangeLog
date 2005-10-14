@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.176 2005/10/09 15:03:36 bifimsx Exp $
+$Id: ChangeLog,v 1.177 2005/10/13 11:22:17 bkc_alpha Exp $
+
+2005-10-14 Albert Beevendorp
+    * inverted $F4 reset flag which is more common on MSX2+ machines
+    * removed obsolete [Audio] section from blueMSX machine configs
 
 2005-10-13 BouKiCHi
     * Added dummy routines for FM Music Macro( seems to call BASIC routines )
