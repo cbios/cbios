@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.177 2005/10/13 11:22:17 bkc_alpha Exp $
+$Id: ChangeLog,v 1.178 2005/10/14 06:19:44 bifimsx Exp $
+
+2005-10-26 Maarten ter Huurne <maarten@treewalker.org>
+    * Added C-BASIC (minibas) by BouKiCHi.
+      Right now it is built as a separate ROM, so you have to insert it
+      into your emulator as a cartridge.
 
 2005-10-14 Albert Beevendorp
     * inverted $F4 reset flag which is more common on MSX2+ machines
