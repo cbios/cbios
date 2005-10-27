@@ -1,14 +1,16 @@
-# $Id: Makefile,v 1.13 2005/06/06 21:40:38 mthuurne Exp $
+# $Id: Makefile,v 1.14 2005/06/16 20:21:48 bifimsx Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
 #Z80_ASSEMBLER?=sjasm
+#Z80_ASSEMBLER?=tniasm
 
 PACKAGE:=cbios
 VERSION:=0.21
 PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
 
-ROMS:=main_msx1 main_msx2 main_msx2+ sub music disk logo_msx1 logo_msx2 logo_msx2+
+ROMS:=main_msx1 main_msx2 main_msx2+ sub logo_msx1 logo_msx2 logo_msx2+ \
+	music disk basic
 ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # If needed override location of pasmo.
@@ -33,6 +35,12 @@ ifeq ($(Z80_ASSEMBLER),sjasm)
 endif
 ifeq ($(Z80_ASSEMBLER),pasmo)
 	@$(PASMO) -I src $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+endif
+# TODO: The "mv" can cause problems in parallel builds, it would be better if
+#       tniASM could write distinct output files (can it?).
+ifeq ($(Z80_ASSEMBLER),tniasm)
+	@cd src && tniasm $(<:vdep/%=%) ../$@
+	@mv src/tniasm.sym $(@:derived/bin/%.rom=derived/lst/%.sym)
 endif
 
 # Include main dependency files.
