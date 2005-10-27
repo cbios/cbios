@@ -1,10 +1,10 @@
-$Id: ChangeLog,v 1.179 2005/10/26 20:36:44 mthuurne Exp $
+$Id: ChangeLog,v 1.180 2005/10/27 23:31:46 mthuurne Exp $
 
 2005-10-27 Maarten ter Huurne <maarten@treewalker.org>
     * Improved support for tniASM:
       - added support in Makefile
-      - added support in make.bat
       - fixed C-BASIC code so tniASM accepts it
+    * Added C-BASIC to Makefile and make.bat.
 
 2005-10-26 Maarten ter Huurne <maarten@treewalker.org>
     * Added C-BASIC (minibas) by BouKiCHi.
