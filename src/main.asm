@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.146 2005/10/13 11:22:17 bkc_alpha Exp $
+; $Id: main.asm,v 1.147 2005/10/14 06:19:14 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -801,6 +801,8 @@ logo_done:
                 ei
                 ld      b,120
                 call    wait_b
+                ld      a,15
+                ld      (FORCLR),a
                 ld      a,5
                 ld      (BAKCLR),a
                 ld      (BDRCLR),a
