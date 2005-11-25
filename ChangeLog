@@ -1,4 +1,10 @@
-$Id: ChangeLog,v 1.180 2005/10/27 23:31:46 mthuurne Exp $
+$Id: ChangeLog,v 1.181 2005/10/27 23:44:06 mthuurne Exp $
+
+2005-11-25 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Improved the RAM search routine:
+      - check each memory slot configuration
+      - find the start of the longest contiguous memory area and set the
+        BOTTOM variable accordingly
 
 2005-10-27 Maarten ter Huurne <maarten@treewalker.org>
     * Improved support for tniASM:

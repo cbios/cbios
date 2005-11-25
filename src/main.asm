@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.147 2005/10/14 06:19:14 bifimsx Exp $
+; $Id: main.asm,v 1.148 2005/11/07 19:16:31 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -670,75 +670,91 @@ chkram:
                 inc     a
                 out     (MAP_REG1),a
 
-; memory check, Write selected slot to memory
-; C = primary, B = secondary.
-                ld      bc,$0303
-chk_wrt_ram:               ; Check page3 RAM
+                ; Select the longest contiguous memory area for pages 3 and 2.
+                ld      hl,$FF00        ; Keep the current best values in the
+                exx                     ; alternative register set (HL and BC).
+                ; For each primary slot:
                 in      a,(PSL_STAT)
-                and     $3F
-                ld      e,a
-
-                ld      a,c
-                and     $03
-                rrca
-                rrca
-                or      e
-                out     (PSL_STAT),a    ; A = BBxxxxxx
-
+                or      $F0
+                ld      b,a
+chkram_pslot:
+                ; Select primary slot.
+                ld      a,b
+                out     (PSL_STAT),a
+                ; For each secondary slot:
+                ; Note that we do not check if the secondary slot is actually
+                ; available: in case there is no secondary slot, we do the same
+                ; test four times for the same primary slot.
                 ld      a,(SSL_REGS)
                 cpl
-                and     $3F
-                ld      e,a
-
+                or      $F0
+                ld      c,a
+chkram_sslot:
+                ld      a,c
+                ld      (SSL_REGS),a
+                ; Find the longest contiguous memory area for this slot
+                ; configuration.  Note that there is always ROM in pages
+                ; 1 and 0.
+                ld      hl,$FF00
+chkram_find:
+                ld      a,$0F
+                ld      (hl),a
+                cp      (hl)
+                jr      nz,chkram_find_end
+                cpl
+                ld      (hl),a
+                cp      (hl)
+                jr      nz,chkram_find_end
+                dec     h
+                jr      chkram_find
+chkram_find_end:
+                inc     h
+                ; Update the best values.
+                ld      a,h
+                or      a
+                jr      z,chkram_sslot_end
+                exx
+                cp      h
+                jr      c,chkram_update
+                jr      z,chkram_update
+                exx
+                jr      chkram_sslot_end
+chkram_update:
+                ld      h,a
+                exx
                 ld      a,b
-                and     $03
-                rrca
-                rrca
-                or      e
-                ld      (SSL_REGS),a    ; A = EExxxxxx
-                ld      e,a
+                exx
+                ld      b,a
+                exx
+                ld      a,c
+                exx
+                ld      c,a
+                exx
+chkram_sslot_end:
+                ld      a,c
+                sub     $10
+                ld      c,a
+                jr      nc,chkram_sslot
+chkram_pslot_end:
+                ld      a,b
+                sub     $10
+                ld      b,a
+                jr      nc,chkram_pslot
 
-                ld      a,$12
-                ld      ($C010),a
-                ld      a,($C010)
-                cp      $12
-                jr      nz,cant_wrt
-                jp      ram_ok
-cant_wrt:
-                dec     b
-                jp      p,chk_wrt_ram
-                ld      b,$03
-                dec     c
-                jp      p,chk_wrt_ram
+                ; Select the longest contiguous memory area.
+                exx
+                ld      a,h
+                or      a
+                jr      nz,chkram_select
                 ld      de,str_memory_err
                 jp      print_error
-
-ram_ok:
-                ld      hl,SLTTBL + 3
-                ld      (hl),e          ; Expanded slot
-
-; Yes,You can write the memory after the routine.
-
-                ; Select RAM in page 2.
-                ; This assumes the same slot used for page 3 also has RAM in
-                ; slot 2.
-                in      a,(PSL_STAT)
-                and     $CF
-                ld      c,a
-                rrca
-                rrca
-                and     $30
-                or      c
+chkram_select:
+                ld      a,b
                 out     (PSL_STAT),a
-                ld      a,(SSL_REGS)
-                cpl
-                and     $CF
-                ld      c,a
-                rrca
-                rrca
-                and     $30
-                or      c
+                ld      a,c
                 ld      (SSL_REGS),a
+                ; HL contains the start of the memory area (for BOTTOM variable).
+                exx
 
 ;----------------------
 ; User interface
@@ -1105,8 +1121,10 @@ init_ram:
                 ld      (PUTPNT),hl
                 ld      (GETPNT),hl
 
-                ld      hl,$8000
+;                ld      hl,$8000
+                exx
                 ld      (BOTTOM),hl     ; Page1 and 2 is ROM,Page3 and 4 is RAM.
+                exx
 
                 ; I don't know exactly what is stored between $F168 and $F380,
                 ; but the disk ROM needs some space there, so I'll just
