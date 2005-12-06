@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.150 2005/12/06 01:34:10 ccfg Exp $
+; $Id: main.asm,v 1.151 2005/12/06 01:47:21 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3616,9 +3616,9 @@ str_nocart:
                 db      "inserted.",$00
 
 ; scan code table
+scode_tbl:
         IF LOCALE = LOCAL_EN
 ; International
-scode_tbl:
                 db      "01234567"                      ;00
                 db      "89-=",$5C,"[];"                ;01
                 db      "'`,./",$00,"ab"                ;02
@@ -3630,8 +3630,23 @@ scode_tbl:
                 db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
+        ELSE
+; Japanese
+                db      "01234567"                      ;00
+                db      "89-^",$5C,"@[;"                ;01 ($5C = backslash)
+                db      ":],./_ab"                      ;02
+                db      "cdefghij"                      ;03
+                db      "klmnopqr"                      ;04
+                db      "stuvwxyz"                      ;05
+                db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
+                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
+                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
+                db      "*+/01234"                      ;09
+                db      "56789-,."                      ;0a
+        ENDIF
 
 scode_tbl_shift:
+        IF LOCALE = LOCAL_EN
                 db      ")!@#$%^&"                      ;00
                 db      "*(_+|{}:"                      ;01
                 db      $22,"~<>?",$00,"AB"             ;02
@@ -3644,21 +3659,6 @@ scode_tbl_shift:
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
         ELSE
-; Japanese
-scode_tbl:
-                db      "01234567"                      ;00
-                db      "89-^",$5C,"@[;"                ;01 ($5C = backslash)
-                db      ":],./_ab"                      ;02
-                db      "cdefghij"                      ;03
-                db      "klmnopqr"                      ;04
-                db      "stuvwxyz"                      ;05
-                db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
-                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
-                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
-                db      "*+/01234"                      ;09
-                db      "56789-,."                      ;0a
-
-scode_tbl_shift:
                 db      "0!",$22,"#$%&'"                ;00 ($22 = quote)
                 db      "()=~|`{+"                      ;01
                 db      "*}<>?_AB"                      ;02
