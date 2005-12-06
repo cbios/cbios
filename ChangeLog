@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.182 2005/11/25 17:15:03 ccfg Exp $
+$Id: ChangeLog,v 1.183 2005/12/06 01:34:10 ccfg Exp $
 
 2005-12-06 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Added international scan code table.
+    * Added numpad (rows 9 and 10) to scan code tables.
 
 2005-11-25 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Improved the RAM search routine:
