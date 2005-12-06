@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.148 2005/11/07 19:16:31 bifimsx Exp $
+; $Id: main.asm,v 1.149 2005/11/25 17:15:03 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3616,6 +3616,35 @@ str_nocart:
                 db      "inserted.",$00
 
 ; scan code table
+        IF LOCALE = LOCAL_EN
+; International
+scode_tbl:
+                db      "01234567"                      ;00
+                db      "89-=",$5C,"[];"                ;01
+                db      "'`,./",$00,"ab"                ;02
+                db      "cdefghij"                      ;03
+                db      "klmnopqr"                      ;04
+                db      "stuvwxyz"                      ;05
+                db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
+                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
+                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
+                db      $00,$00,$00,$00,$00,$00,$00,$00 ;09
+                db      $00,$00,$00,$00,$00,$00,$00,$00 ;0a
+
+scode_tbl_shift:
+                db      ")!@#$%^&"                      ;00
+                db      "*(_+|{}:"                      ;01
+                db      $22,"~<>?",$00,"AB"             ;02
+                db      "CDEFGHIJ"                      ;03
+                db      "KLMNOPQR"                      ;04
+                db      "STUVWXYZ"                      ;05
+                db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
+                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
+                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
+                db      $00,$00,$00,$00,$00,$00,$00,$00 ;09
+                db      $00,$00,$00,$00,$00,$00,$00,$00 ;0a
+        ELSE
+; Japanese
 scode_tbl:
                 db      "01234567"                      ;00
                 db      "89-^",$5C,"@[;"                ;01 ($5C = backslash)
@@ -3641,6 +3670,7 @@ scode_tbl_shift:
                 db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;09
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;0a
+        ENDIF
 
 vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84

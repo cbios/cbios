@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.181 2005/10/27 23:44:06 mthuurne Exp $
+$Id: ChangeLog,v 1.182 2005/11/25 17:15:03 ccfg Exp $
+
+2005-12-06 Jussi Pitkänen <ccfg@pp.inet.fi>
+    * Added international scan code table.
 
 2005-11-25 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Improved the RAM search routine:
