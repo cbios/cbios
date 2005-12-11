@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.151 2005/12/06 01:47:21 ccfg Exp $
+; $Id: main.asm,v 1.152 2005/12/06 06:09:19 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -671,7 +671,7 @@ chkram:
                 out     (MAP_REG1),a
 
                 ; Select the longest contiguous memory area for pages 3 and 2.
-                ld      hl,$FF00        ; Keep the current best values in the
+                ld      hl,$FFFF        ; Keep the current best values in the
                 exx                     ; alternative register set (HL and BC).
                 ; For each primary slot:
                 in      a,(PSL_STAT)
@@ -720,7 +720,8 @@ chkram_find_end:
                 exx
                 jr      chkram_sslot_end
 chkram_update:
-                ld      h,a
+                ld      l,0             ; Fix the L register to indicate that
+                ld      h,a             ; RAM is found.
                 exx
                 ld      a,b
                 exx
@@ -740,12 +741,11 @@ chkram_pslot_end:
                 sub     $10
                 ld      b,a
                 jr      nc,chkram_pslot
-
                 ; Select the longest contiguous memory area.
                 exx
-                ld      a,h
+                ld      a,l
                 or      a
-                jr      nz,chkram_select
+                jr      z,chkram_select
                 ld      de,str_memory_err
                 jp      print_error
 chkram_select:
