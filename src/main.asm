@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.154 2006/03/11 19:09:18 auroramsx Exp $
+; $Id: main.asm,v 1.155 2006/03/11 19:19:14 auroramsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1796,16 +1796,16 @@ cnvchr:
                 
 cnvchr_handlegfx:
                 pop     af
-                cp      #40
+                cp      $40
                 jr      c,cnvchr_nogfx
-                cp      #60
+                cp      $60
                 jr      nc,cnvchr_nogfx
-                sub     #40                     ; graphic char
+                sub     $40                     ; graphic char
                 cp      a                       ; set Z (and NC)
                 jr      cnvchr_normal
 
 cnvchr_nogfx:
-                cp      #50                     ; A is definitely not #50
+                cp      $50                     ; A is definitely not #50
                                                 ; so this sets NZ :-)
 cnvchr_normal:
                 scf                             ; NZ/Z already ok, now set C
