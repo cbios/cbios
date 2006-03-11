@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.1 2006/03/11 19:09:18 auroramsx Exp $
+; $Id: chput.asm,v 1.2 2006/03/11 19:33:32 auroramsx Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -367,7 +367,7 @@ chput_esc_yy:
 		ld	a,4
 		jr	chput_escape_set
 
-chput_escape_reset
+chput_escape_reset:
 		xor	a
 chput_escape_set:
 		ld	(ESCCNT),a
@@ -557,7 +557,7 @@ chput_restore_cursor_ins:
 
 chput_restore_cursor_invert:
 		ld	a,(hl)                  ; invert!
-		xor	255
+		cpl
 		ld	(hl),a
 		inc	hl
 		djnz	chput_restore_cursor_invert
