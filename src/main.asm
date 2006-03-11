@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.153 2005/12/11 22:51:40 ccfg Exp $
+; $Id: main.asm,v 1.154 2006/03/11 19:09:18 auroramsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1853,7 +1853,16 @@ qinlin_prompt:  db      "? ",0
 ;            C-flag set when it ends with the STOP key
 ; Registers: All
 
-        include "inlin.asm"
+inlin:
+                push    hl
+                push    af
+                ld      hl,inlin_text
+                call    print_debug
+                pop     af
+                pop     hl
+                ret
+inlin_text:    db      "INLIN",0
+
 ;--------------------------------
 ; $00B7 BREAKX
 ; Tests status of CTRL-STOP.
