@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.2 2006/03/11 19:33:32 auroramsx Exp $
+; $Id: chput.asm,v 1.3 2006/03/11 19:57:24 auroramsx Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -136,35 +136,35 @@ chput_esc_search:
 ; -- table with ESC characters
 chput_esc_table:
 		db	'j'
-		db	chput_esc_j
+		dw	chput_esc_j
 		db	'E'
-		db	chput_esc_e
+		dw	chput_esc_e
 		db	'K'
-		db	chput_esc_k
+		dw	chput_esc_k
 		db	'J'
-		db	chput_esc_jj
+		dw	chput_esc_jj
 		db	'l'
-		db	chput_esc_l
+		dw	chput_esc_l
 		db	'L'
-		db	chput_esc_ll
+		dw	chput_esc_ll
 		db	'M'
-		db	chput_esc_m
+		dw	chput_esc_m
 		db	'Y'
-		db	chput_esc_yy
+		dw	chput_esc_yy
 		db	'A'
-		db	chput_esc_a
+		dw	chput_esc_a
 		db	'B'
-		db	chput_esc_b
+		dw	chput_esc_b
 		db	'C'
-		db	chput_esc_c
+		dw	chput_esc_c
 		db	'D'
-		db	chput_esc_d
+		dw	chput_esc_d
 		db	'H'
-		db	chput_esc_h
+		dw	chput_esc_h
 		db	'x'
-		db	chput_esc_x
+		dw	chput_esc_x
 		db	'y'
-		db	chput_esc_y
+		dw	chput_esc_y
 
 ; -- Generate beep
 ;chput_ctrl_beep:
