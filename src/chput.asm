@@ -1,4 +1,4 @@
-; $Id:$
+; $Id: chput.asm,v 1.1 2006/03/11 19:09:18 auroramsx Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -544,10 +544,19 @@ chput_restore_cursor_getpattern:
 		ld	de,LINWRK               ; copy pattern to LINWRK
 		ld	bc,8
 		call	ldirmv
-		ld	hl,LINWRK               ; invert pattern
+
+		ld	a,(CSTYLE)		; depending on CSTYLE
+		cp	0
+		jr	nz,chput_restore_cursor_ins
+		ld	hl,LINWRK               ; invert the complete pattern
 		ld	b,8
+		jr	chput_restore_cursor_invert
+chput_restore_cursor_ins:
+		ld	hl,LINWRK+6             ; or only the lower 2 lines
+		ld	b,2
+
 chput_restore_cursor_invert:
-		ld	a,(hl)
+		ld	a,(hl)                  ; invert!
 		xor	255
 		ld	(hl),a
 		inc	hl
