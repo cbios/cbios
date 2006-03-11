@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.152 2005/12/06 06:09:19 bifimsx Exp $
+; $Id: main.asm,v 1.153 2005/12/11 22:51:40 ccfg Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -168,11 +168,11 @@ romid:
                 ds      $003E - $
                 jp      inifnk
 
-; $0041 DISSCR  Don't make to display screen
+; $0041 DISSCR  Disable screen display
                 ds      $0041 - $
                 jp      disscr
 
-; $0044 ENASCR  Make to display screen
+; $0044 ENASCR  Enable screen display
                 ds      $0044 - $
                 jp      enascr
 
@@ -196,18 +196,21 @@ romid:
                 ds      $0050 - $
                 jp      setrd
 
-; $0053 SETWRT  .. set an address of writting VRAM
+; $0053 SETWRT  Set VRAM Write Address
                 ds      $0053 - $
                 jp      setwrt
-; $0056 FILVRM
+
+; $0056 FILVRM  Fill VRAM
                 ds      $0056 - $
                 jp      filvrm
-; $0059 LDIRMV
+                
+; $0059 LDIRMV  Copy VRAM to RAM
                 ds      $0059 - $
-                jp      ldirmv          ; VRAM -> Memory
-; $005C LDIRVM
+                jp      ldirmv
+
+; $005C LDIRVM  Copy RAM to VRAM
                 ds      $005C - $
-                jp      ldirvm          ; Memory -> VRAM
+                jp      ldirvm
 
 ; $005F CHGMOD Change VDP screen mode
                 ds      $005F - $
@@ -217,27 +220,27 @@ romid:
                 ds      $0062 - $
                 jp      chgclr
 
-; $0066 NMI .. NMI interrupt
+; $0066 NMI     Non-maskable interrupt
                 ds      $0066 - $
                 jp      nmi
 
-; $0069 CLRSPR  .. clear sprites
+; $0069 CLRSPR  Clear sprites
                 ds      $0069 - $
                 jp      clrspr
 
-; $006C INITXT  Initialize display to mode TEXT1
+; $006C INITXT  Initialize display to mode TEXT1    (SCREEN 0)
                 ds      $006C - $
                 jp      initxt
 
-; $006F INIT32  Initialize display to mode GRAPHIC1
+; $006F INIT32  Initialize display to mode GRAPHIC1 (SCREEN 1)
                 ds      $006F - $
                 jp      init32
 
-; $0072 INITGRP Initialize display to mode GRAPHIC2
+; $0072 INITGRP Initialize display to mode GRAPHIC2 (SCREEN 2)
                 ds      $0072 - $
                 jp      inigrp
 
-; $0075 INIMLT
+; $0075 INIMLT  Initialize display to mode MULTI    (SCREEN 3)
                 ds      $0075 - $
                 jp      inimlt
 
@@ -1719,440 +1722,8 @@ chget_nowrap:
 ; $00A2 CHPUT
 ; Input:   A = character code
 ; Changes: none
-chput:
-                push    af
-                ld      a,(SCRMOD)
-                cp      2
-                jr      nc,chput_exit_af
-                pop     af
-                push    af
-                push    hl
-                push    de
 
-                push    af
-                ld      a,(ESCCNT)
-                or      a
-                jp      nz,chput_escape
-                pop     af
-
-                ; CTRL code
-                cp      $00
-                jp      z,chput_exit
-                cp      $07
-                jp      z,chput_ctrl_beep
-                cp      $08
-                jp      z,chput_ctrl_left
-                cp      $09
-                jp      z,chput_ctrl_tab
-                cp      $0A
-                jp      z,chput_ctrl_lf
-                cp      $0B
-                jp      z,chput_ctrl_home
-                cp      $0C
-                jp      z,chput_ctrl_clear
-                cp      $0D
-                jp      z,chput_ctrl_cr
-                cp      $1B
-                jp      z,chput_start_escape
-                cp      $1C
-                jp      z,chput_ctrl_right
-                cp      $1D
-                jp      z,chput_ctrl_left
-                cp      $1E
-                jp      z,chput_ctrl_up
-                cp      $1F
-                jp      z,chput_ctrl_down
-
-                ; Charactor code
-                call    chput_character
-
-chput_exit:
-                pop     de
-                pop     hl
-chput_exit_af:
-                pop     af
-                ret
-
-; Output a character.
-chput_character:
-                ; Output the character.
-                push    af
-                call    curs2hl
-                call    setwrt
-                pop     af
-                out     (VDP_DATA),a
-
-                ; Move cursor.
-                ld      hl,(CSRY)
-                ld      a,(LINLEN)
-                inc     h
-                cp      h
-                jr      nc,chput_character_posit
-                ld      h,1
-                ld      a,(CRTCNT)
-                inc     l
-                cp      l
-                jr      nc,chput_character_posit
-                ld      l,a
-                call    posit
-                call    scroll_txt
-                ret
-chput_character_posit:
-                call    posit
-                ret
-
-chput_start_escape:
-                ld      a,$FF
-                ld      (ESCCNT),a
-                jr      chput_exit
-
-; Generate a beep.
-chput_ctrl_beep:
-                push    bc
-                call    beep
-                pop     bc
-                jr      chput_exit
-
-; Cursor left.
-chput_ctrl_left:
-                ld      hl,(CSRY)
-                dec     h
-                jr      nz,chput_ctrl_left_posit
-                ld      a,(LINLEN)
-                ld      h,a
-                dec     l
-                jr      nz,chput_ctrl_left_posit
-                inc     l
-                ld      h,l
-chput_ctrl_left_posit:
-                call    posit
-                jr      chput_exit
-
-; Fill with space to next tab position.
-chput_ctrl_tab:
-                ld      a,$20
-                call    chput_character
-                ld      a,(CSRX)
-                and     $07
-                cp      $01
-                jr      nz,chput_ctrl_tab
-                jr      chput_exit
-
-; Line feed.
-chput_ctrl_lf:
-                ld      hl,(CSRY)
-                inc     l
-                ld      a,(CRTCNT)
-                cp      l
-                jr      c,chput_ctrl_lf_scroll
-                call    posit
-                jp      chput_exit
-chput_ctrl_lf_scroll:
-                call    scroll_txt
-                jp      chput_exit
-
-; Set cursor to home.
-chput_ctrl_home:
-                ld      hl,$0101
-                call    posit
-                jp      chput_exit
-
-; Clear screen and set cursor to home.
-chput_ctrl_clear:
-                push    bc
-                call    cls
-                pop     bc
-                jr      chput_ctrl_home
-
-; Carriage return.
-chput_ctrl_cr:
-                ld      a,1
-                ld      (CSRX),a
-                jp      chput_exit
-
-; Cursor right.
-chput_ctrl_right:
-                ld      hl,(CSRY)
-                inc     h
-                ld      a,(LINLEN)
-                cp      h
-                jr      nc,chput_ctrl_right_posit
-                ld      h,1
-                inc     l
-                ld      a,(CRTCNT)
-                cp      l
-                jr      nc,chput_ctrl_right_posit
-                ld      l,a
-                ld      a,(LINLEN)
-                ld      h,a
-chput_ctrl_right_posit:
-                call    posit
-                jp      chput_exit
-
-; Cursor up.
-chput_ctrl_up:
-                ld      hl,(CSRY)
-                dec     l
-                call    nz,posit
-                jp      chput_exit
-
-; Cursor down.
-chput_ctrl_down:
-                ld      hl,(CSRY)
-                inc     l
-                ld      a,(CRTCNT)
-                cp      l
-                call    nc,posit
-                jp      chput_exit
-
-; Handle escape sequences.
-chput_escape:                           ; A = escape state (ESCCNT)
-                ld      d,0             ; D = next state
-                dec     a
-                jr      z,chput_escape_curshapex        ; 1
-                dec     a
-                jr      z,chput_escape_curshapey        ; 2
-                dec     a
-                jr      z,chput_escape_locate2          ; 3
-                dec     a
-                jr      z,chput_escape_locate1          ; 4
-
-                ; Seen: <ESC>
-                pop     af
-                inc     d               ; D = 1
-                cp      'x'
-                jr      z,chput_escape_exit
-                inc     d               ; D = 2
-                cp      'y'
-                jr      z,chput_escape_exit
-                ld      d,4
-                cp      'Y'
-                jr      z,chput_escape_exit
-                ld      d,0
-                cp      'A'
-                jr      z,chput_escape_up
-                cp      'B'
-                jr      z,chput_escape_down
-                cp      'C'
-                jr      z,chput_escape_right
-                cp      'D'
-                jr      z,chput_escape_left
-                cp      'E'
-                jr      z,chput_escape_cls
-                cp      'H'
-                jr      z,chput_escape_home
-                cp      'J'
-                jr      z,chput_escape_erase_to_eos
-                cp      'j'
-                jr      z,chput_escape_cls
-                cp      'K'
-                jr      z,chput_escape_erase_to_eol
-                cp      'L'
-                jr      z,chput_escape_insert
-                cp      'l'
-                jr      z,chput_escape_erase_line
-                cp      'M'
-                jp      z,chput_escape_delete_line
-
-chput_escape_exit:
-                ld      a,d
-                ld      (ESCCNT),a
-                jp      chput_exit
-
-; Change shape of cursor.
-chput_escape_curshapex:
-                ; Seen: <ESC>x
-                pop     af
-                ; TODO: Implement.
-                jr      chput_escape_exit
-
-chput_escape_curshapey:
-                ; Seen: <ESC>y
-                pop     af
-                ; TODO: Implement.
-                jr      chput_escape_exit
-
-; Locate cursor.
-chput_escape_locate1:
-                ; Seen: <ESC>Y
-                pop     af
-                ; TODO: Store this value somewhere.
-                ld      d,3
-                jr      chput_escape_exit
-
-chput_escape_locate2:
-                ; Seen: <ESC>Y<row>
-                pop     af
-                ; TODO: Implement.
-                jr      chput_escape_exit
-
-; Cursor up.
-chput_escape_up:
-                ld      hl,(CSRY)
-                dec     l
-                call    nz,posit
-                jr      chput_escape_exit
-
-; Cursor down.
-chput_escape_down:
-                ld      hl,(CSRY)
-                inc     l
-                ld      a,(CRTCNT)
-                cp      l
-                call    nc,posit
-                jr      chput_escape_exit
-
-; Cursor right.
-chput_escape_right:
-                ld      hl,(CSRY)
-                inc     h
-                ld      a,(LINLEN)
-                cp      h
-                call    nc,posit
-                jr      chput_escape_exit
-
-; Cursor left.
-chput_escape_left:
-                ld      hl,(CSRY)
-                dec     h
-                call    nz,posit
-                jr      chput_escape_exit
-
-; Clear screen and set cursor to home.
-chput_escape_cls:
-                push    bc
-                call    cls
-                pop     bc
-                jr      chput_escape_home
-
-; Set cursor to home (top left).
-chput_escape_home:
-                ld      hl,$0101
-                call    posit
-                jr      chput_escape_exit
-
-; Erase to end of screen.
-chput_escape_erase_to_eos:
-                ld      hl,(CSRY)
-                push    hl
-chput_escape_erase_to_eos_loop:
-                call    chput_erase
-                ld      hl,(CSRY)
-                ld      h,1
-                inc     l
-                ld      (CSRY),hl
-                ld      a,(CRTCNT)
-                cp      l
-                jr      nc,chput_escape_erase_to_eos_loop
-                pop     hl
-                ld      (CSRY),hl
-                jr      chput_escape_exit
-
-; Erase to end of line.
-chput_escape_erase_to_eol:
-                call    chput_erase
-                jr      chput_escape_exit
-
-; Insert a line and scroll the rest of the screen down.
-chput_escape_insert:
-                ; TODO: Implement.
-                jr      chput_escape_exit
-
-; Erase entire line.
-chput_escape_erase_line:
-                ld      a,(CSRX)
-                push    af
-                ld      a,1
-                ld      (CSRX),a
-                call    chput_erase
-                pop     af
-                ld      (CSRX),a
-                jp      chput_escape_exit
-
-; Delete a line and scroll the rest of the screen up.
-chput_escape_delete_line:
-                ; TODO: Implement.
-                jp      chput_escape_exit
-
-; Erase to end of line.
-chput_erase:
-                push    bc
-
-                ; Calculate the number of bytes to erase.
-                ld      a,(CSRX)
-                dec     a
-                ld      b,a
-                ld      a,(LINLEN)
-                sub     b
-                ld      c,a
-                ld      b,0
-
-                ; Calculate the VRAM position.
-                call    curs2hl
-
-                ; Fill with space.
-                ld      a,$20
-                call    filvrm
-
-                pop     bc
-                ret
-
-; scroll routine
-scroll_txt:
-                push    bc
-                call    text_bytes_per_line
-                ld      b,0             ; BC = bytes_per_line
-                ld      hl,(NAMBAS)
-                ld      e,l
-                ld      d,h             ; DE = dest (VRAM addr)
-                add     hl,bc           ; HL = source (VRAM addr)
-
-                ld      a,(CRTCNT)
-                dec     a
-scr_loop:
-                push    bc
-                push    af
-                ld      a,c
-                cp      41
-                jr      c,scr_copy
-                ; The LINWRK buffer is 40 bytes long, so for 80 bytes per
-                ; line we have to copy in 2 steps.
-                ld      c,40
-                call    copy_line
-scr_copy:
-                call    copy_line       ; HL = source, DE = dest, BC = length
-
-                pop     af
-                pop     bc
-                dec     a
-                jr      nz,scr_loop
-
-                ex      de,hl
-                xor     a
-                call    filvrm
-
-                pop     bc
-                ret
-
-copy_line:
-                push    hl              ; HL = source
-                push    de
-                push    bc
-                ld      de,LINWRK
-                call    ldirmv          ; HL = VRAM, DE = RAM, BC = length
-                pop     bc
-                pop     de
-                push    de              ; DE = dest
-                push    bc
-                ld      hl,LINWRK
-                call    ldirvm          ; HL = RAM, DE = VRAM, BC = length
-                pop     bc
-                pop     hl
-                add     hl,bc
-                ex      de,hl           ; DE = updated dest
-                pop     hl
-                add     hl,bc           ; HL = updated source
-                ret
+        include "chput.asm"
 
 ;--------------------------------
 ; $00A5 LPTOUT
@@ -2201,58 +1772,47 @@ lptstt_text:    db      "LPTSTT",0
 ; Input    : A  - charactercode
 ;            GRPHED(FCA6): indicates if previous char was an extension code
 ; Output:                               C-flag  Z-flag  A
-;       if byte is extension byte       low     -       1
+;       if byte is extension byte       low     high    1
 ;       if byte is normal ASCII         high    low     ASCII code
 ;       if byte is graphical extension  high    high    extension code
 ;       GRPHED is updated
 ; Registers: AF
-; Note: this implementation is untested!
-cnvchr:
-                push bc
-                ld      b,a
-                                        ; was the previous byte the extension byte?
-                ld      a,(GRPHED)
-                and     a
-                ld      a,b
-                jr      nz, cnvchr_ext
-                                        ; no
-                                        ; is the current one an extension byte?
-                dec     a
-                jr      nz, cnvchr_noext
-cnvchr_curext:                          ; yes
-                ld      a,b
-                and     a               ; reset C-flag
-                ld      (GRPHED), A
-                pop     bc
-                ret
-cnvchr_noext:                           ; current code is no extension code,
-                                        ; and there was no extension byte
-                xor     a               ; resets Z-flag also
-                ld      (GRPHED), A
-cnvchr_noext2:
-                ld      a,b
-                scf                     ; set C-flag
-                pop     bc
-                ret
-cnvchr_ext:                             ; previous code was extension byte
-                                        ; is the current one an extension byte?
-                dec     a
-                jr      z, cnvchr_curext
-                                        ; previous was extension, current one is not
-                xor     a
-                ld      (GRPHED),a
-                ld      a,b
-                                        ; is byte between $40 and $5f ?
-                sub     $40
-                jr      c, cnvchr_noext2
-                cp      $20
-                jr      nc, cnvchr_noext2
-                                        ; yes, then correct value is in A
-                cp      a               ; set Z-flag
-                scf                     ; set C-flag
-                pop     bc
-                ret
 
+cnvchr:
+                push    hl
+                push    af
+                ld      hl,GRPHED
+                xor     a
+                cp      (hl)
+                ld      (hl),a                  ; reset GRPHED in advance
+                jr      nz,cnvchr_handlegfx
+
+                pop     af                      ; we're not in graphic mode
+                cp      1                       ; graphic header?
+                jr      nz,cnvchr_normal
+                
+                ld      (hl),a                  ; yes! -> Set GRPHED
+                jr      cnvchr_normal_exit      ; we've got NC and Z - perfect!
+                
+cnvchr_handlegfx:
+                pop     af
+                cp      #40
+                jr      c,cnvchr_nogfx
+                cp      #60
+                jr      nc,cnvchr_nogfx
+                sub     #40                     ; graphic char
+                cp      a                       ; set Z (and NC)
+                jr      cnvchr_normal
+
+cnvchr_nogfx:
+                cp      #50                     ; A is definitely not #50
+                                                ; so this sets NZ :-)
+cnvchr_normal:
+                scf                             ; NZ/Z already ok, now set C
+cnvchr_normal_exit:
+                pop     hl
+                ret
+                
 ;--------------------------------
 ; $00AE PINLIN
 ; Function : Stores in the specified buffer the character codes input until the return
@@ -2274,43 +1834,26 @@ pinlin:
 pinlin_text:    db      "PINLIN",0
 
 ;--------------------------------
-; $00B1 INLIN
-; Function : Same as PINLIN except that AUGFLG (#F6AA) is set
-; Output   : HL - for the starting address of the buffer -1
-;            C-flag set when it ends with the STOP key
-; Registers: All
-; NOTE: this implementation is still a stub!
-; TODO: call H_INLI
-inlin:
-;               call    H_INLI
-                push    hl
-                push    af
-                ld      hl,inlin_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-inlin_text:     db      "INLIN",0
-
-;--------------------------------
 ; $00B4 QINLIN
 ; Function : Prints a questionmark and one space and then calls INLIN
 ; Output   : HL - for the starting address of the buffer -1
 ;            C-flag set when it ends with the STOP key
 ; Registers: All
-; NOTE: this implementation is still a stub!
-; TODO: call H_QINL
 qinlin:
-;               call    H_QINL
-                push    hl
-                push    af
-                ld      hl,qinlin_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-qinlin_text:    db      "QINLIN",0
+                call    H_QINL
+                ld      hl,qinlin_prompt
+                call    prn_text
+                jp      inlin
+qinlin_prompt:  db      "? ",0
 
+;--------------------------------
+; $00B1 INLIN
+; Function : Same as PINLIN except that AUGFLG (#F6AA) is set
+; Output   : HL - for the starting address of the buffer -1
+;            C-flag set when it ends with the STOP key
+; Registers: All
+
+        include "inlin.asm"
 ;--------------------------------
 ; $00B7 BREAKX
 ; Tests status of CTRL-STOP.
@@ -3625,11 +3168,6 @@ scode_tbl:
                 db      "cdefghij"                      ;03
                 db      "klmnopqr"                      ;04
                 db      "stuvwxyz"                      ;05
-                db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
-                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
-                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
-                db      "*+/01234"                      ;09
-                db      "56789-,."                      ;0a
         ELSE
 ; Japanese
                 db      "01234567"                      ;00
@@ -3638,12 +3176,12 @@ scode_tbl:
                 db      "cdefghij"                      ;03
                 db      "klmnopqr"                      ;04
                 db      "stuvwxyz"                      ;05
+        ENDIF
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
                 db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
-                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
+                db      $20,$0B,$00,$00,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
-        ENDIF
 
 scode_tbl_shift:
         IF LOCALE = LOCAL_EN
@@ -3653,11 +3191,6 @@ scode_tbl_shift:
                 db      "CDEFGHIJ"                      ;03
                 db      "KLMNOPQR"                      ;04
                 db      "STUVWXYZ"                      ;05
-                db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
-                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
-                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
-                db      "*+/01234"                      ;09
-                db      "56789-,."                      ;0a
         ELSE
                 db      "0!",$22,"#$%&'"                ;00 ($22 = quote)
                 db      "()=~|`{+"                      ;01
@@ -3665,12 +3198,20 @@ scode_tbl_shift:
                 db      "CDEFGHIJ"                      ;03
                 db      "KLMNOPQR"                      ;04
                 db      "STUVWXYZ"                      ;05
+        ENDIF
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
                 db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
-                db      $20,$00,$00,$00,$1D,$1E,$1F,$1C ;08
+                db      $20,$0C,$00,$00,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
-        ENDIF
+
+scode_tbl_graph:
+                db      $09,$AC,$AB,$BA,$EF,$BD,$F4,$FB ;00
+                db      $EC,$07,$17,$F1,$1E,$01,$0D,$06 ;01
+                db      $95,$BB,$F3,$F2,$1D,$9C,$C4,$11 ;02
+                db      $BC,$C7,$CD,$14,$15,$13,$DC,$C6 ;03
+                db      $DD,$C8,$0B,$1B,$C2,$DB,$CC,$18 ;04
+                db      $D2,$12,$C0,$1A,$CF,$1C,$19,$0F ;05
 
 vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84

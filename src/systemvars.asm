@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.27 2005/03/21 16:13:18 ccfg Exp $
+; $Id: systemvars.asm,v 1.28 2005/06/03 00:12:27 mthuurne Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -597,7 +597,7 @@ ENSTOP:         equ     $FBB0
 BASROM:         equ     $FBB1
 LINTTB:         equ     $FBB2
 FSTPOS:         equ     $FBCA
-CODSAV:         equ     $FBCC
+CURSAV:         equ     $FBCC
 FNKSWI:         equ     $FBCD
 FNKFLG:         equ     $FBCE
 ONGSBF:         equ     $FBD8
