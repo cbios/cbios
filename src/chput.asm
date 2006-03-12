@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.7 2006/03/12 06:58:08 ccfg Exp $
+; $Id: chput.asm,v 1.8 2006/03/12 11:10:04 auroramsx Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -227,14 +227,14 @@ chput_esc_b:
 
 ; -- Handle ESC mode (ESCCNT in A and != 0)
 chput_escape:
-		ld	b,a                     ; b := (ESCCNT)
-		inc	a                       ; (ESCCNT) == -1 ?
-		jr	nz,chput_escape_1
-		ld	(ESCCNT),a
-		pop	af			; restore character in A 
-		ld	b,15                    ; search in table
-		ld	hl,chput_esc_table
-		jp	search_table
+                ld      b,a                     ; b := (ESCCNT)
+                inc     a                       ; (ESCCNT) == -1 ?
+                jr      nz,chput_escape_1
+                ld      (ESCCNT),a
+                pop     af                        ; restore character in A 
+                ld      b,15                    ; search in table
+                ld      hl,chput_esc_table
+                jp      search_table
 
 chput_escape_1: ; ----------------------------
                 pop     af
@@ -328,6 +328,7 @@ chput_esc_l:
                 call    chput_ctrl_cr
 
 ; -- Clear till end of line
+; TODO: update LINTTB
 chput_esc_k:
                 ld      hl,LINTTB-1
                 ld      a,(CSRY)
@@ -347,55 +348,89 @@ chput_esc_k:
                 jp      filvrm
                 
 ; -- Insert line
+; TODO: update LINTTB
 chput_esc_ll:
-                ; TODO
+                call    chput_ctrl_cr           ; move to start of line
+                ld      hl,(CSRY)               ; save current cursor pos
+                push    hl
+                ld      b,l
+                ld      a,(CRTCNT)
+                ld      (CSRY),a
+                sub     b
+                ld      b,a
+                inc     b
+                ld      a,(CSRY)
+                jr      chput_esc_ll_loop_end
+
+chput_esc_ll_loop:
+                call    curs2hl
+                ex      de,hl
+                dec     a
+                ld      (CSRY),a
+                call    curs2hl
+                call    chput_copy_line
+chput_esc_ll_loop_end:
+                djnz    chput_esc_ll_loop
+
+                pop     hl
+                ld      (CSRY),hl
+                call    chput_esc_k
                 ret
 
 ; -- Delete line (and scroll rest up)
+; TODO: update LINTTB
 chput_esc_m:
-                call    chput_ctrl_cr           ; move csr to start of line
+                call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)
                 push    hl                      ; save cursor pos
+                ld      b,l
+                ld      a,(CRTCNT)
+                sub     b
+                ld      b,a
+                inc     b
+                ld      a,(CSRY)
+                jr      chput_esc_m_loop_end
 
-                ld      a,(CSRY)                ; while a < CRTCNT
 chput_esc_m_loop:
-                ld      hl,(CRTCNT)
-                cp      l
-                jr      nc,chput_esc_m_done
-                
                 call    curs2hl                 ;   Copy 1 line:
-                ex      de,hl                   ;     de = destination in VRAM
+                ex      de,hl                   ;     de = dest in VRAM
                 inc     a                       ;     next line
                 ld      (CSRY),a
-                dec     a
-                call    curs2hl                 ;     hl = source in VRAM
-                push    af
-                ld      b,0
-                ld      a,(LINLEN)              ;     LINLEN bytes to copy
-                ld      c,a                     ;     bc = nof bytes
-        IF      MODEL_MSX != MODEL_MSX1
-                cp      41                      ;     (LINWRK is 40 bytes
-                jr      c,chput_esc_m_copy      ;      copy 1 line in 2 moves)
-                ld      c,40
+                call    curs2hl                 ;     hl = src in VRAM
                 call    chput_copy_line
-                ld      a,(LINLEN)
-                sub     40
-                ld      c,a
-chput_esc_m_copy:
-        ENDIF
-                call    chput_copy_line         ;     copy line
-                pop     af
-                inc     a
-                jr      chput_esc_m_loop        ; endloop
+chput_esc_m_loop_end:
+                djnz    chput_esc_m_loop        ; endloop
 
-chput_esc_m_done:
                 call    chput_esc_k             ; clear till end of line
                 pop     hl                      ; restore cursor position
                 ld      (CSRY),hl
                 ret
 
-; -- Copy line: from HL to DE, BC bytes
+; -- Copy line: from HL to DE
 chput_copy_line:
+                push    af
+                push    bc
+                ld      b,0
+                ld      a,(LINLEN)
+                ld      c,a
+                
+        IF MODEL_MSX != MODEL_MSX1
+                cp      41
+                jr      c,chput_copy_line_2
+                ld      c,40
+                call    chput_copy_line_copy
+                ld      a,(LINLEN)
+                sub     40
+                ld      c,a
+chput_copy_line_2:
+        ENDIF
+
+                call    chput_copy_line_copy
+                pop     bc
+                pop     af
+                ret
+
+chput_copy_line_copy:
                 push    hl
                 push    de
                 push    bc
@@ -417,12 +452,12 @@ chput_copy_line:
 
 ; -- Erase
 chput_erase:
-		ld	a,(CSRX)
-		cp	1
-		ret	z
-		ld	a,32
-		call	chput_putchar
-		jp	chput_ctrl_left
+                ld      a,(CSRX)
+                cp      1
+                ret     z
+                ld      a,32
+                call    chput_putchar
+                jp      chput_ctrl_left
 
 ; -- disable cursor
 chput_remove_cursor:
@@ -488,81 +523,81 @@ chput_restore_cursor_ins:
                 ld      b,2
 
 chput_restore_cursor_invert:
-		ld	a,(hl)                  ; invert!
-		cpl
-		ld	(hl),a
-		inc	hl
-		djnz	chput_restore_cursor_invert
-		pop	hl                      ; copy inverted pattern to
-		ld	de,255*8                ; pattern 255
-		add	hl,de
-		ex	de,hl
-		ld	hl,LINWRK
-		ld	bc,8
-		call    ldirvm
+                ld      a,(hl)                  ; invert!
+                cpl
+                ld      (hl),a
+                inc     hl
+                djnz    chput_restore_cursor_invert
+                pop     hl                      ; copy inverted pattern to
+                ld      de,255*8                ; pattern 255
+                add     hl,de
+                ex      de,hl
+                ld      hl,LINWRK
+                ld      bc,8
+                call    ldirvm
 
-		call	curs2hl                 ; place char 255 at cursor pos
-		ld	a,255
-		jp      wrtvrm
+                call    curs2hl                 ; place char 255 at cursor pos
+                ld      a,255
+                jp      wrtvrm
 
 ; -- Control character search table
 chput_ctrl_table:
-		db	7
-		dw	beep ; chput_ctrl_beep
-		db	8
-		dw	chput_ctrl_bs
-		db	9
-		dw	chput_ctrl_tab
-		db	10
-		dw	chput_ctrl_lf
-		db	11
-		dw	chput_ctrl_home
-		db	12
-		dw	chput_ctrl_ff
-		db	13
-		dw	chput_ctrl_cr
-		db	27
-		dw	chput_ctrl_esc
-		db	28
-		dw	chput_ctrl_right
-		db	29
-		dw	chput_ctrl_left
-		db	30
-		dw	chput_ctrl_up
-		db	31
-		dw	chput_ctrl_down
+                db      7
+                dw      beep ; chput_ctrl_beep
+                db      8
+                dw      chput_ctrl_bs
+                db      9
+                dw      chput_ctrl_tab
+                db      10
+                dw      chput_ctrl_lf
+                db      11
+                dw      chput_ctrl_home
+                db      12
+                dw      chput_ctrl_ff
+                db      13
+                dw      chput_ctrl_cr
+                db      27
+                dw      chput_ctrl_esc
+                db      28
+                dw      chput_ctrl_right
+                db      29
+                dw      chput_ctrl_left
+                db      30
+                dw      chput_ctrl_up
+                db      31
+                dw      chput_ctrl_down
 
 ; -- Escape character search table
 chput_esc_table:
-		db	'j'
-		dw	chput_esc_j
-		db	'E'
-		dw	chput_esc_e
-		db	'K'
-		dw	chput_esc_k
-		db	'J'
-		dw	chput_esc_jj
-		db	'l'
-		dw	chput_esc_l
-		db	'L'
-		dw	chput_esc_ll
-		db	'M'
-		dw	chput_esc_m
-		db	'Y'
-		dw	chput_esc_yy
-		db	'A'
-		dw	chput_esc_a
-		db	'B'
-		dw	chput_esc_b
-		db	'C'
-		dw	chput_esc_c
-		db	'D'
-		dw	chput_esc_d
-		db	'H'
-		dw	chput_esc_h
-		db	'x'
-		dw	chput_esc_x
-		db	'y'
-		dw	chput_esc_y
+                db      'j'
+                dw      chput_esc_j
+                db      'E'
+                dw      chput_esc_e
+                db      'K'
+                dw      chput_esc_k
+                db      'J'
+                dw      chput_esc_jj
+                db      'l'
+                dw      chput_esc_l
+                db      'L'
+                dw      chput_esc_ll
+                db      'M'
+                dw      chput_esc_m
+                db      'Y'
+                dw      chput_esc_yy
+                db      'A'
+                dw      chput_esc_a
+                db      'B'
+                dw      chput_esc_b
+                db      'C'
+                dw      chput_esc_c
+                db      'D'
+                dw      chput_esc_d
+                db      'H'
+                dw      chput_esc_h
+                db      'x'
+                dw      chput_esc_x
+                db      'y'
+                dw      chput_esc_y
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
