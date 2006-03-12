@@ -1,4 +1,4 @@
-; $Id: util.asm,v 1.2 2005/01/14 21:20:30 mthuurne Exp $
+; $Id: util.asm,v 1.3 2006/03/11 19:09:18 auroramsx Exp $
 ; C-BIOS utility routines
 ;
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
@@ -34,7 +34,7 @@ jump_table:
                 ld      b,0
                 add     hl,bc
                 add     hl,bc
-		jp	table_jump
+                jp      table_jump
 
 ;----------------------------------
 ; Generic routine that implements a search & jump table
@@ -46,16 +46,18 @@ jump_table:
 ;          B  = number of entries in the table
 ; Changes: F, BC, HL
 search_table:
-		cp	(hl)
-		inc	hl
-		jr	z,table_jump
-		inc	hl
-		inc	hl
-		djnz    search_table
-		ret
+                cp      (hl)
+                inc     hl
+                jr      z,table_jump
+                inc     hl
+                inc     hl
+                djnz    search_table
+                ret
 table_jump:
-		ld	c,(hl)
-		inc	hl
-		ld	h,(hl)
-		ld	l,c
-		jp	(hl)
+                ld      c,(hl)
+                inc     hl
+                ld      h,(hl)
+                ld      l,c
+                jp      (hl)
+
+; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
