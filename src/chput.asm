@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.6 2006/03/12 05:29:06 ccfg Exp $
+; $Id: chput.asm,v 1.7 2006/03/12 06:58:08 ccfg Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -99,79 +99,6 @@ chput_ctrl_search:
                 ld      b,12
                 ld      hl,chput_ctrl_table
                 jp      search_table 
-
-; -- table with control characters
-chput_ctrl_table:
-                db      7
-                dw      beep ; chput_ctrl_beep
-                db      8
-                dw      chput_ctrl_bs
-                db      9
-                dw      chput_ctrl_tab
-                db      10
-                dw      chput_ctrl_lf
-                db      11
-                dw      chput_ctrl_home
-                db      12
-                dw      chput_ctrl_ff
-                db      13
-                dw      chput_ctrl_cr
-                db      27
-                dw      chput_ctrl_esc
-                db      28
-                dw      chput_ctrl_right
-                db      29
-                dw      chput_ctrl_left
-                db      30
-                dw      chput_ctrl_up
-                db      31
-                dw      chput_ctrl_down
-
-; -- Handle ESC sequence
-chput_esc_search:
-                ld      b,15
-                ld      hl,chput_esc_table
-                jp      search_table
-
-; -- table with ESC characters
-chput_esc_table:
-                db      'j'
-                dw      chput_esc_j
-                db      'E'
-                dw      chput_esc_e
-                db      'K'
-                dw      chput_esc_k
-                db      'J'
-                dw      chput_esc_jj
-                db      'l'
-                dw      chput_esc_l
-                db      'L'
-                dw      chput_esc_ll
-                db      'M'
-                dw      chput_esc_m
-                db      'Y'
-                dw      chput_esc_yy
-                db      'A'
-                dw      chput_esc_a
-                db      'B'
-                dw      chput_esc_b
-                db      'C'
-                dw      chput_esc_c
-                db      'D'
-                dw      chput_esc_d
-                db      'H'
-                dw      chput_esc_h
-                db      'x'
-                dw      chput_esc_x
-                db      'y'
-                dw      chput_esc_y
-
-; -- Generate beep
-;chput_ctrl_beep:
-;               push    bc
-;               call    beep
-;               pop     bc
-;               ret
 
 ; -- Fill with spaces until next TAB stop
 chput_ctrl_tab:
@@ -300,12 +227,15 @@ chput_esc_b:
 
 ; -- Handle ESC mode (ESCCNT in A and != 0)
 chput_escape:
-                ld      b,a                     ; b := (ESCCNT)
-                inc     a                       ; (ESCCNT) == -1 ?
-                jr      nz,chput_escape_1
-                ld      (ESCCNT),a
-                pop     af
-                jp      chput_esc_search        ; then search in table
+		ld	b,a                     ; b := (ESCCNT)
+		inc	a                       ; (ESCCNT) == -1 ?
+		jr	nz,chput_escape_1
+		ld	(ESCCNT),a
+		pop	af			; restore character in A 
+		ld	b,15                    ; search in table
+		ld	hl,chput_esc_table
+		jp	search_table
+
 chput_escape_1: ; ----------------------------
                 pop     af
                 djnz    chput_escape_2
@@ -487,12 +417,12 @@ chput_copy_line:
 
 ; -- Erase
 chput_erase:
-                ld      a,(CSRX)
-                cp      1
-                ret     z
-                call    chput_ctrl_left
-                ld      a,32
-                jp      chput_putchar
+		ld	a,(CSRX)
+		cp	1
+		ret	z
+		ld	a,32
+		call	chput_putchar
+		jp	chput_ctrl_left
 
 ; -- disable cursor
 chput_remove_cursor:
@@ -558,21 +488,81 @@ chput_restore_cursor_ins:
                 ld      b,2
 
 chput_restore_cursor_invert:
-                ld      a,(hl)                  ; invert!
-                cpl
-                ld      (hl),a
-                inc     hl
-                djnz    chput_restore_cursor_invert
-                pop     hl                      ; copy inverted pattern to
-                ld      de,255*8                ; pattern 255
-                add     hl,de
-                ex      de,hl
-                ld      hl,LINWRK
-                ld      bc,8
-                call    ldirvm
+		ld	a,(hl)                  ; invert!
+		cpl
+		ld	(hl),a
+		inc	hl
+		djnz	chput_restore_cursor_invert
+		pop	hl                      ; copy inverted pattern to
+		ld	de,255*8                ; pattern 255
+		add	hl,de
+		ex	de,hl
+		ld	hl,LINWRK
+		ld	bc,8
+		call    ldirvm
 
-                call    curs2hl                 ; place char 255 at cursor pos
-                ld      a,255
-                jp      wrtvrm
+		call	curs2hl                 ; place char 255 at cursor pos
+		ld	a,255
+		jp      wrtvrm
+
+; -- Control character search table
+chput_ctrl_table:
+		db	7
+		dw	beep ; chput_ctrl_beep
+		db	8
+		dw	chput_ctrl_bs
+		db	9
+		dw	chput_ctrl_tab
+		db	10
+		dw	chput_ctrl_lf
+		db	11
+		dw	chput_ctrl_home
+		db	12
+		dw	chput_ctrl_ff
+		db	13
+		dw	chput_ctrl_cr
+		db	27
+		dw	chput_ctrl_esc
+		db	28
+		dw	chput_ctrl_right
+		db	29
+		dw	chput_ctrl_left
+		db	30
+		dw	chput_ctrl_up
+		db	31
+		dw	chput_ctrl_down
+
+; -- Escape character search table
+chput_esc_table:
+		db	'j'
+		dw	chput_esc_j
+		db	'E'
+		dw	chput_esc_e
+		db	'K'
+		dw	chput_esc_k
+		db	'J'
+		dw	chput_esc_jj
+		db	'l'
+		dw	chput_esc_l
+		db	'L'
+		dw	chput_esc_ll
+		db	'M'
+		dw	chput_esc_m
+		db	'Y'
+		dw	chput_esc_yy
+		db	'A'
+		dw	chput_esc_a
+		db	'B'
+		dw	chput_esc_b
+		db	'C'
+		dw	chput_esc_c
+		db	'D'
+		dw	chput_esc_d
+		db	'H'
+		dw	chput_esc_h
+		db	'x'
+		dw	chput_esc_x
+		db	'y'
+		dw	chput_esc_y
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
