@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.5 2006/03/12 05:13:44 ccfg Exp $
+; $Id: chput.asm,v 1.6 2006/03/12 05:29:06 ccfg Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -301,8 +301,9 @@ chput_esc_b:
 ; -- Handle ESC mode (ESCCNT in A and != 0)
 chput_escape:
                 ld      b,a                     ; b := (ESCCNT)
-                inc     a                       ; (ESCCNT) == -1 ? 
+                inc     a                       ; (ESCCNT) == -1 ?
                 jr      nz,chput_escape_1
+                ld      (ESCCNT),a
                 pop     af
                 jp      chput_esc_search        ; then search in table
 chput_escape_1: ; ----------------------------
