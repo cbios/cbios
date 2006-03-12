@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.3 2006/03/11 19:57:24 auroramsx Exp $
+; $Id: chput.asm,v 1.4 2006/03/11 20:16:18 auroramsx Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -302,10 +302,11 @@ chput_esc_b:
 chput_escape:
 		ld	b,a                     ; b := (ESCCNT)
 		inc	a                       ; (ESCCNT) == -1 ? 
-		pop	af			; 
-		jp	z,chput_esc_search      ; then search in table
-		
+		jr	nz,chput_escape_1
+		pop	af
+		jp	chput_esc_search     	; then search in table
 chput_escape_1: ; ----------------------------
+		pop	af
 		djnz	chput_escape_2
 		
 		; -- ESCCNT == 1: 'ESC x <n>'
