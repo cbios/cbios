@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.183 2005/12/06 01:34:10 ccfg Exp $
+$Id: ChangeLog,v 1.184 2005/12/06 01:47:21 ccfg Exp $
+
+2006-03-12  Arnold Metselaar <arnold.metselaar@planet.nl>
+    * Makefile: add support for GNU assembler
+    * src/main.asm: use single quotes for character constants
 
 2005-12-06 Jussi Pitkänen <ccfg@pp.inet.fi>
     * Added international scan code table.

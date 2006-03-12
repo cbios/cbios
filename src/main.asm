@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.155 2006/03/11 19:19:14 auroramsx Exp $
+; $Id: main.asm,v 1.156 2006/03/11 20:04:54 auroramsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1345,12 +1345,12 @@ chk_subpos:
 
                 ld      hl,0
                 call    rd_subpos
-                cp      "C"
+                cp      'C'
                 jr      nz,chk_subpos_notfound
 
                 inc     hl
                 call    rd_subpos
-                cp      "D"
+                cp      'D'
 
 chk_subpos_notfound:
                 ld      a,c
