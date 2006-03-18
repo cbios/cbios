@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.8 2006/03/12 11:10:04 auroramsx Exp $
+; $Id: chput.asm,v 1.9 2006/03/12 17:24:59 auroramsx Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -84,7 +84,7 @@ chput_putchar:
                 ret
 
 chput_continue_line:
-                ld      de,(LINTTB-1)           ; make logical line continue
+                ld      de,LINTTB-1             ; make logical line continue
                 ld      h,0
                 add     hl,de
                 xor     a
@@ -328,15 +328,15 @@ chput_esc_l:
                 call    chput_ctrl_cr
 
 ; -- Clear till end of line
-; TODO: update LINTTB
 chput_esc_k:
-                ld      hl,LINTTB-1
+                ld      hl,LINTTB-1             ; update LINTTB
                 ld      a,(CSRY)
                 ld      e,a
                 ld      d,0
                 add     hl,de
-                ld      a,1
+                ; a != 0, which is OK
                 ld      (hl),a
+                
                 ld      a,(LINLEN)
                 inc     a                       ; because CSRX is 1-based
                 ld      hl,CSRX
@@ -348,7 +348,6 @@ chput_esc_k:
                 jp      filvrm
                 
 ; -- Insert line
-; TODO: update LINTTB
 chput_esc_ll:
                 call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)               ; save current cursor pos
@@ -372,13 +371,26 @@ chput_esc_ll_loop:
 chput_esc_ll_loop_end:
                 djnz    chput_esc_ll_loop
 
-                pop     hl
+                pop     hl                      ; restore cursor position
                 ld      (CSRY),hl
-                call    chput_esc_k
-                ret
+                ld      h,0
+                ld      a,(CRTCNT)              ; update LINTTB
+                ld      d,a                     ; DE := (CRTCNT)
+                ld      e,0
+                sub     l                       ; BC := (CRTCNT) - (CSRY) - 1
+                dec     a
+                ld      c,a
+                ld      b,0
+                ld      hl,LINTTB-1             ; DE := LINTTB + (CRTCNT)
+                add     hl,de
+                ex      de,hl
+                ld      h,d                     ; HL := DE - 1
+                ld      l,e
+                dec     hl                     
+                lddr
+                jp      chput_esc_k
 
 ; -- Delete line (and scroll rest up)
-; TODO: update LINTTB
 chput_esc_m:
                 call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)
@@ -404,6 +416,19 @@ chput_esc_m_loop_end:
                 call    chput_esc_k             ; clear till end of line
                 pop     hl                      ; restore cursor position
                 ld      (CSRY),hl
+
+                ld      h,0                     ; update LINTTB
+                ld      a,(CRTCNT)              ; BC := (CRTCNT) - (CRSY) - 1
+                sub     l                       
+                dec     a
+                ld      c,a
+                ld      b,0
+                ld      de,LINTTB-1             ; DE := LINTTB + (CSRY)
+                add     hl,de
+                ld      d,h
+                ld      e,l
+                inc     hl                      ; HL := DE + 1
+                ldir
                 ret
 
 ; -- Copy line: from HL to DE

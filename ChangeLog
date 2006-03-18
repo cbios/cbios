@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.185 2006/03/12 17:11:42 arnoldmnl Exp $
+$Id: ChangeLog,v 1.186 2006/03/12 17:24:59 auroramsx Exp $
+
+2006-03-18 Eric Boon <eric@auroramsx.nl>
+    * completed CHPUT with update of LINTTB
 
 2006-03-12 Eric Boon <eric@auroramsx.nl>
     * Rewrote CHPUT and separated it from main.asm
