@@ -1,4 +1,7 @@
-$Id: ChangeLog,v 1.186 2006/03/12 17:24:59 auroramsx Exp $
+$Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
+
+2006-04-09 Albert Beevendorp
+    * added printer output routines
 
 2006-03-18 Eric Boon <eric@auroramsx.nl>
     * completed CHPUT with update of LINTTB

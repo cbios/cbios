@@ -1,11 +1,11 @@
-; $Id: hardware.asm,v 1.12 2005/06/14 19:57:10 bkc_alpha Exp $
+; $Id: hardware.asm,v 1.13 2005/08/14 02:40:06 ccfg Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
-; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004-2006 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
@@ -36,6 +36,7 @@ DBG_CTRL:       equ     $2E             ; openMSX debugdevice control (mode)
 DBG_DATA:       equ     $2F             ; openMSX debugdevice data
 
 PRN_STAT:       equ     $90             ; printer status
+PRN_DATA:       equ     $91             ; printer data
 
 VDP_DATA:       equ     $98             ; VDP data port (VRAM read/write)
 VDP_ADDR:       equ     $99             ; VDP address (write only)

@@ -1,10 +1,10 @@
-; $Id: main.asm,v 1.156 2006/03/11 20:04:54 auroramsx Exp $
+; $Id: main.asm,v 1.157 2006/03/12 17:11:47 arnoldmnl Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
-; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004-2006 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
@@ -203,7 +203,7 @@ romid:
 ; $0056 FILVRM  Fill VRAM
                 ds      $0056 - $
                 jp      filvrm
-                
+
 ; $0059 LDIRMV  Copy VRAM to RAM
                 ds      $0059 - $
                 jp      ldirmv
@@ -1686,9 +1686,9 @@ chsns_inbuf:
 ; Function : One character input (waiting)
 ; Output   : A  - ASCII-code of the input character
 ; Registers: AF
-; TODO:    : call H_CHGE
+
 chget:
-;               call H_CHGE
+                call    H_CHGE
                 push    hl
                 push    de
 chget_wait:
@@ -1731,20 +1731,37 @@ chget_nowrap:
 ; Input    : A  - ASCII-code of character to send
 ; Output   : C-flag set if failed
 ; Registers: F
-; NOTE: this implementation is still a stub!
-;       currently it always claims success
-; TODO: call H_LPTO
+
 lptout:
-;               call    H_LPTO
-                push    hl
+                call    H_LPTO
                 push    af
-                ld      hl,lptout_text
-                call    print_debug
+lptout_wait:
+                call    breakx
+                jr      c,lptout_abort
+                call    lptstt
+                jr      z,lptout_wait
                 pop     af
-                pop     hl
-                and     a       ; always state success
+                jr      lptout_write
+
+lptout_abort:
+                ld      a,13
+                call    lptout_write
+                xor     a
+                ld      (LPTPOS),a
+                pop     af
+                scf
                 ret
-lptout_text:    db      "LPTOUT",0
+
+lptout_write:
+                push    af
+                out     (PRN_DATA),a
+                ld      a,0
+                out     (PRN_STAT),a
+                cpl
+                out     (PRN_STAT),a
+                pop     af
+                and     a
+                ret
 
 ;--------------------------------
 ; $00A8 LPTSTT
@@ -1752,19 +1769,17 @@ lptout_text:    db      "LPTOUT",0
 ; Output   : A  - #FF and Z-flag reset if printer is ready
 ;                 #00 and Z-flag set if not ready
 ; Registers: AF
-; NOTE: this implementation is still a stub!
-;       currently printer is always ready
-; TODO: call H_LPTS
+
 lptstt:
-;               call    H_LPTS
-                push    hl
-                ld      hl,lptstt_text
-                call    print_debug
-                pop     hl
-                ld      a,1     ; just always state
-                and     a       ; printer is ready
+                call    H_LPTS
+                in      a,(PRN_STAT)
+                rra
+                ld      a,$FF
+                jr      nc,lptstt_end
+                cpl
+lptstt_end:
+                and     a
                 ret
-lptstt_text:    db      "LPTSTT",0
 
 ;--------------------------------
 ; $00AB CNVCHR
@@ -1790,10 +1805,10 @@ cnvchr:
                 pop     af                      ; we're not in graphic mode
                 cp      1                       ; graphic header?
                 jr      nz,cnvchr_normal
-                
+
                 ld      (hl),a                  ; yes! -> Set GRPHED
                 jr      cnvchr_normal_exit      ; we've got NC and Z - perfect!
-                
+
 cnvchr_handlegfx:
                 pop     af
                 cp      $40
@@ -1812,7 +1827,7 @@ cnvchr_normal:
 cnvchr_normal_exit:
                 pop     hl
                 ret
-                
+
 ;--------------------------------
 ; $00AE PINLIN
 ; Function : Stores in the specified buffer the character codes input until the return
