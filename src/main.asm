@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.157 2006/03/12 17:11:47 arnoldmnl Exp $
+; $Id: main.asm,v 1.158 2006/04/09 12:05:48 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1773,6 +1773,7 @@ lptout_write:
 lptstt:
                 call    H_LPTS
                 in      a,(PRN_STAT)
+                rra
                 rra
                 ld      a,$FF
                 jr      nc,lptstt_end
