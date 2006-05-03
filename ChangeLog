@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
+$Id: ChangeLog,v 1.188 2006/04/09 12:06:52 bifimsx Exp $
+
+2006-05-02 Maarten ter Huurne <maarten@treewalker.org>
+    * Use 14-bit addressing in FILVRM for SCREEN 0..4.
+      Fixes Konami's Ping Pong on MSX2/2+.
 
 2006-04-09 Albert Beevendorp
     * added printer output routines
@@ -13,11 +17,11 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Makefile: add support for GNU assembler
     * src/main.asm: use single quotes for character constants
 
-2005-12-06 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-12-06 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Added international scan code table.
     * Added numpad (rows 9 and 10) to scan code tables.
 
-2005-11-25 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-11-25 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Improved the RAM search routine:
       - check each memory slot configuration
       - find the start of the longest contiguous memory area and set the
@@ -52,7 +56,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
       updated V9938 logo according to the fixes in GRPPRT
     * updated openMSX and blueMSX machine configs with $F4 reset flag
 
-2005-08-14 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-08-14 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Initialise font also in subrom video routines.
     * Scan the keyboard only every three interrupts.
     * Implement keyboard auto-repetition.
@@ -166,10 +170,10 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
       - TODO: investigate needs enable interrupt or not
               when the case of other screenmode.
 
-2005-06-07 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-06-07 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Implemented CHRGTR.
 
-2005-06-07 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-06-07 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Implemented LFTQ and PUTQ.
     * Initialise music queue variables.
 
@@ -192,7 +196,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
       - save regs 25, 26, 27 on V9958 in correct location
     * Contrary to what the documentation says, EXTROM does not change IY.
 
-2005-05-31 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-05-31 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Check for and initialise cartridges that are located at $0000.
 
 2005-05-30 Maarten ter Huurne <maarten@treewalker.org>
@@ -234,7 +238,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
       off page blinking: now this code is always executed on V9938/58, even for
       MSX1 modes.
 
-2005-05-16 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-05-16 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Rewrote the cartridge search code.
       It isn't finished yet and may break things, please test.
 
@@ -242,7 +246,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Reset initial HIMEM value to $F380.
       Fixes Young Sherlock. The disk ROM should alter HIMEM itself
 
-2005-03-19 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-03-19 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Disable interrupts around VRAM writes.
       Fixes intro screen in `Zaider - Battle of Peguss'.
 
@@ -293,10 +297,10 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * fixed GRPPRT in the subrom, mainrom still needs implementation
       preparing for MSX2 and MSX2+ boot screens
 
-2005-01-15 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-15 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Implemented GETVCP and GETVC2.
 
-2005-01-14 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-14 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Fixed init_sc4 to set the sprite pattern base address correctly.
 
 2005-01-13 Albert Beevendorp
@@ -341,7 +345,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * turned a few relative jumps into absolute jumps in CHPUT to fix
       compilation errors
 
-2005-01-08 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-08 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Implemented control codes in CHPUT.
     * Implemented ESC-B, ESC-C and ESC-D (cursor down, right and left) in
       CHPUT.
@@ -355,10 +359,10 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
       Uses a disk image appended to the ROM, placed in a Konami4 mapper.
       Succesfully reads the boot sector, but not much else.
 
-2005-01-07 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-07 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Added stubs for control and escape codes in CHPUT.
 
-2005-01-06 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-06 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Implemented INIMLT and SETMLT.
     * Implemented CLS for SCREEN 3.
 
@@ -368,7 +372,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Added simple CHRGTR to subrom
     * Added DOCOMPR to subrom
 
-2005-01-05 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-05 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Rewrote adr_sft, renamed to set_base_address.
     * Fixed SETTXT to set the base address registers correctly.
     * Modified SETT32, SETGRP and init_sc4 to use set_base_address.
@@ -401,10 +405,10 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Rewrote curs2de, renamed to curs2hl.
     * Rewrote VRAM copy part of text scrolling routine.
 
-2005-01-03 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-03 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Fixed a text scrolling bug in CHPUT.
 
-2005-01-02 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-02 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Added stubs for `Graphic routines'. All MSX1 BIOS routines are now
       either implemented or stubbed.
 
@@ -422,7 +426,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Create different ROMs for MSX1, MSX2 and MSX2+.
     * Added openMSX configuration for MSX2+ (thanks to Manuel).
 
-2005-01-01 Jussi Pitkänen <ccfg@pp.inet.fi>
+2005-01-01 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Added stubs for some missing entries in main.asm.
 
 2004-12-31 Albert Beevendorp
@@ -462,7 +466,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Added SCREEN 6
       Fixes graphical glitches in Arkanoid 2 VS modes
 
-2004-12-29 Jussi Pitkänen <ccfg@pp.inet.fi>
+2004-12-29 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Select 8x8 sprites before running a ROM. Fixes American Truck.
 
 2004-12-29 Joost Yervante Damad <joost@lumatec.be>
@@ -499,7 +503,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Added bitblit related system variables to systemvars.asm
       the bitblit ARG has been renamed to ARG_ due to duplicate names
 
-2004-12-28 Jussi Pitkänen <ccfg@pp.inet.fi>
+2004-12-28 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Implemented SETTXT, SETT32 and SETGRP routines.
     * Added an incomplete TOTEXT implementation.
 
@@ -513,7 +517,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
 2004-12-25 Albert Beevendorp
     * Added CLS routines
 
-2004-12-25 Jussi Pitkänen <ccfg@pp.inet.fi>
+2004-12-25 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Fixed CHGMOD to clear only the sprite attribute table instead of
       calling CLRSPR.
 
@@ -522,7 +526,7 @@ $Id: ChangeLog,v 1.187 2006/03/18 13:18:37 auroramsx Exp $
     * Added stubs for tape routines and implemented those which can fail to
       fail always (carry flag set).
 
-2004-12-25 Jussi Pitkänen <ccfg@pp.inet.fi>
+2004-12-25 Jussi Pitkï¿½en <ccfg@pp.inet.fi>
     * Implemented CALPAT, CALATR and GSPSIZ routines.
 
 2004-12-23 Maarten ter Huurne <maarten@treewalker.org>

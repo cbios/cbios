@@ -1,13 +1,13 @@
-; $Id: video.asm,v 1.69 2005/08/14 02:40:06 ccfg Exp $
+; $Id: video.asm,v 1.70 2005/10/09 13:36:52 bkc_alpha Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
-; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
+; Copyright (c) 2004-2006 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
-; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
+; Copyright (c) 2004-2005 Jussi Pitkï¿½en.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -175,15 +175,25 @@ setwrt:
 ; Function : fill VRAM with value
 ; Input    : A  - data byte
 ;            BC - length of the area to be written
-;            HL - start address
+;            HL - start address:
+;                 * SCREEN 0..4 -> 14-bit address
+;                 * SCREEN 5+ -> 17-bit address (uses ACPAGE)
+;                 Using 14-bit address for SCREEN4 doesn't really make sense,
+;                 but that's what we have to follow to be compatible.
 ; Registers: AF, BC
-; Note: Strange behaviour... it seems to use 16-bit addressing
 filvrm:
                 push    af
         IF VDP = TMS99X8
                 call    setwrt
         ELSE
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,filvrm_new
+                call    setwrt
+                jr      filvrm_cont
+filvrm_new:
                 call    nsetwr
+filvrm_cont:
         ENDIF
                 dec     bc
                 inc     c
@@ -211,7 +221,9 @@ filvrm_lp:
 ; Note     : the function doesn't destroy HL
 ; Note     : the routine doesn't change IM
 ldirmv:
-        IF VDP != TMS99X8
+        IF VDP = TMS99X8
+                call    setrd
+        ELSE
                 ld      a,(SCRMOD)
                 cp      4
                 jr      nc,ldirmv_new
@@ -220,8 +232,6 @@ ldirmv:
 ldirmv_new:
                 call    nsetrd
 ldirmv_cont:
-        ELSE
-                call    setrd
         ENDIF
                 push    hl
                 ex      de,hl
@@ -248,7 +258,9 @@ ldirmv_lp:
 ; Registers: All
 ldirvm:
                 ex      de,hl
-        IF VDP != TMS99X8
+        IF VDP = TMS99X8
+                call    setwrt
+        ELSE
                 ld      a,(SCRMOD)
                 cp      4
                 jr      nc,ldirvm_new
@@ -257,8 +269,6 @@ ldirvm:
 ldirvm_new:
                 call    nsetwr
 ldirvm_cont:
-        ELSE
-                call    setwrt
         ENDIF
                 ex      de,hl
                 dec     bc
@@ -289,10 +299,10 @@ chgmod:
         ELSE
 
                 ; Guard against non-existing screen mode.
-        IF VDP != TMS99X8
-                cp      9
-        ELSE
+        IF VDP = TMS99X8
                 cp      4
+        ELSE
+                cp      9
         ENDIF
                 ret     nc
                 ; Redirect to initialisation routine.
@@ -1251,7 +1261,7 @@ grpprt_sft_lp:
                 rrca
                 jr      grpprt_sft_lp
 grpprt_sft_ed:
-                ld      c,a   
+                ld      c,a
                 ld      a,(CMASK)
                 and     c
                 ld      c,a       ; charactor with mask
