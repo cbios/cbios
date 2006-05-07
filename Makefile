@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.15 2005/10/27 23:31:03 mthuurne Exp $
+# $Id: Makefile,v 1.16 2006/03/12 17:11:43 arnoldmnl Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -6,9 +6,13 @@ Z80_ASSEMBLER?=pasmo
 #Z80_ASSEMBLER?=sjasm
 #Z80_ASSEMBLER?=tniasm
 
-PACKAGE:=cbios
+PACKAGE_NAME:=cbios
 VERSION:=0.21
-PACKAGE_FULL:=$(PACKAGE)-$(VERSION)
+PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
+
+CHANGELOG_REVISION:=\
+        $(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
+TITLE:="C-BIOS $(VERSION)-dev$(CHANGELOG_REVISION)"
 
 ROMS:=main_msx1 main_msx2 main_msx2+ sub logo_msx1 logo_msx2 logo_msx2+ \
 	music disk basic
@@ -20,7 +24,7 @@ PASMO=pasmo
 # Mark all logical targets as such.
 .PHONY: all dist clean
 
-all: $(ROMS_FULLPATH)
+all: version $(ROMS_FULLPATH)
 
 ifeq ($(Z80_ASSEMBLER),sjasm)
 # Workaround for SjASM producing output file even if assembly failed.
@@ -32,6 +36,11 @@ ASM=derived/asm
 else 
 ASM=src
 endif
+
+version:
+	@mkdir -p $(@D)/derived/src
+	@rm -f derived/src/version.asm
+	@echo "  db \"$(TITLE)\"" >> derived/src/version.asm
 
 $(ROMS_FULLPATH): derived/bin/cbios_%.rom: vdep/%.asm
 	@echo "Assembling: $(<:vdep/%=$(ASM)/%)"
@@ -64,6 +73,8 @@ endif
 
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
 # Incremental build -> create dependency files.
+vdep/../derived/src/version.asm:
+
 derived/dep/%.dep: src/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)

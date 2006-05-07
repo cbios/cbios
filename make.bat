@@ -2,6 +2,11 @@
 mkdir derived\bin 2> NUL
 mkdir derived\lst 2> NUL
 IF %1.==. GOTO NOOPT
+
+; -- TODO: get the CVS version of Changelog into version.asm
+del derived\src\version.asm >> NUL
+echo "  db \"CBIOS v0.21         cbios.sf.net" > derived\src\version.asm
+
 cd src
 IF %1.==pasmo. GOTO PASM
 IF %1.==tniasm. GOTO TASM

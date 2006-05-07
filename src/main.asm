@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.158 2006/04/09 12:05:48 bifimsx Exp $
+; $Id: main.asm,v 1.159 2006/04/09 12:26:13 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -867,7 +867,7 @@ hang:
 logo_ident:
                 db      "C-BIOS Logo ROM"
 logo_default:
-                db      " C-BIOS v0.21      cbios.sf.net "
+                include "../derived/src/version.asm"
 logo_default_length:    equ     $ - logo_default
 
 ;----------------------
@@ -1723,7 +1723,7 @@ chget_nowrap:
 ; Input:   A = character code
 ; Changes: none
 
-        include "chput.asm"
+                include "chput.asm"
 
 ;--------------------------------
 ; $00A5 LPTOUT
@@ -2661,7 +2661,7 @@ kilbuf:
 ;--------------------------------
 ; Interrupt routine ($0038h)
 ;--------------------------------
-; some games uses Reg.R and the routine effects the register's value.
+; some games uses Reg.R and the routine affects the register's value.
 ; if you want to add something to the routine,please try the following first
 ;
 ; Riseout , Replicart
@@ -2683,7 +2683,7 @@ keyint:
                 call    H_KEYI
                 in      a,(VDP_STAT)
                 or      a
-                jp      p,int_end       ; ???
+                ;jp      p,int_end       ; ???
                 ld      (STATFL),a      ; save status
                 jp      p,int_end       ; a certain game needs the jump
                 call    H_TIMI
@@ -2698,8 +2698,9 @@ keyint:
                 ;       space claimed is a lot.
                 ;ei
 
-                ; Riseout needs that count of RegR in the routine is not even number
-                nop
+                ; Riseout needs that count of RegR in the routine is not
+                ; even number
+              ; nop
 
                 xor     a
                 ld      (CLIKFL),a
@@ -3029,16 +3030,14 @@ calbas_text:    db      "CALBAS",0
 ; Input    : H  - x-coordinate of cursor
 ;            L  - y-coordinate of cursor
 ; Registers: All
-; NOTE: this implementation is still a stub!
 eol:
-                push    hl
-                push    af
-                ld      hl,eol_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      de,(CSRY)
+                push    de
+                ld      (CSRY),hl
+                call    chput_esc_k ; clear till EOL
+                pop     de
+                ld      (CSRY),de
                 ret
-eol_text:       db      "EOL",0
         ENDIF
 
         IF VDP = V9958
@@ -3066,7 +3065,6 @@ wrres:
                 out     ($f4),a
                 ret
         ENDIF
-
 ;------------------------------------
 ;Display error
 ;in DE= message address
@@ -3128,7 +3126,6 @@ lp_strprn:
                 ds      $1bbf - $
                 include "font.asm"
 
-                ;include "video.asm"
                 include "slot.asm"
 
 ;---------------------------------

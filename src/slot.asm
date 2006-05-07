@@ -437,3 +437,5 @@ rdprim:         equ     $F380
 wrprim:         equ     rdprim+(m_wrprim-m_rdprim)
 clprim:         equ     rdprim+(m_clprim-m_rdprim)
 cl_jp:          equ     rdprim+(m_cl_jp-m_rdprim)
+
+; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:

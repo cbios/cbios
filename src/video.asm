@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.71 2006/05/03 00:29:17 mthuurne Exp $
+; $Id: video.asm,v 1.72 2006/05/03 21:33:34 ccfg Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1496,7 +1496,7 @@ init_vdp:
                 ld      hl,$1BBF
                 ld      de,$0800
                 ld      bc,$0800
-                ld      iy,(EXPTBL)
+                ld      iy,(EXPTBL-1)
                 ld      ix,$005C
                 call    calslt
                 ei
@@ -1529,10 +1529,10 @@ init_font:
                 ld      bc,$0800
                 jp      ldirvm
         ELSE
-                ld      hl,$1BBF
+                ld      hl,$1BBF  ; == B_Font
                 ld      de,(CGPBAS)
                 ld      bc,$0800
-                ld      iy,(EXPTBL)
+                ld      iy,(EXPTBL-1)
                 ld      ix,$005C
                 call    calslt
                 ei

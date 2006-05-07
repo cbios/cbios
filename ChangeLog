@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.189 2006/05/03 00:29:17 mthuurne Exp $
+$Id: ChangeLog,v 1.190 2006/05/03 21:33:34 ccfg Exp $
+
+2006-05-07 Eric Boon <eric@auroramsx.nl>
+    * Added Changelog version number to default bootup screen
+    * Implemented EOL
 
 2006-05-02 Maarten ter Huurne <maarten@treewalker.org>
     * Use 14-bit addressing in FILVRM for SCREEN 0..4.
