@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.17 2006/05/07 19:06:11 auroramsx Exp $
+# $Id: Makefile,v 1.18 2006/05/07 20:03:22 auroramsx Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -25,7 +25,7 @@ PASMO=pasmo
 # Mark all logical targets as such.
 .PHONY: all dist clean
 
-all: $(VERSION_FILE) $(ROMS_FULLPATH)
+all: $(ROMS_FULLPATH)
 
 ifeq ($(Z80_ASSEMBLER),sjasm)
 # Workaround for SjASM producing output file even if assembly failed.
@@ -34,15 +34,14 @@ endif
 ifeq ($(Z80_ASSEMBLER),z80-as)
 # z80-as uses preprocessed sourcefiles
 ASM=derived/asm
-else 
+else
 ASM=src
 endif
 
 $(VERSION_FILE):
-	@echo Creating $(@D)
+	@echo "Creating: $@"
 	@mkdir -p $(@D)
-	@rm -f $(VERSION_FILE)
-	@echo "  db \"$(TITLE)\"" >> $(VERSION_FILE)
+	@echo "  db \"$(TITLE)\"" > $@
 
 $(ROMS_FULLPATH): derived/bin/cbios_%.rom: vdep/%.asm
 	@echo "Assembling: $(<:vdep/%=$(ASM)/%)"
@@ -74,9 +73,10 @@ endif
 -include $(ROMS:%=derived/dep/%.dep)
 
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
-# Incremental build -> create dependency files.
-vdep/../$(VERSION_FILE):
 
+vdep/../$(VERSION_FILE): $(VERSION_FILE)
+
+# Incremental build -> create dependency files.
 derived/dep/%.dep: src/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)
