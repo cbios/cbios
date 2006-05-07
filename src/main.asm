@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.159 2006/04/09 12:26:13 bifimsx Exp $
+; $Id: main.asm,v 1.160 2006/05/07 19:06:11 auroramsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -3134,7 +3134,8 @@ lp_strprn:
 
 str_proginfo:
                 ;       [01234567890123456789012345678]
-                db      "C-BIOS 0.21      cbios.sf.net"
+;                db      "C-BIOS 0.21      cbios.sf.net"
+                include "../derived/src/version.asm"
                 db      $0D,$0A,$0D,$0A,$0D,$0A,$00
 
 str_slot:
