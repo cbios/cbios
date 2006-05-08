@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.162 2006/05/08 00:43:29 mthuurne Exp $
+; $Id: main.asm,v 1.163 2006/05/08 00:48:21 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1559,10 +1559,11 @@ isflio:
                 and     a               ; adjust flags
                 ret
 
-
 ;--------------------------------
-; 0020h DCOMPR@Comparison 16bit
-; in .. hl,de= the number
+; $0020 DCOMPR
+; Function : Compared HL to DE
+; Output   : flags influenced like CP instruction
+; Registers: A
 dcompr:
                 ld      a,h
                 cp      d
@@ -3149,26 +3150,16 @@ str_basic:
 ;-------------------------------------
 ; error messages
 str_error_prompt:
-;
                 db      "ERROR:",$00
+
 str_memory_err:
-;
                 db      "MEMORY NOT FOUND.",$00
 
 str_no_basic_intr:
-;
                 db      "CALLED NON EXISTING BASIC.",$00
 
-str_disk:
-;
-                db      "CALLED DISK ROUTINE.",$00
-
 str_stack_error:
-;
                 db      "STACK ERROR.",$00
-
-str_crlf:
-                db      $0D,$0A,$00
 
 str_nocart:
                 ;       [01234567890123456789012345678]
