@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.18 2006/05/07 20:03:22 auroramsx Exp $
+# $Id: Makefile,v 1.19 2006/05/07 20:51:33 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -38,7 +38,7 @@ else
 ASM=src
 endif
 
-$(VERSION_FILE):
+$(VERSION_FILE): ChangeLog
 	@echo "Creating: $@"
 	@mkdir -p $(@D)
 	@echo "  db \"$(TITLE)\"" > $@
@@ -48,10 +48,10 @@ $(ROMS_FULLPATH): derived/bin/cbios_%.rom: vdep/%.asm
 	@mkdir -p $(@D)
 	@mkdir -p derived/lst
 ifeq ($(Z80_ASSEMBLER),sjasm)
-	@sjasm -l $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+	@sjasm -iderived/src -l $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 ifeq ($(Z80_ASSEMBLER),pasmo)
-	@$(PASMO) -I src $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+	@$(PASMO) -I src -I derived/src $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 # TODO: The "mv" can cause problems in parallel builds, it would be better if
 #       tniASM could write distinct output files (can it?).
@@ -69,14 +69,33 @@ ifeq ($(Z80_ASSEMBLER),z80-as)
 		sed -e "s/;//g" -e 's/\\$$/0x/g'` -o $@
 endif
 
+ifeq ($(filter clean,$(MAKECMDGOALS)),)
+
 # Include main dependency files.
 -include $(ROMS:%=derived/dep/%.dep)
 
-ifeq ($(filter clean,$(MAKECMDGOALS)),)
+GENERATED_FILES:=$(VERSION_FILE)
+GENERATED_DEPS:=$(GENERATED_FILES:derived/src/%.asm=derived/dep/%.dep)
 
-vdep/../$(VERSION_FILE): $(VERSION_FILE)
+# Note: The dependency generation code is here twice.
+#       That's not great, but the alternatives are worse.
 
-# Incremental build -> create dependency files.
+$(GENERATED_DEPS): derived/dep/%.dep: derived/src/%.asm
+	@echo "Depending: $<"
+	@mkdir -p $(@D)
+	@echo "INCLUDES:=" > $@
+	@sed -n '/include/s/^[\t ]*include[\t ]*"\(.*\)".*$$/INCLUDES+=\1/p' \
+		< $< >> $@
+	@echo "INCBINS:=" >> $@
+	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(.*\)".*$$/INCBINS+=\1/p' \
+		< $< >> $@
+	@echo ".SECONDARY: $(<:derived/src/%=vdep/%)" >> $@
+	@echo "$(<:derived/src/%=vdep/%): $<" >> $@
+	@echo "$(<:derived/src/%=vdep/%): \$$(INCLUDES:%=vdep/%) \$$(INCBINS:%=src/%)" >> $@
+	@echo "ifneq (\$$(INCLUDES),)" >> $@
+	@echo "-include \$$(INCLUDES:%.asm=derived/dep/%.dep)" >> $@
+	@echo "endif" >> $@
+
 derived/dep/%.dep: src/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)
