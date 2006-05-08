@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.28 2005/06/03 00:12:27 mthuurne Exp $
+; $Id: systemvars.asm,v 1.29 2006/03/11 19:09:18 auroramsx Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -8,7 +8,7 @@
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
-; Copyright (c) 2005 Jussi Pitk舅en.  All rights reserved.
+; Copyright (c) 2005 Jussi Pitkﾃ､nen.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -200,7 +200,7 @@ BDRCLR:         equ     $F3EB
 MAXUPD:         equ     $F3EC
 
 ; ??? this was already defined ???
-PSG_DBG:        equ     $F3EC           ; デバッグ用フラグ
+PSG_DBG:        equ     $F3EC           ; ﾂデﾂバﾂッﾂグﾂ用ﾂフﾂδ可グ
 
 ; F3EF-F3F1: Jump instruction used by Basic LINE command.
 ; The routines used are: RIGHTC, LEFTC, UPC and DOWNC
@@ -231,12 +231,12 @@ REPCNT:         equ     $F3F7
 ; everytime a key is added to the inputbuffer, this address is incremented,
 ; when it equals to GETPNT, the buffer is full
 ; the buffer is located at KEYBUF
-PUTPNT:         equ     $F3F8           ; キーバッファへのポインタ
+PUTPNT:         equ     $F3F8           ; ﾂキﾂーﾂバﾂッﾂフﾂァﾂづ鳴づ個ポﾂイﾂδ督タ
 
 ; F3FA-F3FB: address in inputbuffer of first character that is not yet read
 ; everytime a key is read from the buffer it is incremented
 ; the buffer is located at KEYBUF
-GETPNT:         equ     $F3FA           ; キーバッファへのポインタ
+GETPNT:         equ     $F3FA           ; ﾂキﾂーﾂバﾂッﾂフﾂァﾂづ鳴づ個ポﾂイﾂδ督タ
 
 ; F3FC-F400: memory area for tape system parameters for 1200 baud
 ; F3FC: length of  low signal for 0     (ini:83)
@@ -563,7 +563,7 @@ RS2IQ:          equ     $FAF5           ; RS232   queue
 DPPAGE:         equ     $FAF5           ; Display page (SCR5+)
 ACPAGE:         equ     $FAF6           ; Active page (SCR5+)
 AVCSAV:         equ     $FAF7
-EXBRSA:         equ     $FAF8           ; サブロム位置
+EXBRSA:         equ     $FAF8           ; ﾂサﾂブﾂδ債δﾂ暗環置
 CHRCNT:         equ     $FAF9
 ROMA:           equ     $FAFA
 MODE:           equ     $FAFC
@@ -606,8 +606,8 @@ OLDKEY:         equ     $FBDA
 NEWKEY:         equ     $FBE5
 KEYBUF:         equ     $FBF0
 ; LIMPNT: something about "key buffer pointer"
-LIMPNT:         equ     $FC17           ; キーバッファへのポインタ
-LINWRK:         equ     $FC18           ; 40桁分のバッファ
+LIMPNT:         equ     $FC17           ; ﾂキﾂーﾂバﾂッﾂフﾂァﾂづ鳴づ個ポﾂイﾂδ督タ
+LINWRK:         equ     $FC18           ; 40ﾂ個�ﾂ閉ｪﾂづ個バﾂッﾂフﾂァ
 PATWRK:         equ     $FC40
 BOTTOM:         equ     $FC48
 HIMEM:          equ     $FC4A

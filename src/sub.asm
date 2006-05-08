@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.58 2005/10/09 13:34:55 bifimsx Exp $
+; $Id: sub.asm,v 1.59 2005/10/09 14:05:45 bifimsx Exp $
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -6,7 +6,7 @@
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
-; Copyright (c) 2004-2005 Jussi Pitk‰nen.  All rights reserved.
+; Copyright (c) 2004-2005 Jussi Pitk√§nen.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
