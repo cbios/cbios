@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.3 2005/01/01 22:53:50 mthuurne Exp $ -->
+<!-- $Id: hardwareconfig.xml,v 1.4 2005/06/16 20:19:53 bifimsx Exp $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -76,6 +76,7 @@
     </VDP>
 
     <PSG id="PSG">
+      <type>YM2149</type>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>
