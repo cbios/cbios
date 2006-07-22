@@ -1,4 +1,8 @@
-$Id: ChangeLog,v 1.192 2006/05/07 19:23:44 bifimsx Exp $
+$Id: ChangeLog,v 1.193 2006/05/08 00:43:29 mthuurne Exp $
+
+2006-07-22 Albert Beevendorp
+    * removed the page 0 detection for cartidges to make it
+      compliant to the original version again.
 
 2006-05-07 Albert Beevendorp
     * made preparations for ChangeLog version number to the

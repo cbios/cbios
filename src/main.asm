@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.163 2006/05/08 00:48:21 mthuurne Exp $
+; $Id: main.asm,v 1.164 2006/05/08 00:54:56 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -7,7 +7,7 @@
 ; Copyright (c) 2004-2006 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
-; Copyright (c) 2004-2005 Jussi Pitk√§nen.  All rights reserved.
+; Copyright (c) 2004-2005 Jussi Pitk‰nen.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -867,7 +867,7 @@ hang:
 logo_ident:
                 db      "C-BIOS Logo ROM"
 logo_default:
-                include "version.asm"
+                include "../derived/src/version.asm"
 logo_default_length:    equ     $ - logo_default
 
 ;----------------------
@@ -891,12 +891,6 @@ search_roms_lp_sub:
                 call    search_roms_check
                 call    z,search_roms_init
                 ld      hl,$8000
-                call    search_roms_check
-                push    af
-                call    z,search_roms_init
-                pop     af              ; If a ROM is found at $8000, don't
-                jr      z,search_roms_no; look at $0000 anymore.
-                ld      hl,$0000
                 call    search_roms_check
                 call    z,search_roms_init
 search_roms_no:
@@ -3136,7 +3130,7 @@ lp_strprn:
 str_proginfo:
                 ;       [01234567890123456789012345678]
 ;                db      "C-BIOS 0.21      cbios.sf.net"
-                include "version.asm"
+                include "../derived/src/version.asm"
                 db      $0D,$0A,$0D,$0A,$0D,$0A,$00
 
 str_slot:
