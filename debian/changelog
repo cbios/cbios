@@ -1,3 +1,10 @@
+cbios (0.21.cvs20060906-1) UNRELEASED; urgency=low
+
+  * update copyright file
+  * convert files to UTF8
+
+ -- Joost Yervante Damad <joost@lumatec.be>  Wed,  6 Sep 2006 20:11:43 +0200
+
 cbios (0.21-1) unstable; urgency=low
 
   * new upstream release
