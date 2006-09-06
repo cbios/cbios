@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.73 2006/05/07 19:06:11 auroramsx Exp $
+; $Id: video.asm,v 1.74 2006/05/08 00:43:29 mthuurne Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -7,7 +7,7 @@
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
-; Copyright (c) 2004-2005 Jussi Pitk√§nen.  All rights reserved.
+; Copyright (c) 2004-2005 Jussi Pitk‰nen.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -63,6 +63,7 @@ enascr:
 ; Registers: AF, BC
 wrtvdp:
                 di
+		res	7,c		; fixes High Way Star
                 ld      a,b
                 out     (VDP_ADDR),a
                 ld      a,c
