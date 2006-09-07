@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.34 2006/09/07 06:39:13 andete Exp $
+; $Id: systemvars.asm,v 1.35 2006/09/07 06:51:38 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -474,13 +474,35 @@ AUTLIN:         equ     $F6AB
 
 ; F6AD-F6AE: last used AUTO increment
 AUTINC:         equ     $F6AD
+
+; F6AF-F6B0: work area of the error system; contains address of first byte
+; of statement currently being executed
 SAVTXT:         equ     $F6AF
+
+; F6B1-F6B2: work area of the error system; contains address of the stack
+; before executing of the current statement started
 SAVSTK:         equ     $F6B1
+
+; F6B3-F6B4: line number of last failed line
 ERRLIN:         equ     $F6B3
+
+; F6B5-F6B6: line number of last used (changed, listed, added) line
 DOT:            equ     $F6B5
+
+; F6B7-F5B8: work area of the error system; contains the address of the first
+; byte of the statement that last failed; on failure it is stored with the
+; content of SAVTXT
 ERRTXT:         equ     $F6B7
+
+; F6B9-F6BA: work area of the error system; contains the line number where
+; execution should go to on error (as in basic: ON ERROR GOTO x)
 ONELIN:         equ     $F6B9
+
+; F6BB-F6BC: work area of the error system; indication if the interpreter is
+; currently executing an error catch routine
+; 0 = no, FF = yes
 ONEFLG:         equ     $F6BB
+
 TEMP2:          equ     $F6BC
 OLDLIN:         equ     $F6BE
 OLDTXT:         equ     $F6C0
