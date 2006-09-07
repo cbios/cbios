@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.30 2006/05/08 00:43:29 mthuurne Exp $
+; $Id: systemvars.asm,v 1.31 2006/09/07 06:27:26 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -301,13 +301,14 @@ PRTFLG:         equ     $F416
 ; F417: switch indicating if hooked up printer is an MSX printer or not
 ; values: 0: MSX-Printer, 1: no MSX-Printer
 ; if the printer is no MSX-Printer, non-ASCII (>=128) characters are replaced
-; by spaces before sending them to the printer
+; by spaces before sending them to the printer (ini: 0)
 NTMSXP:         equ     $F417
 
 ; F418: switch indicating of printing routines should use raw-mode or
 ; should convert:
 ; =0 to convert tabs and unknown characters to spaces and remove graphical headers
-; =1 to send data just like it gets it
+; =1 to send data just like it gets it (ini: 0)
+; if RAWPRT is 1, the value if NTMSXP is ignored
 RAWPRT:         equ     $F418
 
 ; ---------------------------
