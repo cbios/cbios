@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.32 2006/09/07 06:29:56 andete Exp $
+; $Id: systemvars.asm,v 1.33 2006/09/07 06:37:23 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -441,7 +441,10 @@ FRETOP:         equ     $F69B
 ; F69D-F69E: temporarely storage for adminstration of the basic interpreter
 TEMP3:          equ     $F69D
 
+; F69F-F6A0: temporarely storage for garbage collection
 TEMP8:          equ     $F69F
+
+; F6A1-F6A2: address of first byte in BASIC-code after last FOR statement
 ENDFOR:         equ     $F6A1
 DATLIN:         equ     $F6A3
 SUBFLG:         equ     $F6A5
