@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.36 2006/09/07 16:41:30 andete Exp $
+; $Id: systemvars.asm,v 1.37 2006/09/07 19:11:49 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -6,7 +6,7 @@
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
-; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+; Copyright (c) 2004-2006 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2005 Jussi Pitkänen.  All rights reserved.
 ;
@@ -611,15 +611,45 @@ RNDX:           equ     $F857
 ; filesystem work area
 ; --------------------
 
+; F85F: # of filedescriptors reserved minus 1
+; this is also the maximum number of open files possible
 MAXFIL:         equ     $F85F
+
+; F860-F861: start address of the file information table
 FILTAB:         equ     $F860
+
+; F862-F863: start address of the first file-buffer
 NULBUF:         equ     $F862
+
+; F864-F865: during file I/O the start address of the active file-buffer
 PTRFIL:         equ     $F864
+
+; F866: flag indicating if the file that is being loaded have to be started
+; immediately; 0 = no, FF = yes
 RUNFLG:         equ     $F866
-FILNAM:         equ     $F867
+
+; note that RUNFLG and FILNAM overlap!
+
+; F866-F870: filename of last file that has been active;
+; first 8 chars are name, last 3 are extension
+FILNAM:         equ     $F866
+
+; F871-F87B: second filename if needed, e.g. the NAME command
 FILNM2:         equ     $F871
+
+; F87C: switch indicating if currently a BASIC program is being loaded
+; 0 = no, 1 = yes
 NLONLY:         equ     $F87C
+
+; F87D-F87E: workarea for BLOAD and BSAVE; when a part of normal memory
+; is written, it contains the end address of the written memory region
+; if video memory is written it contains $4BE5 + start address of the
+; written memory region ??
 SAVEND:         equ     $F87D
+
+; F87F-F91E: storage area for the text of the function keys 10x16 bytes,
+; but strings need to be zero-terminated, soo maximum length of command is
+; 15 characters
 FNKSTR:         equ     $F87F
 
 ; ------------------------
