@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.29 2006/03/11 19:09:18 auroramsx Exp $
+; $Id: systemvars.asm,v 1.30 2006/05/08 00:43:29 mthuurne Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -147,7 +147,7 @@ MLTATR:         equ     $F3D7
 ; used to initialize PATBAS when SCREEN 3 is activated
 MLTPAT:         equ     $F3D9
 
-; F3DB: keyclick when a key is pressed: 0: no, 1: yes
+; F3DB: keyclick when a key is pressed: 0: no, 1: yes (ini: 1)
 ; SCREEN ,,n will write to this address
 CLIKSW:         equ     $F3DB
 
@@ -256,14 +256,16 @@ CS240:          equ     $F401
 
 ; F406-F407: lenghts of signal for 0 for the current speed of the tape system
 ; either equal to the content of F3FC-F3FD or the content of F401-F402
+; (ini: 83, 92)
 LOW_:           equ     $F406 ; real name: LOW, but doesn't compile?
 
 ; F408-F409: lenghts of signal for 1 for the current speed of the tape system
 ; either equal to the content of F3FE-F3FF or the content of F403-F404
+; (ini: 38, 45)
 HIGH_:          equ     $F408 ; real name: HIGH, but doesn't compile?
 
 ; F40A: lenghts of synchronization block for the current speed of the tape system
-; either equal to the content of F400 or the content of F405
+; either equal to the content of F400 or the content of F405 (ini: 15)
 HEADER:         equ     $F40A
 
 ; F40B-F40C: standard setting for the height/width aspect of the
@@ -279,8 +281,9 @@ ASPCT1:         equ     $F40B
 ; ! not verified :)
 ASPCT2:         equ     $F40D
 
-; F40F-F414: work area for the BASIC statement RESUME NEXT
+; F40F-F413: work area for the BASIC statement RESUME NEXT
 ; contains a fake end of basic program
+; (ini: 58, 0, 0, 0, 0)
 ENDPRG:         equ     $F40F
 
 ; F414: errornumber of last error that happened while executing a BASIC program
@@ -297,6 +300,8 @@ PRTFLG:         equ     $F416
 
 ; F417: switch indicating if hooked up printer is an MSX printer or not
 ; values: 0: MSX-Printer, 1: no MSX-Printer
+; if the printer is no MSX-Printer, non-ASCII (>=128) characters are replaced
+; by spaces before sending them to the printer
 NTMSXP:         equ     $F417
 
 ; F418: switch indicating of printing routines should use raw-mode or
