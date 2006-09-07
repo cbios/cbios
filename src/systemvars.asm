@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.31 2006/09/07 06:27:26 andete Exp $
+; $Id: systemvars.asm,v 1.32 2006/09/07 06:29:56 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -437,7 +437,10 @@ DSCTMP:         equ     $F698
 ; the string area is filled backwards, soo the lower the value, the less space
 ; remains (ini: value of MEMSIZ)
 FRETOP:         equ     $F69B
+
+; F69D-F69E: temporarely storage for adminstration of the basic interpreter
 TEMP3:          equ     $F69D
+
 TEMP8:          equ     $F69F
 ENDFOR:         equ     $F6A1
 DATLIN:         equ     $F6A3
