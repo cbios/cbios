@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.19 2006/05/07 20:51:33 mthuurne Exp $
+# $Id: Makefile,v 1.20 2006/05/08 00:48:21 mthuurne Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -23,7 +23,7 @@ ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 PASMO=pasmo
 
 # Mark all logical targets as such.
-.PHONY: all dist clean
+.PHONY: all dist clean list_stub
 
 all: $(ROMS_FULLPATH)
 
@@ -147,3 +147,5 @@ dist: all
 	@cp $(ROMS_FULLPATH) derived/dist/$(PACKAGE_FULL)/roms
 	@cd derived/dist ; zip -9 -r $(PACKAGE_FULL).zip $(PACKAGE_FULL)
 
+list_stub:
+	cd src && grep -n _text *.asm | grep ',0$$' | awk '{print $$1}' | sed -e 's/_text://'
