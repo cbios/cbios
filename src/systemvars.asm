@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.33 2006/09/07 06:37:23 andete Exp $
+; $Id: systemvars.asm,v 1.34 2006/09/07 06:39:13 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -446,13 +446,33 @@ TEMP8:          equ     $F69F
 
 ; F6A1-F6A2: address of first byte in BASIC-code after last FOR statement
 ENDFOR:         equ     $F6A1
+
+; F6A3-F6A4: line number of last used line of DATA statements
 DATLIN:         equ     $F6A3
+
+; F6A5: switch indicating if a variable is allowed to be an array variable.
+; This is e.g. not allowed for the loop variable of a FOR statement
+; 0 = allowed, 1 = not allowed
 SUBFLG:         equ     $F6A5
+
+; F6A6: switch indicating if currently a READ or INPUT statement is being executed
 FLKINP:         equ     $F6A6
+
+; F6A7-F6A8: temporarely storage for adminstration of the basic interpreter
 TEMP:           equ     $F6A7
+
+; F6A9: switch indicating if there are still linenumber constants in the BASIC code
+; that are encoded as pointers?
 PTRFLG:         equ     $F6A9
+
+; F6AA: switch indication if currently an AUTO statement is active
+; 0 = no auto, 1 = auto
 AUTFLG:         equ     $F6AA
+
+; F6AB-F6AC: last generated AUTO line number
 AUTLIN:         equ     $F6AB
+
+; F6AD-F6AE: last used AUTO increment
 AUTINC:         equ     $F6AD
 SAVTXT:         equ     $F6AF
 SAVSTK:         equ     $F6B1
