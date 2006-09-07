@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.35 2006/09/07 06:51:38 andete Exp $
+; $Id: systemvars.asm,v 1.36 2006/09/07 16:41:30 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -503,36 +503,108 @@ ONELIN:         equ     $F6B9
 ; 0 = no, FF = yes
 ONEFLG:         equ     $F6BB
 
+; F6BC-F6BD: temporarely storage for the interpreter
 TEMP2:          equ     $F6BC
+
+; F6BE-F6BF: line number of last program break, reset at 0 at any program change
 OLDLIN:         equ     $F6BE
+
+; F6C0-F6C1: address of first statement that is not executed due to a break
 OLDTXT:         equ     $F6C0
+
+; F6C2-F6C3: begin address of storage of basic variables and function descriptors;
+; possibly adjusted when program changes in size
 VARTAB:         equ     $F6C2
+
+; F6C4-F6C5: begin address of array variables; possibly adjusted when program
+; changes size or more variables are allocated
 ARYTAB:         equ     $F6C4
+
+; F6C6-F6C7: address of first free byte not used for storage of code or variables
+; (ini: $8003)
 STREND:         equ     $F6C6
+
+; F6C8-F6C9: address where data needs to be searched at next READ statement
 DATPTR:         equ     $F6C8
+
+; F6CA-F6E3: table with variable types, one for each letter in the alphabet
+; possible values:
+;       2 = integer     3 = string      4 = single      8 = double
 DEFTBL:         equ     $F6CA
+
+; F6E4-F7B4: work area for execution of self defined functions
+
+; F6E4-F6E5: contains address ; of previous parameter block on the stack;
+; needed for garbage collection
 PRMSTK:         equ     $F6E4
+
+; F6E6-F6E7:  amount of valid bytes in PARM1
 PRMLEN:         equ     $F6E6
+
+; F6E8-F74B: contains definitions of the variables in the parameter lists
+; of self defined functions
 PARM1:          equ     $F6E8
+
+; F74C-F74D: previous value of PRMSTK
 PRMDRV:         equ     $F74C
+
+; F74E-F74F: number of valid bytes in PARM2
 PRMLN2:         equ     $F74E
+
+; F750-F7B3: area used for calculation of values that end up in PARM1
 PARM2:          equ     $F750
+
+; F7B4: switch indicating of while searching a variable name PARM1 has
+; been looked at; 0 = no, 1 = yes
 PRMFLG:         equ     $F7B4
+
+; F7B5-F7B6: address of first byte where it is no longer needed to search
+; for a variable name; it is equal to ARYTAB when the normal variable area
+; is searched, and equal to PARM1+PRMLEN when PARM1 is searched
 ARYTA2:         equ     $F7B5
+
+; F7B7-F7B8: switch indicating iif PARM1 contains a valid parameter block
+; 0 = no, 1 = yes
 NOFUNS:         equ     $F7B7
+
+; F7B8-F7B9: temporarely memory used while searching parameter blocks on
+; the stack
 TEMP9:          equ     $F7B8
+
+; F7BA-F7BB: counter of the nesting-dept of the function being evaluated
 FUNACT:         equ     $F7BA
+
+; F7BC-F7C3: work area when executing the SWAP statement; the first variable
+; is stored here
 SWPTMP:         equ     $F7BC
+
+; F7C4: switch indicating if TRON is on; 0 = off, >0 = on
 TRCFLG:         equ     $F7C4
+
+; F7C5-F7F4: workarea when executing numeric operators
 FBUFFR:         equ     $F7C5
 DECTMP:         equ     $F7F0
 DECTM2:         equ     $F7F2
 DECCNT:         equ     $F7F4
+
+; F7F6-F805: workarea when executing numeric operators; intermediate
+; results are stored here; also used for parameter transfer when using
+; the USR functions; VALTYPE then contains the type, and the value is
+; stored like this:
+; typename  type  where
+; integer   2     F7F8-F7F9
+; string    3     F7F8-F7F9 (address descriptor)
+; single    4     F7F6-F7F9
+; double    8     F7F6-F7FD
 DAC:            equ     $F7F6
+
+; F806-F856: workarea when executing numeric operators
 HOLD8:          equ     $F806
 HOLD2:          equ     $F836
 HOLD:           equ     $F83E
 ARG:            equ     $F847
+
+; F857-F85E: last calculated random double
 RNDX:           equ     $F857
 
 ; --------------------
