@@ -1,7 +1,8 @@
-$Id: ChangeLog,v 1.194 2006/07/22 11:36:28 bifimsx Exp $
+$Id: ChangeLog,v 1.195 2006/09/08 09:26:49 andete Exp $
 
 2006-09-07 Joost Yervante Damad <joost@lumatec.be>
     * add more documentation to systemvars
+    * convert some source file from ISO-8859-1 to UTF8
 
 2006-09-07 Joost Yervante Damad <joost@lumatec.be>
     * add more documentation to systemvars

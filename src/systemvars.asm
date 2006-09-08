@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.41 2006/09/08 09:49:40 andete Exp $
+; $Id: systemvars.asm,v 1.42 2006/09/08 12:04:59 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -918,7 +918,6 @@ MCLSEX:         equ     36;             start of stack
 ; SHIFT-CODE-GRAPH; does not erase the existing program
 ; (ini: 0)
 ENSTOP:         equ     $FBB0
-
 
 BASROM:         equ     $FBB1
 LINTTB:         equ     $FBB2
