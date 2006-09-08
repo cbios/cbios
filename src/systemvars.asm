@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.39 2006/09/08 06:00:45 andete Exp $
+; $Id: systemvars.asm,v 1.40 2006/09/08 08:48:40 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -815,13 +815,27 @@ RS2IQ:          equ     $FAF5           ; RS232   queue
 ; in MSX2 the content of RS2IQ is used differently:
 DPPAGE:         equ     $FAF5           ; Display page (SCR5+)
 ACPAGE:         equ     $FAF6           ; Active page (SCR5+)
+
+; FAF7: AV control port value storage
 AVCSAV:         equ     $FAF7
+
+; FAF8: extended BASIC ROM slot address
 EXBRSA:         equ     $FAF8           ; TuÊu
+
+; FAF9: character count for ROMA-KANA
 CHRCNT:         equ     $FAF9
+
+; FAFA-FAFB: character save for ROMA-KANA
 ROMA:           equ     $FAFA
+
+; ROMA-KANA extension mode switch or VRAM size??
 MODE:           equ     $FAFC
 ;Reserved       equ     $FAFD
+
+; FAFE-FAFF: x position for mouse or lightpen
 XSAVE:          equ     $FAFE
+
+; FB00-FB01: y position for mouse or lightpen
 YSAVE:          equ     $FB00
 LOGOPR:         equ     $FB02
 ; FB21-FB28: Table which contains info for up to 4 disk ROMs, 2 bytes each:
@@ -830,17 +844,70 @@ LOGOPR:         equ     $FB02
 DRVINF:         equ     $FB21
 ; end of MSX2 only usage of RS2IQ
 
+; --------------------------------
+; work area for the PLAY statement
+; --------------------------------
+
+; FB35: status about the parsing of a PLAY string
+;  bit 7: only one time parsed; 1 = yes
+;  bit 1-0: number of parsed strings (0-3)
 PRSCNT:         equ     $FB35
+
+; FB36-FB37: storage of stack
 SAVSP:          equ     $FB36
+
+; FB38: # of voice currently being parsed (0-2)
 VOICEN:         equ     $FB38
+
+; FB39-FB3A: storage of volume of a muted voice
 SAVVOL:         equ     $FB39
+
+; FB3B: size of string being parsed (also used by DRAW)
 MCLLEN:         equ     $FB3B
+
+; FB3C-FB3D: address of string being parsed (also used by DRAW)
 MCLPTR:         equ     $FB3C
+
+; FB3E: temporarely storage of active queue # (0-2)
 QUEUEN:         equ     $FB3E
+
+; FB3F: flag indicating which queues are active
+; bit 2 = queue 2; 1 = active
+; bit 1 = queue 1; 1 = active
+; bit 0 = queue 0; 1 = active
+MUSICF:         equ     $FB3F
+
+; FB40: count of the # of PLAY statements parsed, but not executed yet
 PLYCNT:         equ     $FB40
+
+; FB41-FB65: Voice Control Block for voice A (queue 0)
 VCBA:           equ     $FB41
+; FB66-FB8A: Voice Control Block for voice A (queue 0)
 VCBB:           equ     $FB66
+; FB8B-FBAF: Voice Control Block for voice A (queue 0)
 VCBC:           equ     $FB8B
+
+; each VCB has the following structure:
+
+; name                  offset  length  purpose
+METREX:         equ     0 ;     2       interrupt counter
+VCXLEN:         equ     2 ;     1       MCLLEN for voice
+VCXPTR:         equ     3 ;     2       MCLPTR for voice
+VCXSTP:         equ     5 ;     2       stack pointer
+QLENGX:         equ     7 ;     1       # bytes in queue
+NTICSX:         equ     8 ;     2       new counter ?
+TONPRX:         equ     10;     2       pitch
+AMPLTX:         equ     12;     1       amplitude
+ENVPRX:         equ     13;     2       envelope speed
+OCTAVX:         equ     15;     1       octave
+NOTELX:         equ     16;     1       tone length
+TEMPOX:         equ     17;     1       tempo
+VOLUMX:         equ     18;     1       volume
+ENVLPX:         equ     19;     1       envelope shape
+MCLSTX:         equ     33;             space for stack storage
+MCLSEX:         equ     36;             start of stack
+; the stack mentioned above is used to store bytevalues
+; that are readied to be put on the voice queue
 
 ; -----------------------------------------------
 ; settings for screen editor and interrupt system
