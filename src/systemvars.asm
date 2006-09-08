@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.38 2006/09/07 19:33:28 andete Exp $
+; $Id: systemvars.asm,v 1.39 2006/09/08 06:00:45 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -759,13 +759,33 @@ LOHDIR:         equ     $F94A
 
 ;F94B-F94C: leftmost position of protrusion towards the left
 LOHADR:         equ     $F94B
+
+; F94D: size of protrusion towards the left
 LOHCNT:         equ     $F94D
+
+; F94F-F950: # of pixels that may be skipped
 SKPCNT:         equ     $F94F
+
+; F951-F952: # of movements
 MOVCNT:         equ     $F951
+
+; F953: current direction; $40 = \/, $C0 = /\, $00 = stop
 PDIREC:         equ     $F953
+
+; F954: indicate if paint towards the left worked
 LFPROG:         equ     $F954
+
+; F955: indicate of a paint towards the right worked
 RTPROG:         equ     $F955
+
+; F956-F957: start address of a jumptable for subcommands
+; contained in a string variable, used for both PLAY and DRAW
+; where this systemvar points to either the PLAY or the DRAW
+; table
 MCLTAB:         equ     $F956
+
+; F958: switch indication if MCLTAB is for PLAY or DRAW
+; $0 = DRAW, $FF = PLAY
 MCLFLG:         equ     $F958
 
 ; ------------------------------------------
