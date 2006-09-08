@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.42 2006/09/08 12:04:59 andete Exp $
+; $Id: systemvars.asm,v 1.43 2006/09/08 12:07:20 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -882,9 +882,9 @@ PLYCNT:         equ     $FB40
 
 ; FB41-FB65: Voice Control Block for voice A (queue 0)
 VCBA:           equ     $FB41
-; FB66-FB8A: Voice Control Block for voice A (queue 0)
+; FB66-FB8A: Voice Control Block for voice B (queue 1)
 VCBB:           equ     $FB66
-; FB8B-FBAF: Voice Control Block for voice A (queue 0)
+; FB8B-FBAF: Voice Control Block for voice C (queue 2)
 VCBC:           equ     $FB8B
 
 ; each VCB has the following structure:
@@ -919,23 +919,93 @@ MCLSEX:         equ     36;             start of stack
 ; (ini: 0)
 ENSTOP:         equ     $FBB0
 
+; FBB1: switch indicating if the current BASIC program is in a ROM
+; 0 = no; 1 = yes
 BASROM:         equ     $FBB1
+
+; FBB2-FBC9: table containing for each line if it continues on the
+; next line; 0 = yes, >0 = no
 LINTTB:         equ     $FBB2
+
+; FBCA-FBCB storage of location of cursor for INLIN and QINLIN
+;  FBCA: CSRY , FBCB: CSRX
 FSTPOS:         equ     $FBCA
+
+; ASCII code of the character currently covered by the cursor
+; TODO: is the name CURSAV or CODSAV ?
 CURSAV:         equ     $FBCC
+
+; FBCD: switch indicating which function keys are to be displayed
+; on the screen; 0 = F6-F10, 1 = F1-F5
 FNKSWI:         equ     $FBCD
+
+; FBCE-FBD7: for each function key, a flag indicating if it has
+; interrupt facility enabled; 0 = disabled, 1 = enabled
 FNKFLG:         equ     $FBCE
+
+; FBD8: counter of # of interrupts that still have a pending ON .. GOSUB
 ONGSBF:         equ     $FBD8
+
+; FBD9: flag indicating if a keyclick has already been generated, to avoid
+; keyclicks for a key that generates two ASCII codes
+; $00 = no click, $0F = click
 CLIKFL:         equ     $FBD9
+
+; FBDA-FBE4: storage of keyboard matrix, used for detection key repetition
 OLDKEY:         equ     $FBDA
+
+; FBE5-FBEF: current state of the keyboard matrix
 NEWKEY:         equ     $FBE5
+
+; keyboard buffer; each char entered via the keyboard ends up here
 KEYBUF:         equ     $FBF0
 ; LIMPNT: something about "key buffer pointer"
 LIMPNT:         equ     $FC17           ; L[obt@ÖÌ|C^
+
+; FC18-FC3F: work area for processing the last typed line
 LINWRK:         equ     $FC18           ; 40ªÌobt@
+
+; FC40-FC47: storage for the patter of an ASCII character
+; used when writing an ASCII character in a graphical mode
 PATWRK:         equ     $FC40
+
+; FC48-FC49: lowest address of the RAM memory; initialized at startup
+; and not changed normally
 BOTTOM:         equ     $FC48
+
+; FC4A-FC4B: highest address of the RAM memory that is not reserved by
+; the OS; string area, filebuffers and stack are below this address
+; initialized at startup and not changed normally
 HIMEM:          equ     $FC4A
+
+; FC4C-FC99: table for interrupt facilities of MSX BASIC
+; each 3 bytes are used like this:
+; byte 1 is a flag:
+;  bit 2: interrupt happened; 1 = yes
+;  bit 1: interrupt stop; 1 = yes
+;  bit 0: interrupt off; 1 = no
+; byte 2-3 is the adress of the line in BASIC where should be
+; jumped too
+; the offsets in the table are:
+;  offset  address interrupt
+;       0  FC4C    F1
+;       3  FC4F    F2
+;       6  FC52    F3
+;       9  FC55    F4
+;      12  FC58    F5
+;      15  FC5B    F6
+;      18  FC5E    F7
+;      21  FC61    F8
+;      24  FC64    F9
+;      27  FC67    F10
+;      30  FC6A    STOP
+;      33  FC6D    sprite collision
+;      36  FC70    SPACE (trigger 0)
+;      39  FC73    joystick 1 button 1 (trigger 1)
+;      39  FC76    joystick 2 button 1 (trigger 2)
+;      39  FC79    joystick 1 button 2 (trigger 3)
+;      39  FC7C    joystick 2 button 2 (trigger 4)
+;      39  FC7F    interval
 TRPTBL:         equ     $FC4C
 RTYCNT:         equ     $FC9A
 INTFLG:         equ     $FC9B
