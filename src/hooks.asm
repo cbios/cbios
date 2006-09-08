@@ -1,11 +1,11 @@
-; $Id: hooks.asm,v 1.6 2004/12/29 10:01:46 andete Exp $
+; $Id: hooks.asm,v 1.7 2004/12/29 21:33:52 mthuurne Exp $
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
-; Copyright (c) 2004 Joost Yervante Damad.  All rights reserved.
+; Copyright (c) 2004-2006 Joost Yervante Damad.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -372,7 +372,7 @@ H_SCRE:         equ     $FFC0
 ; called when executing PLAY
 H_PLAY:         equ     $FFC5
 
-; allows for instalation of expansion devices that contain extra OS subroutines
+; allows for installation of expansion devices that contain extra OS subroutines
 H_BEXT:         equ     $FFCA
 
 

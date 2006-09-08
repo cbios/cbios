@@ -1,4 +1,11 @@
-$Id: ChangeLog,v 1.193 2006/05/08 00:43:29 mthuurne Exp $
+$Id: ChangeLog,v 1.194 2006/07/22 11:36:28 bifimsx Exp $
+
+2006-09-07 Joost Yervante Damad <joost@lumatec.be>
+    * add more documentation to systemvars
+
+2006-09-07 Joost Yervante Damad <joost@lumatec.be>
+    * add more documentation to systemvars
+    * add list_stub target to Makefile
 
 2006-07-22 Albert Beevendorp
     * removed the page 0 detection for cartidges to make it
