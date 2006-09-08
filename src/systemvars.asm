@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.40 2006/09/08 08:48:40 andete Exp $
+; $Id: systemvars.asm,v 1.41 2006/09/08 09:49:40 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -913,7 +913,13 @@ MCLSEX:         equ     36;             start of stack
 ; settings for screen editor and interrupt system
 ; -----------------------------------------------
 
+; FBB0: switch indicating if software reset is enabled
+; 0 = n, 1 = yes; can be used to reset BASIC by pressing
+; SHIFT-CODE-GRAPH; does not erase the existing program
+; (ini: 0)
 ENSTOP:         equ     $FBB0
+
+
 BASROM:         equ     $FBB1
 LINTTB:         equ     $FBB2
 FSTPOS:         equ     $FBCA
