@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.37 2006/09/07 19:11:49 andete Exp $
+; $Id: systemvars.asm,v 1.38 2006/09/07 19:33:28 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -656,31 +656,108 @@ FNKSTR:         equ     $F87F
 ; screen routine work area
 ; ------------------------
 
+; F91F-F921: start address of the standard ASCII pattern table
+; at every change towards a text mode it is copied in the pattern table
+; of the VDP
+;   F91F: slot indication (ini: 0)
+;   F920-F921: address (ini: 1BBF)
+; TODO: make CBIOS use this value instead of hardcoded value
 CGPNT:          equ     $F91F
+
+; F922-F923: start address of the nametable in the VRAM
 NAMBAS:         equ     $F922
+
+; F924-F925: start address of the pattern table in the VRAM
 CGPBAS:         equ     $F924
+
+; F926-F927: start address of the sprite pattern table in the VRAM
 PATBAS:         equ     $F926
+
+; F928-F929: start address of the sprite location table in the VRAM
 ATRBAS:         equ     $F928
+
+; F92A-F92B: address in VRAM of the pattern of the current position
+; on screen
 CLOC:           equ     $F92A
+
+; F92C: mask for CLOC selecting the right bits that correspond with
+; the current position
 CMASK:          equ     $F92C
+
+; F92D-F930: work area for graphical calculations
 MINDEL:         equ     $F92D
 MAXDEL:         equ     $F92F
+
+; ----------------------------------------------
+; F931-F941: work area for calculation of CIRCLE
+; ----------------------------------------------
+
+; F931-F932: ratio of # of dots in the horizontal and vertical direction
+; if = $0100 then ASPCT1 and ASPCT2 are used
+; if < $0100 then it is the # of dots in one direction for each
+; $0100 # of dots in the other direction; the direction is indicated
+; by CSCLXY
 ASPECT:         equ     $F931
+
+; F933:F934: ; distance, in # of dots from the center of the most
+; distant point of the circle
 CENCNT:         equ     $F933
+
+; F935: switch indication if the start and/or end point need to be
+; connected to the center
+;  bit 7: connect end point; 1 = yes
+;  bit 0: connect start point; 1 = yes
 CLINEF:         equ     $F935
+
+; F936-F937: used during calculation of CIRCLE
 CNPNTS:         equ     $F936
+
+; F938: direction of drawing of circle:
+;  00 = from CSTCNT towards CENCNT
+;  FF = from CENCNT towards CSTCNT
 CPLOTF:         equ     $F938
+
+; F939-F93A: used during calculation of CIRCLE
 CPCNT:          equ     $F939
+
+; F93B-F93C: ; contains the total # of dots of the full circle,
+; even when only a part is drawn
 CPCNT8:         equ     $F93B
+
+; F93D-F93E: used during calculation of CIRCLE
 CRCSUM:         equ     $F93D
+
+; F93F-F940: ; distance in dots from the center towards the closest
+; circle point
 CSTCNT:         equ     $F93F
+
+; F941: switch indicating if the X or Y direction needs to be streched:
+; 0 = X, 1 = Y
 CSCLXY:         equ     $F941
+
+; F942-F943: store of CLOC, also used for PAINT
 CSAVEA:         equ     $F942
+
+; F944: storage of CMASK; also used for PAINT
 CSAVEM:         equ     $F944
+
+; F945-F946: horizontal distance towards the center
 CXOFF:          equ     $F945
+
+; F947-F948: vertical distance towards the center
 CYOFF:          equ     $F947
+
+; -------------------------------------------
+; work area for executing the PAINT statement
+; -------------------------------------------
+
+; F949: leftmost position of protrusion towards the left
 LOHMSK:         equ     $F949
+
+; F94A: new workdirection for protrusion towards the left
 LOHDIR:         equ     $F94A
+
+;F94B-F94C: leftmost position of protrusion towards the left
 LOHADR:         equ     $F94B
 LOHCNT:         equ     $F94D
 SKPCNT:         equ     $F94F
