@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.164 2006/05/08 00:54:56 mthuurne Exp $
+; $Id: main.asm,v 1.165 2006/07/22 11:34:33 bifimsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -7,7 +7,7 @@
 ; Copyright (c) 2004-2006 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
-; Copyright (c) 2004-2005 Jussi Pitk‰nen.  All rights reserved.
+; Copyright (c) 2004-2005 Jussi Pitk√§nen.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
