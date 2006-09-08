@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.43 2006/09/08 12:07:20 andete Exp $
+; $Id: systemvars.asm,v 1.44 2006/09/08 19:48:13 andete Exp $
 ;
 ; C-BIOS system variable declarations
 ;
@@ -1007,15 +1007,40 @@ HIMEM:          equ     $FC4A
 ;      39  FC7C    joystick 2 button 2 (trigger 4)
 ;      39  FC7F    interval
 TRPTBL:         equ     $FC4C
+
+; FC9A: usage unknown
 RTYCNT:         equ     $FC9A
+
+; FC9B: STOP indication
+; 0 = nothing; 3 = CTRL+STOP, 4 = STOP
 INTFLG:         equ     $FC9B
+
+; FC9C: last read Y-position of a touchpad
 PADY:           equ     $FC9C
+
+; FC9D: last read X-position of a touchpad
 PADX:           equ     $FC9D
+
+; FC9E-FC9F: software clock, updated at each VDP interrupt
 JIFFY:          equ     $FC9E           ; timer counter
+
+; FCA0-FCA1: initial value of INTCNT, used when INTCNT
+; reaches 0; used for ON INTERVAL GOSUB
 INTVAL:         equ     $FCA0
+
+; FCA2-FCA3: interrupt counter; lowered at each VDP interrupt;
+; reset with value of INTVAL when it reaches zero; if interval
+; interrupt is needed, it is generated
 INTCNT:         equ     $FCA2
+
+; FCA4-FCA5: parameter used at tap input, given a value during
+; reading of a headerblock from tape
 LOWLIM:         equ     $FCA4
 WINWID:         equ     $FCA5
+
+; FCA6: flag indicating if the previous character written
+; to the screen was an extension character for graphical signs
+; (ASCII 1); 0 = no, 1 = yes
 GRPHED:         equ     $FCA6
 
 ; FCA7 ESCCNT State of a state machine that handles the printing of escape
@@ -1029,11 +1054,36 @@ GRPHED:         equ     $FCA6
 ; $FF: seen <ESC>
 ESCCNT:         equ     $FCA7
 
+; FCA8: switch indicating insert or overwrite mode
+; $00 = overwrite; $FF = insert
+; the value of INSFLG is changed each time the INS key is pressed
 INSFLG:         equ     $FCA8
+
+; FCA9: show cursor; 0 = no, 1 = yes
+; can be changed with escape sequences x5 and y5
 CSRSW:          equ     $FCA9
+
+; FCAA: shape of cursor; 0 = block; 1 = insert
+; pressing the INS key changes the value of CSTYLE
+; can be changed with escape sequences x4 and y4
 CSTYLE:         equ     $FCAA
+
+; switch indicating if the CAPS-LOCK is on
+; $00 = off, $FF = on (unofficial: $80 = perma-on)
 CAPST:          equ     $FCAB
+
+; FCAC: dead key control in non-japanese MSX models
+; adds a mark on the next char pressed, if applicable
+;  0 = no dead key
+;  1 = dead key                => accent grave
+;  2 = SHIFT + dead key        => accent aigu
+;  3 = CODE + dead key         => accent circumflex
+;  4 = SHIFT + CODE + dead key => trema
+; in japanese models it controls the charset used
 KANAST:         equ     $FCAC
+
+; FCAD: only used in japanese MSX models; it defines
+; the used typeset (ini: $40)
 KANAMD:         equ     $FCAD
 
 ; ----
