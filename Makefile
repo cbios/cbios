@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.20 2006/05/08 00:48:21 mthuurne Exp $
+# $Id: Makefile,v 1.21 2006/09/07 06:04:39 andete Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -13,14 +13,14 @@ PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 CHANGELOG_REVISION:=\
         $(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
 TITLE:="C-BIOS $(VERSION)-dev$(CHANGELOG_REVISION)"
-VERSION_FILE:=derived/src/version.asm
+VERSION_FILE:=derived/asm/version.asm
 
 ROMS:=main_msx1 main_msx2 main_msx2+ sub logo_msx1 logo_msx2 logo_msx2+ \
 	music disk basic
 ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # If needed override location of pasmo.
-PASMO=pasmo
+PASMDIRO=pasmo
 
 # Mark all logical targets as such.
 .PHONY: all dist clean list_stub
@@ -28,14 +28,29 @@ PASMO=pasmo
 all: $(ROMS_FULLPATH)
 
 ifeq ($(Z80_ASSEMBLER),sjasm)
-# Workaround for SjASM producing output file even if assembly failed.
+# Workaround for SjASMDIR producing output file even if assembly failed.
 .DELETE_ON_ERROR: $(ROMS_FULLPATH)
 endif
-ifeq ($(Z80_ASSEMBLER),z80-as)
-# z80-as uses preprocessed sourcefiles
-ASM=derived/asm
+ifeq ($(Z80_ASSEMBLER),tniasm)
+# Tniasm has a problem with relative paths in include and incbin so we 
+# copy everything to derived asm to avoid having a generated file in src.
+ASMDIR=derived/asm
+INCBINDIR=derived/asm
+SEDSCR = -e 's:\.\./derived/asm/::' 
 else
-ASM=src
+# We leave files for incbin in src for the other assemblers
+INCBINDIR=src
+ifeq ($(Z80_ASSEMBLER),z80-as)
+# Z80-as can only place code into relocatable sections, we preprocess the sections and use
+# z80-ld to produce the final .rom files
+ASMDIR=derived/asm
+SEDSCR = -e 's/ds[ \t]\+\(\$$[0-9a-fA-F]\+[ \t]*-[ \t]*\$$\)/ds\tABS0+\1/' \
+	-e 's/[ \t]\+org[ \t]\+\(\$$[0-9a-fA-F]\+\|[0-9]\+\)/\
+	;\0\nABS0: equ \$$-\1\n;;;-Ttext \1 --entry \1/'  \
+	-e 's:\.\./derived/asm/::' \
+else
+ASMDIR=src
+endif
 endif
 
 $(VERSION_FILE): ChangeLog
@@ -44,28 +59,29 @@ $(VERSION_FILE): ChangeLog
 	@echo "  db \"$(TITLE)\"" > $@
 
 $(ROMS_FULLPATH): derived/bin/cbios_%.rom: vdep/%.asm
-	@echo "Assembling: $(<:vdep/%=$(ASM)/%)"
+	@echo "Assembling: $(<:vdep/%=$(ASMDIR)/%)"
 	@mkdir -p $(@D)
 	@mkdir -p derived/lst
 ifeq ($(Z80_ASSEMBLER),sjasm)
-	@sjasm -iderived/src -l $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+	@sjasm -iderived/asm -l $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 ifeq ($(Z80_ASSEMBLER),pasmo)
-	@$(PASMO) -I src -I derived/src $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
+	@$(PASMDIRO) -I src -I derived/asm $(<:vdep/%=src/%) \
+		$@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 # TODO: The "mv" can cause problems in parallel builds, it would be better if
-#       tniASM could write distinct output files (can it?).
+#       tniASMDIR could write distinct output files (can it?).
 ifeq ($(Z80_ASSEMBLER),tniasm)
-	@cd src && tniasm $(<:vdep/%=%) ../$@
-	@mv src/tniasm.sym $(@:derived/bin/%.rom=derived/lst/%.sym)
+	@cd derived/asm && tniasm $(<:vdep/%=%) ../../$@
+	@mv derived/asm/tniasm.sym $(@:derived/bin/%.rom=derived/lst/%.sym)
 endif
 ifeq ($(Z80_ASSEMBLER),z80-as)
 	@mkdir -p derived/obj
-	@z80-as -I derived/asm -I src $(<:vdep/%=$(ASM)/%) -Wall \
+	@z80-as -I derived/asm -I src $(<:vdep/%=$(ASMDIR)/%) -Wall \
 		-o $(@:derived/bin/%.rom=derived/obj/%.o) \
 		-as=$(@:derived/bin/%.rom=derived/lst/%.lst)
 	@z80-ld -n --oformat binary $(@:derived/bin/%.rom=derived/obj/%.o) `\
-		grep "^;;;-Ttext" $(<:vdep/%=$(ASM)/%) | \
+		grep "^;;;-Ttext" $(<:vdep/%=$(ASMDIR)/%) | \
 		sed -e "s/;//g" -e 's/\\$$/0x/g'` -o $@
 endif
 
@@ -75,12 +91,12 @@ ifeq ($(filter clean,$(MAKECMDGOALS)),)
 -include $(ROMS:%=derived/dep/%.dep)
 
 GENERATED_FILES:=$(VERSION_FILE)
-GENERATED_DEPS:=$(GENERATED_FILES:derived/src/%.asm=derived/dep/%.dep)
+GENERATED_DEPS:=$(GENERATED_FILES:derived/asm/%.asm=derived/dep/%.dep)
 
 # Note: The dependency generation code is here twice.
 #       That's not great, but the alternatives are worse.
 
-$(GENERATED_DEPS): derived/dep/%.dep: derived/src/%.asm
+$(GENERATED_DEPS): derived/dep/%.dep: derived/asm/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)
 	@echo "INCLUDES:=" > $@
@@ -89,9 +105,9 @@ $(GENERATED_DEPS): derived/dep/%.dep: derived/src/%.asm
 	@echo "INCBINS:=" >> $@
 	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(.*\)".*$$/INCBINS+=\1/p' \
 		< $< >> $@
-	@echo ".SECONDARY: $(<:derived/src/%=vdep/%)" >> $@
-	@echo "$(<:derived/src/%=vdep/%): $<" >> $@
-	@echo "$(<:derived/src/%=vdep/%): \$$(INCLUDES:%=vdep/%) \$$(INCBINS:%=src/%)" >> $@
+	@echo ".SECONDARY: $(<:derived/asm/%=vdep/%)" >> $@
+	@echo "$(<:derived/asm/%=vdep/%): $<" >> $@
+	@echo "$(<:derived/asm/%=vdep/%): \$$(INCLUDES:%=vdep/%) \$$(INCBINS:%=src/%)" >> $@
 	@echo "ifneq (\$$(INCLUDES),)" >> $@
 	@echo "-include \$$(INCLUDES:%.asm=derived/dep/%.dep)" >> $@
 	@echo "endif" >> $@
@@ -100,14 +116,14 @@ derived/dep/%.dep: src/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)
 	@echo "INCLUDES:=" > $@
-	@sed -n '/include/s/^[\t ]*include[\t ]*"\(.*\)".*$$/INCLUDES+=\1/p' \
+	@sed -n '/include/s/^[\t ]*include[\t ]*"\(\.\.\/derived\/asm\/\)\?\(.*\)".*$$/INCLUDES+=\2/p' \
 		< $< >> $@
 	@echo "INCBINS:=" >> $@
-	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(.*\)".*$$/INCBINS+=\1/p' \
+	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(\.\.\/derived\/asm\/\)\?\(.*\)".*$$/INCBINS+=\2/p' \
 		< $< >> $@
 	@echo ".SECONDARY: $(<:src/%=vdep/%)" >> $@
-	@echo "$(<:src/%=vdep/%): $(<:src/%=$(ASM)/%)" >> $@
-	@echo "$(<:src/%=vdep/%): \$$(INCLUDES:%=vdep/%) \$$(INCBINS:%=src/%)" >> $@
+	@echo "$(<:src/%=vdep/%): $(<:src/%=$(ASMDIR)/%)" >> $@
+	@echo "$(<:src/%=vdep/%): \$$(INCLUDES:%=vdep/%) \$$(INCBINS:%=$(INCBINDIR)/%)" >> $@
 	@echo "ifneq (\$$(INCLUDES),)" >> $@
 	@echo "-include \$$(INCLUDES:%.asm=derived/dep/%.dep)" >> $@
 	@echo "endif" >> $@
@@ -116,14 +132,19 @@ else
 .PHONY: $(ROMS:%=vdep/%.asm)
 endif
 
-ifeq ($(Z80_ASSEMBLER),z80-as)
-derived/asm/%.asm: src/%.asm
+ifneq ($(ASMDIR),src)
+$(ASMDIR)/%.asm: src/%.asm
 	@echo "Preprocessing: $<"
 	@mkdir -p $(@D)
-	@sed -e 's/ds[ \t]\+\(\$$[0-9a-fA-F]\+[ \t]*-[ \t]*\$$\)/ds\tABS0+\1/' \
-		-e 's/[ \t]\+org[ \t]\+\(\$$[0-9a-fA-F]\+\|[0-9]\+\)/\
-		;\0\nABS0: equ \$$-\1\n;;;-Ttext \1 --entry \1/' \
+	@sed $(SEDSCR) \
 		< $< > $@
+endif
+
+ifneq ($(INCBINDIR),src)
+$(INCBINDIR)/test.bas: src/test.bas
+	@echo "Copying: $<"
+	@mkdir -p $(@D)
+	@cp $< $@
 endif
 
 clean:

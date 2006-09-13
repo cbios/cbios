@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.165 2006/07/22 11:34:33 bifimsx Exp $
+; $Id: main.asm,v 1.166 2006/09/08 12:05:51 andete Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -867,7 +867,7 @@ hang:
 logo_ident:
                 db      "C-BIOS Logo ROM"
 logo_default:
-                include "../derived/src/version.asm"
+                include "../derived/asm/version.asm"
 logo_default_length:    equ     $ - logo_default
 
 ;----------------------
@@ -3130,7 +3130,7 @@ lp_strprn:
 str_proginfo:
                 ;       [01234567890123456789012345678]
 ;                db      "C-BIOS 0.21      cbios.sf.net"
-                include "../derived/src/version.asm"
+                include "../derived/asm/version.asm"
                 db      $0D,$0A,$0D,$0A,$0D,$0A,$00
 
 str_slot:

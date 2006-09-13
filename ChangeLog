@@ -1,4 +1,9 @@
-$Id: ChangeLog,v 1.196 2006/09/08 12:07:20 andete Exp $
+$Id: ChangeLog,v 1.197 2006/09/08 19:48:12 andete Exp $
+
+2006-09-09  Arnold Metselaar  <arnold.metselaar@planet.nl>
+   * src/main.asm, Makefile: Move version.asm from derived/src to derived/asm. 
+   * Makefile: Copy all source files to derived/asm if tniasm is used,  because
+     tniasm cannot handle paths in include and incbin. 
 
 2006-09-08 Joost Yervante Damad <joost@lumatec.be>
     * add more documentation to systemvars
