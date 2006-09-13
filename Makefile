@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.21 2006/09/07 06:04:39 andete Exp $
+# $Id: Makefile,v 1.22 2006/09/13 21:22:15 arnoldmnl Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -20,7 +20,7 @@ ROMS:=main_msx1 main_msx2 main_msx2+ sub logo_msx1 logo_msx2 logo_msx2+ \
 ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # If needed override location of pasmo.
-PASMDIRO=pasmo
+PASMO=pasmo
 
 # Mark all logical targets as such.
 .PHONY: all dist clean list_stub
@@ -28,12 +28,12 @@ PASMDIRO=pasmo
 all: $(ROMS_FULLPATH)
 
 ifeq ($(Z80_ASSEMBLER),sjasm)
-# Workaround for SjASMDIR producing output file even if assembly failed.
+# Workaround for SjASM producing output file even if assembly failed.
 .DELETE_ON_ERROR: $(ROMS_FULLPATH)
 endif
 ifeq ($(Z80_ASSEMBLER),tniasm)
 # Tniasm has a problem with relative paths in include and incbin so we 
-# copy everything to derived asm to avoid having a generated file in src.
+# copy everything to derived/asm to avoid having a generated file in src.
 ASMDIR=derived/asm
 INCBINDIR=derived/asm
 SEDSCR = -e 's:\.\./derived/asm/::' 
@@ -66,11 +66,11 @@ ifeq ($(Z80_ASSEMBLER),sjasm)
 	@sjasm -iderived/asm -l $(<:vdep/%=src/%) $@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 ifeq ($(Z80_ASSEMBLER),pasmo)
-	@$(PASMDIRO) -I src -I derived/asm $(<:vdep/%=src/%) \
+	@$(PASMO) -I src -I derived/asm $(<:vdep/%=src/%) \
 		$@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 # TODO: The "mv" can cause problems in parallel builds, it would be better if
-#       tniASMDIR could write distinct output files (can it?).
+#       tniASM could write distinct output files (can it?).
 ifeq ($(Z80_ASSEMBLER),tniasm)
 	@cd derived/asm && tniasm $(<:vdep/%=%) ../../$@
 	@mv derived/asm/tniasm.sym $(@:derived/bin/%.rom=derived/lst/%.sym)
