@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.22 2006/09/13 21:22:15 arnoldmnl Exp $
+# $Id: Makefile,v 1.23 2006/09/13 21:37:03 arnoldmnl Exp $
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
@@ -31,15 +31,7 @@ ifeq ($(Z80_ASSEMBLER),sjasm)
 # Workaround for SjASM producing output file even if assembly failed.
 .DELETE_ON_ERROR: $(ROMS_FULLPATH)
 endif
-ifeq ($(Z80_ASSEMBLER),tniasm)
-# Tniasm has a problem with relative paths in include and incbin so we 
-# copy everything to derived/asm to avoid having a generated file in src.
-ASMDIR=derived/asm
-INCBINDIR=derived/asm
-SEDSCR = -e 's:\.\./derived/asm/::' 
-else
-# We leave files for incbin in src for the other assemblers
-INCBINDIR=src
+
 ifeq ($(Z80_ASSEMBLER),z80-as)
 # Z80-as can only place code into relocatable sections, we preprocess the sections and use
 # z80-ld to produce the final .rom files
@@ -47,10 +39,9 @@ ASMDIR=derived/asm
 SEDSCR = -e 's/ds[ \t]\+\(\$$[0-9a-fA-F]\+[ \t]*-[ \t]*\$$\)/ds\tABS0+\1/' \
 	-e 's/[ \t]\+org[ \t]\+\(\$$[0-9a-fA-F]\+\|[0-9]\+\)/\
 	;\0\nABS0: equ \$$-\1\n;;;-Ttext \1 --entry \1/'  \
-	-e 's:\.\./derived/asm/::' \
+	-e 's:\.\./derived/asm/::'
 else
 ASMDIR=src
-endif
 endif
 
 $(VERSION_FILE): ChangeLog
@@ -72,8 +63,8 @@ endif
 # TODO: The "mv" can cause problems in parallel builds, it would be better if
 #       tniASM could write distinct output files (can it?).
 ifeq ($(Z80_ASSEMBLER),tniasm)
-	@cd derived/asm && tniasm $(<:vdep/%=%) ../../$@
-	@mv derived/asm/tniasm.sym $(@:derived/bin/%.rom=derived/lst/%.sym)
+	@cd src && tniasm $(<:vdep/%=%) ../$@
+	@mv src/tniasm.sym $(@:derived/bin/%.rom=derived/lst/%.sym)
 endif
 ifeq ($(Z80_ASSEMBLER),z80-as)
 	@mkdir -p derived/obj
@@ -123,7 +114,7 @@ derived/dep/%.dep: src/%.asm
 		< $< >> $@
 	@echo ".SECONDARY: $(<:src/%=vdep/%)" >> $@
 	@echo "$(<:src/%=vdep/%): $(<:src/%=$(ASMDIR)/%)" >> $@
-	@echo "$(<:src/%=vdep/%): \$$(INCLUDES:%=vdep/%) \$$(INCBINS:%=$(INCBINDIR)/%)" >> $@
+	@echo "$(<:src/%=vdep/%): \$$(INCLUDES:%=vdep/%) \$$(INCBINS:%=src/%)" >> $@
 	@echo "ifneq (\$$(INCLUDES),)" >> $@
 	@echo "-include \$$(INCLUDES:%.asm=derived/dep/%.dep)" >> $@
 	@echo "endif" >> $@
@@ -138,13 +129,6 @@ $(ASMDIR)/%.asm: src/%.asm
 	@mkdir -p $(@D)
 	@sed $(SEDSCR) \
 		< $< > $@
-endif
-
-ifneq ($(INCBINDIR),src)
-$(INCBINDIR)/test.bas: src/test.bas
-	@echo "Copying: $<"
-	@mkdir -p $(@D)
-	@cp $< $@
 endif
 
 clean:

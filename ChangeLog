@@ -1,5 +1,9 @@
-$Id: ChangeLog,v 1.197 2006/09/08 19:48:12 andete Exp $
+$Id: ChangeLog,v 1.198 2006/09/13 21:22:16 arnoldmnl Exp $
 
+2006-09-30  Arnold Metselaar  <arnold.metselaar@planet.nl>
+   * Makefile: Remove the unnecessary workaround for tniasm, fix
+     SEDSCR for z80-as.
+	
 2006-09-09  Arnold Metselaar  <arnold.metselaar@planet.nl>
    * src/main.asm, Makefile: Move version.asm from derived/src to derived/asm. 
    * Makefile: Copy all source files to derived/asm if tniasm is used,  because
