@@ -1,9 +1,10 @@
-cbios (0.21.cvs20060906-1) UNRELEASED; urgency=low
+cbios (0.21-2) unstable; urgency=low
 
-  * update copyright file
-  * convert files to UTF8
+  * bump compat to level 5
+  * update maintainer email address
+  * bump standards-version to 3.7.2
 
- -- Joost Yervante Damad <joost@lumatec.be>  Wed,  6 Sep 2006 20:11:43 +0200
+ -- Joost Yervante Damad <andete@debian.org>  Wed, 18 Oct 2006 19:40:10 +0200
 
 cbios (0.21-1) unstable; urgency=low
 

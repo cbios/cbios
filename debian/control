@@ -1,9 +1,9 @@
 Source: cbios
 Section: misc
 Priority: extra
-Maintainer: Joost Yervante Damad <joost@lumatec.be>
-Build-Depends: debhelper (>= 4.0.0), pasmo, docbook-to-man
-Recommends: openmsx
+Maintainer: Joost Yervante Damad <andete@debian.org>
+Build-Depends: debhelper (>= 5.0.0), pasmo, docbook-to-man
+Recommends: openmsx | msx-emulator
 Standards-Version: 3.7.2
 
 Package: cbios

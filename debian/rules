@@ -27,7 +27,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	$(MAKE)
-	docbook-to-man debian/cbios.sgml > cbios.7
+	docbook-to-man debian/cbios.sgml > debian/cbios.7
 
 	touch build-stamp
 
@@ -37,7 +37,7 @@ clean:
 	rm -f build-stamp configure-stamp
 	-$(MAKE) clean
 	dh_clean
-	-rm -f cbios.7
+	-rm -f debian/cbios.7
 
 install: build
 	dh_testdir
@@ -45,19 +45,19 @@ install: build
 	dh_clean -k 
 	dh_installdirs
 	# copy rom files
-	cp -f derived/bin/*.rom $(CURDIR)/debian/tmp/usr/share/cbios
+	cp -f derived/bin/*.rom $(CURDIR)/debian/cbios/usr/share/cbios
 	# copy config files for other emulators # currently not done!
-	# cp -rf configs/NLMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
-	# cp -rf configs/RuMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
-	# cp -rf configs/blueMSX $(CURDIR)/debian/tmp/usr/share/cbios/configs
+	# cp -rf configs/NLMSX $(CURDIR)/debian/cbios/usr/share/cbios/configs
+	# cp -rf configs/RuMSX $(CURDIR)/debian/cbios/usr/share/cbios/configs
+	# cp -rf configs/blueMSX $(CURDIR)/debian/cbios/usr/share/cbios/configs
 	# prepare for openMSX specially
-	cp -rf configs/openMSX/* $(CURDIR)/debian/tmp/usr/share/openmsx/machines
-	ln -s ../../../../cbios/cbios_main_msx1.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX1/roms/cbios_main_msx1.rom
-	ln -s ../../../../cbios/cbios_main_msx2.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2/roms/cbios_main_msx2.rom
-	ln -s ../../../../cbios/cbios_sub.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2/roms/cbios_sub.rom
-	ln -s ../../../../cbios/cbios_main_msx2+.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_main_msx2+.rom
-	ln -s ../../../../cbios/cbios_sub.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_sub.rom
-	ln -s ../../../../cbios/cbios_music.rom $(CURDIR)/debian/tmp/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_music.rom
+	cp -rf configs/openMSX/* $(CURDIR)/debian/cbios/usr/share/openmsx/machines
+	ln -s ../../../../cbios/cbios_main_msx1.rom $(CURDIR)/debian/cbios/usr/share/openmsx/machines/C-BIOS_MSX1/roms/cbios_main_msx1.rom
+	ln -s ../../../../cbios/cbios_main_msx2.rom $(CURDIR)/debian/cbios/usr/share/openmsx/machines/C-BIOS_MSX2/roms/cbios_main_msx2.rom
+	ln -s ../../../../cbios/cbios_sub.rom $(CURDIR)/debian/cbios/usr/share/openmsx/machines/C-BIOS_MSX2/roms/cbios_sub.rom
+	ln -s ../../../../cbios/cbios_main_msx2+.rom $(CURDIR)/debian/cbios/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_main_msx2+.rom
+	ln -s ../../../../cbios/cbios_sub.rom $(CURDIR)/debian/cbios/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_sub.rom
+	ln -s ../../../../cbios/cbios_music.rom $(CURDIR)/debian/cbios/usr/share/openmsx/machines/C-BIOS_MSX2+/roms/cbios_music.rom
 
 
 # Build architecture-independent files here.
@@ -71,7 +71,7 @@ binary-arch: build install
 	dh_installchangelogs ChangeLog
 	dh_installdocs
 	dh_installexamples
-	dh_installman cbios.7
+	dh_installman debian/cbios.7
 	dh_link
 	dh_strip
 	dh_compress
