@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.4 2005/06/16 20:19:53 bifimsx Exp $ -->
+<!-- $Id: hardwareconfig.xml,v 1.5 2006/05/26 14:30:41 mthuurne Exp $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -50,6 +50,18 @@
           </rom>
         </ROM>
       </secondary>
+
+      <secondary slot="1">
+        <WD2793 id="Memory Mapped FDC">
+          <broken_fdc_read>false</broken_fdc_read>
+          <drives>1</drives>
+          <rom>
+            <!--sha1:cbios_disk.rom-->
+	        <filename>roms/cdisk.rom</filename>
+          </rom>
+          <mem base="0x4000" size="0x8000"/>
+        </WD2793>
+      </secondary> 
 
       <secondary slot="2">
         <MemoryMapper id="Main RAM">
