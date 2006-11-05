@@ -2,12 +2,13 @@ Source: cbios
 Section: misc
 Priority: extra
 Maintainer: Joost Yervante Damad <andete@debian.org>
-Build-Depends: debhelper (>= 5.0.0), pasmo, docbook-to-man
-Recommends: openmsx | msx-emulator
+Build-Depends: debhelper (>= 5.0.0)
+Build-Depends-Indep: pasmo, stx2any
 Standards-Version: 3.7.2
 
 Package: cbios
 Architecture: all
+Recommends: openmsx | msx-emulator
 Description: open source MSX BIOS roms
  C-BIOS is an open source BIOS for MSX computers.
  C-BIOS can be shipped with MSX emulators so they are usable out-of-the-box.

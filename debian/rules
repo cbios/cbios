@@ -27,7 +27,7 @@ build-stamp: configure-stamp
 	dh_testdir
 
 	$(MAKE)
-	docbook-to-man debian/cbios.sgml > debian/cbios.7
+	stx2any -T man debian/cbios.txt > debian/cbios.7
 
 	touch build-stamp
 

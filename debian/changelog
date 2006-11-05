@@ -1,8 +1,17 @@
+cbios (0.21-3) unstable; urgency=low
+
+  * switch from docbook-to-man to stx2any
+  * switch to Build-Depends-Indep; avoids lintian override
+  * move Recommends to correct place in control file
+
+ -- Joost Yervante Damad <andete@debian.org>  Tue, 24 Oct 2006 20:20:32 +0200
+
 cbios (0.21-2) unstable; urgency=low
 
   * bump compat to level 5
   * update maintainer email address
   * bump standards-version to 3.7.2
+  * update copyright file
 
  -- Joost Yervante Damad <andete@debian.org>  Wed, 18 Oct 2006 19:40:10 +0200
 

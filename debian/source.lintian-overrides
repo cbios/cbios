@@ -1,3 +1,0 @@
-# compiles into an architecture independant binary file
-cbios source: build-depends-without-arch-dep
-
