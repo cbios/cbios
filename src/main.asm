@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.166 2006/09/08 12:05:51 andete Exp $
+; $Id: main.asm,v 1.167 2006/09/13 21:22:16 arnoldmnl Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -859,10 +859,7 @@ logo_done:
                 ld      hl,str_nocart
                 call    prn_text
 
-                ei
-hang:
-                halt
-                jr      hang
+                jp      hang_up_mode
 
 logo_ident:
                 db      "C-BIOS Logo ROM"
@@ -1531,14 +1528,12 @@ chrgtr_no_digit:
 ; $0018 OUTDO
 ; Function : Output to current outputchannel (printer, diskfile, etc.)
 ; Input    : A  - PRTFIL, PRTFLG
-; Remark   : Used in basic, in ML it's pretty difficult
-; TODO     : call H_OUTD
+; Remark   : Used in basic, in ML it's pretty difficult.
 outdo:
                 push    af
                 call    H_OUTD
                 pop     af
                 ret
-;                jp      chput
 
 ;--------------------------------
 ; $001A ISFLIO
@@ -1824,55 +1819,7 @@ cnvchr_normal_exit:
                 pop     hl
                 ret
 
-;--------------------------------
-; $00AE PINLIN
-; Function : Stores in the specified buffer the character codes input until the return
-;           key or STOP key is pressed
-; Output   : HL - for the starting address of the buffer -1
-;            C-flag set when it ends with the STOP key
-; Registers: All
-; NOTE: this implementation is still a stub!
-; TODO: call H_PINL
-pinlin:
-;               call    H_PINL
-                push    hl
-                push    af
-                ld      hl,pinlin_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-pinlin_text:    db      "PINLIN",0
-
-;--------------------------------
-; $00B4 QINLIN
-; Function : Prints a questionmark and one space and then calls INLIN
-; Output   : HL - for the starting address of the buffer -1
-;            C-flag set when it ends with the STOP key
-; Registers: All
-qinlin:
-                call    H_QINL
-                ld      hl,qinlin_prompt
-                call    prn_text
-                jp      inlin
-qinlin_prompt:  db      "? ",0
-
-;--------------------------------
-; $00B1 INLIN
-; Function : Same as PINLIN except that AUGFLG (#F6AA) is set
-; Output   : HL - for the starting address of the buffer -1
-;            C-flag set when it ends with the STOP key
-; Registers: All
-
-inlin:
-                push    hl
-                push    af
-                ld      hl,inlin_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-inlin_text:    db      "INLIN",0
+                include "inlin.asm"
 
 ;--------------------------------
 ; $00B7 BREAKX
@@ -3114,9 +3061,8 @@ lp_strprn:
                 ld      a,(de)
                 and     a
                 jr      nz,lp_strprn
-
+                
                 jp      hang_up_mode
-
 
                 ds      $1bbf - $
                 include "font.asm"
