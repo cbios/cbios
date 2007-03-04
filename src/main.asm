@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.167 2006/09/13 21:22:16 arnoldmnl Exp $
+; $Id: main.asm,v 1.168 2007/02/03 10:59:12 auroramsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -8,6 +8,7 @@
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
+; Copyright (c) 2006-2007 Eric Boon.  All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -1531,7 +1532,7 @@ chrgtr_no_digit:
 ; Remark   : Used in basic, in ML it's pretty difficult.
 outdo:
                 push    af
-                call    H_OUTD
+                call    H_OUTD      ; H_OUTD does the real outputting
                 pop     af
                 ret
 
@@ -2625,14 +2626,19 @@ keyint:
                 call    H_KEYI
                 in      a,(VDP_STAT)
                 or      a
-                ;jp      p,int_end       ; ???
                 ld      (STATFL),a      ; save status
-                jp      p,int_end       ; a certain game needs the jump
+                jp      p,int_end       ; exit if this is not the VDP int
                 call    H_TIMI
+
+                ; TODO: (BASIC related stuff)
+                ;       Check sprite collision
+                ;       Update INTCNT
 
                 ld      hl,(JIFFY)
                 inc     hl
                 ld      (JIFFY),hl
+
+                ; TODO: MUSICF
 
                 ; TODO: It seems unsafe to me to already allow interrupts
                 ;       while this one is still busy: possible interference
@@ -2642,14 +2648,10 @@ keyint:
 
                 ; Riseout needs that count of RegR in the routine is not
                 ; even number
-              ; nop
+                ; nop
 
                 xor     a
                 ld      (CLIKFL),a
-                call    gttrig
-                cpl
-                and     $01
-                ld      (TRGFLG),a
 
                 ; Scan the keyboard every three interrupts.
                 ld      a,(SCNCNT)
@@ -2658,6 +2660,13 @@ keyint:
                 jr      nz,int_end
                 ld      a,3
                 ld      (SCNCNT),a
+
+                ; TODO read joystick triggers and space for TRGFLG
+                call    gttrig
+                cpl
+                and     $01
+                ld      (TRGFLG),a
+
                 call    key_in
                 ; Check whether KEYBUF is empty and if so, decrement REPCNT to
                 ; see if auto-repeating should be started.  The user program

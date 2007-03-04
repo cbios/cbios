@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.75 2006/09/06 17:32:30 bifimsx Exp $
+; $Id: video.asm,v 1.76 2006/09/08 12:04:59 andete Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1885,7 +1885,15 @@ cls_screen1:
 cls_text:
                 ld      hl,(NAMBAS)
                 ld      a,$20
-                jp      filvrm
+                call    filvrm
+
+                ld      hl,LINTTB
+                ld      a,1
+                ld      (hl),a
+                ld      de,LINTTB+1
+                ld      bc,23
+                ldir
+                ret
 
 cls_screen2:
                 xor     a

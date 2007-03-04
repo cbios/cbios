@@ -1,4 +1,4 @@
-; $Id: $
+; $Id: inlin.asm,v 1.1 2007/02/03 10:59:12 auroramsx Exp $
 ; INLIN/PINLIN/QINLIN routines for C-BIOS
 ;
 ; Copyright (c) 2007 Eric Boon.  All rights reserved.
@@ -33,44 +33,59 @@
 ; TODO: call H_PINL
 pinlin:
                 call    H_PINL
-		jp	inlin
+                ld      a,(AUTFLG)              ; If AUTO is active
+                and     a
+                jp      z,inlin                 ; then start line input
+                ld      a,1                     ; else set cursor
+                ld      (CSRX),a                ;    to left border first
+                jp      inlin                   ;    and then start line input
 
 ;--------------------------------
 ; $00B4 QINLIN
-; Function : Prints a questionmark and one space and then calls INLIN
+; Function : Prints a questionmark and one space and continues with INLIN
 ; Output   : HL - for the starting address of the buffer -1
 ;            C-flag set when it ends with the STOP key
 ; Registers: All
 qinlin_prompt:
-		db	"? ",0
+                db      "? ",0
 qinlin:
                 call    H_QINL
                 ld      hl,qinlin_prompt
                 call    prn_text
-		; continue with inlin
+                ; continue with inlin
+
 ;--------------------------------
 ; $00B1 INLIN
-; Function : Same as PINLIN except that AUGFLG (#F6AA) is set
+; Function : Main line input routine
 ; Output   : HL - for the starting address of the buffer -1
 ;            C-flag set when it ends with the STOP key
 ; Registers: All
 
 inlin:
+                ld      hl,(CSRX)               ; loads CSRX and CSRY
+                ld      (FSTPOS),hl             ; save in FSTPOS
+
+                ld      de,LINTTB-2             ; break logical line
+                ld      h,0                     ; above cursor pos
+                ld      a,l
+                add     hl,de
+                ld      (hl),a
+inlin_loop:
                 call    chget                   ; get a character from the kbd
 
-                ld      b,11                    ; check control characters
-                ld      hl,inlin_table
-                call    search_table
-
-                cp      $20                     ; Control character?
+                cp      $7F
+                jp      z,inlin_del
+                cp      $20
                 jr      nc,inlin_printable
 
-inlin_nonprintable:                             ; then...
-                rst     $18                     ; OUTDO
+                ld      b,20
+                ld      hl,inlin_table
+                call    jump_table
+                
                 xor     a                       ; we just put out a ctrl char
                 ld      (INSFLG),a              ; switch insert mode off
                 ld      (CSTYLE),a
-                jr      inlin
+                jr      inlin_loop
 
 inlin_printable:                                ; else...
                 push    af
@@ -80,64 +95,134 @@ inlin_printable:                                ; else...
                 pop     af
                 rst     $18
                 jr      inlin
-
+; ----------------------------------------------
 inlin_insert:
-                ret
+                call    chput_remove_cursor
+                ld      hl,(CSRY)               ; save cursorpos
+                ld      (TEMP2),hl
 
+                ld      a,' '                   ; oldchar = space
+                ld      (TEMP),a
+
+inlin_insert_loop:                              ; REPEAT
+                call    curs2hl                 ;   get char under curpos
+                call    rdvrm
+
+                cp      ' '                     ;   IF is space
+                jr      nz,inlin_insert_cont
+
+                ld      hl,(CSRY)               ;   AND at end of line
+                ld      a,(LINLEN)
+                cp      h
+                jr      nz,inlin_insert_cont1
+
+                ld      h,0                     ;   AND logical line does
+                ld      de,LINTTB-1             ;     not continue
+                add     hl,de
+                ld      a,(hl)
+                or      a
+                jr      z,inlin_insert_cont1
+
+                ld      a,(TEMP)                ;   THEN
+                call    curs2hl
+                call    wrtvrm                  ;     put old char
+                ld      hl,(TEMP2)              ;     restore cursor pos
+                ld      (CSRY),hl
+                ret
+                jp      chput_restore_cursor    ;     and exit
+
+inlin_insert_cont1:
+                ld      a,' '
+inlin_insert_cont:
+                push    af                      ;   ELSE
+                ld      a,(TEMP)                ;     put old char
+                rst     $18
+                pop     af
+                ld      (TEMP),a                ;   oldchar = character read
+                jr      inlin_insert_loop       ; ENDREP
+
+; ----------------------------------------------
 inlin_wback:
                 ret
 
+; ----------------------------------------------
 inlin_break:
-                ret
+                scf                             ; C
+                pop     hl                      ; do not return to INLIN
+                ret                             ; but to caller of INLIN
 
+; ----------------------------------------------
 inlin_clear:
                 ret
 
+; ----------------------------------------------
 inlin_wfwd:
                 ret
 
+; ----------------------------------------------
 inlin_bs:
                 ret
 
+; ----------------------------------------------
 inlin_cr:
                 ret
 
+; ----------------------------------------------
 inlin_end:
-                ret
+                xor     a                       ; NZ, NC
+                pop     hl                      ; do not return to INLIN
+                ret                             ; but to caller of INLIN
 
+; ----------------------------------------------
 inlin_ins:
                 ret
 
+; ----------------------------------------------
 inlin_clrlin:
                 ret
 
+; -- ESCAPE
 inlin_esc:
-                ret
+                ret                             ; Do nothing
 
+; -- DELETE
 inlin_del:
                 ret
 
+; -- Jump table. Control chars not handled in one of the routines above
+;    are simply forwarded to OUTDO
 inlin_table:
-                db      $02
-                dw      inlin_wback             ; CTRL-B: word back
-                db      $03
-                dw      inlin_break             ; CTRL-C: stop, abort, quit
-                db      $05
-                dw      inlin_clear             ; CTRL-E: clear to end of line
-                db      $06
-                dw      inlin_wfwd              ; CTRL-F: word fwd
-                db      $08
-                dw      inlin_bs                ; BACKSP: erase char left
-                db      $0D
-                dw      inlin_cr                ; ENTER : confirm, yes, ok
-                db      $0E
-                dw      inlin_end               ; CTRL-N: to end of line
-                db      $12
-                dw      inlin_ins               ; INSERT: toggle insert mode
-                db      $15
-                dw      inlin_clrlin            ; CTRL-U: clear line
-                db      $1B
+                dw      $0018                   ; @
+                dw      $0018                   ; A - 
+                dw      inlin_wback             ; B word back
+                dw      inlin_break             ; C stop, abort, quit
+                dw      $0018                   ; D
+                dw      inlin_clear             ; E: clear to end of line
+                dw      inlin_wfwd              ; F: word fwd
+                dw      $0018                   ; G
+                dw      inlin_bs                ; H BACKSP: erase char left
+                dw      $0018                   ; I
+                dw      $0018                   ; J
+                dw      $0018                   ; K
+                dw      $0018                   ; L
+                dw      inlin_cr                ; M ENTER : confirm, yes, ok
+                dw      inlin_end               ; N to end of line
+                dw      $0018                   ; O
+                dw      $0018                   ; P
+                dw      $0018                   ; Q
+                dw      inlin_ins               ; R INSERT: toggle insert mode
+                dw      $0018                   ; S
+                dw      $0018                   ; T
+                dw      inlin_clrlin            ; U clear line
+                dw      $0018                   ; V
+                dw      $0018                   ; W
+                dw      $0018                   ; X
+                dw      $0018                   ; Y
+                dw      $0018                   ; Z
                 dw      inlin_esc               ; ESCAPE: ignore
-                db      $7F
-                dw      inlin_del               ; DELETE: erase char under csr
+                dw      $0018                   ; (28)
+                dw      $0018                   ; (29)
+                dw      $0018                   ; (30)
+                dw      $0018                   ; (31)
+
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
