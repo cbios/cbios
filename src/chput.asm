@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.9 2006/03/12 17:24:59 auroramsx Exp $
+; $Id: chput.asm,v 1.10 2006/03/18 13:18:37 auroramsx Exp $
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.
@@ -136,11 +136,9 @@ chput_esc_h:
                 ret
 
 ; -- Form Feed / Cls
-chput_ctrl_ff:
-chput_esc_e:
-chput_esc_j:
-                call    chput_ctrl_home
-                jp      cls
+chput_ctrl_ff:  equ     cls
+chput_esc_e:    equ     cls
+chput_esc_j:    equ     cls
 
 ; -- Clear till end of screen
 chput_esc_jj:

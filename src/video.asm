@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.76 2006/09/08 12:04:59 andete Exp $
+; $Id: video.asm,v 1.77 2007/03/04 12:07:15 auroramsx Exp $
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -1887,13 +1887,23 @@ cls_text:
                 ld      a,$20
                 call    filvrm
 
-                ld      hl,LINTTB
+        IF MODEL_MSX = MODEL_SUBROM
+                ld      hl,$0101
+                ld      (CSRY),hl
+                ld      a,l ; l == 1
+        ELSE
                 ld      a,1
+        ENDIF
+                ld      hl,LINTTB
                 ld      (hl),a
                 ld      de,LINTTB+1
                 ld      bc,23
                 ldir
+        IF MODEL_MSX = MODEL_SUBROM
                 ret
+        ELSE
+                jp      chput_ctrl_home
+        ENDIF
 
 cls_screen2:
                 xor     a
