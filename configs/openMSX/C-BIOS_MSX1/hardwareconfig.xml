@@ -1,5 +1,5 @@
 <?xml version="1.0" ?>
-<!-- $Id: hardwareconfig.xml,v 1.4 2005/06/16 20:19:53 bifimsx Exp $ -->
+<!-- $Id: hardwareconfig.xml,v 1.5 2006/10/23 18:32:23 manuelbi Exp $ -->
 <!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
 <msxconfig>
 
@@ -49,6 +49,8 @@
         <volume>16000</volume>
       </sound>
       <key_ghosting>true</key_ghosting>
+      <keyboard_type>int</keyboard_type>
+      <has_keypad>false</has_keypad>
     </PPI>
 
     <VDP id="VDP">
