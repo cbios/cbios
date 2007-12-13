@@ -1,6 +1,11 @@
-$Id: ChangeLog,v 1.200 2007/02/03 11:01:06 auroramsx Exp $
+$Id: ChangeLog,v 1.201 2007/11/19 20:59:27 arnoldmnl Exp $
 
-2007-11-19  Arnold Metselaar <arnold@nilgiris>
+2007-12-13  Arnold Metselaar  <arnold.metselaar@planet.nl>
+   * logo.asm: Move org directive ...
+   * logo_msx1.asm,logo_msx2.asmlogo_msx2+.asm: ... to here, 
+     helps the program 'make' pass the right options to GNU ld.
+
+2007-11-19  Arnold Metselaar <arnold.metselaar@planet.nl>
    * video.asm (cls_text): move cursor (CSRY,CSRX) to top left corner.
    * chput.asm (chput_ctrl_ff,chput_esc_e,chput_esc_j): equate to cls; 
      the updated cls ends with chput_ctrl_home now.

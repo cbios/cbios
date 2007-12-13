@@ -1,4 +1,4 @@
-; $Id: main_msx2+.asm,v 1.3 2005/06/14 19:57:10 bkc_alpha Exp $
+; $Id: logo_msx2+.asm,v 1.1 2005/06/16 20:18:41 bifimsx Exp $
 ; C-BIOS main ROM for MSX2+ machines
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
@@ -30,6 +30,7 @@
 VDP:            equ     V9958
 MODEL_MSX:      equ     MODEL_MSX2P
 
+                org     $8000
                 include "logo.asm"
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:

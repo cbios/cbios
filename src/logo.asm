@@ -26,7 +26,6 @@
 
                 include "systemvars.asm"
 
-                org     $8000
 ;
 logo_ident:     db      "C-BIOS Logo ROM",$FF
 
