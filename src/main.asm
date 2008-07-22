@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.168 2007/02/03 10:59:12 auroramsx Exp $
+; $Id: main.asm,v 1.169 2007/03/04 12:07:14 auroramsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -778,10 +778,9 @@ chkram_select:
 
                 xor     a
                 ld      (PSG_DBG),a
-
-                call    gicini
-
                 ei
+
+                call    initio
 
                 ld      b,15
                 ld      de,logo_ident
@@ -1609,16 +1608,14 @@ callf:
 ; $003B INITIO
 ;Function:  Initialises the device
 ;Registers: All
-;NOTE: this implementation is still a stub!
 initio:
-                push    hl
-                push    af
-                ld      hl,initio_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-initio_text:    db      "INITIO",0
+                ld      e,$8F           ; strobe off, triggers on
+                ld      a,$0F
+                call    wrtpsg
+
+                ; TODO: What else must be initialized here?
+
+                jp      gicini
 
 ;--------------------------------
 ; $003E INIFNK
@@ -2115,10 +2112,6 @@ gicini:
                 ld      a,$07
                 call    wrtpsg
 
-                ld      e,$80           ; TODO: What about strobe and trigger?
-                ld      a,$0F
-                call    wrtpsg
-
                 ret
 
 ;--------------------------------
@@ -2285,11 +2278,10 @@ joy_stc1:
                 push    hl
                 push    de
 
-                ld      e,0
+                ld      e,$00
                 dec     a
                 jr      z,sel_stc1
-                ld      a,$40
-                ld      e,a
+                set     6,e             ; select stick 2
 sel_stc1:
                 ld      a,$0F
                 di
@@ -2369,11 +2361,11 @@ joy_trig:
                 di
                 dec     a
                 push    de
-                ld      e,$80           ; TODO: What about strobe and trigger?
+                ld      e,$03   ; enable trig A+B of stick 1
                 ld      b,a
                 and     $01
                 jr      z,sel_trig1
-                set     6,e
+                ld      e,$4C   ; enable trig A+B of stick 2 and select stick 2
 sel_trig1:
                 ld      a,$0F
                 call    rdpsg

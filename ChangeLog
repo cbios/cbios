@@ -1,27 +1,33 @@
-$Id: ChangeLog,v 1.201 2007/11/19 20:59:27 arnoldmnl Exp $
+$Id: ChangeLog,v 1.202 2007/12/13 20:06:21 arnoldmnl Exp $
 
-2007-12-13  Arnold Metselaar  <arnold.metselaar@planet.nl>
-   * logo.asm: Move org directive ...
-   * logo_msx1.asm,logo_msx2.asmlogo_msx2+.asm: ... to here, 
-     helps the program 'make' pass the right options to GNU ld.
+2008-07-22 Maarten ter Huurne <maarten@treewalker.org>
+    * Set lower bits of PSG reg 15 before reading joystick trigger status.
+      If the lower bits are 0, the trigger status read will also be 0, no
+      matter whether the trigger is pressed.
+      Fixes MJTT in meisei; thanks to "enen" for reporting this.
 
-2007-11-19  Arnold Metselaar <arnold.metselaar@planet.nl>
-   * video.asm (cls_text): move cursor (CSRY,CSRX) to top left corner.
-   * chput.asm (chput_ctrl_ff,chput_esc_e,chput_esc_j): equate to cls; 
-     the updated cls ends with chput_ctrl_home now.
+2007-12-13 Arnold Metselaar  <arnold.metselaar@planet.nl>
+    * logo.asm: Move org directive ...
+    * logo_msx1.asm,logo_msx2.asmlogo_msx2+.asm: ... to here, 
+      helps the program 'make' pass the right options to GNU ld.
 
-2007-02-03  Eric Boon <eric@auroramsx.nl>
-   * Split off INLIN from main
-   * Initial implementation of INLIN
+2007-11-19 Arnold Metselaar <arnold.metselaar@planet.nl>
+    * video.asm (cls_text): move cursor (CSRY,CSRX) to top left corner.
+    * chput.asm (chput_ctrl_ff,chput_esc_e,chput_esc_j): equate to cls; 
+      the updated cls ends with chput_ctrl_home now.
 
-2006-09-30  Arnold Metselaar  <arnold.metselaar@planet.nl>
-   * Makefile: Remove the unnecessary workaround for tniasm, fix
-     SEDSCR for z80-as.
-	
-2006-09-09  Arnold Metselaar  <arnold.metselaar@planet.nl>
-   * src/main.asm, Makefile: Move version.asm from derived/src to derived/asm. 
-   * Makefile: Copy all source files to derived/asm if tniasm is used,  because
-     tniasm cannot handle paths in include and incbin. 
+2007-02-03 Eric Boon <eric@auroramsx.nl>
+    * Split off INLIN from main
+    * Initial implementation of INLIN
+
+2006-09-30 Arnold Metselaar  <arnold.metselaar@planet.nl>
+    * Makefile: Remove the unnecessary workaround for tniasm, fix
+      SEDSCR for z80-as.
+
+2006-09-09 Arnold Metselaar  <arnold.metselaar@planet.nl>
+    * src/main.asm, Makefile: Move version.asm from derived/src to derived/asm.
+    * Makefile: Copy all source files to derived/asm if tniasm is used, because
+      tniasm cannot handle paths in include and incbin. 
 
 2006-09-08 Joost Yervante Damad <joost@lumatec.be>
     * add more documentation to systemvars
