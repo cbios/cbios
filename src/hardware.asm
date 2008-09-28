@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.13 2005/08/14 02:40:06 ccfg Exp $
+; $Id: hardware.asm,v 1.14 2006/04/09 12:05:48 bifimsx Exp $
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -90,8 +90,28 @@ MODEL_MSXTR:    equ     3
 MODEL_SUBROM:   equ     4
 
 ; Locales:
-LOCAL_EN:       equ     $00
-LOCAL_JP:       equ     $01
+; -- ID byte 0
+LOCAL_CHSET_JP  equ     $00
+LOCAL_CHSET_US  equ     $01
+LOCAL_CHSET_KO  equ     $02
+
+LOCAL_DATE_YMD  equ     $00
+LOCAL_DATE_MDY  equ     $10
+LOCAL_DATE_DMY  equ     $20
+
+LOCAL_INT_60HZ  equ     $00
+LOCAL_INT_50HZ  equ     $80
+
+; -- ID byte 1
+LOCAL_KBD_JP    equ     $00
+LOCAL_KBD_US    equ     $01
+LOCAL_KBD_FR    equ     $02
+LOCAL_KBD_UK    equ     $03
+LOCAL_KBD_DE    equ     $04
+
+LOCAL_BASIC_JP  equ     $00
+LOCAL_BASIC_US  equ     $01
+
 
 ; BOOLEAN VALUES
 YES:            equ     1

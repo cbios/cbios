@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.169 2007/03/04 12:07:14 auroramsx Exp $
+; $Id: main.asm,v 1.170 2008/07/22 21:31:49 mthuurne Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -112,7 +112,7 @@ idbyt1:
 ; |                 0 = Y-M-D, 1 = M-D-Y, 2 = D-M-Y
 ; +---------------- Default interrupt frequency
 ;                   0 = 60Hz, 1 = 50Hz
-                db      $21 ; ?? TODO Dutch MSX value: $91
+                db      LOCALE_CHSET + LOCALE_DATE + LOCALE_INT
 ; $002C IDBYT2
 idbyt2:
 ; Basic ROM version
@@ -122,7 +122,7 @@ idbyt2:
 ; | | | |           2 = French (AZERTY), 3 = UK, 4 = German (DIN)
 ; +-+-+-+---------- Basic version
 ;                   0 = Japanese, 1 = International
-                db      $11 ; ?? TODO Dutch MSX value: $11
+                db      LOCALE_KBD + LOCALE_BASIC
 
 ; $002D Version ID
 romid:
@@ -2729,8 +2729,13 @@ key_in_lp:
                 jr      scan_start
 code_shift:
                 ld      hl,scode_tbl_shift
+                
 scan_start:
-                ld      b,$0B
+                ld      b,$06			        ; check 'normal' keys
+				call	key_chk_lp				; (rows 0-5)
+				ld		hl,scode_tbl_otherkeys  ; check rest (rows 6-11)
+				ld		b,$05
+				
 key_chk_lp:
                 ld      a,(de)
                 cp      (ix+0)
@@ -3113,61 +3118,32 @@ str_nocart:
                 db      "(emulator) with a cartridge",$0D,$0A
                 db      "inserted.",$00
 
-; scan code table
-scode_tbl:
-        IF LOCALE = LOCAL_EN
-; International
-                db      "01234567"                      ;00
-                db      "89-=",$5C,"[];"                ;01
-                db      "'`,./",$00,"ab"                ;02
-                db      "cdefghij"                      ;03
-                db      "klmnopqr"                      ;04
-                db      "stuvwxyz"                      ;05
-        ELSE
-; Japanese
-                db      "01234567"                      ;00
-                db      "89-^",$5C,"@[;"                ;01 ($5C = backslash)
-                db      ":],./_ab"                      ;02
-                db      "cdefghij"                      ;03
-                db      "klmnopqr"                      ;04
-                db      "stuvwxyz"                      ;05
+;-------------------------------------
+; scan code tables
+        IF LOCALE_KBD = LOCAL_KBD_US
+        		include	"scancodes_us.asm"
         ENDIF
-                db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
-                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
-                db      $20,$0B,$00,$00,$1D,$1E,$1F,$1C ;08
-                db      "*+/01234"                      ;09
-                db      "56789-,."                      ;0a
-
-scode_tbl_shift:
-        IF LOCALE = LOCAL_EN
-                db      ")!@#$%^&"                      ;00
-                db      "*(_+|{}:"                      ;01
-                db      $22,"~<>?",$00,"AB"             ;02
-                db      "CDEFGHIJ"                      ;03
-                db      "KLMNOPQR"                      ;04
-                db      "STUVWXYZ"                      ;05
-        ELSE
-                db      "0!",$22,"#$%&'"                ;00 ($22 = quote)
-                db      "()=~|`{+"                      ;01
-                db      "*}<>?_AB"                      ;02
-                db      "CDEFGHIJ"                      ;03
-                db      "KLMNOPQR"                      ;04
-                db      "STUVWXYZ"                      ;05
+        IF LOCALE_KBD = LOCAL_KBD_UK
+        		include "scancodes_uk.asm"
         ENDIF
+        IF LOCALE_KBD = LOCAL_KBD_FR
+        		include "scancodes_fr.asm"
+        ENDIF
+        IF LOCALE_KBD = LOCAL_KBD_DE
+        		include "scancodes_de.asm"
+        ENDIF
+        IF LOCALE_KBD = LOCAL_KBD_JP
+        		include "scancodes_jp.asm"
+        ENDIF
+; the last rows are not locale specific
+scode_tbl_otherkeys:
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
                 db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
                 db      $20,$0C,$00,$00,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
-
-scode_tbl_graph:
-                db      $09,$AC,$AB,$BA,$EF,$BD,$F4,$FB ;00
-                db      $EC,$07,$17,$F1,$1E,$01,$0D,$06 ;01
-                db      $95,$BB,$F3,$F2,$1D,$9C,$C4,$11 ;02
-                db      $BC,$C7,$CD,$14,$15,$13,$DC,$C6 ;03
-                db      $DD,$C8,$0B,$1B,$C2,$DB,$CC,$18 ;04
-                db      $D2,$12,$C0,$1A,$CF,$1C,$19,$0F ;05
-
+                
+;-------------------------------------
 vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84
                 db      $F5,$87,$00,$40

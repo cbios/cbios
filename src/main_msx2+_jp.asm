@@ -1,9 +1,10 @@
-; $Id: main_msx2+_jp.asm,v 1.1 2005/06/25 07:24:06 bkc_alpha Exp $
-; C-BIOS main ROM with Japanese font for MSX2+ machines
+; $Id: main_msx2+_jp.asm,v 1.2 2005/07/17 16:47:17 bkc_alpha Exp $
+; C-BIOS main ROM for a Japanese MSX2+ machine
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2005 Joost Yervante Damad.  All rights reserved.
 ; Copyright (C) 2005 BouKiCHi. All rights reserved.
+; Copyright (C) 2008 Eric Boon. All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -30,7 +31,14 @@
 
 VDP:            equ     V9958
 MODEL_MSX:      equ     MODEL_MSX2P
-LOCALE:         equ     LOCAL_JP
+
+; -- japanese config
+LOCALE_CHSET:   equ     LOCAL_CHSET_JP
+LOCALE_DATE:    equ     LOCAL_DATE_YMD
+LOCALE_INT:     equ     LOCAL_INT_60HZ
+LOCALE_KBD:     equ     LOCAL_KBD_JP
+LOCALE_BASIC    equ     LOCAL_BASIC_JP
+
 CALL_SUB:       equ     YES
 
                 include "main.asm"

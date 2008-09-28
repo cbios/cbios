@@ -1,4 +1,4 @@
-; $Id: font.asm,v 1.4 2004/12/31 10:53:53 mthuurne Exp $
+; $Id: font.asm,v 1.5 2005/06/14 19:57:10 bkc_alpha Exp $
 ; Font data for C-BIOS. Font designed by Eric Boon.
 ; JP version font designed by BouKiCHi.
 ;
@@ -26,7 +26,7 @@
 ; THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 B_Font:
-       IF LOCALE = LOCAL_EN
+       IF LOCALE_CHSET = LOCAL_CHSET_US
 ; International version
                 db      $00,$00,$00,$00,$00,$00,$00,$00         ; 0
                 db      $3C,$42,$A5,$A5,$C3,$BD,$42,$3C         ; 1

@@ -1,8 +1,10 @@
-; $Id: main_msx1.asm,v 1.3 2005/06/14 19:57:10 bkc_alpha Exp $
-; C-BIOS main ROM for MSX1 machines
+; $Id: main_msx1.asm,v 1.4 2005/07/17 16:47:17 bkc_alpha Exp $
+; C-BIOS main ROM for a European MSX1 machine
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.
 ; Copyright (c) 2005 Joost Yervante Damad.  All rights reserved.
+; Copyright (C) 2005 BouKiCHi. All rights reserved.
+; Copyright (C) 2008 Eric Boon. All rights reserved.
 ;
 ; Redistribution and use in source and binary forms, with or without
 ; modification, are permitted provided that the following conditions
@@ -29,7 +31,14 @@
 
 VDP:            equ     TMS99X8
 MODEL_MSX:      equ     MODEL_MSX1
-LOCALE:         equ     LOCAL_EN
+
+; -- generic european config (50Hz, US keyboard layout)
+LOCALE_CHSET:   equ     LOCAL_CHSET_US
+LOCALE_DATE:    equ     LOCAL_DATE_DMY
+LOCALE_INT:     equ     LOCAL_INT_50HZ
+LOCALE_KBD:     equ     LOCAL_KBD_US
+LOCALE_BASIC    equ     LOCAL_BASIC_US
+
 CALL_SUB:       equ     NO
 
                 include "main.asm"
