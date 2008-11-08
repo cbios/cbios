@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.170 2008/07/22 21:31:49 mthuurne Exp $
+; $Id: main.asm,v 1.171 2008/09/28 22:56:28 auroramsx Exp $
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
@@ -2654,6 +2654,7 @@ keyint:
                 ld      (SCNCNT),a
 
                 ; TODO read joystick triggers and space for TRGFLG
+		xor	a
                 call    gttrig
                 cpl
                 and     $01
@@ -2729,13 +2730,13 @@ key_in_lp:
                 jr      scan_start
 code_shift:
                 ld      hl,scode_tbl_shift
-                
+
 scan_start:
                 ld      b,$06			        ; check 'normal' keys
 				call	key_chk_lp				; (rows 0-5)
 				ld		hl,scode_tbl_otherkeys  ; check rest (rows 6-11)
 				ld		b,$05
-				
+
 key_chk_lp:
                 ld      a,(de)
                 cp      (ix+0)
@@ -3067,7 +3068,7 @@ lp_strprn:
                 ld      a,(de)
                 and     a
                 jr      nz,lp_strprn
-                
+
                 jp      hang_up_mode
 
                 ds      $1bbf - $
@@ -3142,7 +3143,7 @@ scode_tbl_otherkeys:
                 db      $20,$0C,$00,$00,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
-                
+
 ;-------------------------------------
 vdp_bios:
                 db      $00,$80,$70,$81,$00,$82,$01,$84
