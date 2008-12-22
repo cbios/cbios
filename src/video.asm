@@ -1,4 +1,4 @@
-; $Id: video.asm,v 1.77 2007/03/04 12:07:15 auroramsx Exp $
+; $Id$
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.

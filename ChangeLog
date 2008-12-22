@@ -1,4 +1,4 @@
-$Id: ChangeLog,v 1.202 2007/12/13 20:06:21 arnoldmnl Exp $
+$Id$
 
 2008-07-22 Maarten ter Huurne <maarten@treewalker.org>
     * Set lower bits of PSG reg 15 before reading joystick trigger status.

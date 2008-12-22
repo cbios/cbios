@@ -1,4 +1,4 @@
-; $Id: main.asm,v 1.171 2008/09/28 22:56:28 auroramsx Exp $
+; $Id$
 ; C-BIOS main ROM
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.

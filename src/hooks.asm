@@ -1,4 +1,4 @@
-; $Id: hooks.asm,v 1.7 2004/12/29 21:33:52 mthuurne Exp $
+; $Id$
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.

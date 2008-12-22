@@ -1,4 +1,4 @@
-; $Id: chput.asm,v 1.10 2006/03/18 13:18:37 auroramsx Exp $
+; $Id$
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.

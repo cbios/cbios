@@ -1,4 +1,4 @@
-; $Id: basic.asm,v 1.1 2005/10/26 20:36:44 mthuurne Exp $
+; $Id$
 ; C-BASIC(minibas) main ROM
 ;
 ; Copyright (c) 2005 BouKiCHi.  All rights reserved.

@@ -1,4 +1,4 @@
-; $Id:$
+; $Id$
 ; Scan code tables UK keyboard for C-BIOS
 ;
 ; Copyright (c) 2008 Eric Boon.  All rights reserved.

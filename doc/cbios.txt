@@ -1,4 +1,4 @@
-$Id: cbios.txt,v 1.10 2005/06/06 21:49:01 mthuurne Exp $
+$Id$
 
 C-BIOS 0.21
 ===========

@@ -1,4 +1,4 @@
-; $Id: statements.asm,v 1.1 2005/06/18 19:34:35 bkc_alpha Exp $
+; $Id$
 ; C-BASIC statements
 ;
 ; Copyright (c) 2005 BouKiCHi.  All rights reserved.

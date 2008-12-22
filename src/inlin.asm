@@ -1,4 +1,4 @@
-; $Id: inlin.asm,v 1.1 2007/02/03 10:59:12 auroramsx Exp $
+; $Id$
 ; INLIN/PINLIN/QINLIN routines for C-BIOS
 ;
 ; Copyright (c) 2007 Eric Boon.  All rights reserved.

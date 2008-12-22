@@ -1,4 +1,4 @@
-; $Id: debug.asm,v 1.2 2004/12/27 00:20:59 mthuurne Exp $
+; $Id$
 ; C-BIOS debug routines
 ; These routines should not be used in release builds of C-BIOS, but they can
 ; be useful for developers and testers.

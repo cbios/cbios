@@ -1,4 +1,4 @@
-; $Id: music.asm,v 1.2 2004/12/27 06:36:18 bifimsx Exp $
+; $Id$
 ; C-BIOS MSX-MUSIC ROM
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.

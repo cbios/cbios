@@ -1,4 +1,4 @@
-# $Id: Makefile,v 1.23 2006/09/13 21:37:03 arnoldmnl Exp $
+# $Id$
 
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo

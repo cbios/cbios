@@ -1,4 +1,4 @@
-; $Id: main_msx2+_jp.asm,v 1.2 2005/07/17 16:47:17 bkc_alpha Exp $
+; $Id$
 ; C-BIOS main ROM for a Japanese MSX2+ machine
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.

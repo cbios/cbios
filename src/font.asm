@@ -1,4 +1,4 @@
-; $Id: font.asm,v 1.5 2005/06/14 19:57:10 bkc_alpha Exp $
+; $Id$
 ; Font data for C-BIOS. Font designed by Eric Boon.
 ; JP version font designed by BouKiCHi.
 ;

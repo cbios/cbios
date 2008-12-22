@@ -1,4 +1,4 @@
-; $Id: systemvars.asm,v 1.44 2006/09/08 19:48:13 andete Exp $
+; $Id$
 ;
 ; C-BIOS system variable declarations
 ;

@@ -1,4 +1,4 @@
-; $Id: util.asm,v 1.3 2006/03/11 19:09:18 auroramsx Exp $
+; $Id$
 ; C-BIOS utility routines
 ;
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.

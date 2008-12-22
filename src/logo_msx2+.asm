@@ -1,4 +1,4 @@
-; $Id: logo_msx2+.asm,v 1.1 2005/06/16 20:18:41 bifimsx Exp $
+; $Id$
 ; C-BIOS main ROM for MSX2+ machines
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.

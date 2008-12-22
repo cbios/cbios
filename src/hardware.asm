@@ -1,4 +1,4 @@
-; $Id: hardware.asm,v 1.14 2006/04/09 12:05:48 bifimsx Exp $
+; $Id$
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.

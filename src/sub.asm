@@ -1,4 +1,4 @@
-; $Id: sub.asm,v 1.59 2005/10/09 14:05:45 bifimsx Exp $
+; $Id$
 ; C-BIOS subrom file...
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.

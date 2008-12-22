@@ -1,4 +1,4 @@
-; $Id: main_msx1.asm,v 1.4 2005/07/17 16:47:17 bkc_alpha Exp $
+; $Id$
 ; C-BIOS main ROM for a European MSX1 machine
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.

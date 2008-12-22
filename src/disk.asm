@@ -1,4 +1,4 @@
-; $Id: disk.asm,v 1.6 2005/01/09 02:32:23 mthuurne Exp $
+; $Id$
 ; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.
