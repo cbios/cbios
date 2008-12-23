@@ -1584,7 +1584,7 @@ getypr:
 getypr_text:    db      "GETYPR",0
 
 ;--------------------------------
-; $0030 CALLLF
+; $0030 CALLF
 callf:
                 ex      af,af'
                 exx
