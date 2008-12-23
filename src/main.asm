@@ -1536,19 +1536,6 @@ outdo:
                 ret
 
 ;--------------------------------
-; $001A ISFLIO
-; Function : Tests if I/O to device is taking place
-; Output   : A  - #00 if not taking place
-;             not #00 if taking place
-; Registers: AF
-; TODO: call H_ISFL
-isflio:
-;                call    H_ISFL
-                ld      a,(PTRFIL)
-                and     a               ; adjust flags
-                ret
-
-;--------------------------------
 ; $0020 DCOMPR
 ; Function : Compared HL to DE
 ; Output   : flags influenced like CP instruction
@@ -2231,13 +2218,26 @@ phydio:
                 ret
 
 ;--------------------------------
-; $014A FORMAT
+; $0147 FORMAT
 ; Initialises mass-storage media like formatting of diskettes.
 ; All this routine does is call H_FORM, which should be installed by the main
 ; disk ROM.
 ; Changes:   all
 format:
                 call    H_FORM
+                ret
+
+;--------------------------------
+; $014A ISFLIO
+; Function : Tests if I/O to device is taking place
+; Output   : A  - #00 if not taking place
+;             not #00 if taking place
+; Registers: AF
+; TODO: call H_ISFL
+isflio:
+;                call    H_ISFL
+                ld      a,(PTRFIL)
+                and     a               ; adjust flags
                 ret
 
 ;--------------------------------
