@@ -11,7 +11,7 @@ VERSION:=0.21
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 
 CHANGELOG_REVISION:=\
-        $(shell sed -ne "s/\$$Id: ChangeLog,v \([^ ]*\).*/\1/p" ChangeLog)
+        $(shell sed -ne "s/\$$Id: ChangeLog \([^ ]*\).*/\1/p" ChangeLog)
 TITLE:="C-BIOS $(VERSION)-dev$(CHANGELOG_REVISION)"
 VERSION_FILE:=derived/asm/version.asm
 
