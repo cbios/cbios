@@ -137,11 +137,11 @@ clean:
 dist: all
 	@rm -rf derived/dist
 	@mkdir -p derived/dist/$(PACKAGE_FULL)
-	@find . -type f '!' -path '*/CVS/*' \
+	@find . -type f '!' -path '*/.svn/*' \
 		'!' -path './derived/*' '!' -path './debian/*' \
 		'!' -name '.*' \
 		-exec cp --parents "{}" derived/dist/$(PACKAGE_FULL) ';'
-	@find configs/openMSX/* -maxdepth 0 -type d '!' -name 'CVS' \
+	@find configs/openMSX/* -maxdepth 0 -type d '!' -name '.svn' \
 		-exec mkdir "derived/dist/$(PACKAGE_FULL)/{}/roms" ';'
 	@SCRIPT=`mktemp` \
 		&& sha1sum $(ROMS_FULLPATH) | sed -nf tools/subst_sha1.sed > $$SCRIPT \
