@@ -629,7 +629,7 @@ glare:          dw      palette3,palette4,palette5,palette6
                 dw      palette7,palette8,palette9,palette10,palette2
 ;
 logo_ver:
-                db      "V0.21",0
+                db      "V0.22",0
 
 ;
 ; Bitbuster by Team Bomba
@@ -1116,7 +1116,7 @@ glare_1:        dw      palette3_1,palette4_1,palette5_1,palette6_1
                 dw      palette7_1,palette8_1,palette9_1,palette10_1,palette2_1
 ;
 logo_ver_1:
-                db      "V0.21",0
+                db      "V0.22",0
 
 ;
 ; Bitbuster by Team Bomba

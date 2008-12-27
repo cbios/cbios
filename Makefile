@@ -7,7 +7,7 @@ Z80_ASSEMBLER?=pasmo
 #Z80_ASSEMBLER?=tniasm
 
 PACKAGE_NAME:=cbios
-VERSION:=0.21
+VERSION:=0.22
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 
 CHANGELOG_REVISION:=\
@@ -44,7 +44,7 @@ else
 ASMDIR=src
 endif
 
-$(VERSION_FILE): ChangeLog
+$(VERSION_FILE): ChangeLog Makefile
 	@echo "Creating: $@"
 	@mkdir -p $(@D)
 	@echo "  db \"$(TITLE)\"" > $@
