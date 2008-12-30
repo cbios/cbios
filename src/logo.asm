@@ -69,12 +69,70 @@ logo_show:
                 ld      hl,logo_patterns
                 call    $5c
 
+                ld      hl,(CGPBAS)
+                ld      de,8 * "V"
+                add     hl,de
+                ex      de,hl
+                ld      bc,8
+                ld      hl,logo_fontpats
+                push    hl
+                call    $5c
+
+                ld      hl,(CGPBAS)
+                ld      de,8 * "."
+                add     hl,de
+                ex      de,hl
+                ld      bc,8
+                pop     hl
+                add     hl,bc
+                push    hl
+                call    $5c
+
+                ld      hl,(CGPBAS)
+                ld      de,8 * "0"
+                add     hl,de
+                ex      de,hl
+                ld      bc,8
+                pop     hl
+                add     hl,bc
+                ld      bc,8 * 10
+                call    $5c
+
                 ld      hl,(GRPCOL)
                 ld      bc,8 * logo_patoffset
                 add     hl,bc
                 ex      de,hl
                 ld      bc,8 * logo_ncolors
                 ld      hl,logo_colors
+                call    $5c
+
+                ld      hl,(GRPCOL)
+                ld      de,8 * "V"
+                add     hl,de
+                ex      de,hl
+                ld      bc,8
+                ld      hl,logo_fontcols
+                push    hl
+                call    $5c
+
+                ld      hl,(GRPCOL)
+                ld      de,8 * "."
+                add     hl,de
+                ex      de,hl
+                ld      bc,8
+                pop     hl
+                add     hl,bc
+                push    hl
+                call    $5c
+
+                ld      hl,(GRPCOL)
+                ld      de,8 * "0"
+                add     hl,de
+                ex      de,hl
+                ld      bc,8
+                pop     hl
+                add     hl,bc
+                ld      bc,8 * 10
                 call    $5c
 
                 ld      hl,(NAMBAS)
@@ -208,7 +266,9 @@ logo_patlength: equ     $ - logo_patterns
                 db      $00,$7F,$7F,$7F,$7F,$7F,$7F,$7F
                 db      $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F
                 db      $7F,$00,$00,$00,$00,$00,$00,$00
-                db      $88,$88,$88,$50,$50,$20,$00,$00
+logo_npatterns: equ     ($ - logo_patterns) / logo_patlength
+
+logo_fontpats:  db      $88,$88,$88,$50,$50,$20,$00,$00
                 db      $00,$00,$00,$00,$00,$40,$00,$00
                 db      $70,$88,$A8,$A8,$88,$70,$00,$00
                 db      $20,$60,$20,$20,$20,$70,$00,$00
@@ -220,8 +280,7 @@ logo_patlength: equ     $ - logo_patterns
                 db      $F8,$88,$10,$20,$20,$20,$00,$00
                 db      $70,$88,$70,$88,$88,$70,$00,$00
                 db      $70,$88,$88,$78,$08,$70,$00,$00
-
-logo_npatterns: equ     ($ - logo_patterns) / logo_patlength
+logo_nfontpats: equ     ($ - logo_fontpats) / logo_patlength
 ;
 logo_colors:
                 db      $00,$00,$00,$00,$00,$00,$00,$00
@@ -327,19 +386,21 @@ logo_collength: equ     $ - logo_colors
                 db      $00,$04,$04,$04,$04,$04,$04,$04
                 db      $04,$04,$04,$04,$04,$04,$04,$04
                 db      $04,$00,$00,$00,$00,$00,$00,$00
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
 logo_ncolors:   equ     ($ - logo_colors) / logo_collength
+
+logo_fontcols:  db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
+logo_nfontcols: equ     ($ - logo_fontcols) / logo_collength
 ;
 logo_names:
                 db      $80,$80,$81,$82,$83,$84,$85,$86,$87,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
@@ -351,12 +412,8 @@ logo_width:     equ     $ - logo_names
                 db      $B5,$B5,$8C,$8C,$8C,$B6,$8C,$8C,$8C,$B7,$B8,$B9,$BA,$8C,$8C,$BB,$BC,$BD,$BE,$BE,$BF,$C0,$8C,$E4
                 db      $C1,$C2,$C3,$8C,$8C,$C4,$C5,$C5,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$C5,$C5,$C5,$CF,$D0,$8C,$E4
                 db      $D1,$C2,$D2,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$E4
-                db      $D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$E6
-logo_ver_major:
-                db      0 + $E8
-                db      $E7     ; "."
-logo_ver_minor:
-                db      2 + $E8,1 + $E8
+                db      $D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C
+                db      "V0.22"
                 db      $E4
                 db      $80,$DC,$DD,$DE,$C2,$DF,$E0,$E1,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E5
 logo_height:    equ     ($ - logo_names) / logo_width
