@@ -1,5 +1,9 @@
 $Id$
 
+2008-12-30 Maarten ter Huurne <maarten@treewalker.org>
+    * Have a single file (version.txt) that contains the version number.
+    * Released C-BIOS 0.23.
+
 2008-12-27 Maarten ter Huurne <maarten@treewalker.org>
     * Released C-BIOS 0.22.
 
