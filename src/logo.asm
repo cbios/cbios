@@ -38,6 +38,11 @@ logo_show:
                 ld      (BDRCLR),a
                 call    $62
 
+                ld      hl,(NAMBAS)
+                ld      bc,768
+                ld      a,$00
+                call    $56
+
                 ; Set up SCREEN 2 mirrored
                 ld      bc,0 +256* 2
                 call    $47
@@ -70,32 +75,12 @@ logo_show:
                 call    $5c
 
                 ld      hl,(CGPBAS)
-                ld      de,8 * "V"
-                add     hl,de
-                ex      de,hl
-                ld      bc,8
-                ld      hl,logo_fontpats
-                push    hl
-                call    $5c
-
-                ld      hl,(CGPBAS)
-                ld      de,8 * "."
-                add     hl,de
-                ex      de,hl
-                ld      bc,8
-                pop     hl
+                ld      bc,8 * 32
                 add     hl,bc
-                push    hl
-                call    $5c
-
-                ld      hl,(CGPBAS)
-                ld      de,8 * "0"
-                add     hl,de
                 ex      de,hl
-                ld      bc,8
-                pop     hl
+                ld      hl,(4)
                 add     hl,bc
-                ld      bc,8 * 10
+                ld      bc,8 * 96
                 call    $5c
 
                 ld      hl,(GRPCOL)
@@ -107,33 +92,11 @@ logo_show:
                 call    $5c
 
                 ld      hl,(GRPCOL)
-                ld      de,8 * "V"
+                ld      de,8 * 32
                 add     hl,de
-                ex      de,hl
-                ld      bc,8
-                ld      hl,logo_fontcols
-                push    hl
-                call    $5c
-
-                ld      hl,(GRPCOL)
-                ld      de,8 * "."
-                add     hl,de
-                ex      de,hl
-                ld      bc,8
-                pop     hl
-                add     hl,bc
-                push    hl
-                call    $5c
-
-                ld      hl,(GRPCOL)
-                ld      de,8 * "0"
-                add     hl,de
-                ex      de,hl
-                ld      bc,8
-                pop     hl
-                add     hl,bc
-                ld      bc,8 * 10
-                call    $5c
+                ld      bc,8 * 96
+                ld      a,$f1
+                call    $56
 
                 ld      hl,(NAMBAS)
                 ld      bc,logo_namoffset
@@ -267,20 +230,6 @@ logo_patlength: equ     $ - logo_patterns
                 db      $7F,$7F,$7F,$7F,$7F,$7F,$7F,$7F
                 db      $7F,$00,$00,$00,$00,$00,$00,$00
 logo_npatterns: equ     ($ - logo_patterns) / logo_patlength
-
-logo_fontpats:  db      $88,$88,$88,$50,$50,$20,$00,$00
-                db      $00,$00,$00,$00,$00,$40,$00,$00
-                db      $70,$88,$A8,$A8,$88,$70,$00,$00
-                db      $20,$60,$20,$20,$20,$70,$00,$00
-                db      $70,$88,$08,$70,$80,$F8,$00,$00
-                db      $F8,$08,$30,$08,$88,$70,$00,$00
-                db      $10,$30,$50,$F8,$10,$10,$00,$00
-                db      $F8,$80,$70,$08,$88,$70,$00,$00
-                db      $30,$40,$70,$88,$88,$70,$00,$00
-                db      $F8,$88,$10,$20,$20,$20,$00,$00
-                db      $70,$88,$70,$88,$88,$70,$00,$00
-                db      $70,$88,$88,$78,$08,$70,$00,$00
-logo_nfontpats: equ     ($ - logo_fontpats) / logo_patlength
 ;
 logo_colors:
                 db      $00,$00,$00,$00,$00,$00,$00,$00
@@ -387,20 +336,6 @@ logo_collength: equ     $ - logo_colors
                 db      $04,$04,$04,$04,$04,$04,$04,$04
                 db      $04,$00,$00,$00,$00,$00,$00,$00
 logo_ncolors:   equ     ($ - logo_colors) / logo_collength
-
-logo_fontcols:  db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-                db      $F1,$F1,$F1,$F1,$F1,$F1,$F1,$F1
-logo_nfontcols: equ     ($ - logo_fontcols) / logo_collength
 ;
 logo_names:
                 db      $80,$80,$81,$82,$83,$84,$85,$86,$87,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80,$80
