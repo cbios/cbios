@@ -548,7 +548,11 @@ romid:
                 jp      calbas
 
 
-        IF VDP != TMS99X8
+        IF VDP = TMS99X8
+; fake EXTROM call, fixes Nemesis 3 reset bug
+		ds	$015f - $
+		ret
+	ELSE
 ; ---------------
 ; MSX2 BIOS calls
 ; ---------------
