@@ -13,7 +13,7 @@ PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 #CHANGELOG_REVISION:=\
 #        $(shell sed -ne "s/\$$Id: ChangeLog \([^ ]*\).*/\1/p" ChangeLog)
 #TITLE:="C-BIOS $(VERSION)-dev$(CHANGELOG_REVISION)"
-TITLE:="C-BIOS $(VERSION)"
+TITLE:="C-BIOS $(VERSION)      cbios.sf.net"
 VERSION_FILE:=derived/asm/version.asm
 
 ROMS:=main_msx1 main_msx2 main_msx2+ sub logo_msx1 logo_msx2 logo_msx2+ \
@@ -48,7 +48,7 @@ endif
 $(VERSION_FILE): ChangeLog version.txt
 	@echo "Creating: $@"
 	@mkdir -p $(@D)
-	@echo "  db \"$(TITLE)\"" > $@
+	@echo '  db $(TITLE)' > $@
 
 $(ROMS_FULLPATH): derived/bin/cbios_%.rom: vdep/%.asm
 	@echo "Assembling: $(<:vdep/%=$(ASMDIR)/%)"
