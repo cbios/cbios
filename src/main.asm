@@ -3082,7 +3082,7 @@ lp_strprn:
 
 str_proginfo:
                 ;       [01234567890123456789012345678]
-;                db      "C-BIOS 0.22      cbios.sf.net"
+                ;db     "C-BIOS 1.23      cbios.sf.net"
                 include "../derived/asm/version.asm"
                 db      $0D,$0A,$0D,$0A,$0D,$0A,$00
 

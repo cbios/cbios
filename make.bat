@@ -3,10 +3,12 @@ mkdir derived\bin 2> NUL
 mkdir derived\lst 2> NUL
 IF %1.==. GOTO NOOPT
 
-rem -- TODO: get the CVS version of Changelog into version.asm
+rem -- TODO: get the SVN version of Changelog into version.asm
 mkdir derived\asm 2> NUL
 del derived\asm\version.asm 2> NUL
-echo db "CBIOS v0.22         cbios.sf.net" > derived\asm\version.asm
+echo db "C-BIOS "> derived\asm\version.asm
+echo incbin "../version.txt">> derived\asm\version.asm
+echo db "         cbios.sf.net">> derived\asm\version.asm
 
 cd src
 IF %1.==pasmo. GOTO PASM

@@ -348,7 +348,8 @@ logo_width:     equ     $ - logo_names
                 db      $C1,$C2,$C3,$8C,$8C,$C4,$C5,$C5,$C6,$C7,$C8,$C9,$CA,$CB,$CC,$CD,$CE,$C5,$C5,$C5,$CF,$D0,$8C,$E4
                 db      $D1,$C2,$D2,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$E4
                 db      $D3,$D4,$D5,$D6,$D7,$D8,$D9,$DA,$DB,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C,$8C
-                db      "V0.22"
+                db      "V"
+                incbin  "../version.txt"
                 db      $E4
                 db      $80,$DC,$DD,$DE,$C2,$DF,$E0,$E1,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E2,$E5
 logo_height:    equ     ($ - logo_names) / logo_width
@@ -621,7 +622,9 @@ glare:          dw      palette3,palette4,palette5,palette6
                 dw      palette7,palette8,palette9,palette10,palette2
 ;
 logo_ver:
-                db      "V0.22",0
+                db      "V"
+                incbin  "../version.txt"
+                db      0
 
 ;
 ; Bitbuster by Team Bomba
@@ -1108,7 +1111,9 @@ glare_1:        dw      palette3_1,palette4_1,palette5_1,palette6_1
                 dw      palette7_1,palette8_1,palette9_1,palette10_1,palette2_1
 ;
 logo_ver_1:
-                db      "V0.22",0
+                db      "V"
+                incbin  "../version.txt"
+                db      0
 
 ;
 ; Bitbuster by Team Bomba
