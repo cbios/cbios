@@ -4,6 +4,9 @@ $Id$
     * Have a single file (version.txt) that contains the version number.
     * Released C-BIOS 0.23.
 
+2008-12-30 Albert Beevendorp
+    * Added ret on address EXTROM on MSX1. Fixes Nemesis 3 reset.
+
 2008-12-27 Maarten ter Huurne <maarten@treewalker.org>
     * Released C-BIOS 0.22.
 
