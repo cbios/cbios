@@ -8,7 +8,7 @@ mkdir derived\asm 2> NUL
 del derived\asm\version.asm 2> NUL
 echo db "C-BIOS "> derived\asm\version.asm
 echo incbin "../version.txt">> derived\asm\version.asm
-echo db "         cbios.sf.net">> derived\asm\version.asm
+echo db "      cbios.sf.net">> derived\asm\version.asm
 
 cd src
 IF %1.==pasmo. GOTO PASM
