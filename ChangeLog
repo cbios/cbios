@@ -7,6 +7,8 @@ $Id$
     * Have a single file (version.txt) that contains the version number.
     * Keep interrupt enabled during data transfer phase of FILVRM.
       Fixes startup problems of Penguin Adventure.
+    * Initialize MSX1 VRAM mapping bit (bit7 of VDP R#1) to 1.
+      Fixes title screen of Zaider - Battle of Peguss.
 
 2008-12-30 Albert Beevendorp
     * Modified MSX1 logo data so it easier to insert the version number.

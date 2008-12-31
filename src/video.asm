@@ -63,7 +63,7 @@ enascr:
 ; Registers: AF, BC
 wrtvdp:
                 di
-		res	7,c		; fixes High Way Star
+                res     7,c             ; fixes High Way Star
                 ld      a,b
                 out     (VDP_ADDR),a
                 ld      a,c
@@ -1455,7 +1455,7 @@ init_vdp:
 
                 ld      bc,$0000        ; R#0
                 call    wrtvdp
-                ld      bc,$6001        ; R#1
+                ld      bc,$E001        ; R#1
                 call    wrtvdp
                 ld      bc,$0002        ; R#2
                 call    wrtvdp
