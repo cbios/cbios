@@ -1182,7 +1182,7 @@ grpprt_attr:
                 ld      d,a   ; D = Pattern of charactor
                 ld      e,b   ; E = Pattern in VRAM
 
-                ld      bc,$2000 ; color table base
+                ld      bc,(GRPCOL)
                 add     hl,bc
                 ld      c,a
                 ld      a,(ATRBYT)
@@ -1917,7 +1917,7 @@ cls_screen2:
                 pop     bc
 
                 ld      a,(BAKCLR)
-                ld      hl,$2000
+                ld      hl,(GRPCOL)
                 jp      filvrm
 
 cls_screen3:
