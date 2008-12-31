@@ -1,10 +1,12 @@
 $Id$
 
+2008-12-31 Maarten ter Huurne <maarten@treewalker.org>
+    * Released C-BIOS 0.23.
+
 2008-12-30 Maarten ter Huurne <maarten@treewalker.org>
     * Have a single file (version.txt) that contains the version number.
     * Keep interrupt enabled during data transfer phase of FILVRM.
       Fixes startup problems of Penguin Adventure.
-    * Released C-BIOS 0.23.
 
 2008-12-30 Albert Beevendorp
     * Modified MSX1 logo data so it easier to insert the version number.
