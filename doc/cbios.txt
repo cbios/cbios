@@ -183,6 +183,7 @@ ver 0.22  2008-12-27(CET)
 ver 0.23  2008-12-30(CET)
           * Updated blueMSX configuration files, thanks to Benoît Delvaux.
           * Fixed version reported by MSX1 logo ROM.
+          * A couple of bug fixes.
 
 Special Thanks
 --------------
