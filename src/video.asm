@@ -203,13 +203,15 @@ filvrm_cont:
                 ld      c,a
                 inc     c
                 pop     af
-                di
+                ; Note: Interrupts should be enabled here.
+                ;       Penguin Adventure can hang on boot if the interrupt
+                ;       comes just after our RET, which is certain if the
+                ;       memory block written is large enough.
 filvrm_lp:
                 out     (VDP_DATA),a
                 djnz    filvrm_lp
                 dec     c
                 jr      nz,filvrm_lp
-                ei
                 ret
 
 ;--------------------------------
