@@ -1210,7 +1210,7 @@ init_ram:
                 ld      a,$0F
                 ld      (FORCLR),a
 
-                ld      a,$20
+                ld      a,$A0
                 ld      (RG1SAV),a
 
                 ld      a,$08
