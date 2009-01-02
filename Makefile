@@ -92,10 +92,10 @@ $(GENERATED_DEPS): derived/dep/%.dep: derived/asm/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)
 	@echo "INCLUDES:=" > $@
-	@sed -n '/include/s/^[\t ]*include[\t ]*"\(.*\)".*$$/INCLUDES+=\1/p' \
+	@sed -n '/include/s/^[\t ]*include[\t ]*"\(\.\.\/derived\/asm\/\)\{0,1\}\(.*\)".*$$/INCLUDES+=\2/p' \
 		< $< >> $@
 	@echo "INCBINS:=" >> $@
-	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(.*\)".*$$/INCBINS+=\1/p' \
+	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(\.\.\/derived\/asm\/\)\{0,1\}\(.*\)".*$$/INCBINS+=\2/p' \
 		< $< >> $@
 	@echo ".SECONDARY: $(<:derived/asm/%=vdep/%)" >> $@
 	@echo "$(<:derived/asm/%=vdep/%): $<" >> $@
@@ -108,10 +108,10 @@ derived/dep/%.dep: src/%.asm
 	@echo "Depending: $<"
 	@mkdir -p $(@D)
 	@echo "INCLUDES:=" > $@
-	@sed -n '/include/s/^[\t ]*include[\t ]*"\(\.\.\/derived\/asm\/\)\?\(.*\)".*$$/INCLUDES+=\2/p' \
+	@sed -n '/include/s/^[\t ]*include[\t ]*"\(\.\.\/derived\/asm\/\)\{0,1\}\(.*\)".*$$/INCLUDES+=\2/p' \
 		< $< >> $@
 	@echo "INCBINS:=" >> $@
-	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(\.\.\/derived\/asm\/\)\?\(.*\)".*$$/INCBINS+=\2/p' \
+	@sed -n '/incbin/s/^[\t ]*incbin[\t ]*"\(\.\.\/derived\/asm\/\)\{0,1\}\(.*\)".*$$/INCBINS+=\2/p' \
 		< $< >> $@
 	@echo ".SECONDARY: $(<:src/%=vdep/%)" >> $@
 	@echo "$(<:src/%=vdep/%): $(<:src/%=$(ASMDIR)/%)" >> $@
