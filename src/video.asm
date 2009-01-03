@@ -1064,12 +1064,38 @@ gspsiz:
 ; Register : AF ???
 grpprt:
                 push    af
+
+                ; Printable character or control character?
+                cp      $20
+                jr      c,grpprt_control
+
+                ; Different implementation depending on screen mode.
                 ld      a,(SCRMOD)
                 cp      2
                 jr      z,grpprt_sc2
                 cp      5
                 jr      nc,grpprt_sc5 ; SCRMOD >= 5
+grpprt_end:
                 pop     af
+                ret
+
+grpprt_control:
+                ; Ignore everything except carriage return ($0D).
+                cp      $0D
+                jr      nz,grpprt_end
+
+                pop     af
+                ; Handle carriage return.
+                push    hl
+                push    bc
+                ld      hl,(GRPACY)
+                ld      bc,$0008
+                add     hl,bc
+                ld      (GRPACY),hl
+                ld      hl,$0000
+                ld      (GRPACX),hl
+                pop     bc
+                pop     hl
                 ret
 
 grpprt_sc5:

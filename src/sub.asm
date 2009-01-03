@@ -495,13 +495,6 @@ grpprt_sub:
                 push    de
                 push    hl
 
-                ; NOTE: I'm not sure whether or not this part
-                ; should be implemented at all
-                cp      10
-                jr      z,grpprt_lf
-                cp      13
-                jr      z,grpprt_cr
-
                 call    getpat
 
                 ld      a,(FORCLR)
@@ -554,21 +547,11 @@ grpprt_out:     out     (VDP_REGS),a            ; write pixel color
                 inc     hl
                 ld      c,8                     ; number of pixels
                 djnz    grpprt_loop
-grpprt_end:
+
                 pop     hl
                 pop     de
                 pop     bc
                 ret
-
-grpprt_lf:      ld      hl,(GRPACY)
-                ld      bc,8
-                add     hl,bc
-                ld      (GRPACY),hl
-                jr      grpprt_end
-
-grpprt_cr:      ld      hl,0
-                ld      (GRPACX),hl
-                jr      grpprt_end
 
 ;-------------------------------------
 ; $0091 MAPXYC
