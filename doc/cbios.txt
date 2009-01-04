@@ -180,10 +180,11 @@ ver 0.22  2008-12-27(CET)
           * Added lots of documentation to system variables.
           * Added support for GNU assembler.
           * Various bug fixes.
-ver 0.23  2008-12-31(CET)
+ver 0.23  2009-01-04(CET)
           * Updated blueMSX configuration files, thanks to Benoît Delvaux.
           * Fixed version reported by MSX1 logo ROM.
-          * A couple of bug fixes.
+          * Fixed several video routines so they work on MSX1 VDPs (TMS99xx).
+          * A couple of other bug fixes.
 
 Special Thanks
 --------------

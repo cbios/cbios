@@ -1,6 +1,6 @@
 $Id$
 
-2009-01-03 Maarten ter Huurne <maarten@treewalker.org>
+2009-01-04 Maarten ter Huurne <maarten@treewalker.org>
     * Added support for carriage return ($0D) in GRPPRT in SCREEN2.
       Fixes title screen of Bokosuka Wars.
     * Released C-BIOS 0.23.
