@@ -1,5 +1,8 @@
 $Id$
 
+2009-01-05 Albert Beevendorp
+    * added VRAM size check
+
 2009-01-04 Maarten ter Huurne <maarten@treewalker.org>
     * Added support for carriage return ($0D) in GRPPRT in SCREEN2.
       Fixes title screen of Bokosuka Wars.

@@ -4,7 +4,7 @@
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 ; Copyright (c) 2003 Reikan.  All rights reserved.
 ; Copyright (c) 2004-2005 Maarten ter Huurne.  All rights reserved.
-; Copyright (c) 2004-2006 Albert Beevendorp.  All rights reserved.
+; Copyright (c) 2004-2009 Albert Beevendorp.  All rights reserved.
 ; Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 ; Copyright (c) 2004-2005 Joost Yervante Damad.  All rights reserved.
 ; Copyright (c) 2004-2005 Jussi Pitkänen.  All rights reserved.
@@ -550,9 +550,9 @@ romid:
 
         IF VDP = TMS99X8
 ; fake EXTROM call, fixes Nemesis 3 reset bug
-		ds	$015f - $
-		ret
-	ELSE
+                ds      $015f - $
+                ret
+        ELSE
 ; ---------------
 ; MSX2 BIOS calls
 ; ---------------
@@ -821,6 +821,36 @@ logo_none:
                 call    ldirvm
 
 logo_done:
+        IF VDP != TMS99X8
+                di
+                ld      a,4
+                out     (VDP_ADDR),a
+                ld      a,$8E
+                out     (VDP_ADDR),a
+                xor     a
+                out     (VDP_ADDR),a
+                or      $40
+                out     (VDP_ADDR),a
+                ld      a,$76
+                out     (VDP_DATA),a
+                xor     a
+                out     (VDP_ADDR),a
+                ld      hl,MODE
+                out     (VDP_ADDR),a
+                in      a,(VDP_DATA)
+                cp      $76
+                jr      z,vramsize_128K
+                set     1,(hl)
+                jr      vramsize_done
+vramsize_128K:
+                set     2,(hl)
+vramsize_done:
+                xor     a
+                out     (VDP_ADDR),a
+                ld      a,$8E
+                out     (VDP_ADDR),a
+        ENDIF
+
                 ei
                 ld      b,120
                 call    wait_b
@@ -2658,7 +2688,7 @@ keyint:
                 ld      (SCNCNT),a
 
                 ; TODO read joystick triggers and space for TRGFLG
-		xor	a
+                xor     a
                 call    gttrig
                 cpl
                 and     $01
@@ -2736,10 +2766,10 @@ code_shift:
                 ld      hl,scode_tbl_shift
 
 scan_start:
-                ld      b,$06			        ; check 'normal' keys
-				call	key_chk_lp				; (rows 0-5)
-				ld		hl,scode_tbl_otherkeys  ; check rest (rows 6-11)
-				ld		b,$05
+                ld      b,$06                           ; check 'normal' keys
+                                call    key_chk_lp                              ; (rows 0-5)
+                                ld              hl,scode_tbl_otherkeys  ; check rest (rows 6-11)
+                                ld              b,$05
 
 key_chk_lp:
                 ld      a,(de)
@@ -3126,19 +3156,19 @@ str_nocart:
 ;-------------------------------------
 ; scan code tables
         IF LOCALE_KBD = LOCAL_KBD_US
-        		include	"scancodes_us.asm"
+                        include "scancodes_us.asm"
         ENDIF
         IF LOCALE_KBD = LOCAL_KBD_UK
-        		include "scancodes_uk.asm"
+                        include "scancodes_uk.asm"
         ENDIF
         IF LOCALE_KBD = LOCAL_KBD_FR
-        		include "scancodes_fr.asm"
+                        include "scancodes_fr.asm"
         ENDIF
         IF LOCALE_KBD = LOCAL_KBD_DE
-        		include "scancodes_de.asm"
+                        include "scancodes_de.asm"
         ENDIF
         IF LOCALE_KBD = LOCAL_KBD_JP
-        		include "scancodes_jp.asm"
+                        include "scancodes_jp.asm"
         ENDIF
 ; the last rows are not locale specific
 scode_tbl_otherkeys:
