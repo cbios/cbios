@@ -1243,8 +1243,13 @@ init_ram:
                 ld      a,$A0
                 ld      (RG1SAV),a
 
+        IF VDP != TMS99X8
                 ld      a,$08
                 ld      (RG8SAV),a
+
+                ld      a,LOCALE_INT / 64
+                ld      (RG9SAV),a
+        ENDIF
 
                 ld      a,(SLTTBL)
                 ld      (CGPNT),a
