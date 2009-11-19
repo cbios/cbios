@@ -1248,7 +1248,7 @@ init_ram:
                 ld      (RG8SAV),a
 
                 ld      a,LOCALE_INT / 64
-                ld      (RG9SAV),a
+                ld      (RG8SAV+1),a
         ENDIF
 
                 ld      a,(SLTTBL)
