@@ -2007,37 +2007,50 @@ cls_screen8:
                 ld      hl,256
 
 cls_bitmap:
-                ld      (CDUMMY),a
-                ld      (NX),hl
+                push    af
+                call    wait_ce
+                pop     af
+
+                ld      c,44
+                call    cls_wrtvdp
+                ld      c,40
+                call    cls_wrtvdp_hl
                 ld      hl,212
-                ld      (NY),hl
+                ld      c,42
+                call    cls_wrtvdp_hl
                 ld      hl,0
-                ld      (DX),hl
+                ld      c,36
+                call    cls_wrtvdp_hl
                 ld      a,(ACPAGE)
                 ld      h,a
                 ld      l,0
-                ld      (DY),hl
+                ld      c,38
+                call    cls_wrtvdp_hl
+                ld      a,0
+                ld      c,45
+                call    cls_wrtvdp
                 ld      a,$C0
-                ld      (L_OP),a
-
-                call    wait_ce
-
-                di
-                ld      a,32
-                out     (VDP_ADDR),a
-                ld      a,128+ 17
-                out     (VDP_ADDR),a
-
-                ld      bc,15 *256+ VDP_REGS
-                ld      hl,SX
-                otir
-                ei
+                ld      c,46
+                call    cls_wrtvdp
 
                 ; Although it's not good performance wise to wait here,
                 ; it seems programs depend on it.
                 ; For example, Lucasarts logo in Koronis Rift.
                 call    wait_ce
 
+                ret
+
+cls_wrtvdp_hl:
+                ld      a,l
+                call    cls_wrtvdp
+                inc     c
+                ld      a,h
+cls_wrtvdp:     di
+                out     (VDP_ADDR),a
+                ld      a,c
+                or      $80
+                out     (VDP_ADDR),a
+                ei
                 ret
 
 wait_ce:
