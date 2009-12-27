@@ -2984,8 +2984,7 @@ extrom_skip_ei:
 
 ;------------------------------------
 hang_up_mode:
-                di
-                halt
+                jr      $
 
 ;------------------------------------
 ; Called if the stack underflows.
