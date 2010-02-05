@@ -1142,6 +1142,8 @@ init_ram:
                 ld      de,RG8SAV + 1
                 ld      bc,15
                 ldir
+                ld      a,LOCALE_INT >> 6
+                ld      (RG8SAV + 1),a
         ENDIF
 
 ; Set address pointer
