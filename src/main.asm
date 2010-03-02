@@ -780,8 +780,6 @@ chkram_select:
 
                 call    init_vdp
 
-                xor     a
-                ld      (PSG_DBG),a
                 ei
 
                 call    initio
@@ -2155,17 +2153,6 @@ wrtpsg:
                 out     (PSG_DATA),a
                 ei
                 pop     af
-
-;for sound player mode
-;                push    af
-;                push    de
-;                ld      d,a
-;                ld      a,(PSG_DBG)
-;                or      a
-;                call    nz,disp_psg
-;                pop     de
-;                pop     af
-
                 ret
 
 ;--------------------------------

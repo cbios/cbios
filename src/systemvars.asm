@@ -199,9 +199,6 @@ BDRCLR:         equ     $F3EB
 ; The routines used are: RIGHTC, LEFTC, UPC and DOWNC
 MAXUPD:         equ     $F3EC
 
-; ??? this was already defined ???
-PSG_DBG:        equ     $F3EC           ; fobOptO
-
 ; F3EF-F3F1: Jump instruction used by Basic LINE command.
 ; The routines used are: RIGHTC, LEFTC, UPC and DOWNC
 MINUPD:         equ     $F3EF
