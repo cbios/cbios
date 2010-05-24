@@ -1010,8 +1010,10 @@ search_roms_init_skip:
                 ; By postponing the interrupt as long as possible,
                 ; there is a better chance they will boot correctly.
                 ; For example the game "Koronis Rift" depends on this.
-                ei
-                halt
+search_roms_init_waitv:
+                in      a,($99)
+                or      a
+                jp      m,search_roms_init_waitv
                 push    af
                 push    hl
                 call    calslt
@@ -1140,6 +1142,8 @@ init_ram:
                 ld      de,RG8SAV + 1
                 ld      bc,15
                 ldir
+                ld      a,$08
+                ld      (RG8SAV),a
                 ld      a,LOCALE_INT >> 6
                 ld      (RG8SAV + 1),a
         ENDIF
@@ -1243,15 +1247,7 @@ init_ram:
                 ld      a,$A0
                 ld      (RG1SAV),a
 
-        IF VDP != TMS99X8
-                ld      a,$08
-                ld      (RG8SAV),a
-
-                ld      a,LOCALE_INT / 64
-                ld      (RG8SAV+1),a
-        ENDIF
-
-                ld      a,(SLTTBL)
+                ld      a,(EXPTBL)
                 ld      (CGPNT),a
                 ld      hl,(4)
                 ld      (CGPNT+1),hl
