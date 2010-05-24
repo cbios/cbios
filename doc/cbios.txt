@@ -18,8 +18,8 @@ License
 
 Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.
 Copyright (c) 2003 Reikan.  All rights reserved.
-Copyright (c) 2004-2006,2008-2009 Maarten ter Huurne.  All rights reserved.
-Copyright (c) 2004-2006,2008-2009 Albert Beevendorp.  All rights reserved.
+Copyright (c) 2004-2006,2008-2010 Maarten ter Huurne.  All rights reserved.
+Copyright (c) 2004-2006,2008-2010 Albert Beevendorp.  All rights reserved.
 Copyright (c) 2004-2005 Patrick van Arkel.  All rights reserved.
 Copyright (c) 2004 Manuel Bilderbeek.  All rights reserved.
 Copyright (c) 2004-2006 Joost Yervante Damad.  All rights reserved.
