@@ -444,6 +444,7 @@ done_logo:      ld      bc,32
                 ld      (LOGOPR),a
                 ld      hl,logo_ver
                 call    prn_text
+                ld      (LOGOPR),a
 
                 call    $44
 
@@ -933,6 +934,7 @@ done_logo_1:    ld      bc,32
                 ld      (LOGOPR),a
                 ld      hl,logo_ver_1
                 call    prn_text_1
+                ld      (LOGOPR),a
 
                 call    $44
 
