@@ -1,5 +1,4 @@
 @echo off
-mode 50
 echo Setting up openMSX configs
 mkdir derived\configs\openMSX\share\machines 2>nul
 xcopy configs\openMSX\*.* derived\configs\openMSX\share\machines /s /e /y >nul
