@@ -852,6 +852,11 @@ vramsize_done:
                 ei
                 ld      b,120
                 call    wait_b
+
+        IF VDP != TMS99X8
+                call    vram_clear
+        ENDIF
+
                 ld      a,15
                 ld      (FORCLR),a
                 ld      a,5
@@ -3096,6 +3101,25 @@ lp_strprn:
 
                 ds      $1bbf - $
                 include "font.asm"
+;
+; This routine is called just after displaying the logo.
+; This fixes the Mirai sprite garbage bug.
+;
+        IF VDP != TMS99X8
+vram_clear:     xor     a
+                out     (VDP_ADDR),a
+                or      $40
+                out     (VDP_ADDR),a
+
+                ld      bc,$4000
+vram_clear_lp:  xor     a
+                out     (VDP_DATA),a
+                dec     bc
+                ld      a,b
+                or      c
+                jr      nz,vram_clear_lp
+                ret
+        ENDIF
 
                 include "slot.asm"
 
