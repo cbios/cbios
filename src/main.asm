@@ -857,11 +857,12 @@ vramsize_done:
                 call    vram_clear
         ENDIF
 
-                ld      a,15
-                ld      (FORCLR),a
-                ld      a,5
-                ld      (BAKCLR),a
+                ld      a,COLOR_BORDER
                 ld      (BDRCLR),a
+                ld      a,COLOR_BACK
+                ld      (BAKCLR),a
+                ld      a,COLOR_FORE
+                ld      (FORCLR),a
                 ld      a,29
                 ld      (LINL32),a
                 call    init32
