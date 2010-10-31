@@ -26,6 +26,7 @@ echo - openMSX
 rem MSX1
 copy "derived\bin\cbios_logo_msx1.rom" "derived\configs\openMSX\share\machines\C-BIOS_MSX1\roms" /y >nul
 copy "derived\bin\cbios_main_msx1.rom" "derived\configs\openMSX\share\machines\C-BIOS_MSX1\roms" /y >nul
+copy "derived\bin\cbios_logo_msx1.rom" "derived\configs\openMSX\share\machines\C-BIOS_MSX1_JP\roms" /y >nul
 copy "derived\bin\cbios_main_msx1_jp.rom" "derived\configs\openMSX\share\machines\C-BIOS_MSX1_JP\roms" /y >nul
 rem MSX2
 copy "derived\bin\cbios_logo_msx2.rom" "derived\configs\openMSX\share\machines\C-BIOS_MSX2\roms" /y >nul
@@ -53,14 +54,14 @@ rem MSX1
 copy "derived\bin\cbios_logo_msx1.rom" "derived\configs\blueMSX\Machines\MSX - C-BIOS" /y >nul
 copy "derived\bin\cbios_main_msx1.rom" "derived\configs\blueMSX\Machines\MSX - C-BIOS" /y >nul
 copy "derived\bin\cbios_logo_msx1.rom" "derived\configs\blueMSX\Machines\MSX - C-BIOS - JP" /y >nul
-copy "derived\bin\cbios_main_msx1.rom" "derived\configs\blueMSX\Machines\MSX - C-BIOS - JP" /y >nul
+copy "derived\bin\cbios_main_msx1_jp.rom" "derived\configs\blueMSX\Machines\MSX - C-BIOS - JP" /y >nul
 rem MSX2
 copy "derived\bin\cbios_logo_msx2.rom" "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
 copy "derived\bin\cbios_main_msx2.rom" "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
 copy "derived\bin\cbios_sub.rom" "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
 rem copy derived\bin\cbios_disk.rom "derived\configs\blueMSX\Machines\MSX2 - C-BIOS" /y >nul
 copy "derived\bin\cbios_logo_msx2.rom" "derived\configs\blueMSX\Machines\MSX2 - C-BIOS - JP" /y >nul
-copy "derived\bin\cbios_main_msx2.rom" "derived\configs\blueMSX\Machines\MSX2 - C-BIOS - JP" /y >nul
+copy "derived\bin\cbios_main_msx2_jp.rom" "derived\configs\blueMSX\Machines\MSX2 - C-BIOS - JP" /y >nul
 copy "derived\bin\cbios_sub.rom" "derived\configs\blueMSX\Machines\MSX2 - C-BIOS - JP" /y >nul
 rem copy derived\bin\cbios_disk.rom "derived\configs\blueMSX\Machines\MSX2 - C-BIOS - JP" /y >nul
 rem MSX2+
@@ -70,7 +71,7 @@ copy "derived\bin\cbios_sub.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIO
 copy "derived\bin\cbios_music.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS" /y >nul
 rem copy derived\bin\cbios_disk.rom "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS" /y >nul
 copy "derived\bin\cbios_logo_msx2+.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS - JP" /y >nul
-copy "derived\bin\cbios_main_msx2+.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS - JP" /y >nul
+copy "derived\bin\cbios_main_msx2+_jp.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS - JP" /y >nul
 copy "derived\bin\cbios_sub.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS - JP" /y >nul
 copy "derived\bin\cbios_music.rom" "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS - JP" /y >nul
 rem copy derived\bin\cbios_disk.rom "derived\configs\blueMSX\Machines\MSX2+ - C-BIOS - JP" /y >nul
