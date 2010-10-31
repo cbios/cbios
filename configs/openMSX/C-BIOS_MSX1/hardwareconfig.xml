@@ -7,7 +7,7 @@
     <manufacturer>C-BIOS</manufacturer>
     <code>MSX1</code>
     <release_year>2003</release_year>
-    <description>An MSX1 machine using C-BIOS</description>
+    <description>An MSX1 machine using C-BIOS, with an international keyboard layout and 50Hz interrupt frequency.</description>
     <type>MSX</type>
   </info>
 
@@ -51,16 +51,19 @@
       <key_ghosting>false</key_ghosting>
       <keyboard_type>int</keyboard_type>
       <has_keypad>false</has_keypad>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
     </PPI>
 
     <VDP id="VDP">
       <io base="0x98" num="2" type="O"/>
       <io base="0x98" num="2" type="I"/>
-      <version>TMS99X8A</version>
+      <version>TMS9929A</version>
       <vram>16</vram>
     </VDP>
 
     <PSG id="PSG">
+      <type>YM2149</type>
       <io base="0xA0" num="2" type="O"/>
       <io base="0xA2" num="1" type="I"/>
       <sound>

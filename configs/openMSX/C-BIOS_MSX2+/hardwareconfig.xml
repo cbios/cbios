@@ -7,7 +7,7 @@
     <manufacturer>C-BIOS</manufacturer>
     <code>MSX2+</code>
     <release_year>2005</release_year>
-    <description>An MSX2+ machine using C-BIOS</description>
+    <description>An MSX2+ machine using C-BIOS, with MSX-MUSIC, an international keyboard layout and 50Hz interrupt frequency.</description>
     <type>MSX2+</type>
   </info>
 
@@ -82,6 +82,8 @@
       <key_ghosting>false</key_ghosting>
       <keyboard_type>int</keyboard_type>
       <has_keypad>true</has_keypad>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
     </PPI>
 
     <VDP id="VDP">
