@@ -37,7 +37,11 @@ LOCALE_CHSET:   equ     LOCAL_CHSET_US
 LOCALE_DATE:    equ     LOCAL_DATE_DMY
 LOCALE_INT:     equ     LOCAL_INT_50HZ
 LOCALE_KBD:     equ     LOCAL_KBD_US
-LOCALE_BASIC    equ     LOCAL_BASIC_US
+LOCALE_BASIC:   equ     LOCAL_BASIC_US
+
+COLOR_FORE:     equ     15
+COLOR_BACK:     equ     4
+COLOR_BORDER:   equ     4
 
 CALL_SUB:       equ     NO
 

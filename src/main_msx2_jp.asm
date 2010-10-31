@@ -39,6 +39,10 @@ LOCALE_INT:     equ     LOCAL_INT_60HZ
 LOCALE_KBD:     equ     LOCAL_KBD_JP
 LOCALE_BASIC:   equ     LOCAL_BASIC_JP
 
+COLOR_FORE:     equ     15
+COLOR_BACK:     equ     4
+COLOR_BORDER:   equ     7
+
 CALL_SUB:       equ     YES
 
                 include "main.asm"

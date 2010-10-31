@@ -1243,10 +1243,11 @@ init_ram:
                 ld      a,24
                 ld      (CRTCNT),a
 
-                ld      a,$04
+                ld      a,COLOR_BORDER
                 ld      (BDRCLR),a
+                ld      a,COLOR_BACK
                 ld      (BAKCLR),a
-                ld      a,$0F
+                ld      a,COLOR_FORE
                 ld      (FORCLR),a
 
                 ld      a,$A0
