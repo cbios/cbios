@@ -133,22 +133,12 @@ romid:
 ;  1 = MSX 2
 ;  2 = MSX 2+
 ;  3 = MSX turbo R
-        IF MODEL_MSX = MODEL_MSX1
-                db      0
-                db      0
-        ENDIF
-        IF MODEL_MSX = MODEL_MSX2
-                db      1
-                db      0
-        ENDIF
-        IF MODEL_MSX = MODEL_MSX2P
-                db      2
-                db      0
-        ENDIF
-        IF MODEL_MSX = MODEL_MSXTR
-                db      3
+                db      MODEL_MSX
 ; Bit 0: if 1 then MSX-MIDI is present internally (MSX turbo R only)
+        IF MODEL_MSX = MODEL_MSXTR
                 db      1
+        ELSE
+                db      0
         ENDIF
 ; Reserved
                 db      0
