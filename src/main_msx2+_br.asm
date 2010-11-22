@@ -41,8 +41,8 @@ LOCALE_KBD:     equ     LOCAL_KBD_US
 LOCALE_BASIC:   equ     LOCAL_BASIC_US
 
 COLOR_FORE:     equ     15
-COLOR_BACK:     equ     1
-COLOR_BORDER:   equ     1
+COLOR_BACK:     equ     4
+COLOR_BORDER:   equ     4
 
 CALL_SUB:       equ     YES
 
