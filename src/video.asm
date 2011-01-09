@@ -1489,6 +1489,8 @@ init_vdp:
                 call    wrtvdp
                 ld      bc,$0104        ; R#4
                 call    wrtvdp
+                ld      bc,$0808        ; R#8
+                call    wrtvdp
 
                 ld      a,1
                 ld      (CSRY),a
