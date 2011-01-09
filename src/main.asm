@@ -803,10 +803,8 @@ logo_none:
                 ld      (BAKCLR),a
                 ld      (BDRCLR),a
                 call    init32
-                ld      hl,logo_default
-                ld      de,(NAMBAS)
-                ld      bc,logo_default_length
-                call    ldirvm
+                ld      hl,str_proginfo
+                call    prn_text
 
 logo_done:
         IF VDP != TMS99X8
@@ -891,9 +889,6 @@ vramsize_done:
 
 logo_ident:
                 db      "C-BIOS Logo ROM"
-logo_default:
-                include "../derived/asm/version.asm"
-logo_default_length:    equ     $ - logo_default
 
 ;----------------------
 ; Search for any extension ROMs and initialize them.
@@ -3123,7 +3118,11 @@ str_proginfo:
                 ;       [01234567890123456789012345678]
                 ;db     "C-BIOS 1.23      cbios.sf.net"
                 include "../derived/asm/version.asm"
-                db      $0D,$0A,$0D,$0A,$0D,$0A,$00
+                db      $0D,$0A
+                db      "Localization: "
+                LOCALE_NAME
+                db      $0D,$0A,$0D,$0A,$00
+str_proginfo_length:    equ     $ - str_proginfo
 
 str_slot:
                 ;       [01234567890123456789012345678]

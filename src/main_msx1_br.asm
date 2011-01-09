@@ -33,6 +33,9 @@ VDP:            equ     TMS99X8
 MODEL_MSX:      equ     MODEL_MSX1
 
 ; -- generic brazillian config (60Hz, US keyboard layout)
+LOCALE_NAME:    macro
+                db      "BR"
+                endm
 LOCALE_CHSET:   equ     LOCAL_CHSET_US
 LOCALE_DATE:    equ     LOCAL_DATE_DMY
 LOCALE_INT:     equ     LOCAL_INT_60HZ

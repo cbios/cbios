@@ -33,6 +33,9 @@ VDP:            equ     TMS99X8
 MODEL_MSX:      equ     MODEL_MSX1
 
 ; -- japanese config
+LOCALE_NAME:    macro
+                db      "JP"
+                endm
 LOCALE_CHSET:   equ     LOCAL_CHSET_JP
 LOCALE_DATE:    equ     LOCAL_DATE_YMD
 LOCALE_INT:     equ     LOCAL_INT_60HZ
