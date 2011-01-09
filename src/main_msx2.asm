@@ -37,6 +37,7 @@ LOCALE_NAME:    macro
                 db      "EU/INT"
                 endm
 LOCALE_CHSET:   equ     LOCAL_CHSET_US
+LOCALE_CHSET_VAR: equ   LOCAL_CHSET_VAR_NONE
 LOCALE_DATE:    equ     LOCAL_DATE_DMY
 LOCALE_INT:     equ     LOCAL_INT_50HZ
 LOCALE_KBD:     equ     LOCAL_KBD_US

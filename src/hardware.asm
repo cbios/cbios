@@ -95,6 +95,10 @@ LOCAL_CHSET_JP  equ     $00
 LOCAL_CHSET_US  equ     $01
 LOCAL_CHSET_KO  equ     $02
 
+; There are charsets which pretend to be INT, but are not... For now only BR:
+LOCAL_CHSET_VAR_NONE equ  $00
+LOCAL_CHSET_VAR_BR   equ  $01
+
 LOCAL_DATE_YMD  equ     $00
 LOCAL_DATE_MDY  equ     $10
 LOCAL_DATE_DMY  equ     $20

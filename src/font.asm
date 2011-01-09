@@ -27,5 +27,9 @@ B_Font:
        IF LOCALE_CHSET = LOCAL_CHSET_JP
                 include "font_jp.asm"
        ELSE
+         IF LOCALE_CHSET_VAR = LOCAL_CHSET_VAR_BR
+                include "font_br.asm"
+         ELSE
                 include "font_us.asm"
+         ENDIF
        ENDIF

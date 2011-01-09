@@ -37,6 +37,7 @@ LOCALE_NAME:    macro
                 db      "JP"
                 endm
 LOCALE_CHSET:   equ     LOCAL_CHSET_JP
+LOCALE_CHSET_VAR: equ   LOCAL_CHSET_VAR_NONE
 LOCALE_DATE:    equ     LOCAL_DATE_YMD
 LOCALE_INT:     equ     LOCAL_INT_60HZ
 LOCALE_KBD:     equ     LOCAL_KBD_JP
