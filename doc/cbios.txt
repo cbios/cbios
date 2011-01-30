@@ -196,6 +196,8 @@ ver 0.25  2011-01-xx(CET)
             JP and BR.
           * Bug fixes for compatibility with Mirai, Family Billiards.
           * A couple of other bug fixes.
+          * This version only compiles with Pasmo 0.5.3, due to lack of
+            standards in assembler directives...
 
 Special Thanks
 --------------
