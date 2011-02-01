@@ -191,7 +191,7 @@ ver 0.24  2010-05-24(CET)
           * Don't di; halt when no ROM is found, the warning in openMSX may be
             confusing
           * A few minor bug fixes and tweaks.
-ver 0.25  2011-01-xx(CET)
+ver 0.25  2011-02-01(CET)
           * C-BIOS now offers localized versions in the flavours INT (default),
             JP and BR.
           * Bug fixes for compatibility with Mirai, Family Billiards.
