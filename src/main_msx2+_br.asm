@@ -32,11 +32,7 @@
 VDP:            equ     V9958
 MODEL_MSX:      equ     MODEL_MSX2P
 
-
 ; -- generic brazillian config (60Hz, US keyboard layout, BR variant charset)
-LOCALE_NAME:    macro
-                db      "BR"
-                endm
 LOCALE_CHSET:   equ     LOCAL_CHSET_US
 LOCALE_CHSET_VAR: equ   LOCAL_CHSET_VAR_BR
 LOCALE_DATE:    equ     LOCAL_DATE_DMY

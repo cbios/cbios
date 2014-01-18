@@ -33,9 +33,6 @@ VDP:            equ     V9938
 MODEL_MSX:      equ     MODEL_MSX2
 
 ; -- japanese config
-LOCALE_NAME:    macro
-                db      "JP"
-                endm
 LOCALE_CHSET:   equ     LOCAL_CHSET_JP
 LOCALE_CHSET_VAR: equ   LOCAL_CHSET_VAR_NONE
 LOCALE_DATE:    equ     LOCAL_DATE_YMD

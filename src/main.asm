@@ -3120,7 +3120,7 @@ str_proginfo:
                 include "../derived/asm/version.asm"
                 db      $0D,$0A
                 db      "Localization: "
-                LOCALE_NAME
+                include "locale.asm"
                 db      $0D,$0A,$0D,$0A,$00
 str_proginfo_length:    equ     $ - str_proginfo
 

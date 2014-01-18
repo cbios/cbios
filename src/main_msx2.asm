@@ -33,9 +33,6 @@ VDP:            equ     V9938
 MODEL_MSX:      equ     MODEL_MSX2
 
 ; -- generic european config (50Hz, US keyboard layout)
-LOCALE_NAME:    macro
-                db      "EU/INT"
-                endm
 LOCALE_CHSET:   equ     LOCAL_CHSET_US
 LOCALE_CHSET_VAR: equ   LOCAL_CHSET_VAR_NONE
 LOCALE_DATE:    equ     LOCAL_DATE_DMY
