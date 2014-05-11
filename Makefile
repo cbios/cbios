@@ -137,16 +137,13 @@ clean:
 dist: all
 	@rm -rf derived/dist
 	@mkdir -p derived/dist/$(PACKAGE_FULL)
-	@find . -type f '!' -path '*/.svn/*' \
-		'!' -path './derived/*' '!' -path './debian/*' \
-		'!' -name '.*' \
+	@cp Makefile version.txt *.bat derived/dist/$(PACKAGE_FULL)
+	@find configs doc src tools -type f '!' -name '.*' \
 		-exec cp --parents "{}" derived/dist/$(PACKAGE_FULL) ';'
-	@find configs/openMSX/* -maxdepth 0 -type d '!' -name '.svn' \
-		-exec mkdir "derived/dist/$(PACKAGE_FULL)/{}/roms" ';'
 	@SCRIPT=`mktemp` \
 		&& sha1sum $(ROMS_FULLPATH) | sed -nf tools/subst_sha1.sed > $$SCRIPT \
 		&& sed -s -i -f $$SCRIPT \
-			derived/dist/$(PACKAGE_FULL)/configs/openMSX/*/hardwareconfig.xml \
+			derived/dist/$(PACKAGE_FULL)/configs/openMSX/*.xml \
 		&& rm $$SCRIPT
 	@mkdir -p derived/dist/$(PACKAGE_FULL)/roms
 	@cp $(ROMS_FULLPATH) derived/dist/$(PACKAGE_FULL)/roms
