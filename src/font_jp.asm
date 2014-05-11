@@ -1,4 +1,3 @@
-; $Id$
 ; JP version font designed by BouKiCHi.
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.

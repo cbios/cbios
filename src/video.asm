@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS video routines
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.

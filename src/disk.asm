@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS Disk ROM - based on WD2793 FDC
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.

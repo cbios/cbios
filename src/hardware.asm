@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS hardware related declarations
 ;
 ; Copyright (c) 2002-2005 BouKiCHi.  All rights reserved.

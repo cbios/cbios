@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS utility routines
 ;
 ; Copyright (c) 2004 Maarten ter Huurne.  All rights reserved.

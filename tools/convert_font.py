@@ -1,4 +1,3 @@
-# $Id$
 # Converts a 256x64 image to assembly (db) font data.
 
 import sys

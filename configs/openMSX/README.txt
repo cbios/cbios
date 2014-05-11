@@ -1,5 +1,3 @@
-$Id$
-
 C-BIOS machine configurations for openMSX
 =========================================
 

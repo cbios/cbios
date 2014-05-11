@@ -1,4 +1,3 @@
-; $Id$
 ; CHPUT routine for C-BIOS
 ;
 ; Copyright (c) 2006 Eric Boon.  All rights reserved.

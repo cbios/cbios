@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS MSX-MUSIC ROM
 ;
 ; Copyright (c) 2004 Albert Beevendorp.  All rights reserved.

@@ -1,4 +1,3 @@
-; $Id$
 ; Font data for C-BIOS.
 ;
 ; Copyright (c) 2010 Manuel Bilderbeek.  All rights reserved.

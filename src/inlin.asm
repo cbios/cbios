@@ -1,4 +1,3 @@
-; $Id$
 ; INLIN/PINLIN/QINLIN routines for C-BIOS
 ;
 ; Copyright (c) 2007 Eric Boon.  All rights reserved.

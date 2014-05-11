@@ -1,4 +1,3 @@
-; $Id$
 ; C-BASIC(minibas) gen_code.asm (a table for parsing)
 ;
 ; Copyright (c) 2005 BouKiCHi.  All rights reserved.

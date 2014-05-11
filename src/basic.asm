@@ -1,4 +1,3 @@
-; $Id$
 ; C-BASIC(minibas) main ROM
 ;
 ; Copyright (c) 2005 BouKiCHi.  All rights reserved.

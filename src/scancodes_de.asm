@@ -1,4 +1,3 @@
-; $Id$
 ; Scan code tables DIN (German) keyboard for C-BIOS
 ;
 ; Copyright (c) 2008 Eric Boon.  All rights reserved.

@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS main ROM for a European MSX1 machine
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.

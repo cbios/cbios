@@ -1,5 +1,3 @@
-$Id$
-
 Building C-BIOS From Source
 ===========================
 

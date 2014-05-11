@@ -1,5 +1,3 @@
-# $Id$
-
 # User editable settings:
 fileName = 'cbios-logo.png'
 logoArea = (40, 40, 216, 104)

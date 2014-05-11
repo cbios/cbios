@@ -1,4 +1,3 @@
-; $Id$
 ; Scan code tables US International keyboard for C-BIOS
 ;
 ; Copyright (c) 2008 Eric Boon.  All rights reserved.

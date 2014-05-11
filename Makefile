@@ -1,5 +1,3 @@
-# $Id$
-
 # Select your assembler:
 Z80_ASSEMBLER?=pasmo
 #Z80_ASSEMBLER?=z80-as

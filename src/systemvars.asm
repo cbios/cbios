@@ -1,4 +1,3 @@
-; $Id$
 ;
 ; C-BIOS system variable declarations
 ;

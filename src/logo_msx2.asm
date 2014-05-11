@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS main ROM for MSX2 machines
 ;
 ; Copyright (c) 2005 Maarten ter Huurne.  All rights reserved.

@@ -1,4 +1,3 @@
-; $Id$
 ; C-BASIC statements
 ;
 ; Copyright (c) 2005 BouKiCHi.  All rights reserved.

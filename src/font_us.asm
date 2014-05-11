@@ -1,4 +1,3 @@
-; $Id$
 ; Font data for C-BIOS. Font designed by Eric Boon.
 ;
 ; Copyright (c) 2004 Eric Boon.  All rights reserved.

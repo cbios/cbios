@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS hook declarations
 ;
 ; Copyright (c) 2002-2003 BouKiCHi.  All rights reserved.

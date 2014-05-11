@@ -1,4 +1,3 @@
-; $Id$
 ; C-BIOS debug routines
 ; These routines should not be used in release builds of C-BIOS, but they can
 ; be useful for developers and testers.
