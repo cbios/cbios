@@ -1,3 +1,5 @@
+This file is no longer being updated; consult the git log instead.
+
 2010-05-23 Manuel Bilderbeek <manuel@msxnet.org>
     * Preparations for releasing C-BIOS 0.24.
 
