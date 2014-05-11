@@ -21,7 +21,7 @@
         <mem base="0x0000" size="0x8000"/>
         <rom>
           <!--sha1:cbios_main_msx2_br.rom-->
-          <filename>roms/cbios_main_msx2_br.rom</filename>
+          <filename>cbios_main_msx2_br.rom</filename>
         </rom>
       </ROM>
 
@@ -29,7 +29,7 @@
         <mem base="0x8000" size="0x4000"/>
         <rom>
           <!--sha1:cbios_logo_msx2.rom-->
-          <filename>roms/cbios_logo_msx2.rom</filename>
+          <filename>cbios_logo_msx2.rom</filename>
         </rom>
       </ROM>
     </primary>
@@ -45,7 +45,7 @@
           <mem base="0x0000" size="0x4000"/>
           <rom>
             <!--sha1:cbios_sub.rom-->
-            <filename>roms/cbios_sub.rom</filename>
+            <filename>cbios_sub.rom</filename>
           </rom>
         </ROM>
       </secondary>
