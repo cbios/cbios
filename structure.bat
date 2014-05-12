@@ -1,7 +1,6 @@
 @echo off
 echo Setting up openMSX configs
 mkdir derived\configs\openMSX\share\machines 2>nul
-mkdir derived\configs\openMSX\share\machines\roms 2>nul
 xcopy configs\openMSX\*.* derived\configs\openMSX\share\machines /y >nul
 del derived\configs\openMSX\share\machines\README.TXT
 
@@ -25,23 +24,23 @@ echo Copying system files
 echo ------------------------
 echo - openMSX
 rem MSX1
-copy "derived\bin\cbios_logo_msx1.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx1.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx1_jp.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx1_br.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
+copy "derived\bin\cbios_logo_msx1.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx1.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx1_jp.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx1_br.rom" "derived\configs\openMSX\share\machines" /y >nul
 rem MSX2
-copy "derived\bin\cbios_logo_msx2.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx2.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx2_jp.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx2_br.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_sub.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-rem copy "derived\bin\cbios_disk.rom derived\configs\openMSX\share\machines\roms" /y >nul
+copy "derived\bin\cbios_logo_msx2.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx2.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx2_jp.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx2_br.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_sub.rom" "derived\configs\openMSX\share\machines" /y >nul
+rem copy "derived\bin\cbios_disk.rom derived\configs\openMSX\share\machines" /y >nul
 rem MSX2+
-copy "derived\bin\cbios_logo_msx2+.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx2+.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx2+_jp.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_main_msx2+_br.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
-copy "derived\bin\cbios_music.rom" "derived\configs\openMSX\share\machines\roms" /y >nul
+copy "derived\bin\cbios_logo_msx2+.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx2+.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx2+_jp.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_main_msx2+_br.rom" "derived\configs\openMSX\share\machines" /y >nul
+copy "derived\bin\cbios_music.rom" "derived\configs\openMSX\share\machines" /y >nul
 echo - BlueMSX
 rem MSX1
 copy "derived\bin\cbios_logo_msx1.rom" "derived\configs\blueMSX\Machines\MSX - C-BIOS" /y >nul
