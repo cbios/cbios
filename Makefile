@@ -8,9 +8,6 @@ PACKAGE_NAME:=cbios
 VERSION:=$(shell cat version.txt)
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 
-#CHANGELOG_REVISION:=\
-#        $(shell sed -ne "s/\$$Id: ChangeLog \([^ ]*\).*/\1/p" ChangeLog)
-#TITLE:="C-BIOS $(VERSION)-dev$(CHANGELOG_REVISION)"
 TITLE:="C-BIOS $(VERSION)      cbios.sf.net"
 VERSION_FILE:=derived/asm/version.asm
 
@@ -44,7 +41,7 @@ else
 ASMDIR=src
 endif
 
-$(VERSION_FILE): ChangeLog version.txt
+$(VERSION_FILE): version.txt
 	@echo "Creating: $@"
 	@mkdir -p $(@D)
 	@echo '  db $(TITLE)' > $@
