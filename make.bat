@@ -11,25 +11,16 @@ echo incbin "../version.txt">> derived\asm\version.asm
 echo db "      cbios.sf.net">> derived\asm\version.asm
 
 cd src
-IF %1.==pasmo. GOTO PASM
-IF %1.==tniasm. GOTO TASM
+IF %1.==pasmo. GOTO ASM
+IF %1.==tniasm. GOTO ASM
 :NOOPT
 echo usage make.bat [pasmo or tniasm]
 GOTO QUIT
-:TASM
-FOR %%i IN (main_msx1;main_msx2;main_msx2+) DO call ..\build %%i
-FOR %%i IN (basic;sub;music;disk;logo_msx1;logo_msx2;logo_msx2+) DO call ..\build %%i
-FOR %%i IN (main_msx1_jp;main_msx2_jp;main_msx2+_jp) DO call ..\build %%i
-FOR %%i IN (main_msx1_br;main_msx2_br;main_msx2+_br) DO call ..\build %%i
-GOTO DEL_TEMP
-:PASM
-FOR %%i IN (main_msx1;main_msx2;main_msx2+) DO call ..\build %%i pasmo
-FOR %%i IN (basic;sub;music;disk;logo_msx1;logo_msx2;logo_msx2+) DO call ..\build %%i pasmo
-FOR %%i IN (main_msx1_jp;main_msx2_jp;main_msx2+_jp) DO call ..\build %%i pasmo
-FOR %%i IN (main_msx1_br;main_msx2_br;main_msx2+_br) DO call ..\build %%i pasmo
-GOTO END
-:DEL_TEMP
-del *.tmp >> NUL
+:ASM
+FOR %%i IN (main_msx1;main_msx2;main_msx2+) DO call ..\build %%i %1
+FOR %%i IN (basic;sub;music;disk;logo_msx1;logo_msx2;logo_msx2+) DO call ..\build %%i %1
+FOR %%i IN (main_msx1_jp;main_msx2_jp;main_msx2+_jp) DO call ..\build %%i %1
+FOR %%i IN (main_msx1_br;main_msx2_br;main_msx2+_br) DO call ..\build %%i %1
 :END
 cd ..
 :QUIT

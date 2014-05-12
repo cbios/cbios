@@ -60,8 +60,7 @@ endif
 # TODO: The "mv" can cause problems in parallel builds, it would be better if
 #       tniASM could write distinct output files (can it?).
 ifeq ($(Z80_ASSEMBLER),tniasm)
-	@cd src && tniasm $(<:vdep/%=%) ../$@
-	@mv src/tniasm.sym $(@:derived/bin/%.rom=derived/lst/%.sym)
+	@cd src && tniasm ../cbios $(<:vdep/%=%) ../$@ $(@:derived/bin/%.rom=derived/lst/%.sym)
 endif
 ifeq ($(Z80_ASSEMBLER),z80-as)
 	@mkdir -p derived/obj
