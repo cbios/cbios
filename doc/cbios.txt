@@ -1,4 +1,4 @@
-C-BIOS 0.25
+C-BIOS 0.26
 ===========
 
 This software is a substitute BIOS which is can be used for running MSX
@@ -196,6 +196,13 @@ ver 0.25  2011-02-01(CET)
           * A couple of other bug fixes.
           * This version only compiles with Pasmo 0.5.3, due to lack of
             standards in assembler directives...
+ver 0.26  2014-10-xx(CET)
+          * Restored support to compile with tniASM (v1.0 Beta 17 or higher)
+          * Moved to git, which means a.o.: archived changelog.txt, use git log
+            from now on
+          * Fixed VDP VRAM access timing for MSX1 VDP's
+          * Update openMSX configurations to the new structure
+          * Fixed bug blueMSX configurations
 
 Special Thanks
 --------------
