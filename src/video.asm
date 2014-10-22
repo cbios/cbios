@@ -108,6 +108,10 @@ wrtvdp_nosav:
 ; Registers: AF
 rdvrm:
                 call    setrd
+        IF VDP = TMS99X8
+                ; wait (at least) 29 t-states between VRAM accesses
+                or      0
+        ENDIF
                 in      a,(VDP_DATA)
                 ret
 
@@ -1455,10 +1459,6 @@ nset_32k:       push    hl
 ; Output:   A = the byte read
 nrdvrm:
                 call    nsetrd
-        IF VDP = TMS99X8
-                ; wait (at least) 29 t-states between VRAM accesses
-                or      0
-        ENDIF
                 in      a,(VDP_DATA)
                 ret
 
