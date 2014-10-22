@@ -488,7 +488,11 @@ clrspr:
                 ld      bc,32 * 16
                 ld      a,(FORCLR)
                 and     $0F
+        IF VDP = TMS99X8
+                call    filvrm
+        ELSE
                 call    bigfil
+        ENDIF
 clrspr_col_skip:
 
 ; Clear sprite pattern generator table.
