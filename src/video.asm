@@ -207,8 +207,14 @@ filvrm_cont:
                 ;       comes just after our RET, which is certain if the
                 ;       memory block written is large enough.
 filvrm_lp:
+        IF VDP = TMS99X8
+                ; wait (at least) 29 t-states between VRAM accesses
                 out     (VDP_DATA),a
+                dec b
+                jr      nz,filvrm_lp
+        ELSE
                 djnz    filvrm_lp
+        ENDIF
                 dec     c
                 jr      nz,filvrm_lp
                 ret
@@ -244,7 +250,13 @@ ldirmv_cont:
                 inc     a
                 ld      c,VDP_DATA
 ldirmv_lp:
+        IF VDP = TMS99X8
+                ; wait (at least) 29 t-states between VRAM accesses
+                ini
+                jp nz, ldirmv_lp
+        ELSE
                 inir
+        ENDIF
                 dec     a
                 jr      nz,ldirmv_lp
                 pop     hl
@@ -280,7 +292,13 @@ ldirvm_cont:
                 inc     a
                 ld      c,VDP_DATA
 ldirvm_lp:
+        IF VDP = TMS99X8
+                ; wait (at least) 29 t-states between VRAM accesses
+                outi
+                jp nz, ldirvm_lp
+        ELSE
                 otir
+        ENDIF
                 dec     a
                 jr      nz,ldirvm_lp
                 ; Note: Without this, Quinpl shows glitches.
@@ -515,8 +533,17 @@ clrspr_attr_lp:
                 ld      a,e
                 out     (VDP_DATA),a    ; Y coordinate
                 ld      a,0
+        IF VDP = TMS99X8
+                nop                     ; wait (at least) 29 t-states between VRAM accesses
+                nop                     ; only 2 nops, as ld a,0 is slow
+        ENDIF
                 out     (VDP_DATA),a    ; X coordinate
                 ld      a,c
+        IF VDP = TMS99X8
+                nop                     ; wait (at least) 29 t-states between VRAM accesses
+                nop
+                nop
+        ENDIF
                 out     (VDP_DATA),a    ; pattern number
                 inc     c
                 call    gspsiz
