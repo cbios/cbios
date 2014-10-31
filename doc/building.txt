@@ -3,7 +3,7 @@ Building C-BIOS From Source
 
 First, get a Z80 assembler. Currently, only the following assembler can build
 C-BIOS without requiring modifications to the source code:
-  * Pasmo 0.5.3 -  http://www.arrakis.es/~ninsesabe/pasmo/
+  * Pasmo 0.5.3 -  http://pasmo.speccy.org/
 It is available for Windows, Linux and probably on other Unix-like systems as
 well.
 
