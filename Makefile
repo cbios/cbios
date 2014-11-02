@@ -57,8 +57,6 @@ ifeq ($(Z80_ASSEMBLER),pasmo)
 	@$(PASMO) -I src -I derived/asm $(<:vdep/%=src/%) \
 		$@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
-# TODO: The "mv" can cause problems in parallel builds, it would be better if
-#       tniASM could write distinct output files (can it?).
 ifeq ($(Z80_ASSEMBLER),tniasm)
 	@cd src && tniasm ../cbios $(<:vdep/%=%) ../$@ $(@:derived/bin/%.rom=derived/lst/%.sym)
 endif
