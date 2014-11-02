@@ -58,7 +58,7 @@ ifeq ($(Z80_ASSEMBLER),pasmo)
 		$@ $(@:derived/bin/%.rom=derived/lst/%.lst)
 endif
 ifeq ($(Z80_ASSEMBLER),tniasm)
-	@cd src && tniasm ../cbios $(<:vdep/%=%) ../$@ $(@:derived/bin/%.rom=derived/lst/%.sym)
+	@cd src && tniasm ../tools/tniasm-compat $(<:vdep/%=%) ../$@ $(@:derived/bin/%.rom=derived/lst/%.sym)
 endif
 ifeq ($(Z80_ASSEMBLER),z80-as)
 	@mkdir -p derived/obj

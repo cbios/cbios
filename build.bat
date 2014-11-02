@@ -6,7 +6,7 @@ goto %2
 echo Error! build.bat should be called from make.bat, please run make.bat
 goto no_error
 :tniasm
-tniasm ..\cbios %1.asm ..\derived\bin\cbios_%1.rom ..\derived\lst\cbios_%1.sym 1> NUL
+tniasm ..\tools\tniasm-compat %1.asm ..\derived\bin\cbios_%1.rom ..\derived\lst\cbios_%1.sym 1> NUL
 if errorlevel 1 goto error
 GOTO no_error
 :pasmo
