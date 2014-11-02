@@ -185,15 +185,16 @@ calslt_restore:
                 exx
                 ret
 
-;--------------------------------
-; 0024h ENASLT
-; in .. hl=address, a=slot番号
-; A = FxxxEESS
-; RegA 詳細
-; F = 拡張スロットのフラグ
-; E = 拡張スロット番号
-; S = スロット番号
-; Dest. AF,BC,DE,DI
+;-------------------------------------
+; $0024 ENASLT
+; Selects a slot in the page specified by an address.
+; Input:   A  = slot ID: ExxxSSPP
+;               E  = expanded flag
+;               SS = secondary slot number (only if expanded)
+;               PP = primary slot number
+;          HL = address inside the page to change
+; Output:  Interrupts disabled.
+; Changes: AF, BC, DE
 
 enaslt:
 
@@ -201,7 +202,7 @@ enaslt:
                 di
                 push    hl
 
-                ld      l,a             ; L = FxxxEEPP
+                ld      l,a             ; L = ExxxSSPP
 
                 and     $03             ; A = 000000PP
                 ld      b,a
@@ -218,7 +219,7 @@ psl_dup_lp:
                 rlca
                 and     $03
 
-                ld      h,a             ; H = アドレス上位 2bit
+                ld      h,a             ; H = page number (0-3)
 
                 ld      b,a
 
@@ -229,13 +230,13 @@ page_msk_lp:
                 dec     b
                 jp      p,page_msk_lp
 
-                ld      e,a             ; E = 00 00 11 00(ページマスク)
+                ld      e,a             ; E = page mask (00 00 00 11 << page)
                 cpl
-                ld      c,a             ; C = 11 11 00 11(AND MASK)
+                ld      c,a             ; C = page mask complement
 
                 ld      a,d
                 and     e
-                ld      b,a             ; B = 00 00 PP 00
+                ld      b,a             ; B = 00 00 00 PP << page
 
                 ld      a,l
                 and     a
@@ -257,7 +258,7 @@ ssl_dup_lp:
                 jp      p,ssl_dup_lp
 
                 and     e
-                ld      b,a             ; B = 00 00 SS 00
+                ld      b,a             ; B = 00 00 00 SS << page
 
                 ld      a,d
                 and     $C0
@@ -271,8 +272,8 @@ ssl_dup_lp:
 
                 ld      a,(SSL_REGS)
                 cpl
-                and     c
-                or      b               ; A = xx xx SS xx ( x = 前の値 )
+                and     c               ; preserve other pages
+                or      b
                 ld      c,a
                 ld      (SSL_REGS),a
 
