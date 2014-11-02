@@ -132,8 +132,7 @@ dist: all
 	@rm -rf derived/dist
 	@mkdir -p derived/dist/$(PACKAGE_FULL)
 	@cp Makefile version.txt *.bat derived/dist/$(PACKAGE_FULL)
-	@find configs doc src tools -type f '!' -name '.*' \
-		-exec cp --parents "{}" derived/dist/$(PACKAGE_FULL) ';'
+	@cp -R configs doc src tools derived/dist/$(PACKAGE_FULL)
 	@SCRIPT=`mktemp` \
 		&& sha1sum $(ROMS_FULLPATH) | sed -nf tools/subst_sha1.sed > $$SCRIPT \
 		&& sed -s -i -f $$SCRIPT \
