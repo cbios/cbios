@@ -227,12 +227,12 @@ REPCNT:         equ     $F3F7
 ; everytime a key is added to the inputbuffer, this address is incremented,
 ; when it equals to GETPNT, the buffer is full
 ; the buffer is located at KEYBUF
-PUTPNT:         equ     $F3F8           ; L[obt@ÖÌ|C^
+PUTPNT:         equ     $F3F8
 
 ; F3FA-F3FB: address in inputbuffer of first character that is not yet read
 ; everytime a key is read from the buffer it is incremented
 ; the buffer is located at KEYBUF
-GETPNT:         equ     $F3FA           ; L[obt@ÖÌ|C^
+GETPNT:         equ     $F3FA
 
 ; F3FC-F400: memory area for tape system parameters for 1200 baud
 ; F3FC: length of  low signal for 0     (ini:83)
@@ -816,7 +816,7 @@ ACPAGE:         equ     $FAF6           ; Active page (SCR5+)
 AVCSAV:         equ     $FAF7
 
 ; FAF8: extended BASIC ROM slot address
-EXBRSA:         equ     $FAF8           ; TuÊu
+EXBRSA:         equ     $FAF8
 
 ; FAF9: character count for ROMA-KANA
 CHRCNT:         equ     $FAF9
@@ -956,10 +956,10 @@ NEWKEY:         equ     $FBE5
 ; keyboard buffer; each char entered via the keyboard ends up here
 KEYBUF:         equ     $FBF0
 ; LIMPNT: something about "key buffer pointer"
-LIMPNT:         equ     $FC17           ; L[obt@ÖÌ|C^
+LIMPNT:         equ     $FC17
 
 ; FC18-FC3F: work area for processing the last typed line
-LINWRK:         equ     $FC18           ; 40ªÌobt@
+LINWRK:         equ     $FC18
 
 ; FC40-FC47: storage for the patter of an ASCII character
 ; used when writing an ASCII character in a graphical mode
