@@ -133,11 +133,11 @@ dist: all
 	@mkdir -p derived/dist/$(PACKAGE_FULL)
 	@cp Makefile version.txt *.bat derived/dist/$(PACKAGE_FULL)
 	@cp -R configs doc src tools derived/dist/$(PACKAGE_FULL)
-	@SCRIPT=`mktemp` \
-		&& sha1sum $(ROMS_FULLPATH) | sed -nf tools/subst_sha1.sed > $$SCRIPT \
-		&& sed -s -i -f $$SCRIPT \
+	@SCRIPT=derived/dist/inject_sha1.sed \
+		&& shasum -a1 $(ROMS_FULLPATH) | sed -nf tools/subst_sha1.sed > $$SCRIPT \
+		&& sed -i'~' -f $$SCRIPT \
 			derived/dist/$(PACKAGE_FULL)/configs/openMSX/*.xml \
-		&& rm $$SCRIPT
+		&& rm $$SCRIPT derived/dist/$(PACKAGE_FULL)/configs/openMSX/*~
 	@mkdir -p derived/dist/$(PACKAGE_FULL)/roms
 	@cp $(ROMS_FULLPATH) derived/dist/$(PACKAGE_FULL)/roms
 	@cd derived/dist ; zip -9 -X -D -r $(PACKAGE_FULL).zip $(PACKAGE_FULL)
