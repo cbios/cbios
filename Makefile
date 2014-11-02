@@ -143,7 +143,7 @@ dist: all
 		&& rm $$SCRIPT
 	@mkdir -p derived/dist/$(PACKAGE_FULL)/roms
 	@cp $(ROMS_FULLPATH) derived/dist/$(PACKAGE_FULL)/roms
-	@cd derived/dist ; zip -9 -r $(PACKAGE_FULL).zip $(PACKAGE_FULL)
+	@cd derived/dist ; zip -9 -X -D -r $(PACKAGE_FULL).zip $(PACKAGE_FULL)
 
 list_stub:
 	cd src && grep -n _text *.asm | grep ',0$$' | awk '{print $$1}' | sed -e 's/_text://'
