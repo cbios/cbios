@@ -211,9 +211,9 @@ filvrm_cont:
                 ;       comes just after our RET, which is certain if the
                 ;       memory block written is large enough.
 filvrm_lp:
+                out     (VDP_DATA),a
         IF VDP = TMS99X8
                 ; wait (at least) 29 t-states between VRAM accesses
-                out     (VDP_DATA),a
                 dec b
                 jr      nz,filvrm_lp
         ELSE
