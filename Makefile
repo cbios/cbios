@@ -3,6 +3,7 @@ Z80_ASSEMBLER?=pasmo
 #Z80_ASSEMBLER?=z80-as
 #Z80_ASSEMBLER?=sjasm
 #Z80_ASSEMBLER?=tniasm
+#Z80_ASSEMBLER?=n80
 
 PACKAGE_NAME:=cbios
 VERSION:=$(shell cat version.txt)
@@ -18,6 +19,9 @@ ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # If needed override location of pasmo.
 PASMO=pasmo
+
+# Location of next80 tools
+N80=n80
 
 # Mark all logical targets as such.
 .PHONY: all dist clean list_stub
@@ -59,6 +63,9 @@ ifeq ($(Z80_ASSEMBLER),pasmo)
 endif
 ifeq ($(Z80_ASSEMBLER),tniasm)
 	@cd src && tniasm ../tools/tniasm-compat $(<:vdep/%=%) ../$@ $(@:derived/bin/%.rom=derived/lst/%.sym)
+endif
+ifeq ($(Z80_ASSEMBLER),n80)
+	@$(N80) $(<:vdep/%=src/%) $@ -i src -i derived/asm --build-type abs --no-show-banner
 endif
 ifeq ($(Z80_ASSEMBLER),z80-as)
 	@mkdir -p derived/obj
