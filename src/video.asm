@@ -1018,6 +1018,7 @@ set_base_address_table:
 ; Returns the address of a sprite pattern in the sprite pattern table.
 ; Input:     A  = pattern number
 ; Output:    HL = address
+;            DE = offset of the pattern in the table
 ; Changes:   AF, DE, HL
 calpat:
                 ld      h,0
@@ -1029,7 +1030,8 @@ calpat:
                 jr      nc,calpat_8
                 add     hl,hl
                 add     hl,hl
-calpat_8:       ld      de,(PATBAS)
+calpat_8:       ex      de,hl
+                ld      hl,(PATBAS)
                 add     hl,de
                 ret
 
