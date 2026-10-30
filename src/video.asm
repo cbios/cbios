@@ -1040,13 +1040,15 @@ calpat_8:       ex      de,hl
 ; Returns the address of a sprite in the sprite attribute table.
 ; Input:     A  = sprite number
 ; Output:    HL = address
-; Changes:   AF, DE, HL
+;            DE = offset of the sprite in the table
+; Changes:   F, DE, HL
 calatr:
-                add     a,a
-                add     a,a
+                ld      l,a
+                ld      h,0
+                add     hl,hl
+                add     hl,hl
+                ex      de,hl
                 ld      hl,(ATRBAS)
-                ld      d,0
-                ld      e,a
                 add     hl,de
                 ret
 
