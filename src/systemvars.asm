@@ -214,13 +214,13 @@ QUEUES:         equ     $F3F3
 ; F3F5: CLOAD flag =0 when CLOAD =255 when CLOAD?
 FRCNEW:         equ     $F3F5
 
-; F3F6: VDP-interupt counter that counts from 3 to 0, when it reaches zero, the
-; keyboard matrix is scanned, and the counters is reset at 3
+; F3F6: VDP-interupt counter that counts down to 0, when it reaches zero, the
+; keyboard matrix is scanned, and the counter is reset (see KEY_SCAN)
 SCNCNT:         equ     $F3F6
 
-; F3F7: key repeat counter. Runs from 13 to 0, and is changed when SCNCNT is changed
-; if the key remained the same. If it reaches 0, keyrepetition starts. If another key
-; is pressed the value is reset at 13.
+; F3F7: key repeat counter. Counts down every keyboard scan while the key
+; buffer is empty. If it reaches 0, keyrepetition starts. If another key is
+; pressed the value is reset (see KEY_DELAY and KEY_REPEAT).
 REPCNT:         equ     $F3F7
 
 ; F3F8-F3F9: first free space in the inputbuffer of the keyboard
