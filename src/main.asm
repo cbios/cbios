@@ -756,6 +756,30 @@ chkram_select:
                 ei
                 ret
 
+; $0D12 keyboard scan
+; Not a documented entry, but some games (Buzz Off, Shark Hunter) call the
+; MSX1 BIOS keyboard scan here. Behaviour as measured on real MSX:
+; Function : Scans the keyboard once (new keys are put into KEYBUF)
+; Output   : A  - low(PUTPNT) - low(GETPNT), flags of that SUB (Z: KEYBUF empty)
+;            HL - (GETPNT)
+;            DE - KEYBUF
+;            BC - $00FF
+; Registers: AF BC DE HL
+                ds      $0D12 - $
+kscan:
+                push    ix
+                ex      af,af'
+                push    af
+                call    key_in          ; returns DE = NEWKEY + 11 = KEYBUF, B = 0
+                pop     af
+                ex      af,af'
+                pop     ix
+                ld      hl,(GETPNT)
+                ld      a,(PUTPNT)
+                sub     l
+                ld      c,$FF
+                ret
+
 chkram_done:
 ;----------------------
 ; User interface
