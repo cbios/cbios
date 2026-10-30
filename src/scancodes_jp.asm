@@ -28,13 +28,13 @@ scode_tbl:
 ; Japanese
                 db      "01234567"                      ;00
                 db      "89-^",$5C,"@[;"                ;01 ($5C = yen)
-                db      ":],./_ab"                      ;02
+                db      ":],./",$00,"ab"                ;02 ($00: _ needs SHIFT)
                 db      "cdefghij"                      ;03
                 db      "klmnopqr"                      ;04
                 db      "stuvwxyz"                      ;05
 
 scode_tbl_shift:
-                db      "0!",$22,"#$%&'"                ;00 ($22 = quote)
+                db      $00,"!",$22,"#$%&'"             ;00 ($00: no SHIFT+0)
                 db      "()=~|`{+"                      ;01
                 db      "*}<>?_AB"                      ;02
                 db      "CDEFGHIJ"                      ;03
