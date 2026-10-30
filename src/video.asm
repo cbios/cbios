@@ -416,13 +416,13 @@ chgmod_finish_lp:
 ;            Bordercolor in BDRCLR
 ; Registers: All
 chgclr:
-                ld      a,(FORCLR)
-                rlca
-                rlca
-                rlca
-                rlca
-                and     $F0
-                ld      hl,BAKCLR
+                ld      hl,FORCLR               ; FORCLR, BAKCLR, BDRCLR
+                ld      a,(hl)
+                add     a,a
+                add     a,a
+                add     a,a
+                add     a,a
+                inc     hl
                 or      (hl)
                 ld      e,a                     ; E := FORCLR*16 + BAKCLR
                 ld      b,a
@@ -432,30 +432,19 @@ chgclr:
                 ld      d,a
                 or      a
                 jr      z,chgclr_r7
-                ld      a,(BDRCLR)
-                ld      b,a
+                inc     hl
+                ld      b,(hl)                  ; B := BDRCLR
 chgclr_r7:
                 ld      c,7
                 call    wrtvdp                  ; preserves DE
                 dec     d
                 ret     nz
 
-                ; SCREEN1
+                ; SCREEN1: fill the colour table
                 ld      a,e
                 ld      hl,(T32COL)
                 ld      bc,$0020
-                push    af
-                call    setwrt
-cclr_lp:
-                pop     af
-                out     (VDP_DATA),a
-                push    af
-                dec     bc
-                ld      a,b
-                or      c
-                jr      nz,cclr_lp
-                pop     af
-                ret
+                jp      filvrm
 
 ;--------------------------------
 ; $0069 CLRSPR
