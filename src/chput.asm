@@ -392,11 +392,22 @@ chput_esc_m:
                 call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)
                 push    hl                      ; save cursor pos
-                ld      b,l
-                ld      a,(CRTCNT)
-                sub     b
+                ld      a,(CRTCNT)              ; A := lines from CSRY to bottom
+                sub     l
+                inc     a
+                ; Move LINTTB up as well. One entry more than needed is
+                ; moved, into the bottom line's entry, which chput_esc_k
+                ; rewrites when it clears that line.
+                ld      c,a
+                ld      b,0
+                ld      h,b
+                ld      de,LINTTB-1             ; DE := LINTTB + (CSRY) - 1
+                add     hl,de
+                ld      d,h
+                ld      e,l
+                inc     hl                      ; HL := DE + 1
+                ldir
                 ld      b,a
-                inc     b
                 ld      a,(CSRY)
                 jr      chput_esc_m_loop_end
 
@@ -413,19 +424,6 @@ chput_esc_m_loop_end:
                 call    chput_esc_k             ; clear till end of line
                 pop     hl                      ; restore cursor position
                 ld      (CSRY),hl
-
-                ld      h,0                     ; update LINTTB
-                ld      a,(CRTCNT)              ; BC := (CRTCNT) - (CRSY) - 1
-                sub     l                       
-                dec     a
-                ld      c,a
-                ld      b,0
-                ld      de,LINTTB-1             ; DE := LINTTB + (CSRY)
-                add     hl,de
-                ld      d,h
-                ld      e,l
-                inc     hl                      ; HL := DE + 1
-                ldir
                 ret
 
 ; -- Copy line: from HL to DE
