@@ -625,31 +625,12 @@ romid:
                 include "video.asm"
                 include "debug.asm"
 
-; The game "Hacker" jumps directly to this location($0D02).
-; Star force calls $0D0E.
-
-                ds      $0D01 - $
-; for all wrong jumper,put RET instruction there
-                ret
-                pop     ix  ; $0D02
-                pop     iy
-                pop     af
-                pop     bc
-                pop     de
-                pop     hl
-                exx
-                ex      af,af'
-                pop     af
-                pop     bc
-                pop     de
-                pop     hl
-                ei
-                ret
-
 ; $0000 CHKRAM
 ; Function : Tests RAM and sets RAM slot for the system
 ; Registers: All
 ; Remark   : After this, a jump must be made to INIT, for further initialisation.
+; Note     : Placed before $0D01 because the area from $0D01 up to the font
+;            at $1BBF is nearly full on MSX2 and MSX2+.
 chkram:
                 ; Initialize interface
                 ld      a,$82
@@ -752,7 +733,30 @@ chkram_select:
                 ld      (SSL_REGS),a
                 ; HL contains the start of the memory area (for BOTTOM variable).
                 exx
+                jp      chkram_done
 
+; The game "Hacker" jumps directly to this location($0D02).
+; Star force calls $0D0E.
+
+                ds      $0D01 - $
+; for all wrong jumper,put RET instruction there
+                ret
+                pop     ix  ; $0D02
+                pop     iy
+                pop     af
+                pop     bc
+                pop     de
+                pop     hl
+                exx
+                ex      af,af'
+                pop     af
+                pop     bc
+                pop     de
+                pop     hl
+                ei
+                ret
+
+chkram_done:
 ;----------------------
 ; User interface
 ;----------------------
