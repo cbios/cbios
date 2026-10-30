@@ -1147,6 +1147,10 @@ init_ram:
                 ld      (PUTPNT),hl
                 ld      (GETPNT),hl
 
+; Scan the keyboard at the first interrupt
+                ld      hl,$3201        ; REPCNT := 50, SCNCNT := 1
+                ld      (SCNCNT),hl
+
 ;                ld      hl,$8000
                 exx
                 ld      (BOTTOM),hl     ; Page1 and 2 is ROM,Page3 and 4 is RAM.
