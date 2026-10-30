@@ -349,12 +349,28 @@ chput_esc_ll:
                 call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)               ; save current cursor pos
                 push    hl
-                ld      b,l
                 ld      a,(CRTCNT)
                 ld      (CSRY),a
-                sub     b
+                ld      e,a
+                sub     l                       ; A := lines from CSRY to bottom
+                inc     a
+                ; Move LINTTB down as well. One entry more than needed is
+                ; moved, into the entry of the inserted line, which
+                ; chput_esc_k rewrites when it clears that line. The line
+                ; that moves to the bottom row cannot continue below it.
+                ld      c,a
+                ld      b,0
+                ld      d,b
+                ld      hl,LINTTB-1             ; HL := LINTTB + (CRTCNT) - 1
+                add     hl,de
+                push    hl
+                ld      d,h
+                ld      e,l
+                dec     hl                      ; DE := HL, HL := HL - 1
+                lddr
+                pop     hl
+                ld      (hl),a                  ; bottom row: line ends (A > 0)
                 ld      b,a
-                inc     b
                 ld      a,(CSRY)
                 jr      chput_esc_ll_loop_end
 
@@ -370,21 +386,6 @@ chput_esc_ll_loop_end:
 
                 pop     hl                      ; restore cursor position
                 ld      (CSRY),hl
-                ld      h,0
-                ld      a,(CRTCNT)              ; update LINTTB
-                ld      d,a                     ; DE := (CRTCNT)
-                ld      e,0
-                sub     l                       ; BC := (CRTCNT) - (CSRY) - 1
-                dec     a
-                ld      c,a
-                ld      b,0
-                ld      hl,LINTTB-1             ; DE := LINTTB + (CRTCNT)
-                add     hl,de
-                ex      de,hl
-                ld      h,d                     ; HL := DE - 1
-                ld      l,e
-                dec     hl                     
-                lddr
                 jp      chput_esc_k
 
 ; -- Delete line (and scroll rest up)
