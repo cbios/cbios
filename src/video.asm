@@ -229,6 +229,8 @@ filvrm_lp:
 ; Input    : BC - blocklength
 ;            DE - Start address of memory
 ;            HL - Start address of VRAM
+; Output   : DE - end address of memory + 1
+;            BC - 0 in SCREEN 0-3, $0098 in SCREEN 4-8 (as on MSX)
 ; Registers: AF BC DE
 ; Note     : the function doesn't destroy HL
 ; Note     : the routine doesn't change IM
@@ -240,12 +242,13 @@ ldirmv:
                 cp      4
                 jr      nc,ldirmv_new
                 call    setrd
-                jr      ldirmv_cont
+                call    ldirmv_cont
+                ld      c,b             ; SCREEN 0-3: BC := 0, as on MSX
+                ret
 ldirmv_new:
                 call    nsetrd
 ldirmv_cont:
         ENDIF
-                push    hl
                 ex      de,hl
                 dec     bc
                 inc     c
@@ -263,7 +266,10 @@ ldirmv_lp:
         ENDIF
                 dec     a
                 jr      nz,ldirmv_lp
-                pop     hl
+        IF VDP = TMS99X8
+                ld      c,b             ; BC := 0
+        ENDIF
+                ex      de,hl           ; HL := VRAM start, DE := memory end
                 ret
 
 ;--------------------------------
@@ -272,6 +278,9 @@ ldirmv_lp:
 ; Input    : BC - blocklength
 ;            DE - Start address of VRAM
 ;            HL - Start address of memory
+; Output   : DE - end address of memory + 1
+;            HL - start address of VRAM
+;            BC - 0 in SCREEN 0-3, $0098 in SCREEN 4-8 (as on MSX)
 ; Note     : the routine doesn't change IM
 ; Registers: All
 ldirvm:
@@ -283,7 +292,9 @@ ldirvm:
                 cp      4
                 jr      nc,ldirvm_new
                 call    setwrt
-                jr      ldirvm_cont
+                call    ldirvm_cont
+                ld      c,b             ; SCREEN 0-3: BC := 0, as on MSX
+                ret
 ldirvm_new:
                 call    nsetwr
 ldirvm_cont:
@@ -305,6 +316,9 @@ ldirvm_lp:
         ENDIF
                 dec     a
                 jr      nz,ldirvm_lp
+        IF VDP = TMS99X8
+                ld      c,b             ; BC := 0
+        ENDIF
                 ; Note: Without this, Quinpl shows glitches.
                 ; TODO: Investigate why.
                 ex      de,hl
