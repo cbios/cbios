@@ -1146,6 +1146,9 @@ init_ram:
                 ld      hl,KEYBUF
                 ld      (PUTPNT),hl
                 ld      (GETPNT),hl
+; Scan the keyboard at the first interrupt: SCNCNT := 1 (it is 0 here)
+                ld      hl,SCNCNT
+                inc     (hl)
 
 ;                ld      hl,$8000
                 exx
