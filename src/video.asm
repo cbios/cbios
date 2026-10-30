@@ -416,28 +416,6 @@ chgmod_finish_lp:
 ;            Bordercolor in BDRCLR
 ; Registers: All
 chgclr:
-                ld      a,(SCRMOD)
-                cp      8
-                jr      z,chgclr_sc8
-                dec     a
-                push    af
-                ld      a,(FORCLR)
-                rlca
-                rlca
-                rlca
-                rlca
-                and     $F0
-                ld      l,a
-                ld      a,(BDRCLR)
-                or      l
-
-                ld      b,a
-                ld      c,7
-                call    wrtvdp
-                pop     af
-                ret     nz
-
-                ; SCREEN1
                 ld      a,(FORCLR)
                 rlca
                 rlca
@@ -446,6 +424,24 @@ chgclr:
                 and     $F0
                 ld      hl,BAKCLR
                 or      (hl)
+                ld      e,a                     ; E := FORCLR*16 + BAKCLR
+                ld      b,a
+                ; R#7 is the text colours in SCREEN0,
+                ; the border colour in all other screens.
+                ld      a,(SCRMOD)
+                ld      d,a
+                or      a
+                jr      z,chgclr_r7
+                ld      a,(BDRCLR)
+                ld      b,a
+chgclr_r7:
+                ld      c,7
+                call    wrtvdp                  ; preserves DE
+                dec     d
+                ret     nz
+
+                ; SCREEN1
+                ld      a,e
                 ld      hl,(T32COL)
                 ld      bc,$0020
                 push    af
@@ -460,13 +456,6 @@ cclr_lp:
                 jr      nz,cclr_lp
                 pop     af
                 ret
-
-chgclr_sc8:
-                ; SCREEN8
-                ld      a,(BDRCLR)
-                ld      b,a
-                ld      c,7
-                jp      wrtvdp
 
 ;--------------------------------
 ; $0069 CLRSPR
