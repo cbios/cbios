@@ -2862,18 +2862,22 @@ put_key_fnk_nul:
 
 ; Check scan table
 key_ascii:
-                ld      a,(hl)          ; get ASCII value
-                ; HOME is $0B, SHIFT+HOME is $0C (CLS). The table for rows 6-11
-                ; has no SHIFT variant, so handle that one key here.
+                ld      a,c
+                cp      6
+                ld      a,(hl)          ; get ASCII value (keeps the flags)
+                jr      nc,key_ascii_ctrl       ; C >= 6: rows 0-5
+                ; Rows 6-11. HOME is $0B, SHIFT+HOME is $0C (CLS). The table
+                ; for these rows has no SHIFT variant, so handle that one key.
                 cp      $0B
-                jr      nz,key_ascii_nohome
+                jr      nz,key_ascii_chk
                 ld      a,(NEWKEY + 6)  ; SHIFT is row 6 bit 0, active low
                 rrca                    ; carry set: SHIFT not pressed
                 sbc     a,a             ; A := $FF if not pressed, else $00
                 add     a,$0C
-key_ascii_nohome:
+key_ascii_chk:
                 and     a               ; dead key?
                 jr      z,key_store_end2
+key_ascii_put:
                 ; Store ASCII value in key buffer.
                 ; Since a full buffer is indicated by PUTPNT == GETPNT - 1,
                 ; it is always safe to store a character, but if the buffer
@@ -2885,6 +2889,24 @@ key_ascii_nohome:
 key_store_end2:
                 pop     af
                 jp      key_bit_next
+
+key_ascii_ctrl:
+                ; Rows 0-5. With CTRL held, a key gives its control code:
+                ; a character of $40 or more becomes char AND $1F (which is
+                ; stored even when it is 0). Anything below $40 gives nothing
+                ; on international machines and itself on Japanese ones.
+                ld      a,(NEWKEY + 6)
+                and     $02             ; CTRL is row 6 bit 1, active low
+                ld      a,(hl)          ; (keeps the flags)
+                jr      nz,key_ascii_chk
+                cp      $40
+        IF LOCALE_KBD = LOCAL_KBD_JP
+                jr      c,key_ascii_chk
+        ELSE
+                jr      c,key_store_end2
+        ENDIF
+                and     $1F
+                jr      key_ascii_put
 
 ;--------------------------------
 key_put_into_buf:
