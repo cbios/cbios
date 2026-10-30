@@ -2623,6 +2623,26 @@ kilbuf:
 ;
 ; Riseout , Replicart
 
+; Keyboard timing as on real MSX: the keyboard is scanned every KEY_SCAN
+; interrupts, a held key repeats after KEY_DELAY scans and then every
+; KEY_REPEAT scans. MSX2 and later machines pick the values that give about
+; the same timing at 50 and 60 Hz.
+        IF MODEL_MSX = MODEL_MSX1
+KEY_SCAN:       equ     3
+KEY_DELAY:      equ     13
+KEY_REPEAT:     equ     1
+        ELSE
+        IF LOCALE_INT = LOCAL_INT_50HZ
+KEY_SCAN:       equ     1
+KEY_DELAY:      equ     32
+KEY_REPEAT:     equ     2
+        ELSE
+KEY_SCAN:       equ     2
+KEY_DELAY:      equ     20
+KEY_REPEAT:     equ     1
+        ENDIF
+        ENDIF
+
 keyint:
                 push    hl
                 push    de
@@ -2667,12 +2687,12 @@ keyint:
                 xor     a
                 ld      (CLIKFL),a
 
-                ; Scan the keyboard every three interrupts.
+                ; Scan the keyboard every KEY_SCAN interrupts.
                 ld      a,(SCNCNT)
                 dec     a
                 ld      (SCNCNT),a
                 jr      nz,int_end
-                ld      a,3
+                ld      a,KEY_SCAN
                 ld      (SCNCNT),a
 
                 ; TODO read joystick triggers and space for TRGFLG
@@ -2701,7 +2721,7 @@ clear_oldkey:
                 inc     hl
                 djnz    clear_oldkey
                 call    key_in
-                ld      a,1
+                ld      a,KEY_REPEAT
                 ld      (REPCNT),a
 
 int_end:
@@ -2758,7 +2778,12 @@ scan_start:
 key_chk_lp:
                 ld      a,(de)
                 cp      (ix+0)
-                call    nz,key_set_delay
+                jr      z,key_chk_same
+                ; Row changed: set the auto-repeat delay.
+                ld      a,KEY_DELAY
+                ld      (REPCNT),a
+                ld      a,(de)
+key_chk_same:
                 cpl
                 and     (ix+0)
                 ex      af,af'                          ; Update OLDKEY.
@@ -2786,14 +2811,6 @@ key_bit_next:
                 ; modifier keys are held.
                 ld      hl,scode_tbl_otherkeys
                 jr      key_chk_lp
-
-key_set_delay:
-                ; Set the auto-repeat delay.
-                push    af
-                ld      a,5
-                ld      (REPCNT),a
-                pop     af
-                ret
 
 key_store:
                 push    af
