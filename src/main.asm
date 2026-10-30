@@ -2869,8 +2869,8 @@ key_ascii:
                 jr      nz,key_ascii_nohome
                 ld      a,(NEWKEY + 6)  ; SHIFT is row 6 bit 0, active low
                 rrca                    ; carry set: SHIFT not pressed
-                ld      a,$0C
-                sbc     a,0
+                sbc     a,a             ; A := $FF if not pressed, else $00
+                add     a,$0C
 key_ascii_nohome:
                 and     a               ; dead key?
                 jr      z,key_store_end2
