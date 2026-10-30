@@ -1572,13 +1572,14 @@ outdo:
 ; $0020 DCOMPR
 ; Function : Compared HL to DE
 ; Output   : flags influenced like CP instruction
+;            A = H - D, or L - E if H = D
 ; Registers: A
 dcompr:
                 ld      a,h
-                cp      d
+                sub     d
                 ret     nz
                 ld      a,l
-                cp      e
+                sub     e
                 ret
 
 ;--------------------------------
