@@ -46,8 +46,8 @@ date.
 
 Older releases are described in `doc/cbios.txt` and `doc/changelog-old.txt`.
 
-[Unreleased]: https://github.com/cbios/cbios/compare/v0.29...master
-[0.29a]: https://github.com/cbios/cbios/compare/v0.29...d714def
+[Unreleased]: https://github.com/cbios/cbios/compare/v0.29a...master
+[0.29a]: https://github.com/cbios/cbios/compare/v0.29...v0.29a
 [0.29]: https://github.com/cbios/cbios/releases/tag/v0.29
 [#6]: https://github.com/cbios/cbios/pull/6
 [#7]: https://github.com/cbios/cbios/pull/7
