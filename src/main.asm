@@ -1114,7 +1114,7 @@ run_basic_roms_next:
 init_ram:
 
 ; Initialize workarea
-                ld      a,$00
+                xor     a
                 ld      hl,$F380
                 ld      (hl),a
                 ld      de,$F381
@@ -1129,8 +1129,7 @@ init_ram:
                 ld      bc,$007F
                 ldir
 
-; initialize hook area with $C9 (assembler code for ret)
-                ld      a,$C9           ; ret code
+; initialize hook area with $C9 (assembler code for ret), A is still $C9
                 ld      hl,H_KEYI
                 ld      (hl),a
                 ld      de,H_KEYI+1
@@ -1145,21 +1144,9 @@ init_ram:
                 ld      bc,21
                 ldir
 
-; Initialize Key buffer
-                ld      a,$00
-                ld      hl,KEYBUF
-                ld      (hl),a
-                ld      de,KEYBUF+1
-                ld      bc,39
-                ldir
-
+; The workarea fill above has already cleared KEYBUF and RG9SAV-RG23SAV.
+; RG8SAV got $C9 from the hook fill and is set here.
         IF VDP != TMS99X8
-                ld      a,$00
-                ld      hl,RG8SAV
-                ld      (hl),a
-                ld      de,RG8SAV + 1
-                ld      bc,15
-                ldir
                 ld      a,$08
                 ld      (RG8SAV),a
                 ld      a,LOCALE_INT >> 6
