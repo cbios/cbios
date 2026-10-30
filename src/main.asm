@@ -2720,7 +2720,10 @@ clear_oldkey:
                 ld      (hl),c
                 inc     hl
                 djnz    clear_oldkey
-                call    key_in
+                ; Compare against the matrix key_in just read: a second read
+                ; could catch a key pressed in between, which would then get
+                ; the repeat delay below instead of the delay of a new key.
+                call    key_cmp
                 ld      a,KEY_REPEAT
                 ld      (REPCNT),a
 
@@ -2763,6 +2766,7 @@ key_in_lp:
                 inc     c
                 djnz    key_in_lp
 
+key_cmp:
                 ld      ix,OLDKEY
                 ld      de,NEWKEY
                 ; Use plain or SHIFT version of rows 0-5?
