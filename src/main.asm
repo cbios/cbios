@@ -2868,8 +2868,27 @@ key_ascii:
                 ld      a,$0C
                 sbc     a,0
 key_ascii_nohome:
+                ; With CTRL held, a key in rows 0-5 gives its control code:
+                ; a character of $40 or more becomes char AND $1F (which is
+                ; stored even when it is 0), anything below $40 gives nothing.
+                ; AF' is free here: key_chk_lp only used it to update OLDKEY.
+                ex      af,af'
+                ld      a,c
+                cp      6
+                jr      c,key_ascii_noctrl      ; rows 6-11
+                ld      a,(NEWKEY + 6)
+                and     $02                     ; CTRL is row 6 bit 1, active low
+                jr      nz,key_ascii_noctrl
+                ex      af,af'
+                cp      $40
+                jr      c,key_store_end2
+                and     $1F
+                jr      key_ascii_put
+key_ascii_noctrl:
+                ex      af,af'
                 and     a               ; dead key?
                 jr      z,key_store_end2
+key_ascii_put:
                 ; Store ASCII value in key buffer.
                 ; Since a full buffer is indicated by PUTPNT == GETPNT - 1,
                 ; it is always safe to store a character, but if the buffer
