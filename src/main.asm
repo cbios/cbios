@@ -2693,7 +2693,10 @@ clear_oldkey:
                 ld      (hl),c
                 inc     hl
                 djnz    clear_oldkey
-                call    key_in
+                ; Compare against the matrix key_in just read: a second read
+                ; could catch a key pressed in between, which would then get
+                ; the repeat delay below instead of the delay of a new key.
+                call    key_cmp
                 ld      a,1
                 ld      (REPCNT),a
 
@@ -2736,6 +2739,7 @@ key_in_lp:
                 inc     c
                 djnz    key_in_lp
 
+key_cmp:
                 ld      ix,OLDKEY
                 ld      de,NEWKEY
                 ; Use plain or SHIFT version of rows 0-5?
@@ -2781,9 +2785,9 @@ key_bit_next:
                 jr      key_chk_lp
 
 key_set_delay:
-                ; Set the auto-repeat delay.
+                ; Set the auto-repeat delay: 13 keyboard scans, as on real MSX.
                 push    af
-                ld      a,5
+                ld      a,13
                 ld      (REPCNT),a
                 pop     af
                 ret
