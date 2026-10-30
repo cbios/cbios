@@ -2859,6 +2859,15 @@ put_key_fnk_nul:
 ; Check scan table
 key_ascii:
                 ld      a,(hl)          ; get ASCII value
+                ; HOME is $0B, SHIFT+HOME is $0C (CLS). The table for rows 6-11
+                ; has no SHIFT variant, so handle that one key here.
+                cp      $0B
+                jr      nz,key_ascii_nohome
+                ld      a,(NEWKEY + 6)  ; SHIFT is row 6 bit 0, active low
+                rrca                    ; carry set: SHIFT not pressed
+                ld      a,$0C
+                sbc     a,0
+key_ascii_nohome:
                 and     a               ; dead key?
                 jr      z,key_store_end2
                 ; Store ASCII value in key buffer.
@@ -3179,7 +3188,7 @@ str_nocart:
 scode_tbl_otherkeys:
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
                 db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
-                db      $20,$0C,$12,$7F,$1D,$1E,$1F,$1C ;08
+                db      $20,$0B,$12,$7F,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
 
