@@ -21,4 +21,4 @@ To test C-BIOS, you can use the supplied emulator configurations in the
 
 If you have made interesting improvements to C-BIOS, please tell us about them.
 
-http://cbios.sourceforge.net/
+https://github.com/cbios/cbios

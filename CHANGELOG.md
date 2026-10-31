@@ -8,6 +8,8 @@ date.
 
 ## [Unreleased]
 
+## [0.30] - 2026-10-31
+
 ### Added
 - Keyboard scan entry at `$0D12`, as in the MSX1 BIOS; Buzz Off and Shark Hunter call it ([#21])
 - Region and localization info in the openMSX machine configs
@@ -15,6 +17,7 @@ date.
 ### Changed
 - Keyboard scan and auto-repeat timing follow real machines: MSX1, MSX2/2+ at 50 Hz and at 60 Hz ([#11])
 - More free ROM space below the font: MSX1 245 → 339, MSX2 48 → 156, MSX2+ 40 → 148 bytes ([#6], [#16], [#23])
+- Boot screen and docs point to github.com/cbios instead of SourceForge ([#24])
 
 ### Fixed
 - INS and DEL produce their control codes ([#7])
@@ -46,7 +49,8 @@ date.
 
 Older releases are described in `doc/cbios.txt` and `doc/changelog-old.txt`.
 
-[Unreleased]: https://github.com/cbios/cbios/compare/v0.29a...master
+[Unreleased]: https://github.com/cbios/cbios/compare/v0.30...master
+[0.30]: https://github.com/cbios/cbios/compare/v0.29a...v0.30
 [0.29a]: https://github.com/cbios/cbios/compare/v0.29...v0.29a
 [0.29]: https://github.com/cbios/cbios/releases/tag/v0.29
 [#6]: https://github.com/cbios/cbios/pull/6
@@ -67,3 +71,4 @@ Older releases are described in `doc/cbios.txt` and `doc/changelog-old.txt`.
 [#21]: https://github.com/cbios/cbios/pull/21
 [#22]: https://github.com/cbios/cbios/pull/22
 [#23]: https://github.com/cbios/cbios/pull/23
+[#24]: https://github.com/cbios/cbios/pull/24
