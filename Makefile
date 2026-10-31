@@ -8,7 +8,7 @@ PACKAGE_NAME:=cbios
 VERSION:=$(shell cat version.txt)
 PACKAGE_FULL:=$(PACKAGE_NAME)-$(VERSION)
 
-TITLE:="C-BIOS $(VERSION)      cbios.sf.net"
+TITLE:="C-BIOS $(VERSION)  github.com/cbios"
 VERSION_FILE:=derived/asm/version.asm
 
 ROMS:=main_msx1 main_msx1_eu main_msx1_jp main_msx1_br \

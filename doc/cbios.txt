@@ -8,7 +8,7 @@ Before you use it, you should read and accept the license (see below).
 On the C-BIOS web site, you can download newer versions, download the source
 code, and report bugs.
 
-http://cbios.sourceforge.net/
+https://github.com/cbios/cbios
 
 
 License

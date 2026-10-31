@@ -3189,7 +3189,7 @@ vram_clear_lp:  xor     a
 
 str_proginfo:
                 ;       [01234567890123456789012345678]
-                ;db     "C-BIOS 1.23      cbios.sf.net"
+                ;db     "C-BIOS 1.23  github.com/cbios"
                 include "../derived/asm/version.asm"
                 db      $0D,$0A
                 include "locale.asm"
