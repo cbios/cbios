@@ -17,7 +17,7 @@ date.
 ### Changed
 - Keyboard scan and auto-repeat timing follow real machines: MSX1, MSX2/2+ at 50 Hz and at 60 Hz ([#11])
 - More free ROM space below the font: MSX1 245 → 339, MSX2 48 → 156, MSX2+ 40 → 148 bytes ([#6], [#16], [#23])
-- Boot screen and docs point to github.com/cbios instead of SourceForge ([#24])
+- Boot screen and docs point to the new website, cbios.github.io, instead of SourceForge ([#24])
 
 ### Fixed
 - INS and DEL produce their control codes ([#7])
