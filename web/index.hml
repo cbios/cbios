@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="iso-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML Basic 1.0//EN"
+"http://www.w3.org/TR/xhtml-basic/xhtml-basic10.dtd">
+
+<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en">
+<head>
+<link title="C-BIOS Style" rel="stylesheet" href="cbios.css" type="text/css" />
+<title>C-BIOS Association</title>
+</head>
+
+<body>
+
+<h1>C-BIOS Association</h1>
+
+<h2>What is C-BIOS?</h2>
+
+<ul>
+<li>C-BIOS is a BIOS compatible with the MSX BIOS</li>
+<li>C-BIOS was written from scratch by BouKiCHi</li>
+<li>C-BIOS is available for free, including its source code
+(2-clause BSD license)</li>
+<li>C-BIOS can be shipped with MSX emulators so they are usable
+out-of-the-box without copyright issues</li>
+</ul>
+
+<h2>Current Status</h2>
+
+<ul>
+<li>C-BIOS lives as a collaborative project on github.com.</li>
+<li>C-BIOS is shipped with several MSX emulators and Linux distributions.</li>
+<li>Most ROM games run fine on C-BIOS.</li>
+<li>There is no cassette support yet.</li>
+<li>There is no disk support yet.</li>
+<li>There is no BASIC yet.</li>
+</ul>
+
+<h2>Emulators that ship with C-BIOS</h2>
+<ul>
+<li><a href="http://www.bluemsx.com/">blueMSX</a></li>
+<li><a href="http://www.openmsx.org/">openMSX</a></li>
+<li><a href="http://www.lexlechz.at/msx/RuMSX.html">RuMSX</a></li>
+</ul>
+
+<h2>Project pages</h2>
+
+<ul>
+
+<li>Look at the
+<a href="https://github.com/cbios/cbios">project summary</a>.
+</li>
+
+<li>You can
+<a href="https://github.com/cbios/cbios/releases">download C-BIOS</a>.
+It is packed in a ZIP file which includes the ROMs, the sources and emulator configuration files.
+</li>
+
+<li>Join the <a href="http://sourceforge.net/mail/?group_id=123693">development mailing list</a> (cbios-devel).
+</li>
+
+</ul>
+
+</body>
+</html>
