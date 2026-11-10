@@ -8,7 +8,7 @@ date.
 
 ## [Unreleased]
 
-## [0.30] - 2026-10-31
+## [0.30] - 2026-11-10
 
 ### Added
 - Keyboard scan entry at `$0D12`, as in the MSX1 BIOS; Buzz Off and Shark Hunter call it ([#21])

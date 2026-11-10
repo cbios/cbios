@@ -217,7 +217,7 @@ ver 0.29  2018-02-18(CET)
             at 50Hz default interrupt frequency
 ver 0.29a 2018-09-23(CEST)
           * Fixed metadata in openMSX configs for EU machines
-ver 0.30  2026-10-31(CET)
+ver 0.30  2026-11-10(CET)
           * Many keyboard, screen editor and BIOS call fixes, measured
             against real MSX machines; see CHANGELOG.md for the full list
           * Website moved to https://cbios.github.io/, source to
