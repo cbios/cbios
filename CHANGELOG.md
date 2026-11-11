@@ -12,6 +12,7 @@ date.
 - Paddle support (GTPDL)
 - Touch pad support (GTPAD)
 - Mouse and trackball support on MSX2 and MSX2+ (GTPAD, NEWPAD)
+- STOREC, and MAPXYC in the sub-ROM
 
 ### Changed
 - The keyboard scan takes less than half the time
@@ -23,6 +24,7 @@ date.
 - CHGCAP switched the CAPS lamp the wrong way round
 - On MSX1, SCREEN 0 left three VDP registers as the previous screen mode had set them
 - Clearing the sprites (CLRSPR, and changing screen mode) also reset each sprite's X position
+- MAPXYC put the graphics cursor in the wrong place, and only handled SCREEN 2
 
 ## [0.30] - 2026-11-10
 
