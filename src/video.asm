@@ -2664,7 +2664,10 @@ readc:
         ENDIF
                 push    hl
                 push    bc
+                call    fetchc
+                push    af
                 call    gc_cell
+                pop     af
                 and     b
                 ld      a,c
                 jr      z,readc_bg      ; the bit is clear: the background
@@ -2699,10 +2702,19 @@ setc:
                 jr      nc,setc_bitmap
         ENDIF
                 push    hl
+                call    fetchc          ; HL = CLOC, A = CMASK
+                jr      setc_cell
+
+; Sets the pixels of mask A in the pattern byte at HL, as SETC sets one.
+; SCREEN 2 and 4 only. Registers: AF
+setc_hl:
+                push    hl
+setc_cell:
                 push    bc
                 push    de
+                push    hl              ; the pattern byte's address
+                ld      d,a             ; D = the mask
                 call    gc_cell
-                ld      d,a             ; D = CMASK
                 ld      a,(ATRBYT)
                 ld      e,a
                 jr      c,setc_sc3
@@ -2737,11 +2749,9 @@ setc_clear:
 setc_set:
                 ld      e,a             ; E = the change to the colour byte, 0: none
                 ld      a,b
-setc_write:
-                push    hl              ; the colour byte's address
-                ld      hl,(CLOC)
+                ex      (sp),hl         ; HL = the pattern byte's address
                 call    wrtvrm          ; the pattern byte; F is kept
-                pop     hl
+                pop     hl              ; the colour byte's address
                 jr      z,setc_done
                 ld      a,e
 setc_colour:
@@ -2762,44 +2772,106 @@ setc_sc3:
                 or      e
                 xor     c
                 and     d
+                pop     hl              ; the pattern byte's address, as HL
                 jr      setc_colour
 
-; Output : B = the pattern byte at CLOC, C = the colour byte for it, HL = its
-;          address; A = CMASK; SCREEN 3: C set, HL = CLOC, B = $80, C = the
-;          pattern byte, which holds two colours
+; Input  : HL = the address of a pattern byte
+; Output : B = the pattern byte, C = the colour byte for it, HL = its
+;          address; SCREEN 3: C set, HL unchanged, B = $80, C = the pattern
+;          byte, which holds two colours
 ; Changes: AF
 gc_cell:
-                ld      hl,(CLOC)
                 call    rdvrm
                 ld      c,a
                 ld      b,$80
                 ld      a,(SCRMOD)
                 cp      3
                 scf
-                jr      z,gc_cell_mask
+                ret     z
                 ld      b,c
                 ld      a,h
                 xor     $20             ; the colour byte is $2000 away
                 ld      h,a
                 call    rdvrm           ; C reset
                 ld      c,a
-gc_cell_mask:
-                ld      a,(CMASK)
                 ret
 
 ;--------------------------------
 ; $0123 NSETCX
-; Function : Set horizontal screenpixels
-; NOTE     : This implementation is still a stub!
+; Function : Sets a row of pixels from the graphics cursor rightward to the
+;            colour ATRBYT
+; Input    : HL - the number of pixels; other modes than SCREEN 2 and 4
+;                 only use L, with 0 as 256
+; Registers: All
+; Remark   : SCREEN 2 and 4: a byte at a time, and the cursor stays. A byte
+;            with only some of its pixels in the row is set as SETC sets one
+;            pixel, with all those pixels at once; also the first byte when
+;            HL is 0 (none of its pixels), unless the row starts at the
+;            byte's left edge. Every byte with all 8 pixels in the row gets
+;            pattern $00 and colour byte ATRBYT. The registers it leaves
+;            differ from those a VG-8020 or NMS 8250 leaves.
+;            Other modes: SETC and RIGHTC for each pixel; the cursor ends
+;            after the row. In SCREEN 5-8 that is of little use, as RIGHTC
+;            there moves the cursor as in SCREEN 3.
 nsetcx:
+                ld      a,(SCRMOD)
+                cp      3
+                jr      z,nsetcx_px
+        IF VDP != TMS99X8
+                cp      5
+                jr      nc,nsetcx_px
+        ENDIF
+                ; Per byte: C = its pixels from the row's start rightward, B =
+                ; the same shifted right once per pixel counted off DE; then
+                ; C - B are the pixels in the row (B = 0: all of C).
+                ex      de,hl           ; DE = the count
+                call    fetchc          ; HL = the byte's address
+                add     a,a
+                dec     a               ; the cursor's bit and all right of it
+nsetcx_byte:
+                ld      c,a
+                ld      b,a
+nsetcx_count:
+                ld      a,d
+                or      e
+                jr      z,nsetcx_mask   ; no pixels left
+                dec     de
+                srl     b
+                jr      nz,nsetcx_count ; the byte has more pixels
+nsetcx_mask:
+                ld      a,c
+                sub     b               ; A = the byte's pixels in the row
+                inc     b
+                ret     z               ; none left at a byte's left edge: done
+                inc     a
+                jr      nz,nsetcx_setc  ; not all 8
+                ; All 8: make the colour byte ATRBYT; then ATRBYT is its
+                ; background, and SETC with mask $FF clears the pattern byte.
                 push    hl
-                push    af
-                ld      hl,nsetcx_text
-                call    print_debug
-                pop     af
+                ld      a,h
+                xor     $20
+                ld      h,a
+                ld      a,(ATRBYT)
+                call    wrtvrm
                 pop     hl
+                xor     a
+nsetcx_setc:
+                dec     a
+                call    setc_hl
+                ld      bc,8
+                add     hl,bc           ; the next byte
+                ld      a,$FF
+                jr      nsetcx_byte
+
+; Other modes: a pixel at a time; only L counts, 0 as 256.
+nsetcx_px:
+                push    hl
+                call    setc
+                call    rightc
+                pop     hl
+                dec     l
+                jr      nz,nsetcx_px
                 ret
-nsetcx_text:    db      "NSETCX",0
 
 ;--------------------------------
 ; $0126 GTASPC
