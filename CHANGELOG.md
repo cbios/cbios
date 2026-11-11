@@ -8,6 +8,9 @@ date.
 
 ## [Unreleased]
 
+### Changed
+- The keyboard scan takes less than half the time
+
 ### Fixed
 - STOP and CTRL+STOP had no effect
 - Register values after RDSLT and WRSLT
