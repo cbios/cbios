@@ -16,6 +16,7 @@ date.
 - Graphics cursor moves: RIGHTC, LEFTC, UPC, DOWNC, TUPC and TDOWNC
 - SCALXY and GTASPC
 - SETATR, READC and SETC
+- NSETCX
 
 ### Changed
 - The keyboard scan takes less than half the time
