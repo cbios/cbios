@@ -8,6 +8,8 @@ date.
 
 ## [Unreleased]
 
+## [0.31] - 2026-11-11
+
 ### Added
 - Paddle support (GTPDL)
 - Touch pad support (GTPAD)
@@ -71,7 +73,8 @@ date.
 
 Older releases are described in `doc/cbios.txt` and `doc/changelog-old.txt`.
 
-[Unreleased]: https://github.com/cbios/cbios/compare/v0.30...master
+[Unreleased]: https://github.com/cbios/cbios/compare/v0.31...master
+[0.31]: https://github.com/cbios/cbios/compare/v0.30...v0.31
 [0.30]: https://github.com/cbios/cbios/compare/v0.29a...v0.30
 [0.29a]: https://github.com/cbios/cbios/compare/v0.29...v0.29a
 [0.29]: https://github.com/cbios/cbios/releases/tag/v0.29
