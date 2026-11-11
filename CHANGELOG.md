@@ -15,6 +15,7 @@ date.
 - STOP and CTRL+STOP had no effect
 - Register values after RDSLT and WRSLT
 - Cartridges in later slots did not start when an earlier cartridge's init routine returned
+- CHGCAP switched the CAPS lamp the wrong way round
 
 ## [0.30] - 2026-11-10
 
