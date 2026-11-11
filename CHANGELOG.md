@@ -14,6 +14,7 @@ date.
 - Mouse and trackball support on MSX2 and MSX2+ (GTPAD, NEWPAD)
 - STOREC, and MAPXYC in the sub-ROM
 - Graphics cursor moves: RIGHTC, LEFTC, UPC, DOWNC, TUPC and TDOWNC
+- SCALXY and GTASPC
 
 ### Changed
 - The keyboard scan takes less than half the time

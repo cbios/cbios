@@ -364,6 +364,22 @@ chgmod_tbl:
 chgmod_finish:
                 ; Generic state resets.
         IF VDP != TMS99X8
+                ; The aspect ratio: ASPCT1, ASPCT2 = $100, $100; in
+                ; SCREEN 6 and 7 (512 pixels wide) $200, $80.
+                ld      a,(SCRMOD)
+                ld      hl,$0100
+                ld      d,h
+                ld      e,l
+                sub     6
+                cp      2
+                jr      nc,chgmod_finish_aspect
+                add     hl,hl
+                ld      e,$80
+                dec     d
+chgmod_finish_aspect:
+                ld      (ASPCT1),hl
+                ld      (ASPCT2),de
+
                 ld      hl,RG8SAV+9-8
                 ld      a,(SCRMOD)
                 cp      5
@@ -2331,13 +2347,77 @@ gc_row_done:
 
 ;--------------------------------
 ; $010E SCALXY
-; Function : Scales X and Y coordinates
-; NOTE     : This implementation is still a stub!
+; Function : Clips a coordinate to the screen
+; Input    : BC - X, DE - Y
+; Output   : BC, DE - the coordinate; a negative one becomes 0, one beyond
+;                     the last pixel becomes that pixel: X 255 (SCREEN 6, 7:
+;                     511), Y 191 (SCREEN 5-8: 211); in SCREEN 3 both are
+;                     then divided by 4, into blocks of 4x4 pixels
+;            A      - $80 if nothing was clipped, else 0; C set likewise
+; Registers: AF, BC, DE
 scalxy:
-                ld      bc,(GRPACX)
-                ld      de,(GRPACY)
+                push    hl
+                ld      h,1             ; nothing clipped yet
+        IF VDP != TMS99X8
+                ld      a,(SCRMOD)
+                cp      5
+                ld      a,191
+                jr      c,scalxy_y
+                ld      a,211
+scalxy_y:
+        ELSE
+                ld      a,191
+        ENDIF
+                inc     d
+                dec     d
+                jr      nz,scalxy_yclip ; negative, or beyond 255
+                cp      e
+                jr      nc,scalxy_x     ; up to the last row
+scalxy_yclip:
+                bit     7,d
+                ld      d,0
+                ld      h,d             ; clipped
+                ld      e,a
+                jr      z,scalxy_x
+                ld      e,d             ; negative: 0
+scalxy_x:
+        IF VDP != TMS99X8
+                ld      a,(SCRMOD)
+                sub     6
+                cp      2
+                sbc     a,a
+                neg                     ; A = 1 in SCREEN 6 and 7, else 0
+        ELSE
+                xor     a
+        ENDIF
+                cp      b
+                jr      nc,scalxy_scale ; B up to the last X's high byte
+                bit     7,b
+                ld      b,a
+                ld      c,$FF           ; the last X
+                ld      h,0             ; clipped
+                jr      z,scalxy_scale
+                ld      b,h
+                ld      c,h             ; negative: 0
+scalxy_scale:
+                ; F is part of the result: S, Z and P/V from here
+                ld      a,(SCRMOD)
+        IF VDP = TMS99X8
+                cp      2
+                jr      z,scalxy_done
+        ELSE
+                cp      3
+                jr      nz,scalxy_done
+        ENDIF
+                srl     c
+                srl     c
+                srl     e
+                srl     e
+scalxy_done:
+                ld      a,h
+                pop     hl
+                rrca                    ; $80 and C: nothing clipped
                 ret
-scalxy_text:    db      "SCALXY",0
 
 ;--------------------------------
 ; $0111 MAPXYC
@@ -2499,19 +2579,13 @@ nsetcx_text:    db      "NSETCX",0
 
 ;--------------------------------
 ; $0126 GTASPC
-; Function : Gets screen relations
-; Output   : DE, HL
+; Function : Gets the screen's aspect ratio, for CIRCLE
+; Output   : DE - ASPCT1, HL - ASPCT2
 ; Registers: DE, HL
-; NOTE     : This implementation is still a stub!
 gtaspc:
-                push    hl
-                push    af
-                ld      hl,gtaspc_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      de,(ASPCT1)
+                ld      hl,(ASPCT2)
                 ret
-gtaspc_text:    db      "GTASPC",0
 
 ;--------------------------------
 ; $0129 PNTINI
