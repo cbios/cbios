@@ -956,9 +956,11 @@ search_roms_next_slot:
 
                 ; Helper routine to read two bytes from a given slot.
 search_roms_read:
-                ld      b,a             ; Save the input for RDSLT in B.
+                push    af              ; Save the input for RDSLT.
                 call    rdslt
                 inc     hl
+                pop     bc              ; B = input for RDSLT
+                push    bc
                 push    af
                 ld      a,b
                 call    rdslt
@@ -966,6 +968,7 @@ search_roms_read:
                 ld      d,a
                 pop     af
                 ld      e,a
+                pop     bc              ; B = input for RDSLT
                 ld      a,b
                 ret
 

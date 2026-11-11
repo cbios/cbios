@@ -4,55 +4,77 @@
 ; Input:   A  = slot ID: E000SSPP
 ;          HL = address to read
 ; Output:  A  = value read
+;          F  = flags of the primary slot select value
+;          B  = primary slot shifted to the page (expanded: the PSL)
+;          C  = page mask (expanded: primary slot shifted to page 3)
+;          D  = PSL, E = value read
 ;          Interrupts disabled.
-; Changes: F, C, DE
+; Changes: AF, BC, DE
 rdslt:
-                push    bc
                 push    hl
-                push    af
                 ld      d,a             ; init D in case call is not made
                 and     a               ; expanded slot?
                 di
                 call    m,select_subslot
-                pop     af
                 pop     hl
-
-                push    hl              ; HL = address
                 push    de              ; D = slot ID, E = saved SSL
-                push    hl              ; HL = address
-                push    af              ; A = slot ID
+                call    slt_select
+                call    rdprim
+                ld      a,e
+                ; fall through
+
+; Common end of RDSLT and WRSLT.
+; Input:   AF = to return; HL = address
+;          (SP) = slot ID and saved SSL
+; Output:  expanded slot: B = PSL, C = PP000000 (set by restore_subslot)
+slt_end:
+                ex      (sp),hl         ; H = slot ID, L = saved SSL
+                push    af
+                bit     7,h             ; expanded slot?
+                jr      z,slt_end_prim
+                push    de
+                ex      de,hl
+                call    restore_subslot
+                pop     de
+slt_end_prim:
+                pop     af
+                pop     hl              ; HL = address
+                ret
+
+; Compute the primary slot select value.
+; Input:   D  = slot ID: E000SSPP
+;          H  = high byte of the address
+; Output:  A  = primary slot select value (and its flags)
+;          B  = primary slot shifted to the page
+;          C  = page mask
+;          D  = current primary slot select (PSL)
+slt_select:
                 ld      a,h
                 rlca
                 rlca
                 and     $03
-                ld      l,a             ; L = page number
-
+                ld      c,a             ; C = page number
                 ld      b,a
                 ld      a,$FC
                 call    rdsft
-                ld      e,a             ; E = mask (shifted)
-                ld      b,l             ; B = page number
-                pop     af              ; A = slot ID
-                and     $03
+                ld      b,c             ; B = page number
+                ld      c,a             ; C = mask (shifted)
+                ld      a,d
+                and     $03             ; A = 000000PP
                 call    rdsft
                 ld      b,a             ; B = primary slot (shifted)
                 in      a,(PSL_STAT)
                 ld      d,a             ; D = primary slot select for restore
-                and     e
-                or      b               ; A = primary slot select for read
-                pop     hl              ; HL = address
-
-                call    rdprim
-                ld      a,e
-                pop     de              ; D = slot ID, E = saved SSL
-                push    af              ; A = value read
-                bit     7,d             ; expanded slot?
-                call    nz,restore_subslot
-                pop     af              ; A = value read
-                pop     hl              ; HL = address
-                pop     bc
+                and     c
+                or      b
                 ret
 
+; Shift a 2-bit slot field to the bit position of a page.
+; Input:   A  = value to shift
+;          B  = page number (0-3)
+; Output:  A  = A rotated left by 2*B bits
+;          B  = 0
+; Changes: F
 rdsft:
                 inc     b
                 dec     b
@@ -69,8 +91,13 @@ rdsft_lp:
 ; Input:   A  = slot ID: E000SSPP
 ;          HL = address to write
 ;          E  = value to write
-; Output:  Interrupts disabled.
-; Changes: AF, BC, D
+; Output:  A  = PSL
+;          F  = flags of the primary slot select value
+;          B  = primary slot shifted to the page (expanded: the PSL)
+;          C  = page mask (expanded: primary slot shifted to page 3)
+;          D  = PSL, E = value written
+;          Interrupts disabled.
+; Changes: AF, BC, DE
 wrslt:
                 push    hl
                 ld      d,a             ; D = slot ID
@@ -81,38 +108,10 @@ wrslt:
                 pop     bc              ; B = slot ID, C = data
                 pop     hl
                 push    de              ; D = slot ID, E = saved SSL
-
-                push    hl              ; HL = address
-                ld      a,h
-                rlca
-                rlca
-                and     $03
-                ld      l,a             ; L = page number
-
-                ld      b,a             ; B = page number
-                ld      a,$FC
-                call    rdsft
-                ld      e,a             ; E = mask (shifted)
-
-                ld      b,l             ; B = page number
-                ld      a,d
-                and     $03             ; A = 000000PP
-                call    rdsft
-                ld      b,a             ; B = primary slot (shifted)
-                in      a,(PSL_STAT)
-                ld      d,a             ; D = primary slot select for restore
-                and     e
-                or      b               ; A = primary slot select for write
-                pop     hl              ; HL = address
                 ld      e,c             ; E = data
+                call    slt_select
                 call    wrprim
-
-                pop     de              ; D = slot ID, E = saved SSL
-                push    hl              ; HL = address
-                bit     7,d             ; expanded slot?
-                call    nz,restore_subslot
-                pop     hl
-                ret
+                jr      slt_end
 
 ;-------------------------------------
 ; $001C CALSLT
@@ -362,13 +361,12 @@ select_subslot_next:
                 out     (PSL_STAT),a
                 ; Update SLTTBL.
                 ld      a,d
-                and     $03             ; A = 000000SS
-                ld      c,a
-                ld      b,0
-                ld      a,l             ; A = value written to SSL_REGS
-                ld      hl,SLTTBL
-                add     hl,bc
-                ld      (hl),a
+                and     $03             ; A = 000000PP
+                ld      b,l             ; B = value written to SSL_REGS
+                ld      hl,SLTTBL       ; (SLTTBL+3 is in the same 256 bytes)
+                add     a,l
+                ld      l,a
+                ld      (hl),b
                 ret
 
 ;--------------------------------
@@ -376,6 +374,7 @@ select_subslot_next:
 ; Input:   D  = slot ID: E000SSPP
 ;          E  = original value of secondary slot select register
 ; Output:  SLTTBL[slot] = original value of secondary slot select register
+;          B  = PSL, C = PP000000
 ; Changes: AF, HL, BC
 ; Note:    Interrupts must be disabled before calling this routine.
 restore_subslot:
@@ -385,25 +384,24 @@ restore_subslot:
                 rrca
                 rrca
                 and     $C0
-                ld      b,a             ; B = PP000000
+                ld      c,a             ; C = PP000000
                 in      a,(PSL_STAT)
-                ld      c,a             ; C = saved PSL
+                ld      b,a             ; B = saved PSL
                 and     $3F
-                or      b
+                or      c
                 out     (PSL_STAT),a
                 ; Restore secondary slot.
                 ld      a,e
                 ld      (SSL_REGS),a
                 ; Restore original primary slot in page 3.
-                ld      a,c
+                ld      a,b
                 out     (PSL_STAT),a
                 ; Update SLTTBL.
                 ld      a,d
-                and     $03             ; A = 000000SS
-                ld      c,a
-                ld      b,0
-                ld      hl,SLTTBL
-                add     hl,bc
+                and     $03             ; A = 000000PP
+                ld      hl,SLTTBL       ; (SLTTBL+3 is in the same 256 bytes)
+                add     a,l
+                ld      l,a
                 ld      (hl),e
                 ret
 
