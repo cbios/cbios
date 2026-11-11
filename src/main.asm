@@ -2795,22 +2795,20 @@ key_cmp:
 scan_start:
                 ld      c,11
 key_chk_lp:
+                ; B = 0 here: the previous row's walk or skip leaves it so.
                 ld      a,(de)
                 cp      (ix+0)
-                jr      z,key_chk_same
+                jr      z,key_row_skip  ; Row unchanged: no new key.
                 ; Row changed: set the auto-repeat delay.
                 ld      a,KEY_DELAY
                 ld      (REPCNT),a
                 ld      a,(de)
-key_chk_same:
                 cpl
                 and     (ix+0)
                 ex      af,af'                          ; Update OLDKEY.
                 ld      a,(de)
                 ld      (ix+0),a
                 ex      af,af'
-                ; TODO: Optimise scanning if no keys are pressed.
-                ;       That's the most common case by far.
                 ld      b,$08
 key_bit_lp:
                 rrca
@@ -2818,6 +2816,7 @@ key_bit_lp:
 key_bit_next:
                 inc     hl
                 djnz    key_bit_lp
+key_row_next:
                 inc     ix
                 inc     de
                 dec     c
@@ -2830,6 +2829,15 @@ key_bit_next:
                 ; modifier keys are held.
                 ld      hl,scode_tbl_otherkeys
                 jr      key_chk_lp
+
+key_row_skip:
+                ; Step the table pointer past the row's 8 keys.
+                ld      a,l
+                add     a,$08
+                ld      l,a
+                jr      nc,key_row_next
+                inc     h
+                jr      key_row_next
 
 key_store:
                 push    af
