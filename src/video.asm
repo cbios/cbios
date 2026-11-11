@@ -2114,96 +2114,220 @@ getpat_loop:    push    bc
                 ret
 
 ;--------------------------------
+; The graphics cursor: RIGHTC, LEFTC, UPC, DOWNC, TUPC and TDOWNC
+;
+; CLOC and CMASK hold the cursor (see MAPXYC):
+;   SCREEN 2, 4: CLOC = the pattern byte, CMASK = the pixel's bit
+;   SCREEN 3:    CLOC = the pattern byte, CMASK = $F0 (left block) or $0F
+;   SCREEN 5-8:  CLOC = X, CMASK = Y
+; In a pattern table, the 8 rows of a cell are 8 bytes in a row; the next
+; cell to the right is 8 bytes on, the next cell row is $100 bytes on.
+; So one pixel up or down is CLOC -/+ 1 within a cell, -/+ $F9 across a
+; cell's top or bottom row. RIGHTC, LEFTC, UPC and DOWNC do just that in
+; every mode, also in SCREEN 5-8; only TUPC and TDOWNC know about the
+; bitmap modes, where they step Y.
+;
+; All six save HL and DE and end in one shared tail:
+;   gc_rot:  A -> CMASK; on C continue at gc_move, else at gc_done
+;   gc_move: CLOC += DE
+;   gc_done: flags as after "and a" on A, restore DE and HL
+; RIGHTC/LEFTC enter at gc_rot with A = the new mask, C = moving to the
+; next/previous byte, DE = +/-8. UPC/DOWNC enter at gc_move with A = the
+; row (0-7, so "and a" gives the flags of "and 7"), DE = the step.
+; TUPC falls into UPC and TDOWNC into gc_edge: keep this order.
+
+;--------------------------------
 ; $00FC RIGHTC
-; Function : Shifts screenpixel to the right
+; Function : Moves the graphics cursor one pixel to the right
+; Output   : A - CMASK
 ; Registers: AF
-; NOTE     : This implementation is still a stub!
+; Remark   : SCREEN 3 and 5-8 use SCREEN 3's masks: $F0 and $0F
 rightc:
                 push    hl
-                push    af
-                ld      hl,rightc_text
-                call    print_debug
-                pop     af
+                push    de
+                ld      de,8
+                call    gc_nibble
+                rrca                    ; C set: on to the next byte
+                                        ; ($E1 -> $F0 with C, $1E -> $0F)
+gc_rot:
+                ld      (CMASK),a
+                jr      nc,gc_done
+gc_move:
+                ld      hl,(CLOC)
+                add     hl,de
+                ld      (CLOC),hl
+gc_done:
+                and     a
+                pop     de
                 pop     hl
                 ret
-rightc_text:    db      "RIGHTC",0
 
 ;--------------------------------
 ; $00FF LEFTC
-; Function : Shifts screenpixel to the left
+; Function : Moves the graphics cursor one pixel to the left
+; Output   : A - CMASK
 ; Registers: AF
-; NOTE     : This implementation is still a stub!
+; Remark   : SCREEN 3 and 5-8 use SCREEN 3's masks: $F0 and $0F
 leftc:
                 push    hl
-                push    af
-                ld      hl,leftc_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-leftc_text:     db      "LEFTC",0
+                push    de
+                ld      de,-8
+                call    gc_nibble
+                jr      c,leftc_bit
+                xor     $99             ; $87 for the left half, else $78
+leftc_bit:
+                rlca                    ; C set: back to the previous byte
+                jr      gc_rot          ; ($87 -> $0F with C, $78 -> $F0)
 
-;--------------------------------
-; $0102 UPC
-; Function : Shifts screenpixel up
-; Registers: AF
-; NOTE     : This implementation is still a stub!
-upc:
-                push    hl
-                push    af
-                ld      hl,upc_text
-                call    print_debug
-                pop     af
-                pop     hl
+; Output : A = CMASK, C set in SCREEN 0-2 and 4
+;          SCREEN 3 and 5-8: A = $1E for the left half, else $E1
+; Changes: AF
+; Remark : $1E and $E1 make one rotation produce the other half's mask, and
+;          the carry tells whether the cursor leaves the byte. Only bit 7 of
+;          CMASK counts, also in SCREEN 5-8, where CMASK holds Y.
+gc_nibble:
+                ld      a,(SCRMOD)
+                cp      3
+        IF VDP != TMS99X8
+                jr      z,gc_nibble_mask
+                cp      5
+gc_nibble_mask:
+        ENDIF
+                ld      a,(CMASK)
+                ret     c
+                rla
+                sbc     a,a             ; $FF for the left half
+                xor     $E1
                 ret
-upc_text:       db      "UPC",0
+
+        IF VDP != TMS99X8
+; TUPC and TDOWNC in SCREEN 5-8: step Y (CMASK) between 0 and 211.
+tupc_bitmap:
+                ld      a,(CMASK)
+                or      a
+                scf
+                ret     z               ; Y = 0: the top
+                dec     a
+                ld      (CMASK),a
+                or      a
+                ret
+tdownc_bitmap:
+                ld      a,(CMASK)
+                cp      211
+                ccf
+                ret     c               ; Y >= 211: the bottom
+                push    hl
+                push    de
+                inc     a
+                jr      gc_rot          ; C is clear: Y + 1 is stored, nothing moves
+        ENDIF
 
 ;--------------------------------
 ; $0105 TUPC
-; Function : Tests whether UPC is possible, if possible, execute UPC
-; Output   : C-flag set if operation would end outside the screen
+; Function : Moves the graphics cursor one pixel up, unless it is on the top
+;            row; SCREEN 5-8: decrements Y (CMASK)
+; Output   : C set on the top row; the cursor stays, A = 0
+;            Else as UPC; SCREEN 5-8: A = Y
 ; Registers: AF
-; NOTE     : This implementation is still a stub!
 tupc:
+        IF VDP != TMS99X8
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,tupc_bitmap
+        ENDIF
+                ld      a,(CLOC)
+                and     7
+                jr      nz,upc          ; not the cell's top row
+                call    gc_row
+                jp      m,gc_edge       ; the top cell row
+                                        ; else on into UPC
+
+;--------------------------------
+; $0102 UPC
+; Function : Moves the graphics cursor one pixel up
+; Output   : A - the row in the cell (0-7) before the move
+; Registers: AF
+upc:
                 push    hl
-                push    af
-                ld      hl,tupc_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-tupc_text:      db      "TUPC",0
+                push    de
+                ld      de,-1
+                ld      a,(CLOC)
+                and     7
+                jr      nz,gc_move      ; within the cell: CLOC - 1
+                ld      e,7             ; DE = $FF07 = -$F9: row 7 of the
+                jr      gc_move         ; cell above; A = 0
 
 ;--------------------------------
 ; $0108 DOWNC
-; Function : Shifts screenpixel down
+; Function : Moves the graphics cursor one pixel down
+; Output   : A - the row in the cell (0-7) after the move
 ; Registers: AF
-; NOTE     : This implementation is still a stub!
 downc:
                 push    hl
-                push    af
-                ld      hl,downc_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-downc_text:     db      "DOWNC",0
+                push    de
+                ld      de,1
+                ld      a,(CLOC)
+                inc     a
+                and     7
+                jr      nz,gc_move      ; within the cell: CLOC + 1
+                ld      e,$F9           ; DE = $F9: row 0 of the cell below;
+                jr      gc_move         ; A = 0
 
 ;--------------------------------
 ; $010B TDOWNC
-; Function : Tests whether DOWNC is possible, if possible, execute DOWNC
-; Output   : C-flag set if operation would end outside the screen
+; Function : Moves the graphics cursor one pixel down, unless it is on the
+;            bottom row; SCREEN 5-8: increments Y (CMASK) up to 211
+; Output   : C set on the bottom row; the cursor stays, A = 0 (SCREEN 5-8:
+;            A = Y)
+;            Else as DOWNC; SCREEN 5-8: A = Y
 ; Registers: AF
-; NOTE     : This implementation is still a stub!
 tdownc:
+        IF VDP != TMS99X8
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,tdownc_bitmap
+        ENDIF
+                ld      a,(CLOC)
+                inc     a
+                and     7
+                jr      nz,downc        ; not the cell's bottom row
+                call    gc_row
+                jr      nc,downc        ; not the bottom cell row
+gc_edge:                                ; TUPC and TDOWNC at the screen's edge
+                xor     a
+                scf
+                ret
+
+; Output : C set if the graphics cursor is on or beyond the last cell row of
+;          the pattern table (GRPCGP, SCREEN 3: MLTCGP), S set if it is on the
+;          first one or above the table
+; Changes: AF
+; Remark : The rows count from the table's base, also in SCREEN 3, as
+;          measured on an NMS 8250. Measured on a VG-8020 (MSX1), TUPC and
+;          TDOWNC in SCREEN 3 find the edges as if MLTCGP were 0; that only
+;          shows when the SCREEN 3 pattern table is moved.
+gc_row:
                 push    hl
-                push    af
-                ld      hl,tdownc_text
-                call    print_debug
-                pop     af
+                push    de
+                ld      a,(SCRMOD)
+                xor     3               ; also clears C for the sbc
+                ld      hl,(GRPCGP)
+                ld      a,$16           ; the last cell row - 1
+                jr      nz,gc_row_base
+                ld      hl,(MLTCGP)
+                ld      a,4
+gc_row_base:
+                ex      de,hl
+                ld      hl,(CLOC)
+                sbc     hl,de           ; H = the cursor's cell row
+                ccf
+                jr      nc,gc_row_done  ; above the table: never the bottom
+                cp      h               ; C if H > the last cell row - 1
+gc_row_done:
+                dec     h               ; S if H was 0, or above the table
+                pop     de
                 pop     hl
                 ret
-tdownc_text:    db      "TDOWNC",0
 
 ;--------------------------------
 ; $010E SCALXY
