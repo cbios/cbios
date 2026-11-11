@@ -16,6 +16,7 @@ date.
 - Register values after RDSLT and WRSLT
 - Cartridges in later slots did not start when an earlier cartridge's init routine returned
 - CHGCAP switched the CAPS lamp the wrong way round
+- On MSX1, SCREEN 0 left three VDP registers as the previous screen mode had set them
 
 ## [0.30] - 2026-11-10
 
