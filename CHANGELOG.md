@@ -10,6 +10,7 @@ date.
 
 ### Fixed
 - STOP and CTRL+STOP had no effect
+- Register values after RDSLT and WRSLT
 
 ## [0.30] - 2026-11-10
 
