@@ -2554,10 +2554,10 @@ calc_queue_address:
 chgcap:
                 or      a
                 in      a,(GIO_REGS)
-                res     6,a
-                jr      nz,chgcap_on
-                set     6,a
-chgcap_on:      out     (GIO_REGS),a
+                set     6,a             ; bit 6 = 1: lamp off
+                jr      nz,chgcap_out
+                res     6,a             ; bit 6 = 0: lamp on
+chgcap_out:     out     (GIO_REGS),a
                 ret
 
 ;--------------------------------
