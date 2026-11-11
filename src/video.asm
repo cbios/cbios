@@ -2523,45 +2523,269 @@ fetchc:
 
 ;--------------------------------
 ; $011A SETATR
-; Function : Set attribute byte
-; NOTE     : This implementation is still a stub!
+; Function : Sets the colour for SETC and NSETCX (ATRBYT)
+; Input    : A  - the colour, 0-15
+;                 SCREEN 8: 0-255
+;                 SCREEN 6: 0-31; 0-15 become their 2-bit colour in both
+;                 halves of the nibble, (A AND 3) * 5, 16-31 become A AND 15
+; Output   : C set if the colour is out of range; ATRBYT then stays
+; Registers: AF
 setatr:
-                push    hl
+        IF VDP != TMS99X8
                 push    af
-                ld      hl,setatr_text
-                call    print_debug
+                ld      a,(SCRMOD)
+                cp      6
+                jr      z,setatr_sc6
+                cp      8
+                jr      z,setatr_sc8
                 pop     af
+        ENDIF
+                cp      16
+                ccf
+                ret     c
+setatr_set:
+                ld      (ATRBYT),a
+                ret
+        IF VDP != TMS99X8
+setatr_sc8:
+                pop     af
+                and     a
+                jr      setatr_set
+setatr_sc6:
+                pop     af
+                cp      32
+                ccf
+                ret     c
+                cp      16
+                jr      c,setatr_sc6_low
+                and     15
+                jr      setatr_set
+setatr_sc6_low:
+                push    hl
+                and     3
+                ld      l,a
+                add     a,a
+                add     a,a
+                add     a,l
+                pop     hl
+                jr      setatr_set
+        ENDIF
+
+        IF CALL_SUB = YES
+readc_bitmap:
+                ld      ix,$0095        ; READC in the sub-ROM
+                jr      gc_extrom
+setc_bitmap:
+                ld      ix,$009D        ; SETC in the sub-ROM
+gc_extrom:
+                jp      extrom
+        ENDIF
+        IF MODEL_MSX = MODEL_SUBROM
+; READC and SETC in SCREEN 5-8, with the VDP's POINT and PSET commands at
+; X = CLOC, Y = CMASK on the active page.
+readc_bitmap:
+                push    hl
+                ld      a,32
+                call    gc_vdp_xy       ; SX, SY
+                ld      a,45
+                call    gc_vdp_reg
+                xor     a
+                out     (VDP_REGS),a    ; ARG
+                ld      a,$40
+                out     (VDP_REGS),a    ; POINT
+                call    gc_vdp_wait
+                ld      a,7
+                call    vdpsta          ; S#7: the colour
                 pop     hl
                 ret
-setatr_text:    db      "SETATR",0
+setc_bitmap:
+                ld      a,36
+                call    gc_vdp_xy       ; DX, DY; HL = X
+                ld      a,44
+                call    gc_vdp_reg
+                ld      a,(ATRBYT)
+                out     (VDP_REGS),a    ; CLR
+                xor     a
+                out     (VDP_REGS),a    ; ARG
+                ld      a,$50
+                out     (VDP_REGS),a    ; PSET
+                ei
+                ret
+
+; Input  : A = the VDP register for X, followed by Y
+; Output : HL = CLOC; interrupts disabled
+; Changes: AF
+gc_vdp_xy:
+                call    gc_vdp_wait
+                call    gc_vdp_reg
+                ld      hl,(CLOC)
+                ld      a,l
+                out     (VDP_REGS),a
+                ld      a,h
+                out     (VDP_REGS),a
+                ld      a,(CMASK)
+                out     (VDP_REGS),a
+                ld      a,(ACPAGE)
+                out     (VDP_REGS),a
+                ret
+
+; Select VDP register A for writes through port VDP_REGS, which count up.
+; Changes: A; interrupts disabled
+gc_vdp_reg:
+                di
+                out     (VDP_ADDR),a
+                ld      a,$80 + 17
+                out     (VDP_ADDR),a
+                ret
+
+; Wait until the VDP has finished its command. Changes: F
+gc_vdp_wait:
+                push    af
+gc_vdp_wait_lp:
+                ld      a,2
+                call    vdpsta
+                rra
+                jr      c,gc_vdp_wait_lp
+                pop     af
+                ret
+        ENDIF
 
 ;--------------------------------
 ; $011D READC
-; Function : Reads attribute byte of current screenpixel
-; NOTE     : This implementation is still a stub!
+; Function : Reads the colour of the pixel at the graphics cursor
+; Output   : A  - the colour
+; Registers: AF
+; Remark   : SCREEN 5-8: through the sub-ROM's READC; F is undefined then
 readc:
+        IF VDP != TMS99X8
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,readc_bitmap
+        ENDIF
                 push    hl
-                push    af
-                ld      hl,readc_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-readc_text:     db      "READC",0
+                push    bc
+                call    gc_cell
+                and     b
+                ld      a,c
+                jr      z,readc_bg      ; the bit is clear: the background
+                rrca
+                rrca
+                rrca
+                rrca
+readc_bg:
+                and     $0F
+                jr      setc_pop
 
 ;--------------------------------
 ; $0120 SETC
-; Function : Returns currenct screenpixel of specificed attribute byte
-; NOTE     : This implementation is still a stub!
+; Function : Sets the pixel at the graphics cursor to the colour ATRBYT
+; Output   : A  - the pattern byte written, or the colour byte if that changed
+;                 SCREEN 3: the pattern byte; SCREEN 5-8: $50
+; Registers: AF
+; Remark   : SCREEN 2 and 4 hold two colours per 8 pixels: the bit of a pixel
+;            in the pattern byte picks the colour byte's foreground (set) or
+;            background (clear). SETC clears the bit if ATRBYT is the
+;            background and sets it if it is the foreground. Else ATRBYT
+;            becomes the foreground, and the bit is set; unless that would
+;            set all 8 bits: then it becomes the background, and the bit is
+;            cleared, which leaves the other 7 pixels as they were.
+;            F: S, Z and P/V follow A. Measured on a VG-8020 and an NMS
+;            8250, flag bits 3 and 5 are 0 when A is the pattern byte; here
+;            they follow A.
 setc:
+        IF VDP != TMS99X8
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,setc_bitmap
+        ENDIF
                 push    hl
-                push    af
-                ld      hl,setc_text
-                call    print_debug
-                pop     af
+                push    bc
+                push    de
+                call    gc_cell
+                ld      d,a             ; D = CMASK
+                ld      a,(ATRBYT)
+                ld      e,a
+                jr      c,setc_sc3
+                and     $0F
+                ld      e,a
+                ld      a,b
+                or      d
+                ld      b,a             ; B = the pattern byte with the bit set
+                xor     d
+                ld      d,a             ; D = the pattern byte with the bit cleared
+                ld      a,e
+                rlca
+                rlca
+                rlca
+                rlca
+                or      e               ; ATRBYT in both nibbles
+                xor     c               ; a nibble is 0 where the colour byte has ATRBYT
+                ld      e,a
+                and     $0F
+                jr      z,setc_clear    ; ATRBYT is the background
+                xor     e               ; A = the foreground nibble
+                jr      z,setc_set      ; ATRBYT is the foreground
+                inc     b
+                jr      z,setc_full     ; all 8 bits would be set
+                dec     b
+                or      a               ; NZ: the colour byte changes
+                jr      setc_set
+setc_full:
+                xor     e               ; A = the background nibble
+setc_clear:
+                ld      b,d             ; the bit cleared instead
+setc_set:
+                ld      e,a             ; E = the change to the colour byte, 0: none
+                ld      a,b
+setc_write:
+                push    hl              ; the colour byte's address
+                ld      hl,(CLOC)
+                call    wrtvrm          ; the pattern byte; F is kept
+                pop     hl
+                jr      z,setc_done
+                ld      a,e
+setc_colour:
+                xor     c
+                call    wrtvrm          ; the colour byte
+setc_done:
+                or      a
+                pop     de
+setc_pop:
+                pop     bc
                 pop     hl
                 ret
-setc_text:      db      "SETC",0
+setc_sc3:
+                rlca                    ; SCREEN 3: ATRBYT into the nibble
+                rlca
+                rlca
+                rlca
+                or      e
+                xor     c
+                and     d
+                jr      setc_colour
+
+; Output : B = the pattern byte at CLOC, C = the colour byte for it, HL = its
+;          address; A = CMASK; SCREEN 3: C set, HL = CLOC, B = $80, C = the
+;          pattern byte, which holds two colours
+; Changes: AF
+gc_cell:
+                ld      hl,(CLOC)
+                call    rdvrm
+                ld      c,a
+                ld      b,$80
+                ld      a,(SCRMOD)
+                cp      3
+                scf
+                jr      z,gc_cell_mask
+                ld      b,c
+                ld      a,h
+                xor     $20             ; the colour byte is $2000 away
+                ld      h,a
+                call    rdvrm           ; C reset
+                ld      c,a
+gc_cell_mask:
+                ld      a,(CMASK)
+                ret
 
 ;--------------------------------
 ; $0123 NSETCX

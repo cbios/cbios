@@ -15,6 +15,7 @@ date.
 - STOREC, and MAPXYC in the sub-ROM
 - Graphics cursor moves: RIGHTC, LEFTC, UPC, DOWNC, TUPC and TDOWNC
 - SCALXY and GTASPC
+- SETATR, READC and SETC
 
 ### Changed
 - The keyboard scan takes less than half the time
