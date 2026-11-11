@@ -1418,6 +1418,13 @@ init_ram:
                 ld      hl,$3800
                 ld      (MLTPAT),hl
 
+        IF VDP = TMS99X8
+; The aspect ratio, for GTASPC. On MSX2 CHGMOD sets it.
+                ld      hl,$0100
+                ld      (ASPCT1),hl
+                ld      (ASPCT2),hl
+        ENDIF
+
 ; Initialise QUETAB.
                 ld      hl,QUETAB
                 ld      (QUEUES),hl
