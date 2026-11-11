@@ -532,12 +532,13 @@ clrspr_attr_spritemode_start:
 clrspr_attr_lp:
                 ld      a,e
                 out     (VDP_DATA),a    ; Y coordinate
-                ld      a,0
+                nop                     ; wait between VRAM accesses: at least
+                nop                     ; 29 t-states on MSX1, less on MSX2
         IF VDP = TMS99X8
-                nop                     ; wait (at least) 29 t-states between VRAM accesses
-                nop                     ; only 2 nops, as ld a,0 is slow
+                nop
+                nop
         ENDIF
-                out     (VDP_DATA),a    ; X coordinate
+                in      a,(VDP_DATA)    ; skip the X coordinate: it is kept
                 ld      a,c
         IF VDP = TMS99X8
                 nop                     ; wait (at least) 29 t-states between VRAM accesses
