@@ -8,6 +8,9 @@ date.
 
 ## [Unreleased]
 
+### Fixed
+- STOP and CTRL+STOP had no effect
+
 ## [0.30] - 2026-11-10
 
 ### Added

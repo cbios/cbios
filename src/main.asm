@@ -2905,11 +2905,22 @@ key_ascii:
                 ; Rows 6-11. HOME is $0B, SHIFT+HOME is $0C (CLS). The table
                 ; for these rows has no SHIFT variant, so handle that one key.
                 cp      $0B
-                jr      nz,key_ascii_chk
+                jr      nz,key_ascii_stop
                 ld      a,(NEWKEY + 6)  ; SHIFT is row 6 bit 0, active low
                 rrca                    ; carry set: SHIFT not pressed
                 sbc     a,a             ; A := $FF if not pressed, else $00
                 add     a,$0C
+key_ascii_stop:
+                ; STOP is $03. CTRL+STOP queues ^C and sets INTFLG to 3,
+                ; STOP alone queues nothing and sets INTFLG to 4.
+                cp      $03
+                jr      nz,key_ascii_chk
+                bit     1,(ix-1)        ; CTRL: row 6, already in OLDKEY
+                jr      z,key_ascii_intflg
+                inc     a
+key_ascii_intflg:
+                ld      (INTFLG),a      ; (keeps the flags)
+                jr      nz,key_store_end2
 key_ascii_chk:
                 and     a               ; dead key?
                 jr      z,key_store_end2
@@ -3249,7 +3260,7 @@ str_nocart:
 ; the last rows are not locale specific
 scode_tbl_otherkeys:
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
-                db      $00,$00,$1B,$09,$00,$08,$00,$0D ;07
+                db      $00,$00,$1B,$09,$03,$08,$00,$0D ;07
                 db      $20,$0B,$12,$7F,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a
