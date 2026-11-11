@@ -1347,37 +1347,119 @@ bltdm_text:     db      "BLTDM",0
 
 ;-------------------------------------
 ; $01AD NEWPAD
-; Function:  Read lightpen, mouse and trackball
-; Input:     Access via GETPAD in MSX1BIOS, will be linked to this call
-;            Procedure: read device, after that X and Y.
-;            A  - 8 tot 19
-;            [ 8]   Read lightpen (#FF if available)
-;            [ 9]   Read X-position
-;            [10]   Read Y-position
-;            [11]   Read lightpen-status (#FF if pressed)
-;
-;            [12]   Read mouse/trackball in port 1
-;            [13]   Read X-offset
-;            [14]   Read Y-offset
-;            [15]   No function (always #00)
-;
-;            [16]   Read mouse/trackball in port 2
-;            [17]   Read X-offset
-;            [18]   Read Y-offset
-;            [19]   No function (always #00)
-;
-; Output:    A  - Read value
+; Function:  Reads a light pen, mouse or trackball; GTPAD calls it for 8-19
+; Input:     A  - 8: light pen: not supported, $00
+;                 9: X (XSAVE), 10: Y (YSAVE), 11: pen switch: $00
+;                 12-15: mouse or trackball in port 1, 16-19: in port 2
+;                 +0: read the device, store X and Y, $FF
+;                 +1: X offset (XSAVE)
+;                 +2: Y offset (YSAVE)
+;                 +3: $00
+; Output:    A  - value
 ; Registers: All
-; NOTE: this implementation is still a stub!
+; Remark:    Each flip of pin 8 makes a mouse show the next 4 bits of its
+;            offsets on pins 1-4: X high, X low, Y high, Y low, then a second
+;            round in which the offsets are 0. A trackball shows its X offset
+;            + 8 while pin 8 is low and Y + 8 while it is high. Read 6, the
+;            first of the second round, is 7-9 only for a trackball.
 newpad:
-                push    hl
+                ld      b,a
+                and     3
+                ld      hl,XSAVE
+                dec     a
+                jr      z,newpad_read   ; X
+                ld      hl,YSAVE
+                dec     a
+                jr      z,newpad_read   ; Y
+                dec     a
+                ret     z               ; 11, 15, 19: A = $00
+                ld      a,b
+                and     $14
+                ret     z               ; 8: no light pen: A = $00
+                di
+                ld      a,15
+                out     (PSG_REGS),a
+                in      a,(PSG_STAT)
+                and     $80             ; keep the kana lamp
+                or      $0F             ; pins 6 and 7 high, pin 8 low
+                ld      d,$10           ; D = pin 8: R15 bit 4 for port 1
+                bit     4,b
+                jr      z,newpad_port1
+                or      $40             ; port 2
+                ld      d,$20           ;   pin 8: bit 5
+newpad_port1:
+                ld      c,0
+                call    newpad_io       ; read 1: trackball X
+                ld      e,a
+                ld      b,4
+newpad_xy:
+                ld      a,d
+                call    newpad_io       ; reads 2-5: mouse X and Y, 2: trackball Y
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                add     hl,hl
+                or      l
+                ld      l,a             ; H = mouse X, L = mouse Y
+                djnz    newpad_xy
+                ld      a,d
+                call    newpad_io       ; read 6
                 push    af
-                ld      hl,newpad_text
-                call    print_debug
+                ld      b,3
+newpad_end:
+                ld      a,d
+                call    newpad_io       ; pin 8 back low
+                djnz    newpad_end
                 pop     af
-                pop     hl
+                sub     7
+                cp      3
+                jr      c,newpad_trackball
+                xor     a
+                sub     h
+                ld      (XSAVE),a       ; the mouse counts the other way
+                xor     a
+                sub     l
+                jr      newpad_y
+newpad_trackball:
+                ld      a,e
+                sub     8
+                ld      (XSAVE),a
+                ld      a,h
+                rrca
+                rrca
+                rrca
+                rrca
+                and     $0F
+                sub     8
+newpad_y:
+                ld      (YSAVE),a
+                ld      a,$FF
                 ret
-newpad_text:    db      "NEWPAD",0
+newpad_read:
+                ld      a,(hl)
+                ret
+
+; Flip the R15 bits in A, write R15, wait and read pins 1-4.
+; Input:   C = R15
+; Output:  A = pins 1-4, C = new R15
+; Changes: F
+newpad_io:
+                xor     c
+                ld      c,a
+                ld      a,15
+                out     (PSG_REGS),a
+                ld      a,c
+                out     (PSG_DATA),a
+                ld      a,14
+                out     (PSG_REGS),a
+                push    bc
+                ld      b,24            ; about 400 cycles for the device
+newpad_wait:
+                djnz    newpad_wait
+                pop     bc
+                in      a,(PSG_STAT)
+                and     $0F
+                ret
 
 ;-------------------------------------
 ; $01B5 CHGMDP

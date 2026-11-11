@@ -10,6 +10,8 @@ date.
 
 ### Added
 - Paddle support (GTPDL)
+- Touch pad support (GTPAD)
+- Mouse and trackball support on MSX2 and MSX2+ (GTPAD, NEWPAD)
 
 ### Changed
 - The keyboard scan takes less than half the time

@@ -785,6 +785,150 @@ gtpdl_done:
                 ei
                 ret
 
+;--------------------------------
+; $00DB GTPAD
+; Function : Returns the state of a touch pad
+; Input    : A  - 0-3: touch pad in port 1, 4-7: in port 2
+;                 +0: $FF if the pad is touched (PADX/PADY updated), else $00
+;                 +1: X of the last touch (PADX)
+;                 +2: Y of the last touch (PADY)
+;                 +3: $FF if the pen button is pressed, else $00
+;                 8-19: light pen, mouse, trackball: MSX1: $00,
+;                       MSX2: NEWPAD in the sub-ROM
+; Output   : A  - value
+; Registers: All
+; Remark   : The pad's converter is read serially. Pin 8 selects it (CS, low),
+;            pin 6 is the clock (SCK), pin 7 picks the channel of the next
+;            conversion (SI: 0 = X, 1 = Y), pin 3 shifts out the result (SO),
+;            pin 2 signals the end of a conversion (EOC). Pin 1 is low while
+;            the pad is touched, pin 4 while the button is pressed.
+gtpad:
+                ld      b,a
+                add     a,$F8
+        IF MODEL_MSX = MODEL_MSX1
+                jr      c,gtpad_done    ; 8-19: CF = 1: A = $00
+        ELSE
+                jr      c,gtpad_newpad  ; 8-19
+        ENDIF
+                and     3
+                ld      hl,PADX
+                dec     a
+                jr      z,gtpad_read    ; X: PADX
+                dec     hl
+                dec     a
+                jr      nz,gtpad_port   ; touched? or button
+gtpad_read:
+                ld      a,(hl)          ; Y: PADY = PADX - 1
+                ret
+
+        IF MODEL_MSX != MODEL_MSX1
+gtpad_newpad:
+                ld      a,b
+                ld      ix,$01AD        ; NEWPAD
+                jp      extrom
+        ENDIF
+
+gtpad_port:
+                ; Port 1: SCK = R15 bit 0, SI = bit 1, CS = bit 4.
+                ; Port 2: SCK = bit 2, SI = bit 3, CS = bit 5, select = bit 6.
+                ; The other port's pins 6 and 7 stay high, its pin 8 low.
+                ld      hl,$0110        ; H = SCK, L = CS
+                ld      c,$0F           ; SI and SCK high, CS low
+                ld      a,c             ; R15
+                bit     2,b
+                jr      z,gtpad_port1
+                ld      hl,$0420
+                set     6,c
+gtpad_port1:
+                di
+                call    rdpsg
+                and     $80             ; keep the kana lamp
+                call    gtpad_out       ; C = R15: CS low, SI high, SCK high
+                bit     0,b
+                jr      z,gtpad_sense
+                ; The pen button.
+                in      a,(PSG_STAT)
+                and     $08
+                add     a,$F8           ; pressed (0): CF = 0
+gtpad_done:
+                sbc     a,a
+                cpl                     ; CF = 0: $FF, else $00
+                ei
+                ret
+
+gtpad_sense:
+                ; Two conversions: the first one's channel is unknown, the
+                ; second is X. If touched, read X and Y twice, until both
+                ; readings agree.
+                ld      a,l
+                add     a,h
+                add     a,h
+                ld      b,a             ; CS high, SI low: X next
+gtpad_retry:
+                call    gtpad_frame     ; B = 0 after a conversion
+                call    gtpad_frame
+                in      a,(PSG_STAT)
+                rra                     ; CF = pin 1: not touched
+                jr      c,gtpad_done
+                call    gtpad_xy2
+                push    de
+                call    gtpad_xy2
+                ex      (sp),hl
+                sbc     hl,de           ; CF = 0 after gtpad_out
+                pop     hl
+                jr      nz,gtpad_retry
+                ld      (PADY),de       ; PADY = E, PADX = D
+                jr      gtpad_done      ; CF = 0: $FF
+
+; Read X and Y. Output: D = X, E = Y; X is next. Changes: AF, B, C
+gtpad_xy2:
+                call    gtpad_frame_si  ; X
+                ld      d,e
+                                        ; falls through: Y
+
+; Read one conversion and start the next.
+; Input:   B = R15 bits to toggle first (gtpad_frame_si: SI),
+;          C = R15, H = SCK, L = CS
+; Output:  E = result, B = 0, R14 selected
+; Changes: AF
+gtpad_frame_si:
+                ld      b,h
+                sla     b               ; SI = SCK * 2
+gtpad_frame:
+                ld      a,b
+                call    gtpad_out       ; CS high, SCK high, SI
+gtpad_eoc:
+                in      a,(PSG_STAT)
+                and     $02
+                jr      z,gtpad_eoc     ; wait for the end of the conversion
+                ld      a,l
+                call    gtpad_out       ; CS low: the result comes out
+                ld      b,8
+gtpad_bit:
+                ld      a,h
+                call    gtpad_out       ; SCK low
+                in      a,(PSG_STAT)
+                rra
+                rra
+                rra                     ; CF = SO
+                rl      e
+                ld      a,h
+                call    gtpad_out       ; SCK high
+                djnz    gtpad_bit
+                ld      a,l             ; CS high: the next conversion starts
+
+; Toggle the R15 bits in A, write R15 and select R14.
+gtpad_out:
+                xor     c
+                ld      c,a
+                ld      a,$0F
+                out     (PSG_REGS),a
+                ld      a,c
+                out     (PSG_DATA),a
+                ld      a,$0E
+                out     (PSG_REGS),a
+                ret
+
 ; The game "Hacker" jumps directly to this location($0D02).
 ; Star force calls $0D0E.
 
@@ -2483,23 +2627,6 @@ trig_off:
                 xor     a
                 ret
 
-;--------------------------------
-; $00DB GTPAD
-; Function : Returns current touch pad status
-; Input    : A  - Touchpad number to test
-; Output   : A  - Value
-; Registers: All
-; NOTE     : This implementation is still a stub!
-gtpad:
-                push    hl
-                push    af
-                ld      hl,gtpad_text
-                call    print_debug
-                pop     af
-                pop     hl
-                xor     a  ; haywire
-                ret
-gtpad_text:     db      "GTPAD",0
 
 ;--------------------------------
 ; $00F6 LFTQ
