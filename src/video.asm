@@ -816,10 +816,13 @@ settxt:
                 inc     c
                 call    wrtvdp          ; write VDP R#1
 
-                ; Set the VDP base address registers. This works because
-                ; TXTNAM, TXTCOL and TXTCGP are in same order as the VDP
-                ; base address registers.
+                ; Set the VDP base address registers.
                 ld      de,TXTNAM
+        IF VDP = TMS99X8
+                ; MSX1 sets all five, MSX2 only the name and pattern
+                ; generator tables.
+                jr      set_base_5
+        ELSE
                 ld      c,2
 
                 xor     a
@@ -831,6 +834,7 @@ settxt:
                 call    set_base_address
 
                 ret
+        ENDIF
 
 ; Switches VDP to TEXT2 mode (SCREEN 0, WIDTH 80).
         IF VDP != TMS99X8
@@ -881,24 +885,9 @@ sett32:
                 inc     c
                 call    wrtvdp          ; write VDP R#1
 
-                ; Set the base address registers. This works because T32NAM,
-                ; T32COL, T32CGP, T32ATR and T32PAT are in same order as the
-                ; VDP base address registers.
+                ; Set the base address registers.
                 ld      de,T32NAM
-                ld      c,2
-
-                xor     a
-                call    set_base_address
-                xor     a
-                call    set_base_address
-                xor     a
-                call    set_base_address
-                xor     a
-                call    set_base_address
-                xor     a
-                call    set_base_address
-
-                ret
+                jr      set_base_5
 
 ;------------------------------
 ; $007E SETGRP
@@ -957,23 +946,25 @@ setmlt:
                 inc     c
                 call    wrtvdp
 
-                ; Set the base address registers. This works because MLTNAM,
-                ; MLTCOL, MLTCGP, MLTATR and MLTPAT are in same order as the
-                ; VDP base address registers.
+                ; Set the base address registers.
+                ; TODO: Should we ignore MLTCOL?
                 ld      de,MLTNAM
+                ; fall through
+
+;------------------------------
+; Set the VDP base address registers R#2 to R#6 from a table of five
+; addresses, in the order of the registers: name, colour, pattern
+; generator, sprite attribute and sprite pattern generator table.
+; Input:     DE = pointer to the table (xxxNAM)
+; Changes:   AF, BC, DE, HL
+set_base_5:
                 ld      c,2
-
+set_base_5_lp:
                 xor     a
                 call    set_base_address
-                xor     a
-                call    set_base_address; TODO: Should we ignore MLTCOL?
-                xor     a
-                call    set_base_address
-                xor     a
-                call    set_base_address
-                xor     a
-                call    set_base_address
-
+                ld      a,c
+                cp      7
+                jr      nz,set_base_5_lp
                 ret
 
 ;------------------------------
