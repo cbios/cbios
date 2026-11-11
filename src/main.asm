@@ -1025,6 +1025,7 @@ search_roms_init_skip:
                 ld      c,a
                 push    de
                 pop     ix
+                push    af              ; Keep the slot ID for after the call.
                 push    af
                 pop     iy
                 ; Some cartridges have buggy initialisation code.
@@ -1035,7 +1036,6 @@ search_roms_init_waitv:
                 in      a,($99)
                 or      a
                 jp      m,search_roms_init_waitv
-                push    af
                 push    hl
                 call    calslt
                 di
