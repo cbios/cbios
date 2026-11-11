@@ -1143,23 +1143,19 @@ grpprt_sc2:
 
                 ld      de,(GRPACY)
                 ld      bc,(GRPACX)
-                call    mapxy
+                call    mapxy           ; HL = CLOC
+                ld      a,(CMASK)
+                add     a,a
+                dec     a
+                ld      (CMASK),a       ; the pixel's bit and all bits right of it
 
                 ld      a,(FORCLR)
                 ld      (ATRBYT),a
 
-                ld      hl,(CLOC)
-                ld      bc,(GRPCGP)
-                add     hl,bc
-
-
                 ld      de,PATWRK
                 ld      a,(GRPACY)
                 and     $07
-
-                ld      b,$00
                 ld      c,a
-                add     hl,bc
                 call    grpprt_chr_x
 
                 ld      bc,$00F0
@@ -2221,46 +2217,95 @@ scalxy_text:    db      "SCALXY",0
 
 ;--------------------------------
 ; $0111 MAPXYC
-; Function : Places cursor at current cursor address
-; Input    : BC = X coordinate,DE=Y coordinate
-; Register : AF,D,HL
-; NOTE     : This is a test version
+; Function : Places the graphics cursor at a coordinate
+; Input    : BC - X, DE - Y; in SCREEN 3 in blocks of 4x4 pixels, as SCALXY
+;            leaves them
+; Output   : CLOC, HL - SCREEN 2-4: the address of the pattern byte
+;                       SCREEN 5-8: X
+;            CMASK    - SCREEN 2, 4: the pixel's bit
+;                       SCREEN 3: $F0 for an even X, $0F for an odd X
+;                       SCREEN 5-8: Y
+;            A        - SCREEN 2, 4: L; D = X
+;                       SCREEN 3: H, without the pattern table's base
+;                       SCREEN 5-8: Y
+; Registers: AF, D, HL
 mapxy:
-                push    bc
-                ld      (GRPACX),bc
-                ld      (GRPACY),de
-                ld      hl,(GRPACY)
-                add     hl,hl
-                add     hl,hl
-                add     hl,hl
-                add     hl,hl
-                add     hl,hl
-                ld      l,$00
-                ld      b,$00
-
-                ld      a,$ff
-                ld      (CMASK),a
+                ld      a,(SCRMOD)
+        IF VDP != TMS99X8
+                cp      5
+                jr      nc,mapxy_bitmap
+        ENDIF
+                cp      3
+                jr      z,mapxy_sc3
                 ld      a,c
-                and     $07
-                jr      z,mapxy_mask_ed
-                ld      b,a
-                ld      a,$ff
-mapxy_mask_lp:
-                and     a
-                rra
-                djnz    mapxy_mask_lp
-                ld      (CMASK),a
-mapxy_mask_ed:
+                and     7
+                inc     a
+                ld      d,a
+                ld      a,1
+mapxy_bit:
+                rrca
+                dec     d
+                jr      nz,mapxy_bit
+                ld      (CMASK),a       ; $80 >> (X AND 7)
+                ld      a,e
+                rrca
+                rrca
+                rrca
+                and     $1F
+                ld      h,a             ; (Y AND $F8) * 32
+                ld      d,c
                 ld      a,c
+                xor     e
                 and     $F8
-                ld      c,a
-                ld      b,$00
-                add     hl,bc
+                xor     e
+                ld      l,a             ; + (X AND $F8) + (Y AND 7)
+                push    de
+                ld      de,(GRPCGP)
+                jr      mapxy_base
 
+; Also the sub-ROM's MAPXYC in SCREEN 2-4.
+mapxy_sc3:
+                ld      a,c
+                rrca
+                sbc     a,a
+                xor     $F0
+                ld      (CMASK),a       ; $F0 for an even X, $0F for an odd X
+                ld      a,c
+                add     a,a
+                add     a,a
+                xor     e
+                and     $F8
+                xor     e
+                ld      l,a             ; (X * 4 AND $F8) + (Y AND 7)
+                ld      a,e
+                rrca
+                rrca
+                rrca
+                and     7
+                ld      h,a             ; + (Y AND $38) * 32
+                push    de
+                ld      de,(MLTCGP)
+mapxy_base:
+                add     hl,de
+                pop     de
                 ld      (CLOC),hl
-                pop     bc
                 ret
-mapxy_text:    db      "MAPXY",0
+
+        IF VDP != TMS99X8
+mapxy_bitmap:
+                ld      h,b
+                ld      l,c             ; CLOC = X
+                ld      a,e             ; CMASK = Y
+        ENDIF
+
+;--------------------------------
+; $0117 STOREC
+; Function : Sets the graphics cursor
+; Input    : HL - CLOC, A - CMASK
+storec:
+                ld      (CLOC),hl
+                ld      (CMASK),a
+                ret
 
 ;--------------------------------
 ; $0114 FETCHC
@@ -2271,23 +2316,6 @@ fetchc:
                 ld      a,(CMASK)
                 ld      hl,(CLOC)
                 ret
-fetchc_text:    db      "FETCHC",0
-
-;--------------------------------
-; $0117 STOREC
-; Function : Record current cursor addresses mask pattern
-; Input    : HL - Cursor address
-;            A  - Mask pattern
-; NOTE     : This implementation is still a stub!
-storec:
-                push    hl
-                push    af
-                ld      hl,storec_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-storec_text:    db      "STOREC",0
 
 ;--------------------------------
 ; $011A SETATR

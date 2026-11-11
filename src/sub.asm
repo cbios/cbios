@@ -554,24 +554,16 @@ grpprt_out:     out     (VDP_REGS),a            ; write pixel color
 
 ;-------------------------------------
 ; $0091 MAPXYC
-; Function : Converts an X,Y position to an address: and mask in CLOC and
-; CMASK
-; Input    : BC - X-position
-;            DE - Y-position
-; Output   : HL - VRAM address: In SCREEN 3    (in CLOC too)
-;            A  - Mask          In SCREEN 3    (in CMASK too)
-;            HL - X-position In SCREEN 5->8 (in CLOC too)
-;            A  - Y-position In SCREEN 5->8 (in CMASK too)
-; Registers: F
+; Function : Places the graphics cursor at a coordinate, as MAPXYC in the
+;            main ROM, but SCREEN 2 and 4 are handled as SCREEN 3
+; Input    : BC - X, DE - Y
+; Output   : CLOC, CMASK, HL, A: see MAPXYC in the main ROM
+; Registers: AF, HL
 mapxyc:
-                push    hl
-                push    af
-                ld      hl,mapxyc_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-mapxyc_text:    db      "MAPXYC",0
+                ld      a,(SCRMOD)
+                cp      5
+                jp      nc,mapxy_bitmap
+                jp      mapxy_sc3
 
 ;-------------------------------------
 ; $00A1 TRIGHT
