@@ -8,6 +8,9 @@ date.
 
 ## [Unreleased]
 
+### Added
+- Paddle support (GTPDL)
+
 ### Changed
 - The keyboard scan takes less than half the time
 

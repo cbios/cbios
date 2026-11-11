@@ -735,6 +735,56 @@ chkram_select:
                 exx
                 jp      chkram_done
 
+;--------------------------------
+; $00DE GTPDL
+; Function : Returns the value of a paddle
+; Input    : A  - paddle number 1-12: odd numbers on port 1, even on port 2
+; Output   : A  - value 0-255 (255 when no paddle is connected)
+; Registers: All
+; Remark   : A high-to-low edge on the port's pin 8 starts a pulse on the
+;            paddle's pin (paddle 1/2 on pin 1, 3/4 on pin 2, ...) that is
+;            as long as the paddle's value times 41 cycles: the time of one
+;            pass of the counting loop.
+gtpdl:
+                dec     a
+                srl     a               ; CF = port 2, A = R14 bit of the paddle
+                ld      b,a
+                sbc     a,a
+                and     $50
+                add     a,$10
+                ld      e,a             ; E = port 1: $10 (pin 8),
+                                        ;     port 2: $60 (select + pin 8)
+                inc     b
+                xor     a
+                scf
+gtpdl_mask:
+                rla
+                djnz    gtpdl_mask
+                ld      d,a             ; D = R14 bit mask
+                ld      a,$0F
+                di
+                call    rdpsg           ; A = R15
+                and     $8F
+                or      e
+                out     (PSG_DATA),a    ; pin 8 high
+                and     $CF
+                out     (PSG_DATA),a    ; pin 8 low: starts the pulse
+                ld      a,$0E
+                out     (PSG_REGS),a
+                ld      c,255
+gtpdl_loop:
+                ; 41 cycles per pass, M1 wait states included.
+                in      a,(PSG_STAT)
+                and     d
+                jr      z,gtpdl_done
+                dec     c
+                jp      nz,gtpdl_loop
+gtpdl_done:
+                ld      a,c
+                cpl                     ; A = 255 - C: the passes while high
+                ei
+                ret
+
 ; The game "Hacker" jumps directly to this location($0D02).
 ; Star force calls $0D0E.
 
@@ -2450,23 +2500,6 @@ gtpad:
                 xor     a  ; haywire
                 ret
 gtpad_text:     db      "GTPAD",0
-
-;--------------------------------
-; $00DE GTPDL
-; Function : Returns currenct value of paddle
-; Input    : A  - Paddle number
-; Output   : A  - Value
-; Registers: All
-; NOTE     : This implementation is still a stub!
-gtpdl:
-                push    hl
-                push    af
-                ld      hl,gtpdl_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-gtpdl_text:     db      "GTPDL",0
 
 ;--------------------------------
 ; $00F6 LFTQ
