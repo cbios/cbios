@@ -8,6 +8,8 @@ date.
 
 ## [Unreleased]
 
+## [0.31a] - 2026-11-12
+
 ### Changed
 - connect the PSG as in openMSX 19 and newer
 
@@ -76,7 +78,8 @@ date.
 
 Older releases are described in `doc/cbios.txt` and `doc/changelog-old.txt`.
 
-[Unreleased]: https://github.com/cbios/cbios/compare/v0.31...master
+[Unreleased]: https://github.com/cbios/cbios/compare/v0.31a...master
+[0.31a]: https://github.com/cbios/cbios/compare/v0.31...v0.31a
 [0.31]: https://github.com/cbios/cbios/compare/v0.30...v0.31
 [0.30]: https://github.com/cbios/cbios/compare/v0.29a...v0.30
 [0.29a]: https://github.com/cbios/cbios/compare/v0.29...v0.29a
