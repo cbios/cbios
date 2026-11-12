@@ -8,6 +8,9 @@ date.
 
 ## [Unreleased]
 
+### Changed
+- connect the PSG as in openMSX 19 and newer
+
 ## [0.31] - 2026-11-11
 
 ### Added

@@ -1,7 +1,7 @@
 C-BIOS machine configurations for openMSX
 =========================================
 
-Note: these configurations will only work in openMSX 0.9.2 or later.
+Note: these configurations will only work in openMSX 19.0 or later.
 
 Installation instructions:
 1. Copy "C-BIOS_*" files to "share/machines" in the openMSX
