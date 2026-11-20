@@ -34,6 +34,7 @@ date.
 - SNSMAT returned other values in C and F
 - GTTRIG returned other flags
 - CHGCAP returned other values in A and F
+- TRGFLG reported the joystick triggers as pressed
 
 ## [0.31a] - 2026-11-12
 

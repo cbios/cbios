@@ -2377,6 +2377,18 @@ wrtpsg:
                 ret
 
 ;--------------------------------
+; PSG register 15 := (R15 AND D) OR E, then read register 14 (the joystick
+; port). Changes: AF
+trg_read:
+                ld      a,$0F
+                call    rdpsg           ; R15 stays selected
+                and     d
+                or      e
+                out     (PSG_DATA),a
+                ld      a,$0E
+                ; fall through
+
+;--------------------------------
 ; $0096 RDPSG
 ; Function : Reads value from PSG-register
 ; Input    : A  - PSG-register read
@@ -2885,11 +2897,24 @@ keyint:
                 ld      a,KEY_SCAN
                 ld      (SCNCNT),a
 
-                ; TODO read joystick triggers and space for TRGFLG
-                xor     a
-                call    gttrig
-                cpl
-                and     $01
+                ; TRGFLG: bit 0 the space bar, bits 4 and 5 port 1's
+                ; triggers A and B, bits 6 and 7 port 2's; 1 = released.
+                ; Port 2 stays selected, with R15's bit 7 (the kana lamp)
+                ; kept and every trigger pin high.
+                ld      de,$BF03        ; port 1, its trigger pins high
+                call    trg_read
+                and     $30
+                ld      b,a             ; port 1's triggers: bits 4 and 5
+                ld      de,$C04F        ; port 2, every trigger pin high
+                call    trg_read
+                add     a,a
+                add     a,a
+                and     d               ; port 2's triggers: bits 6 and 7
+                or      b
+                ld      b,a
+                call    gttrig_space    ; $FF: space pressed, else 0; keeps BC
+                inc     a               ; bit 0: 1 = released
+                or      b
                 ld      (TRGFLG),a
 
                 call    key_in
