@@ -1954,15 +1954,12 @@ cls_text:
         IF MODEL_MSX = MODEL_SUBROM
                 ld      hl,$0101
                 ld      (CSRY),hl
-                ld      a,l ; l == 1
-        ELSE
-                ld      a,1
         ENDIF
-                ld      hl,LINTTB
-                ld      (hl),a
-                ld      de,LINTTB+1
-                ld      bc,23
-                ldir
+                ld      hl,LINTTB       ; 24, 23, ..., 1 down the rows
+                ld      b,24
+cls_linttb:     ld      (hl),b
+                inc     hl
+                djnz    cls_linttb
         IF MODEL_MSX = MODEL_SUBROM
                 ret
         ELSE

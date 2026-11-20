@@ -17,6 +17,7 @@ date.
 - CHSNS did not return the number of keys waiting in A
 - CHGET could return with interrupts disabled
 - CHGET returned other flags
+- Clearing a text screen left other values in LINTTB
 
 ## [0.31a] - 2026-11-12
 
