@@ -1921,8 +1921,7 @@ chget_wait:
                 halt
                 jr      chget_wait
 chget_char:
-                ld      a,(hl)          ; HL = (GETPNT)
-                push    af
+                ld      d,(hl)          ; HL = (GETPNT); the code waits in D
                 inc     hl
                 ; See comment in keyint (below label key_store).
                 ld      a,l
@@ -1934,7 +1933,7 @@ chget_char:
                 ld      hl,KEYBUF
 chget_nowrap:
                 ld      (GETPNT),hl
-                pop     af
+                ld      a,d             ; F stays that of the cp $18
                 pop     de
                 pop     hl
                 ei
