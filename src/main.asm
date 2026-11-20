@@ -1937,6 +1937,7 @@ chget_nowrap:
                 pop     af
                 pop     de
                 pop     hl
+                ei
                 ret
 
 ;--------------------------------

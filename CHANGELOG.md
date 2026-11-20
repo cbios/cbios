@@ -15,6 +15,7 @@ date.
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round
 - CHSNS did not return the number of keys waiting in A
+- CHGET could return with interrupts disabled
 
 ## [0.31a] - 2026-11-12
 
