@@ -22,6 +22,7 @@ date.
 - POSIT moved the text cursor in graphic screen modes
 - On MSX1, RDVRM returned the H flag cleared
 - FILVRM returned other flags
+- LDIRMV and LDIRVM returned other flags in SCREEN 0-3
 
 ## [0.31a] - 2026-11-12
 
