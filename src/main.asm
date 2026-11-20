@@ -2119,9 +2119,29 @@ beep_text:      db      "BEEP",0
 ; Input:   H = column
 ;          L = row
 ; Changes: AF
+; A column of 0 or past LINLEN becomes LINLEN, a row of 0 or past
+; CRTCNT + CNSDFG (mod 256) becomes that sum: with the function key line
+; on (CNSDFG = $FF) the cursor stays off its row.
 posit:
-                ; Note: this works because CSRX == CSRY + 1
-                ld      (CSRY),hl
+                push    de
+                push    hl
+                ld      de,(LINLEN)     ; E = LINLEN, D = CRTCNT
+                ld      a,(CNSDFG)
+                add     a,d
+                ld      d,a             ; D = the row limit
+                ld      a,h
+                dec     a
+                cp      e               ; Cy: 1 <= column <= LINLEN
+                jr      c,posit_x
+                ld      h,e
+posit_x:        ld      a,l
+                dec     a
+                cp      d               ; Cy: 1 <= row <= the limit
+                jr      c,posit_y
+                ld      l,d
+posit_y:        ld      (CSRY),hl       ; CSRX follows CSRY
+                pop     hl
+                pop     de
                 ret
 
 ;--------------------------------
