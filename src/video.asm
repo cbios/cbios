@@ -60,9 +60,14 @@ enascr:
 ;            C  - number of the register
 ; Output   : RG0SAV(F3DF)-RG7SAV(F3E6)
 ; Registers: AF, BC
+; On MSX1, C is kept and B is stored at RG0SAV + C for any C: a register
+; number with bit 7 set (High Way Star writes $80-$87) leaves RG0SAV-RG7SAV
+; alone and stores B past them, while the VDP sees only the low bits.
 wrtvdp:
                 di
+        IF VDP != TMS99X8
                 res     7,c             ; fixes High Way Star
+        ENDIF
                 ld      a,b
                 out     (VDP_ADDR),a
                 ld      a,c
