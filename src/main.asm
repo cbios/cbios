@@ -2436,17 +2436,16 @@ rdvdp:
 ; Function : Returns the value of the specified line from the keyboard matrix
 ; Input    : A  - for the specified line
 ; Output   : A  - for data (the bit corresponding to the pressed key will be 0)
-; Registers: AF
+;            C  - the line number
+; Registers: AF, C
 snsmat:
                 di
-                push bc
-                ld      c,a
+                ld      c,a             ; C returns the row
                 in      a,(GIO_REGS)
                 and     $F0
-                or      c
+                add     a,c             ; F returns this addition's flags
                 out     (GIO_REGS),a
                 in      a,(KBD_STAT)
-                pop bc
                 ei
                 ret
 
@@ -2599,8 +2598,10 @@ gttrig:
                 jr      nz,joy_trig
 gttrig_space:
 ; Keyboard (spacebar)
+                push    bc
                 ld      a,$08
                 call    snsmat          ; bit0 = 0 -> space pressed
+                pop     bc
                 or      $FE             ; FE -> pressed, FF -> not pressed
                 inc     a               ; FF -> pressed, 00 -> not pressed
                 ret
