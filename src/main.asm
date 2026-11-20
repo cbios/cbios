@@ -2798,12 +2798,12 @@ getvc2_a:
                 ld      hl,VCBA
                 add     hl,de
                 ld      e,37            ; Size of a structure
-getvc2_loop:
                 or      a
                 jr      z,getvc2_exit
+getvc2_loop:
                 add     hl,de
                 dec     a
-                jr      getvc2_loop
+                jr      nz,getvc2_loop  ; ends with the flags of the last dec a
 getvc2_exit:
                 pop     de
                 ret

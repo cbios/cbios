@@ -36,6 +36,7 @@ date.
 - CHGCAP returned other values in A and F
 - TRGFLG reported the joystick triggers as pressed
 - CHGSND returned the H flag cleared when switching the click off
+- GETVCP and GETVC2 returned other flags for voices 1-3
 
 ## [0.31a] - 2026-11-12
 
