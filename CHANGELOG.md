@@ -10,6 +10,7 @@ date.
 
 ### Fixed
 - INITIO set PSG registers 11 and 15 to other values
+- GICINI changed registers A, E and F
 
 ## [0.31a] - 2026-11-12
 

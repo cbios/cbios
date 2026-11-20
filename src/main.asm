@@ -2333,21 +2333,20 @@ stmotr_set:     out     (GIO_REGS),a
 ;--------------------------------
 ; $0090 GICINI  Initialize Sound IC
 ; Function : Initialises PSG and sets initial value for the PLAY statement
-; Registers: All
+; Registers: None
 gicini:
-                ld      e,$00
-                ld      a,$08
-                call    wrtpsg
-                inc     a
-                call    wrtpsg
-                inc     a
-                call    wrtpsg
-                inc     a
-
-                ld      e,$B8
+                push    af
+                push    de
+                ld      e,$B8           ; mixer: tone on, noise off, port A in, B out
                 ld      a,$07
                 call    wrtpsg
-
+                ld      e,$00           ; amplitudes 8, 9 and 10: silent
+gicini_amp:     inc     a
+                call    wrtpsg
+                cp      $0A
+                jr      nz,gicini_amp
+                pop     de
+                pop     af
                 ret
 
 ;--------------------------------
