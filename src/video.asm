@@ -1029,6 +1029,7 @@ set_base_address:
 
                 ; Shift it to left in register A. After this A contains the
                 ; converted address.
+                xor     a
 set_base_address_loop:
                 add     hl,hl
                 adc     a,a
