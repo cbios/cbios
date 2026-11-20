@@ -825,6 +825,14 @@ inimlt_loop3:
         ENDIF
 
 
+; The bits of RG0SAV the SET calls keep: an MSX1 keeps only bit 0 (external
+; video), an MSX2 everything but the mode bits M3-M5.
+        IF VDP = TMS99X8
+R0_KEEP:        equ     $01
+        ELSE
+R0_KEEP:        equ     $F1
+        ENDIF
+
 ;------------------------------
 ; $0078 SETTXT
 ; Function : Switches to VDP in SCREEN 0 mode
@@ -838,7 +846,7 @@ settxt:
         ENDIF
 
                 ld      a,(RG0SAV)
-                and     $F1             ; MASK 11110001
+                and     R0_KEEP         ; MSX1: bit 0 only; MSX2: all but M3-M5
                 ld      b,a
                 ld      c,0
                 call    wrtvdp          ; write VDP R#0
@@ -908,7 +916,7 @@ settxt80:
 ; Registers: All
 sett32:
                 ld      a,(RG0SAV)
-                and     $F1             ; MASK 11110001
+                and     R0_KEEP         ; MSX1: bit 0 only; MSX2: all but M3-M5
                 ld      b,a
                 ld      c,0
                 call    wrtvdp          ; write VDP R#0
@@ -930,7 +938,9 @@ sett32:
 ; Registers: All
 setgrp:
                 ld      a,(RG0SAV)
-                and     $F1             ; MASK 11110001
+        IF VDP != TMS99X8
+                and     $F1             ; MSX2: clear M3-M5; MSX1 keeps every bit
+        ENDIF
                 or      $02             ; M3 = 1
                 ld      b,a
                 ld      c,0
@@ -968,7 +978,7 @@ setgrp:
 ; Registers: All
 setmlt:
                 ld      a,(RG0SAV)
-                and     $F1
+                and     R0_KEEP         ; MSX1: bit 0 only; MSX2: all but M3-M5
                 ld      b,a
                 ld      c,0
                 call    wrtvdp

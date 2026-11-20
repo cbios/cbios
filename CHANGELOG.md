@@ -26,6 +26,7 @@ date.
 - CALPAT returned other flags
 - CHGCLR wrote the border colour instead of the text colours when SCRMOD held an invalid value from $81 to $FF
 - The screen mode calls set wrong VDP base registers for table addresses that are not a multiple of the table size
+- On MSX1, the screen mode calls kept other bits of VDP register 0
 
 ## [0.31a] - 2026-11-12
 
