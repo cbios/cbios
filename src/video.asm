@@ -211,6 +211,11 @@ filvrm_cont:
                 ;       Penguin Adventure can hang on boot if the interrupt
                 ;       comes just after our RET, which is certain if the
                 ;       memory block written is large enough.
+        IF VDP = TMS99X8
+                push    af              ; MSX1 returns F as it came
+        ELSE
+                scf                     ; MSX2 returns F = $43: Z, N and C
+        ENDIF
 filvrm_lp:
                 out     (VDP_DATA),a
         IF VDP = TMS99X8
@@ -222,6 +227,9 @@ filvrm_lp:
         ENDIF
                 dec     c
                 jr      nz,filvrm_lp
+        IF VDP = TMS99X8
+                pop     af
+        ENDIF
                 ret
 
 ;--------------------------------
