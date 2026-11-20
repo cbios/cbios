@@ -2726,13 +2726,13 @@ calc_queue_address:
 ; Input    : A  - #00 is lamp on
 ;             not #00 is lamp off
 ; Registers: AF
+; Output   : A  - the PPI command written: $0C (lamp on) or $0D (lamp off)
 chgcap:
-                or      a
-                in      a,(GIO_REGS)
-                set     6,a             ; bit 6 = 1: lamp off
-                jr      nz,chgcap_out
-                res     6,a             ; bit 6 = 0: lamp on
-chgcap_out:     out     (GIO_REGS),a
+                and     a
+                ld      a,$0C           ; PPI command: reset port C bit 6, lamp on
+                jr      z,chgcap_out
+                inc     a               ; $0D: set bit 6, lamp off
+chgcap_out:     out     (PPI_REGS),a
                 ret
 
 ;--------------------------------

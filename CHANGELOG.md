@@ -33,6 +33,7 @@ date.
 - KILBUF emptied the key buffer at the wrong end
 - SNSMAT returned other values in C and F
 - GTTRIG returned other flags
+- CHGCAP returned other values in A and F
 
 ## [0.31a] - 2026-11-12
 
