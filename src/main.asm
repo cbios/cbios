@@ -1851,6 +1851,8 @@ initio:
                 ld      e,$0B           ; envelope period, low byte
                 ld      a,e
                 call    wrtpsg
+                and     0               ; returns F = $54 (Z, H, P/V), A = $FF,
+                ld      a,$FF           ; E = $0B; GICINI keeps them
                 jp      gicini
 
 ;--------------------------------
