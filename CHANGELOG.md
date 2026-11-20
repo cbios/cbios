@@ -8,6 +8,9 @@ date.
 
 ## [Unreleased]
 
+### Fixed
+- INITIO set PSG registers 11 and 15 to other values
+
 ## [0.31a] - 2026-11-12
 
 ### Changed

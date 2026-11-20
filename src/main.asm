@@ -1845,12 +1845,12 @@ callf:
 ;Function:  Initialises the device
 ;Registers: All
 initio:
-                ld      e,$8F           ; strobe off, triggers on
+                ld      e,$CF           ; strobe off, triggers on, joystick port 2
                 ld      a,$0F
                 call    wrtpsg
-
-                ; TODO: What else must be initialized here?
-
+                ld      e,$0B           ; envelope period, low byte
+                ld      a,e
+                call    wrtpsg
                 jp      gicini
 
 ;--------------------------------
