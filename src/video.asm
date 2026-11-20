@@ -1056,6 +1056,8 @@ set_base_address_table:
 ; Input:     A  = pattern number
 ; Output:    HL = address
 ;            DE = offset of the pattern in the table
+;            A  = the pattern size in bytes (8 or 32)
+;            Z-flag set for 8x8 sprites
 ; Changes:   AF, DE, HL
 calpat:
                 ld      h,0
@@ -1069,7 +1071,8 @@ calpat:
                 add     hl,hl
 calpat_8:       ex      de,hl
                 ld      hl,(PATBAS)
-                add     hl,de
+                cp      8               ; Z: 8x8 sprites (A = 8 or 32); S, P/V clear
+                add     hl,de           ; H, C and bits 3 and 5 from the add
                 ret
 
 ;------------------------------

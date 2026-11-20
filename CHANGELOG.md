@@ -23,6 +23,7 @@ date.
 - On MSX1, RDVRM returned the H flag cleared
 - FILVRM returned other flags
 - LDIRMV and LDIRVM returned other flags in SCREEN 0-3
+- CALPAT returned other flags
 
 ## [0.31a] - 2026-11-12
 
