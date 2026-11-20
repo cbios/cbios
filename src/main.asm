@@ -2660,17 +2660,22 @@ istrg_a:
 ; Give the number of bytes left in a queue.
 ; In:      A  = queue number
 ; Out:     HL = number of bytes left
+;          B  = the next put position, (putpos + 1) & size
+;          C  = the get position
 ; Changes: AF, BC, HL
 lftq:
                 call    calc_queue_address
-                ld      b,(hl)          ; B = put position
-                inc     b
+                ld      a,(hl)          ; put position
+                inc     a
                 inc     hl
-                ld      a,(hl)          ; A = get position
-                sub     b               ; (getpos - putpos) & size
+                ld      c,(hl)          ; C = get position
                 inc     hl
                 inc     hl
                 and     (hl)
+                ld      b,a             ; B = (putpos + 1) & size
+                ld      a,c
+                sub     b
+                and     (hl)            ; (getpos - B) & size
                 ld      l,a
                 ld      h,$00           ; Queues are smaller than 256 bytes.
                 ret
