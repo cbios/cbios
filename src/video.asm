@@ -109,8 +109,9 @@ wrtvdp_nosav:
 rdvrm:
                 call    setrd
         IF VDP = TMS99X8
-                ; wait (at least) 29 t-states between VRAM accesses
-                or      0
+                ; wait (at least) 29 t-states between VRAM accesses;
+                ; an AND, as it leaves F with H set
+                and     $FF
         ENDIF
                 in      a,(VDP_DATA)
                 ret
