@@ -2804,8 +2804,8 @@ getvc2_exit:
 ; Empties the keyboard buffer.
 ; Changes: HL
 kilbuf:
-                ld      hl,(GETPNT)
-                ld      (PUTPNT),hl
+                ld      hl,(PUTPNT)     ; empty at the put side
+                ld      (GETPNT),hl
                 ret
 
 ;--------------------------------

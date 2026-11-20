@@ -30,6 +30,7 @@ date.
 - On MSX1, WRTVDP with bit 7 of the register number set updated RG0SAV-RG7SAV
 - On MSX1, INIGRP and INIMLT overwrote NAMBAS and CGPBAS, the text modes' table addresses
 - INITXT overwrote PATBAS and ATRBAS, the sprite table addresses
+- KILBUF emptied the key buffer at the wrong end
 
 ## [0.31a] - 2026-11-12
 
