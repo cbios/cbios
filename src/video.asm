@@ -471,12 +471,14 @@ chgclr:
                 or      (hl)
                 ld      e,a                     ; E := FORCLR*16 + BAKCLR
                 ld      b,a
-                ; R#7 is the text colours in SCREEN0,
-                ; the border colour in all other screens.
+                ; R#7 is the text colours in SCREEN0, the border colour
+                ; in all other screens. An invalid SCRMOD from $81 to $FF
+                ; gets the text colours too.
                 ld      a,(SCRMOD)
                 ld      d,a
-                or      a
-                jr      z,chgclr_r7
+                dec     a
+                rla                             ; Cy: SCRMOD 0 or $81-$FF
+                jr      c,chgclr_r7
                 inc     hl
                 ld      b,(hl)                  ; B := BDRCLR
 chgclr_r7:

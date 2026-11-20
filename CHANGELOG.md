@@ -24,6 +24,7 @@ date.
 - FILVRM returned other flags
 - LDIRMV and LDIRVM returned other flags in SCREEN 0-3
 - CALPAT returned other flags
+- CHGCLR wrote the border colour instead of the text colours when SCRMOD held an invalid value from $81 to $FF
 
 ## [0.31a] - 2026-11-12
 
