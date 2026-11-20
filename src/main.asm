@@ -2121,8 +2121,12 @@ beep_text:      db      "BEEP",0
 ; Changes: AF
 ; A column of 0 or past LINLEN becomes LINLEN, a row of 0 or past
 ; CRTCNT + CNSDFG (mod 256) becomes that sum: with the function key line
-; on (CNSDFG = $FF) the cursor stays off its row.
+; on (CNSDFG = $FF) the cursor stays off its row. In SCREEN 2 and up
+; POSIT does nothing.
 posit:
+                ld      a,(SCRMOD)
+                cp      2
+                ret     nc              ; graphic modes: the cursor stays
                 push    de
                 push    hl
                 ld      de,(LINLEN)     ; E = LINLEN, D = CRTCNT

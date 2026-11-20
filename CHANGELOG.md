@@ -19,6 +19,7 @@ date.
 - CHGET returned other flags
 - Clearing a text screen left other values in LINTTB
 - POSIT accepted a column or row outside the screen
+- POSIT moved the text cursor in graphic screen modes
 
 ## [0.31a] - 2026-11-12
 
