@@ -2404,7 +2404,7 @@ rdpsg:
 ; Input:   A = zero to set sound state to 0, non-zero to set sound state to 1
 ; Changes: AF
 chgsnd:
-                or      a
+                and     a               ; A = 0: Z, H and P/V set
                 ld      a,$0E           ; $0E = command to reset bit 7
                 jr      z,chgsnd_write
                 inc     a               ; $0F = command to set bit 7

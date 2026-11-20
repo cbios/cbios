@@ -35,6 +35,7 @@ date.
 - GTTRIG returned other flags
 - CHGCAP returned other values in A and F
 - TRGFLG reported the joystick triggers as pressed
+- CHGSND returned the H flag cleared when switching the click off
 
 ## [0.31a] - 2026-11-12
 
