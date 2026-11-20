@@ -29,6 +29,7 @@ date.
 - On MSX1, the screen mode calls kept other bits of VDP register 0
 - On MSX1, WRTVDP with bit 7 of the register number set updated RG0SAV-RG7SAV
 - On MSX1, INIGRP and INIMLT overwrote NAMBAS and CGPBAS, the text modes' table addresses
+- INITXT overwrote PATBAS and ATRBAS, the sprite table addresses
 
 ## [0.31a] - 2026-11-12
 

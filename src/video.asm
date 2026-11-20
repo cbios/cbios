@@ -644,11 +644,7 @@ initxt:
                 ld      hl,$1000
 initxt_width40:
         ENDIF
-                ld      (CGPBAS),hl
-                ld      hl,(TXTATR)     ; sprite attribute table (unused)
-                ld      (ATRBAS),hl
-                ld      hl,(TXTPAT)     ; sprite pattern table (unused)
-                ld      (PATBAS),hl
+                ld      (CGPBAS),hl     ; ATRBAS and PATBAS stay as they were
 
                 ; Update VDP regs and VRAM.
                 call    chgclr
