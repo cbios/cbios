@@ -2602,8 +2602,9 @@ gttrig_space:
                 ld      a,$08
                 call    snsmat          ; bit0 = 0 -> space pressed
                 pop     bc
-                or      $FE             ; FE -> pressed, FF -> not pressed
-                inc     a               ; FF -> pressed, 00 -> not pressed
+                rrca                    ; Cy: space not pressed
+                ccf
+                sbc     a,a             ; pressed: A = $FF, else 0
                 ret
 
 ; Joystick triggers
@@ -2636,14 +2637,9 @@ istrg_a:
                 call    rdpsg
                 ei
                 pop     de
-                and     b
-                jr      z,trig_on
-                jr      trig_off
-trig_on:
-                ld      a,$FF
-                ret
-trig_off:
-                xor     a
+                and     b               ; Z: pressed
+                sub     1               ; Cy: pressed
+                sbc     a,a             ; pressed: A = $FF, else 0
                 ret
 
 

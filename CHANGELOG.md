@@ -32,6 +32,7 @@ date.
 - INITXT overwrote PATBAS and ATRBAS, the sprite table addresses
 - KILBUF emptied the key buffer at the wrong end
 - SNSMAT returned other values in C and F
+- GTTRIG returned other flags
 
 ## [0.31a] - 2026-11-12
 
