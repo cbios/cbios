@@ -716,7 +716,7 @@ init32:
 ; $0072 INIGRP
 ; Function : Switches to SCREEN 2 (high resolution screen with 256*192 pixels)
 ; Input    : GRPNAM, GRPCGP, GRPCOL, GRPATR, GRPPAT
-; Output   : NAMBAS-ATRBAS, SCRMOD
+; Output   : PATBAS, ATRBAS, SCRMOD; on MSX2 also NAMBAS, CGPBAS
 ; Registers: All
 inigrp:
         IF CALL_SUB = YES
@@ -733,7 +733,9 @@ inigrp:
                 call    chgclr
 
                 ld      hl,(GRPNAM)
-                ld      (NAMBAS),hl
+        IF VDP != TMS99X8
+                ld      (NAMBAS),hl     ; MSX1 leaves NAMBAS and CGPBAS alone
+        ENDIF
                 call    setwrt
                 ld      b,3
                 xor     a
@@ -745,8 +747,10 @@ inigrp_lp:
                 djnz    inigrp_lp
                 ei
 
+        IF VDP != TMS99X8
                 ld      hl,(GRPCGP)
                 ld      (CGPBAS),hl
+        ENDIF
 
                 ld      hl,(GRPATR)
                 ld      (ATRBAS),hl
@@ -769,7 +773,7 @@ inigrp_lp:
 ; $0075 INIMLT
 ; Function : Switches to SCREEN 3 (multi-color screen 64*48 pixels)
 ; Input    : MLTNAM, MLTCGP, MLTCOL, MLTATR, MLTPAT
-; Output   : NAMBAS-ATRBAS, SCRMOD
+; Output   : PATBAS, ATRBAS, SCRMOD; on MSX2 also NAMBAS, CGPBAS
 ; Registers: All
 inimlt:
         IF CALL_SUB = YES
@@ -786,7 +790,9 @@ inimlt:
                 call    chgclr
 
                 ld      hl,(MLTNAM)
-                ld      (NAMBAS),hl
+        IF VDP != TMS99X8
+                ld      (NAMBAS),hl     ; MSX1 leaves NAMBAS and CGPBAS alone
+        ENDIF
                 call    setwrt
                 xor     a
                 ld      c,6
@@ -810,8 +816,10 @@ inimlt_loop3:
                 jr      nz,inimlt_loop1
                 ei
 
+        IF VDP != TMS99X8
                 ld      hl,(MLTCGP)
                 ld      (CGPBAS),hl
+        ENDIF
                 ld      hl,(MLTATR)
                 ld      (ATRBAS),hl
                 ld      hl,(MLTPAT)
@@ -2005,7 +2013,7 @@ cls_linttb:     ld      (hl),b
 cls_screen2:
                 xor     a
                 ld      bc,$1800
-                ld      hl,(CGPBAS)
+                ld      hl,(GRPCGP)
                 ld      l,a
                 push    bc
                 call    filvrm
@@ -2025,7 +2033,7 @@ cls_screen3:
                 rlca
                 or      b
                 ld      bc,$800
-                ld      hl,(CGPBAS)
+                ld      hl,(MLTCGP)
                 jp      filvrm
 
         IF VDP != TMS99X8
