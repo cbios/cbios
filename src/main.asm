@@ -1890,20 +1890,15 @@ strtms_text:    db      "STRTMS",0
 ;--------------------------------
 ; $009C CHSNS
 ; Function : Tests the status of the keyboard buffer
-; Output   : Z-flag set if buffer is filled
+; Output   : A = PUTPNT - GETPNT (low bytes), with the flags of that
+;            subtraction: Z-flag set if the buffer is empty
 ; Registers: AF
 chsns:
                 ei
                 push    hl
-                push    de
-                ld      hl,(GETPNT)
-                ld      de,(PUTPNT)
-                rst     $20
-                ld      a,$ff
-                jr      nz,chsns_inbuf
-                xor     a
-chsns_inbuf:
-                pop     de
+                ld      hl,GETPNT
+                ld      a,(PUTPNT)
+                sub     (hl)
                 pop     hl
                 ret
 

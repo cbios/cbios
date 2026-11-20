@@ -14,6 +14,7 @@ date.
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round
+- CHSNS did not return the number of keys waiting in A
 
 ## [0.31a] - 2026-11-12
 
