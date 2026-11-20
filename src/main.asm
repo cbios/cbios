@@ -2012,8 +2012,8 @@ lptstt:
 ;            GRPHED(FCA6): indicates if previous char was an extension code
 ; Output:                               C-flag  Z-flag  A
 ;       if byte is extension byte       low     high    1
-;       if byte is normal ASCII         high    low     ASCII code
-;       if byte is graphical extension  high    high    extension code
+;       if byte is normal ASCII         high    high    ASCII code
+;       if byte is graphical extension  high    low     extension code
 ;       GRPHED is updated
 ; Registers: AF
 
@@ -2035,19 +2035,13 @@ cnvchr:
 
 cnvchr_handlegfx:
                 pop     af
-                cp      $40
-                jr      c,cnvchr_nogfx
-                cp      $60
-                jr      nc,cnvchr_nogfx
-                sub     $40                     ; graphic char
-                cp      a                       ; set Z (and NC)
-                jr      cnvchr_normal
-
-cnvchr_nogfx:
-                cp      $50                     ; A is definitely not #50
-                                                ; so this sets NZ :-)
+                sub     $40
+                cp      $20                     ; $40-$5F: graphic character,
+                jr      c,cnvchr_normal_exit    ; F = $A3 (NZ and C)
+                add     a,$40                   ; any other code stays as it is
 cnvchr_normal:
-                scf                             ; NZ/Z already ok, now set C
+                cp      a                       ; Z, and bits 3 and 5 from A
+                scf                             ; and C
 cnvchr_normal_exit:
                 pop     hl
                 ret

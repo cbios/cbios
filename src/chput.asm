@@ -58,8 +58,8 @@ chput_exit:
 chput_decode_char:                              
                 call    cnvchr                  ; Graphic character?
                 ret     nc                      ; NC  -> graphic extension hdr
-                jr      z,chput_putchar         ; C,Z -> graphic character
-                push    af                      ; (C,NZ -> normal char)
+                jr      nz,chput_putchar        ; C,NZ -> graphic character
+                push    af                      ; (C,Z -> normal char)
                 ld      a,(ESCCNT)              ; ESC sequence?
                 or      a
                 jp      nz,chput_escape

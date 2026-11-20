@@ -13,6 +13,7 @@ date.
 - GICINI changed registers A, E and F
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
+- CNVCHR returned the Z flag the wrong way round
 
 ## [0.31a] - 2026-11-12
 
