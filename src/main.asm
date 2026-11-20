@@ -2000,12 +2000,9 @@ lptstt:
                 call    H_LPTS
                 in      a,(PRN_STAT)
                 rra
-                rra
-                ld      a,$FF
-                jr      nc,lptstt_end
-                cpl
-lptstt_end:
-                and     a
+                rra                     ; Cy = busy
+                ccf
+                sbc     a,a             ; ready: A = $FF, F = $BB; busy: A = 0, F = $42
                 ret
 
 ;--------------------------------
