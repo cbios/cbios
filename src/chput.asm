@@ -471,14 +471,12 @@ chput_copy_line_copy:
                 add     hl,bc
                 ret
 
-; -- Erase
+; -- Erase: move left as BS does, then blank the cell the cursor is on
 chput_erase:
-                ld      a,(CSRX)
-                cp      1
+                call    chput_ctrl_left         ; Z: the cursor did not move
                 ret     z
                 ld      a,32
-                call    chput_putchar
-                jp      chput_ctrl_left
+                jr      chput_write_cursor
 
 ; -- disable cursor
 chput_remove_cursor:
@@ -490,6 +488,7 @@ chput_remove_cursor:
                 ret     nc
 
                 ld      a,(CURSAV)              ; get saved character
+chput_write_cursor:
                 call    curs2hl                 ; and drop it at the
                 jp      wrtvrm
 
