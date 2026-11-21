@@ -2971,9 +2971,62 @@ scanr_text:     db      "SCANR",0
 
 ;--------------------------------
 ; $012F SCANL
-; Function : Scans screenpixels to the left
-; NOTE     : This implementation is still a stub!
+; Function : PAINT's scan to the left along the graphics cursor's pixel row
+;            (SCREEN 3: block row): counts the pixels left of the cursor up
+;            to the next border pixel (BRDATR) or the row's start, and
+;            paints them in ATRBYT
+; Output   : HL - the number of pixels counted
+;            CLOC, CMASK - the leftmost pixel counted, or the start
+; Registers: AF, BC, DE, HL
+; Remark   : SCREEN 2 and 4: paints HL + K pixels, as NSETCX sets them, with
+;            K the run length of the last SCANR (FILNAM+1), so that one
+;            painted run reaches from the left border to the right one.
+;            SCREEN 3: paints the HL blocks. Interrupts are on afterwards.
+;            SCREEN 5-8: not implemented.
 scanl:
+        IF VDP != TMS99X8
+                call    chknew
+                jr      nc,scanl_stub
+        ENDIF
+                ld      de,0
+scanl_count:
+                call    leftc
+                call    scan_last       ; stepped off the row's start onto
+                jr      c,scanl_back    ; the last pixel of the row above
+                call    scan_border
+                jr      z,scanl_back
+                inc     de
+                jr      scanl_count
+scanl_back:
+                call    rightc
+                call    fetchc
+                push    hl
+                push    af              ; the leftmost pixel counted
+                push    de
+                ld      a,(SCRMOD)
+                cp      3
+                jr      z,scanl_sc3
+                ld      hl,(FILNAM+1)
+                add     hl,de           ; HL + K pixels
+                jr      scanl_paint
+scanl_sc3:
+                ld      a,e
+                and     a
+                jr      z,scanl_end     ; no blocks
+                ex      de,hl
+scanl_paint:
+                call    nsetcx
+scanl_end:
+                pop     de
+                pop     af
+                pop     hl
+                call    storec          ; SCREEN 3: NSETCX moved the cursor
+                ex      de,hl
+                ei
+                ret
+
+        IF VDP != TMS99X8
+scanl_stub:
                 push    hl
                 push    af
                 ld      hl,scanl_text
@@ -2982,5 +3035,6 @@ scanl:
                 pop     hl
                 ret
 scanl_text:     db      "SCANL",0
+        ENDIF
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
