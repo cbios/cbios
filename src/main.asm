@@ -2740,21 +2740,35 @@ chgcap_out:     out     (PPI_REGS),a
 ; Function : Printer output
 ; Input    : A  - code to print
 ; Registers: F
-; Remark   : Differences with LPTOUT:
-;            1. TAB is expanded to spaces
-;            2. For non-MSX printers, Hiragana is transformed to katakana
-;               and graphic characters are transformed to 1-byte characters
-;            3. If failed, device I/O error occurs
-; TODO     : This implementation is still a stub!
+; Remark   : Differences with LPTOUT: a TAB goes out as spaces up to the
+;            next multiple of 8, and LPTPOS counts the column: 0 after a CR,
+;            one more after a character from $20 up, the same after another
+;            control code. Not done: the non-MSX printer conversions
+;            (NTMSXP) and BASIC's device I/O error.
 outdlp:
+                cp      9
+                jr      z,outdlp_tab
+                call    lptout
                 push    hl
-                push    af
-                ld      hl,outdlp_text
-                call    print_debug
-                pop     af
+                ld      hl,LPTPOS
+                cp      13
+                jr      nz,outdlp_nocr
+                ld      (hl),0
+outdlp_nocr:
+                cp      ' '
+                jr      c,outdlp_done
+                inc     (hl)
+outdlp_done:
                 pop     hl
                 ret
-outdlp_text:    db      "OUTDLP",0
+outdlp_tab:
+                ld      a,' '
+                call    outdlp
+                ld      a,(LPTPOS)
+                and     7
+                jr      nz,outdlp_tab
+                ld      a,9
+                ret
 
 ;--------------------------------
 ; $0150 GETVCP
