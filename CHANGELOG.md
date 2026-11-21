@@ -11,6 +11,7 @@ date.
 ### Fixed
 - INITIO set PSG registers 11 and 15 to other values
 - GICINI changed registers A, E and F
+- GICINI did not reset the PLAY queues, MUSICF, PLYCNT or the voice buffers
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round

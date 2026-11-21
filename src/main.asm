@@ -1425,19 +1425,9 @@ init_ram:
                 ld      (ASPCT2),hl
         ENDIF
 
-; Initialise QUETAB.
+; QUETAB's queues 0-2 are set up by GICINI, through INITIO.
                 ld      hl,QUETAB
                 ld      (QUEUES),hl
-                ld      hl,VOICAQ
-                ld      (QUETAB+0*6+4),hl
-                ld      hl,VOICBQ
-                ld      (QUETAB+1*6+4),hl
-                ld      hl,VOICCQ
-                ld      (QUETAB+2*6+4),hl
-                ld      a,$7F
-                ld      (QUETAB+0*6+3),a
-                ld      (QUETAB+1*6+3),a
-                ld      (QUETAB+2*6+3),a
 
 ; other settings
                 ld      a,37
@@ -2322,11 +2312,19 @@ stmotr_set:     out     (GIO_REGS),a
 
 ;--------------------------------
 ; $0090 GICINI  Initialize Sound IC
-; Function : Initialises PSG and sets initial value for the PLAY statement
+; Function : Initialises the PSG and the PLAY state: R7 := $B8 (tones on,
+;            noise off, port A in, port B out), the volumes R8-R10 := 0;
+;            queues 0-2 emptied (size $7F, VOICAQ, VOICBQ, VOICCQ); MUSICF
+;            and PLYCNT := 0; the three voice buffers from VCBA cleared,
+;            but for PLAY's defaults in bytes 15-19 (octave 4, length 4,
+;            tempo 120, volume 8, the envelope period $FF)
 ; Registers: None
+; Remark   : Interrupts are on afterwards.
 gicini:
-                push    af
+                push    hl
                 push    de
+                push    bc
+                push    af
                 ld      e,$B8           ; mixer: tone on, noise off, port A in, B out
                 ld      a,$07
                 call    wrtpsg
@@ -2335,9 +2333,53 @@ gicini_amp:     inc     a
                 call    wrtpsg
                 cp      $0A
                 jr      nz,gicini_amp
-                pop     de
+                ld      hl,MUSICF       ; MUSICF, PLYCNT and the voice buffers
+                ld      b,2+3*37
+gicini_clr:     ld      (hl),e          ; 0
+                inc     hl
+                djnz    gicini_clr
+                ld      hl,VCBA+15
+                ld      de,37-4
+                ld      bc,$0304
+gicini_vcb:     ld      (hl),c          ; octave 4
+                inc     hl
+                ld      (hl),c          ; length 4
+                inc     hl
+                ld      (hl),120        ; tempo
+                inc     hl
+                ld      (hl),$88        ; volume 8
+                inc     hl
+                ld      (hl),$FF        ; envelope period
+                add     hl,de
+                djnz    gicini_vcb
+                ld      hl,QUETAB
+                ld      de,VOICAQ
+                ld      b,3
+gicini_que:     xor     a
+                ld      (hl),a          ; put
+                inc     hl
+                ld      (hl),a          ; get
+                inc     hl
+                ld      (hl),a          ; back
+                inc     hl
+                ld      (hl),$7F        ; size
+                inc     hl
+                ld      (hl),e
+                inc     hl
+                ld      (hl),d          ; the buffer
+                inc     hl
+                ld      a,e
+                add     a,$80           ; the next voice's buffer
+                ld      e,a
+                adc     a,d
+                sub     e
+                ld      d,a
+                djnz    gicini_que
                 pop     af
-                ret
+                pop     bc
+                pop     de
+                pop     hl
+                ret                     ; WRTPSG left interrupts on
 
 ;--------------------------------
 ; $0093 WRTPSG
