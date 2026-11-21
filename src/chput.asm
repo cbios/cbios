@@ -335,8 +335,7 @@ chput_esc_k:
                 ld      e,a
                 ld      d,0
                 add     hl,de
-                ; a != 0, which is OK
-                ld      (hl),a
+                ld      (hl),$AF                ; a blanked row: not linked
                 
                 ld      a,(LINLEN)
                 inc     a                       ; because CSRX is 1-based
@@ -373,7 +372,8 @@ chput_esc_ll:
                 dec     hl                      ; DE := HL, HL := HL - 1
                 lddr
                 pop     hl
-                ld      (hl),a                  ; bottom row: line ends (A > 0)
+                ld      (hl),h                  ; bottom row: line ends, $FB
+                                                ; (H: LINTTB's page)
                 ld      b,a
                 ld      a,(CSRY)
                 jr      chput_esc_ll_loop_end

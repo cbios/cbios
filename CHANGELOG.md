@@ -42,6 +42,7 @@ date.
 - CHPUT: DEL blanked the character under the cursor instead of the one to its left, did nothing at the start of a row, and scrolled the screen in the bottom-right corner
 - CHPUT: ESC l moved the cursor to the start of the line
 - CHPUT: ESC Y put the cursor off the screen for a row or column out of range
+- CHPUT: rows blanked by ESC K, l, J, L, M or a scroll got other values in LINTTB
 
 ## [0.31a] - 2026-11-12
 
