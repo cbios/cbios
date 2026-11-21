@@ -2492,9 +2492,12 @@ mapxy:
         IF VDP != TMS99X8
                 cp      5
                 jr      nc,mapxy_bitmap
-        ENDIF
                 cp      3
                 jr      z,mapxy_sc3
+        ELSE
+                cp      2               ; MSX1: blocks in any mode but SCREEN 2
+                jr      nz,mapxy_sc3
+        ENDIF
                 ld      a,c
                 and     7
                 inc     a
