@@ -2024,8 +2024,6 @@ cnvchr_normal_exit:
                 pop     hl
                 ret
 
-                include "inlin.asm"
-
 ;--------------------------------
 ; $00B7 BREAKX
 ; Tests status of CTRL-STOP.
@@ -3411,6 +3409,7 @@ vram_clear_lp:  xor     a
         ENDIF
 
                 include "slot.asm"
+                include "inlin.asm"      ; behind the font: room for the line editor
 
 ;---------------------------------
 ; system messages

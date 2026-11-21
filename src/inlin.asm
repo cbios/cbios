@@ -70,14 +70,64 @@ inlin_start:
                 ld      (FSTPOS),hl
 inlin_loop:
                 call    chget
+                push    af
+                call    chput_remove_cursor ; the screen as it is, for BS/DEL/Enter
+                pop     af
                 cp      13
                 jr      z,inlin_enter
+                cp      8
+                jr      z,inlin_bs
+                cp      $7F
+                jr      z,inlin_del
                 call    chput
+                jr      inlin_loop
+
+; BS: one cell left within the logical line, then as DEL. At column 1 the
+; cursor goes to the row above only if that row continues onto this one.
+inlin_bs:
+                ld      hl,CSRX
+                dec     (hl)
+                jr      nz,inlin_del
+                inc     (hl)            ; column 1
+                ld      a,(CSRY)
+                dec     a
+                jr      z,inlin_del
+                ld      e,a
+                call    inlin_linttb
+                jr      nz,inlin_del    ; a line starts here: stay
+                ld      a,(LINLEN)
+                ld      h,a
+                ld      l,e
+                ld      (CSRY),hl       ; the row above, its last column
+; DEL: delete the character under the cursor and pull the rest of the
+; logical line one cell left; its last cell becomes a space.
+inlin_del:
+                ld      hl,(CSRY)
+                push    hl              ; the cursor, put back at the end
+                ld      a,l
+                call    inlin_lastrow   ; E := the line's last row
+                call    curs2hl
+inlin_del_cell:
+                push    hl              ; this cell
+                call    inlin_next
+                jr      z,inlin_del_done
+                call    curs2hl
+                call    rdvrm           ; the next cell's character
+                ex      (sp),hl
+                call    wrtvrm          ; into this cell
+                pop     hl
+                jr      inlin_del_cell
+inlin_del_done:
+                pop     hl              ; the line's last cell
+                ld      a,' '
+                call    wrtvrm
+                pop     hl
+                ld      (CSRY),hl
+                call    chput_restore_cursor
                 jr      inlin_loop
 
 ; Enter: the logical line under the cursor, rows D to E, goes into BUF.
 inlin_enter:
-                call    chput_remove_cursor
                 ld      a,','
                 ld      (BUF-1),a       ; stops the trim below
                 ld      a,(CSRY)
@@ -89,79 +139,79 @@ inlin_first:                            ; D := the line's first row
                 call    inlin_linttb
                 ld      a,e
                 jr      z,inlin_first   ; the row above continues on this one
-inlin_last:                             ; E := the line's last row
+inlin_last:
                 ld      a,(CSRY)
-inlin_last_lp:
-                ld      e,a
-                ld      hl,CRTCNT
-                cp      (hl)
-                jr      nc,inlin_read   ; the bottom row
-                call    inlin_linttb
-                ld      a,e
-                jr      nz,inlin_read   ; the line ends on this row
-                inc     a
-                jr      inlin_last_lp
-inlin_read:
+                call    inlin_lastrow   ; E := the line's last row
                 ld      hl,(FSTPOS)     ; the start column, if the line starts
                 ld      a,l             ; on the row input started on
                 cp      d
-                ld      a,h
+                ld      l,d
                 jr      z,inlin_col
-                ld      a,1
+                ld      h,1
 inlin_col:
-                ld      (CSRX),a
-                ld      a,d
-                ld      (CSRY),a
-                push    de
-                ld      de,BUF
-                ld      c,255           ; at most 255 characters
-inlin_row:
-                ld      a,(LINLEN)
-                ld      hl,CSRX
-                sub     (hl)
-                inc     a
-                ld      b,a             ; the cells from CSRX to the row's end
-                call    curs2hl
+                ld      (CSRY),hl
+                ld      bc,BUF
+                ld      d,255           ; at most 255 characters
 inlin_cell:
+                call    curs2hl
                 call    rdvrm
-                ld      (de),a
-                inc     de
-                inc     hl
-                dec     c
-                jr      z,inlin_full
-                djnz    inlin_cell
-                ld      a,1
-                ld      (CSRX),a
-                pop     hl              ; L = the last row
-                push    hl
-                ld      a,(CSRY)
-                cp      l
-                jr      z,inlin_full
-                inc     a
-                ld      (CSRY),a
-                jr      inlin_row
-inlin_full:
+                ld      (bc),a
+                inc     bc
+                dec     d
+                jr      z,inlin_trim
+                call    inlin_next
+                jr      nz,inlin_cell
 inlin_trim:                             ; drop the trailing spaces
-                dec     de
-                ld      a,(de)
+                dec     bc
+                ld      a,(bc)
                 cp      ' '
                 jr      z,inlin_trim
-                inc     de
+                inc     bc
                 xor     a
-                ld      (de),a
+                ld      (bc),a
                 ld      (INSFLG),a
-                pop     de
                 ld      a,e
-                ld      (CSRY),a
                 call    inlin_linttb
                 ld      (hl),$AF        ; the line ends on its last row
-                ld      a,1
-                ld      (CSRX),a
+                ld      l,e
+                ld      h,1
+                ld      (CSRY),hl
                 call    chput_ctrl_lf   ; to the next row; on row 24 it scrolls
                 call    chput_restore_cursor
                 ld      hl,BUF-1
                 or      a               ; NC: ended with Enter
                 ret
+
+; The cursor to the next cell of the logical line that ends on row E.
+; Output : Z if it was on the line's last cell (and stays there)
+; Changes: AF, HL
+inlin_next:
+                ld      hl,(CSRY)
+                ld      a,(LINLEN)
+                cp      h
+                jr      nz,inlin_next_col
+                ld      a,l
+                cp      e
+                ret     z
+                ld      h,0
+                inc     l
+inlin_next_col:
+                inc     h               ; NZ
+                ld      (CSRY),hl
+                ret
+
+; A = a row (1-24) -> E = the last row of the logical line through it.
+; Changes: AF, HL
+inlin_lastrow:
+                ld      e,a
+                ld      hl,CRTCNT
+                cp      (hl)
+                ret     nc              ; the bottom row
+                call    inlin_linttb
+                ld      a,e
+                ret     nz              ; the line ends on this row
+                inc     a
+                jr      inlin_lastrow
 
 ; A = a row (1-24) -> HL = its LINTTB entry, A = the entry, Z if 0
 ; (the row continues on the next). Changes: AF
