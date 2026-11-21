@@ -2020,7 +2020,6 @@ cls_screen2:
                 xor     a
                 ld      bc,$1800
                 ld      hl,(GRPCGP)
-                ld      l,a
                 push    bc
                 call    filvrm
                 pop     bc
