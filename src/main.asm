@@ -326,7 +326,7 @@ romid:
 
 ; $00BD CKCNTC
                 ds      $00BD - $
-                jp      ckcntc
+                jp      iscntc
 
 ; $00C0 BEEP
                 ds      $00C0 - $
@@ -2077,30 +2077,16 @@ breakx:
                 ret
 
 ;--------------------------------
-; $00BA ISCNTC
-; Function: Test status of STOP or CTRL-STOP; if BASIC is in a ROM (see BASROM),
-;           then check for STOP or CTRL-STOP is not done. Otherways:
-;       INTLFLG: 0 => no action
-;       INTLFLG: 3 => CTRL-STOP pressed => break program, if "STOP-interrupts not on"??
-;       INTLFLG: 4 => STOP pressed => wait in ISCNTC till stop pressed again
-; Input: INTFLG, BASROM
+; $00BA ISCNTC, $00BD CKCNTC
+; Function: BASIC's test for a break (STOP or CTRL+STOP, flagged in INTFLG
+;           by the interrupt). C-BIOS has no BASIC to break, so this is
+;           the answer with no break pending: A = 0, Z, H and P/V set, and
+;           interrupts on.
 ; Registers: AF
-; NOTE: this implementation is still a stub!
 iscntc:
-                push    hl
-                push    af
-                ld      hl,iscntc_text
-                call    print_debug
-                pop     af
-                pop     hl
+                and     0
+                ei
                 ret
-iscntc_text:    db      "ISCNTC",0
-
-;--------------------------------
-; $00BD CKCNTC
-; Function : Same as ISCNTC. used in Basic
-ckcntc:
-                jp      iscntc
 
 ;--------------------------------
 ; $00C0 BEEP
