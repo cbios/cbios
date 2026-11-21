@@ -522,8 +522,28 @@ clrspr:
 
 ; Clear sprite colour table.
                 ld      a,(SCRMOD)
-                cp      4               ; sprite mode 1?
-                jr      c,clrspr_col_skip
+                cp      4               ; sprite mode 2?
+                call    nc,clrspr_col
+
+; Clear sprite pattern generator table.
+                ld      hl,(PATBAS)
+                ld      bc,256 * 8
+                xor     a
+        IF VDP = TMS99X8
+                jp      filvrm
+        ELSE
+                jp      bigfil
+        IF CALL_SUB = NO
+
+;--------------------------------
+; Set up the sprites of SCREEN 4-8: attributes, then colours.
+clrspr_spritemode2:
+                call    clrspr_attr_spritemode2
+        ENDIF
+        ENDIF
+
+; Fill the sprite colour table, $200 bytes before ATRBAS, with FORCLR.
+clrspr_col:
                 ld      hl,(ATRBAS)
                 dec     h
                 dec     h               ; HL = (ATRBAS) - $200
@@ -531,22 +551,10 @@ clrspr:
                 ld      a,(FORCLR)
                 and     $0F
         IF VDP = TMS99X8
-                call    filvrm
+                jp      filvrm
         ELSE
-                call    bigfil
+                jp      bigfil
         ENDIF
-clrspr_col_skip:
-
-; Clear sprite pattern generator table.
-                ld      hl,(PATBAS)
-                ld      bc,256 * 8
-                xor     a
-        IF VDP = TMS99X8
-                call    filvrm
-        ELSE
-                call    bigfil
-        ENDIF
-                ret
 
 ;--------------------------------
 ; Clear sprite attribute table.
@@ -1688,7 +1696,7 @@ init_sc4_lp:
                 ld      hl,(GRPCGP)
                 ld      (CGPBAS),hl
 
-                ld      hl,(GRPATR)
+                ld      hl,$1E00        ; past SCREEN 4's sprite colours
                 ld      (ATRBAS),hl
 
                 ld      hl,(GRPPAT)
@@ -1722,7 +1730,7 @@ init_sc4_lp:
                 call    set_base_address
                 ld      a,$03
                 call    set_base_address
-                ld      de,sc4atr
+                ld      de,ATRBAS
                 ld      a,$03
                 call    set_base_address
                 ld      de,GRPPAT
@@ -1736,14 +1744,13 @@ init_sc4_lp:
                 inc     hl
                 ld      (hl),0          ; VDP R#11
 
-                call    clrspr_attr_spritemode1
                 ld      bc,$000E        ; B = $00, C = 14
                 call    wrtvdp          ; VDP R#14
 
-                call    cls_screen2
+                call    cls_screen2     ; the tables, then the sprites
+                call    clrspr_spritemode2
                 jp      chgmod_finish
 
-sc4atr:         dw      $1E00
 
 ;------------------------------
 ;Initializes SCREEN 5
@@ -1793,7 +1800,7 @@ init_sc5:
                 ld      bc,$0F06        ; B = $0F, C = 6
                 call    wrtvdp          ; VDP R#6
 
-                call    clrspr_attr_spritemode2
+                call    clrspr_spritemode2
                 call    cls_screen5
                 jp      chgmod_finish
 
@@ -1844,7 +1851,7 @@ init_sc6:
                 ld      bc,$0F06        ; B = $0F, C = 6
                 call    wrtvdp          ; VDP R#6
 
-                call    clrspr_attr_spritemode2
+                call    clrspr_spritemode2
                 call    cls_screen6
                 jp      chgmod_finish
 
@@ -1895,7 +1902,7 @@ init_sc7:
                 ld      bc,$1E06        ; B = $1E, C = 6
                 call    wrtvdp          ; write VDP R#6
 
-                call    clrspr_attr_spritemode2
+                call    clrspr_spritemode2
                 call    cls_screen7
                 jp      chgmod_finish
 
@@ -1945,7 +1952,7 @@ init_sc8:
                 ld      bc,$1E06        ; B = $1E, C = 6
                 call    wrtvdp          ; write VDP R#6
 
-                call    clrspr_attr_spritemode2
+                call    clrspr_spritemode2
                 call    cls_screen8
                 jp      chgmod_finish
         ENDIF
