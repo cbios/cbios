@@ -1153,8 +1153,10 @@ gspsiz:
 ;            FORCLR, and moves GRPACX on; CR moves to the next text line
 ; Input    : A - the character
 ; Registers: none
-; Remark   : SCREEN 2 and 4: a glyph pixel is a pixel; drawn as SETC sets
-;            one, moving with RIGHTC, and down with TDOWNC after each line.
+; Remark   : A glyph pixel is drawn as SETC sets one, moving with RIGHTC,
+;            and down with TDOWNC after each line; it is a pixel where
+;            MAPXYC takes pixels (SCREEN 2 and 4; on MSX2 also 0 and 1),
+;            else a 4x4 block, and GRPACX then moves on by 32 instead of 8.
 ;            Pixels past the right edge are not drawn, and drawing stops
 ;            where TDOWNC stops. A start outside the screen draws nothing.
 ;            CLOC and CMASK end at the glyph's left column, where the last
@@ -1204,9 +1206,6 @@ grpprt_char:
         ENDIF
                 call    getpat          ; PATWRK = the glyph; RDSLT leaves
                 ei                      ; interrupts off
-                call    grpprt_step
-                cp      32
-                jr      z,grpprt_end    ; SCREEN 0, 1 and 3: not yet
                 ld      a,(FORCLR)
                 ld      (ATRBYT),a
                 ld      bc,(GRPACX)
@@ -1227,13 +1226,11 @@ grpprt_pixel:
                 inc     b
                 dec     b
                 jr      z,grpprt_line_end ; no more pixels to set
-                call    rightc
-                rla
-                jr      nc,grpprt_pixel ; still in the same byte
-                ld      a,l
-                cp      $F8
-                jr      c,grpprt_pixel  ; the line did not start in the
-grpprt_line_end:                        ; last column: not past the edge
+                call    rightc          ; CLOC + 8 for each next byte, so it
+                ld      a,(CLOC)        ; drops below the line's left end L
+                cp      l               ; only when it wraps past the right
+                jr      nc,grpprt_pixel ; edge
+grpprt_line_end:
                 pop     af
                 call    storec
                 call    tdownc
