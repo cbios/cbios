@@ -2519,13 +2519,14 @@ isflio:
 ;--------------------------------
 ; $00D5 GTSTCK
 ; Function : Returns the joystick status
-; Input    : A  - Joystick number to test (0 = cursors, 1 = port 1, 2 = port 2)
+; Input    : A  - Joystick number to test (0 = cursors, 1 = port 1, 2 = port 2;
+;                 3-$80 port 1, $81-$FF the cursors)
 ; Output   : A  - Direction,D = $00(when A=0)
 ; Registers: All
 gtstck:
                 push    bc
-                cp      $00
-                jr      nz,joy_stc1
+                dec     a
+                jp      p,joy_stc1      ; 1-$80: a joystick
 
                 ld      a,$08
                 call    snsmat
@@ -2556,7 +2557,7 @@ joy_stc1:
 
                 ld      e,$00
                 dec     a
-                jr      z,sel_stc1
+                jr      nz,sel_stc1     ; port 1 but for A = 2
                 set     6,e             ; select stick 2
 sel_stc1:
                 ld      a,$0F
