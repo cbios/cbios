@@ -2688,39 +2688,31 @@ lftq:
 ; Out:     ZF = set if the queue is full
 ; Changes: AF, BC, HL
 putq:
-                ; Check whether the queue is full.
                 call    calc_queue_address
-                ld      a,(hl)
+                ld      a,(hl)          ; put position
                 inc     a
-                ld      b,a             ; B = put position + 1
-                inc     hl
-                sub     (hl)
-                ret     z
-
-                ; Save the new put position.
-                ld      a,b
-                inc     hl
-                inc     hl
                 push    hl
-                and     (hl)            ; (putpos + 1) & size
-                dec     hl
-                dec     hl
-                dec     hl
-                ld      (hl),a
-
-                ; Put the data byte in the queue.
-                pop     hl
                 inc     hl
-                ld      a,(hl)          ; Get the buffer address.
+                ld      c,(hl)          ; C = get position
+                inc     hl
+                inc     hl
+                and     (hl)            ; A = (putpos + 1) & size
+                cp      c
+                jr      z,putq_full     ; it would reach get: full
+                inc     hl
+                ld      c,a
+                ld      a,(hl)          ; the buffer address
                 inc     hl
                 ld      h,(hl)
                 ld      l,a
-                dec     b               ; Add putpos.
-                ld      c,b
                 ld      b,0
                 add     hl,bc
-                ld      (hl),e
-                or      1
+                ld      (hl),e          ; the byte goes at the new put position
+                pop     hl
+                ld      (hl),c          ; ZF is still clear from the cp
+                ret
+putq_full:
+                pop     hl
                 ret
 
                 ; Calculate the address to the start of queue control block.
