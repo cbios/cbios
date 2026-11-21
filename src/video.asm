@@ -1861,11 +1861,11 @@ init_sc8:
 ; $00C3 CLS
 ; Clears the screen.
 ; Input:   BAKCLR,
-;          Z-Flag has to be low if the main ROM version of CLS is called;
-;          in the sub ROM version of CVS the Z-Flag is ignored.
+;          Z set: the main ROM's CLS does nothing with Z clear; the sub
+;          ROM's CLS ignores the Z flag.
 ; Changes: AF, BC, DE
-;TODO: add optional borders to text based screens
-;      -> Should that happen in CLS?
+; In SCREEN 0 and 1 the main ROM's CLS draws the function key line again
+; when it is on.
 cls_z:
                 ret     nz
 cls:
@@ -1879,6 +1879,11 @@ cls:
                 push    hl
                 ld      hl,cls_table
                 call    jump_table
+        IF MODEL_MSX != MODEL_SUBROM
+                ld      a,(SCRMOD)
+                cp      2
+                call    c,fnksb         ; SCREEN 0, 1: the function key line
+        ENDIF
                 pop     hl
                 ret
 cls_table:
