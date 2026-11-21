@@ -2201,7 +2201,8 @@ dspfnk_text:    db      "DSPFNK",0
 
 ;--------------------------------
 ; $00D2 TOTEXT
-; Forces the screen to be in the text mode.
+; In a graphic mode, switches to the screen mode in OLDSCR (normally the
+; last text mode) through CHGMOD; in SCREEN 0 and 1 does nothing.
 ; Input: SCRMOD, OLDSCR
 ; Changes: all
 totext:
@@ -2210,9 +2211,7 @@ totext:
                 ret     c
                 ld      a,(OLDSCR)
                 call    H_TOTE
-                or      a
-                jp      z,initxt
-                jp      init32
+                jp      chgmod          ; back to the mode in OLDSCR
 
 ;--------------------------------
 ; $00E1 TAPION
