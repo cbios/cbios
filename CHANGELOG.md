@@ -28,6 +28,7 @@ date.
 - CALBAS printed an error and never returned; it now calls the routine at IX in the main ROM's slot
 - CALSLT, CALLF and CALBAS always returned with interrupts off; they now leave them as the called routine left them
 - CHRGTR returned the character at HL instead of the next one, skipped no LF, and returned other flags
+- SYNCHR was a stub: it returned without checking the character and ran its inline byte as code; it now checks it and goes on as CHRGTR, and a mismatch is a Syntax error
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round

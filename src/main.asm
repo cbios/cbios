@@ -1713,28 +1713,24 @@ curs2hl_mult_skip:
 ; the extensive descriptions were taken with permission from http://map.tni.nl/
 
 ;-------------------------------------
-;0008h SYNCHR
-;Function:  tests whether the character of [HL] is the specified character
-;           if not, it generates SYNTAX ERROR, otherwise it goes to CHRGTR
-;           (#0010)
-;Input:     set the character to be tested in [HL] and the character to be
-;           compared next to RST instruction which calls this routine (inline
-;           parameter)
-;Output:    HL is increased by one and A receives [HL], When the tested character
-;           is numerical, the CY flag is set the end of the statement (00h or
-;           3Ah) causes the Z flag to be set
-;Registers: AF, HL
-;NOTE: this implementation is still a stub!
+; $0008 SYNCHR
+; Function : Checks that the character at HL is the byte that follows the
+;            RST 08h (an inline parameter); on a match goes on as CHRGTR
+; Input    : HL - the character to check
+; Output   : as CHRGTR, from the matched character; returns past the
+;            inline byte
+; Registers: AF, HL
+; Remark   : On a mismatch it is a Syntax error: H.ERRO is called with
+;            E = 2, as BASIC does; without BASIC to go back to, C-BIOS then
+;            stops with an error screen.
 synchr:
-                push    hl
-                push    af
-                ld      hl,synchr_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-synchr_text:    db      "SYNCHR",0
-
+                ld      a,(hl)
+                ex      (sp),hl
+                cp      (hl)            ; the inline byte
+                inc     hl              ; return past it
+                ex      (sp),hl
+                jr      nz,synchr_error
+                                        ; on into CHRGTR
 ;-------------------------------------
 ; $0010 CHRGTR
 ; Function : Steps to the next character of a program text and returns it,
@@ -1766,6 +1762,12 @@ chrgtr_lp:
                 sub     $CF             ; A = the character + 1, C: a digit
                 dec     a
                 ret
+
+synchr_error:
+                ld      e,2             ; Syntax error
+                call    H_ERRO
+                ld      de,str_syntax_error
+                jp      print_error
 
 ;--------------------------------
 ; $0020 DCOMPR
@@ -3447,6 +3449,9 @@ str_error_prompt:
 
 str_memory_err:
                 db      "MEMORY NOT FOUND.",$00
+
+str_syntax_error:
+                db      "SYNTAX.",$00
 
 str_stack_error:
                 db      "STACK ERROR.",$00
