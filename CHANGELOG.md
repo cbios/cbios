@@ -32,6 +32,7 @@ date.
 - GICINI, and so INITIO, set up the PLAY queues at their default place even when QUEUES pointed elsewhere
 - GTTRIG read the space bar for 5 and up; now 5 to $80 read a joystick trigger (button B, port 1 for odd values, port 2 for even ones) and $81 to $FF the space bar
 - GTSTCK read joystick port 2 for every value from 3 up; now 3 to $80 read port 1 and $81 to $FF the cursor keys
+- CHPUT's cursor right from the last column of the function key line's row went to the last column of the bottom text row instead of its first column
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round

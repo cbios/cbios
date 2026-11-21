@@ -176,8 +176,8 @@ chput_ctrl_right:
                 jr      chput_right_left_ok
 chput_ctrl_right_next:
                 call    chput_esc_b
-                ret     c                       ; on the bottom row
-                jr      chput_ctrl_cr
+                ret     z                       ; on the bottom row: stays
+                jr      chput_ctrl_cr           ; else column 1 of the next
 
 ; -- Cursor left
 chput_ctrl_bs:
@@ -206,18 +206,21 @@ chput_esc_a:
 ; -- Cursor down
 chput_ctrl_down:
 chput_esc_b:
-                ; Output: C on the bottom row, or below it (the cursor put
-                ; on the function key line's row): then onto the bottom row
+                ; Output: C on the bottom row (Z), or below it (NZ: the cursor
+                ; put on the function key line's row): then onto the bottom
+                ; row; NC and NZ when it moved down a row
                 call    text_bottom
                 ld      hl,CSRY
                 dec     a
                 cp      (hl)
                 inc     a
                 jr      c,chput_esc_b_bottom
-                inc     (hl)                    ; NC
+                inc     (hl)                    ; NC, NZ
                 ret
 chput_esc_b_bottom:
+                cp      (hl)                    ; Z: on the bottom row
                 ld      (hl),a
+                scf
                 ret
 
 ; -- Handle ESC mode (ESCCNT in A and != 0)
