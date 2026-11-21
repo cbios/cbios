@@ -1976,11 +1976,13 @@ cls_table:
         ENDIF
 
 cls_screen0:
-                ld      a,(LINLEN)
-                cp      40
                 ld      bc,40*24
+        IF VDP != TMS99X8
+                ld      a,(LINLEN)      ; 80 columns above LINLEN 40
+                cp      41
                 jr      c,cls_text
                 ld      bc,80*24
+        ENDIF
                 jr      cls_text
 
 cls_screen1:
