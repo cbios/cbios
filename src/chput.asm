@@ -153,6 +153,13 @@ chput_esc_jj_loop:
                 call    chput_ctrl_lf           ;   move to next line
                 call    chput_esc_k             ;   clear till end of line
                 jr      chput_esc_jj_loop       ; loop
+
+; -- Clear line; the cursor stays where it is
+chput_esc_l:
+                ld      hl,(CSRY)               ; save current cursor pos
+                push    hl
+                call    chput_ctrl_cr
+                call    chput_esc_k
 chput_esc_jj_done:
                 pop     hl                      ; restore cursor pos
                 ld      (CSRY),hl
@@ -319,10 +326,6 @@ chput_esc_d:
                 ret     z
                 ld      (CSRX),a
                 ret
-
-; -- clear line
-chput_esc_l:
-                call    chput_ctrl_cr
 
 ; -- Clear till end of line
 chput_esc_k:
