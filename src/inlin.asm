@@ -109,6 +109,7 @@ inlin_del_done:
                 pop     hl              ; the line's last cell
                 ld      a,' '
                 call    wrtvrm
+inlin_setcur:
                 pop     hl
                 ld      (CSRY),hl
 ; ESC does nothing in the editor. BS, DEL and INS also end here.
@@ -120,8 +121,6 @@ inlin_loop:
                 call    chput_remove_cursor ; the screen as it is, for BS/DEL/Enter
                 pop     af
                 ld      hl,INSFLG
-                cp      13
-                jr      z,inlin_enter
                 cp      8
                 jr      z,inlin_bs
                 cp      $7F
@@ -138,6 +137,18 @@ inlin_loop:
                 inc     l
                 inc     l
                 ld      (hl),0          ; CSTYLE, two bytes after INSFLG
+                cp      13
+                jp      z,inlin_enter
+                cp      2
+                jp      z,inlin_wordl   ; CTRL+B
+                cp      6
+                jp      z,inlin_wordr   ; CTRL+F
+                cp      5
+                jr      z,inlin_clreol  ; CTRL+E
+                cp      $0E
+                jr      z,inlin_eol     ; CTRL+N
+                cp      $15
+                jr      z,inlin_clrln   ; CTRL+U
 inlin_put:
                 call    chput
                 jr      inlin_loop
@@ -178,30 +189,108 @@ inlin_tab_lp:
                 jr      nz,inlin_tab_lp
                 jr      inlin_loop
 
+; CTRL+U: to where the line is read from, then clear it as CTRL+E.
+inlin_clrln:
+                ld      a,(CSRY)
+                call    inlin_firstrow
+                call    inlin_startpos
+; CTRL+E: clear from the cursor to the end of the logical line; the line
+; now ends on the cursor's row.
+inlin_clreol:
+                ld      hl,(CSRY)
+                push    hl
+                ld      a,l
+                call    inlin_lastrow   ; E := the line's last row
+inlin_clreol_lp:
+                push    de
+                call    chput_esc_k     ; this row, from CSRX; LINTTB $AF
+                pop     de
+                ld      hl,(CSRY)
+                ld      a,l
+                cp      e
+                jp      z,inlin_setcur  ; the cursor goes back where it was
+                inc     l
+                ld      h,1
+                ld      (CSRY),hl
+                jr      inlin_clreol_lp
+
+; CTRL+N: to the cell after the logical line's last character.
+inlin_eol:
+                ld      a,(CSRY)
+                call    inlin_lastrow   ; E := the line's last row (also in A)
+                call    inlin_firstrow  ; D := its first row
+                ld      l,d
+                ld      h,1
+                ld      (CSRY),hl
+                ld      b,h
+                ld      c,l             ; C, B: the row and column to go to
+inlin_eol_lp:
+                call    curs2hl
+                call    rdvrm
+                cp      ' '
+                jr      z,inlin_eol_next
+                ld      hl,(CSRY)       ; a character: the cell after it
+                ld      a,(LINLEN)
+                cp      h
+                jr      nz,inlin_eol_col
+                ld      h,0             ; column 1 of the next row, but no
+                ld      a,(CRTCNT)      ; further than the bottom row
+                cp      l
+                jr      z,inlin_eol_col
+                inc     l
+inlin_eol_col:
+                inc     h
+                ld      b,h
+                ld      c,l
+inlin_eol_next:
+                call    inlin_next
+                jr      nz,inlin_eol_lp
+                ld      (CSRY),bc
+                jr      inlin_cursor
+
+; CTRL+F: to the start of the next word, over the whole screen. Words are
+; runs of letters and digits.
+inlin_wordr:
+                ld      a,(CRTCNT)
+                ld      e,a             ; the screen's last row
+inlin_wordr_in:
+                call    inlin_wordc
+                jr      c,inlin_wordr_out
+                call    inlin_next
+                jr      nz,inlin_wordr_in
+inlin_wordr_out:
+                call    inlin_wordc
+                jr      nc,inlin_cursor
+                call    inlin_next
+                jr      nz,inlin_wordr_out
+                jr      inlin_cursor
+
+; CTRL+B: to the start of the previous word, over the whole screen.
+inlin_wordl:
+                ld      a,(CRTCNT)
+                ld      e,a
+inlin_wordl_out:
+                call    inlin_prev
+                jr      z,inlin_cursor
+                call    inlin_wordc
+                jr      c,inlin_wordl_out
+inlin_wordl_in:
+                call    inlin_prev
+                jr      z,inlin_cursor
+                call    inlin_wordc
+                jr      nc,inlin_wordl_in
+                call    inlin_next      ; back onto the word's first letter
+inlin_cursor:
+                jp      inlin_esc
+
 ; Enter: the logical line under the cursor, rows D to E, goes into BUF.
 inlin_enter:
                 ld      a,','
                 ld      (BUF-1),a       ; stops the trim below
                 ld      a,(CSRY)
-inlin_first:                            ; D := the line's first row
-                ld      d,a
-                dec     a
-                jr      z,inlin_last
-                ld      e,a
-                call    inlin_linttb
-                ld      a,e
-                jr      z,inlin_first   ; the row above continues on this one
-inlin_last:
-                ld      a,(CSRY)
-                call    inlin_lastrow   ; E := the line's last row
-                ld      hl,(FSTPOS)     ; the start column, if the line starts
-                ld      a,l             ; on the row input started on
-                cp      d
-                ld      l,d
-                jr      z,inlin_col
-                ld      h,1
-inlin_col:
-                ld      (CSRY),hl
+                call    inlin_lastrow   ; E := the line's last row (also in A)
+                call    inlin_firstrow  ; D := its first row
+                call    inlin_startpos
                 ld      bc,BUF
                 ld      d,255           ; at most 255 characters
 inlin_cell:
@@ -221,8 +310,6 @@ inlin_trim:                             ; drop the trailing spaces
                 inc     bc
                 xor     a
                 ld      (bc),a
-                ld      (INSFLG),a
-                ld      (CSTYLE),a
                 ld      a,e
                 call    inlin_linttb
                 ld      (hl),$AF        ; the line ends on its last row
@@ -309,6 +396,66 @@ inlin_next:
 inlin_next_col:
                 inc     h               ; NZ
                 ld      (CSRY),hl
+                ret
+
+; A = a row (1-24) -> D = the first row of the logical line through it.
+; Changes: AF, C, HL
+inlin_firstrow:
+                ld      d,a
+                dec     a
+                ret     z
+                ld      c,a
+                call    inlin_linttb
+                ld      a,c
+                jr      z,inlin_firstrow ; the row above continues on this one
+                ret
+
+; D = a line's first row -> CSRY, CSRX := where the line is read from:
+; FSTPOS's column if input started on that row, else column 1.
+; Changes: AF, HL
+inlin_startpos:
+                ld      hl,(FSTPOS)
+                ld      a,l
+                cp      d
+                ld      l,d
+                jr      z,inlin_startpos_col
+                ld      h,1
+inlin_startpos_col:
+                ld      (CSRY),hl
+                ret
+
+; The cursor one cell back, over the whole screen.
+; Output : Z if it was at row 1, column 1 (and stays there)
+; Changes: AF, HL
+inlin_prev:
+                ld      hl,(CSRY)
+                dec     h
+                jr      nz,inlin_prev_set
+                ld      a,l
+                dec     a
+                ret     z
+                ld      l,a
+                ld      a,(LINLEN)
+                ld      h,a             ; NZ from the DEC A
+inlin_prev_set:
+                ld      (CSRY),hl
+                ret
+
+; C if the character at the cursor is not a letter or a digit.
+; Changes: AF, HL
+inlin_wordc:
+                call    curs2hl
+                call    rdvrm
+                cp      '0'
+                ret     c
+                cp      '9'+1
+                ccf
+                ret     nc              ; a digit
+                and     $DF             ; lower case to upper case
+                cp      'A'
+                ret     c
+                cp      'Z'+1
+                ccf
                 ret
 
 ; A = a row (1-24) -> E = the last row of the logical line through it.
