@@ -3477,7 +3477,7 @@ str_nocart:
 ; the last rows are not locale specific
 scode_tbl_otherkeys:
                 db      $00,$00,$00,$00,$00,$00,$00,$00 ;06
-                db      $00,$00,$1B,$09,$03,$08,$00,$0D ;07
+                db      $00,$00,$1B,$09,$03,$08,$18,$0D ;07: SELECT is $18
                 db      $20,$0B,$12,$7F,$1D,$1E,$1F,$1C ;08
                 db      "*+/01234"                      ;09
                 db      "56789-,."                      ;0a

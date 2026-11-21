@@ -39,6 +39,7 @@ date.
 - OUTDO printed to the screen whatever PRTFLG said, and the H_OUTD hook held a jump to CHPUT instead of a RET
 - OUTDLP printed nothing; it now sends to the printer, with TAB as spaces and the column in LPTPOS
 - ISCNTC and CKCNTC returned other values in A and F, and left interrupts off
+- The SELECT key produced no character
 - BREAKX did not empty the key buffer or mark STOP in OLDKEY when it found CTRL+STOP
 - SNSMAT returned other values in C and F
 - GTTRIG returned other flags
