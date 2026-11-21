@@ -1890,11 +1890,17 @@ chsns:
 ; Function : One character input (waiting)
 ; Output   : A  - ASCII-code of the input character
 ; Registers: AF
+; A STOP pause (INTFLG 4) ends here.
 
 chget:
                 call    H_CHGE
                 push    hl
                 push    de
+                ld      hl,INTFLG
+                ld      a,(hl)
+                sub     4
+                jr      nz,chget_wait
+                ld      (hl),a          ; 4, the STOP pause: 0
 chget_wait:
                 ld      hl,(GETPNT)
                 ld      de,(PUTPNT)

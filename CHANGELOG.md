@@ -17,6 +17,7 @@ date.
 - CHSNS did not return the number of keys waiting in A
 - CHGET could return with interrupts disabled
 - CHGET returned other flags
+- CHGET did not end a STOP pause (INTFLG 4)
 - Clearing a text screen left other values in LINTTB
 - POSIT accepted a column or row outside the screen
 - POSIT moved the text cursor in graphic screen modes
