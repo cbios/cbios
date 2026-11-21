@@ -404,6 +404,10 @@ chgmod_finish_aspect:
                 ld      (ASPCT1),hl
                 ld      (ASPCT2),de
 
+                ld      hl,RG1SAV
+                res     7,(hl)          ; bit 7 has no use on MSX2
+                set     5,(hl)          ; VDP interrupt on
+
                 ld      hl,RG8SAV+9-8
                 ld      a,(SCRMOD)
                 cp      5

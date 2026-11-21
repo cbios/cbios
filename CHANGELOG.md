@@ -29,6 +29,7 @@ date.
 - On MSX1, the screen mode calls kept other bits of VDP register 0
 - On MSX1, WRTVDP with bit 7 of the register number set updated RG0SAV-RG7SAV
 - On MSX2, WRTVDP with bit 7 of the register number set updated the register's copy in RAM
+- On MSX2, changing screen mode kept bits 7 and 5 of RG1SAV instead of clearing bit 7 and turning the VDP interrupt on
 - On MSX1, INIGRP and INIMLT overwrote NAMBAS and CGPBAS, the text modes' table addresses
 - INITXT overwrote PATBAS and ATRBAS, the sprite table addresses
 - KILBUF emptied the key buffer at the wrong end
