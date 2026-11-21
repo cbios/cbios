@@ -3145,71 +3145,41 @@ key_row_skip:
 
 key_store:
                 push    af
+                ; 8 * C + B numbers the keys in scan order: F1-F3 (row 6 bits
+                ; 5-7) and F4-F5 (row 7 bits 0-1) are 43 down to 39.
                 ld      a,c
-
-                cp      $05
-                jr      z,key_chk_fnk1
-                cp      $04
-                jr      z,key_chk_fnk2
-                jp      key_ascii
-
-; Put function string into buffer
-key_chk_fnk1:
-                ; F1-F3
-                ld      a,b
-                cp      $03 ; F1
-                jr      nz,key_chk_f2
-                ld      a,$00
-                jr      put_key_fnk
-key_chk_f2:
-                cp      $02 ; F2
-                jr      nz,key_chk_f3
-                ld      a,$01
-                jr      put_key_fnk
-key_chk_f3:
-                cp      $01 ; F3
-                jr      nz,key_ascii ; return to normal process
-                ld      a,$02
-                jr      put_key_fnk
-key_chk_fnk2:
-                ; F4-F5
-                ld      a,b
-                cp      $08 ; F4
-                jr      nz,key_chk_f5
-                ld      a,$03
-                jr      put_key_fnk
-key_chk_f5:
-                cp      $07 ; F5
-                jr      nz,key_ascii
-                ld      a,$04
-                jr      put_key_fnk
+                add     a,a
+                add     a,a
+                add     a,a
+                add     a,b
+                cpl
+                add     a,44            ; F1-F5: 0-4
+                cp      5
+                jr      nc,key_ascii
+                push    hl
+                ld      hl,NEWKEY+6
+                bit     0,(hl)
+                jr      nz,put_key_fnk
+                add     a,5             ; SHIFT: F6-F10
 put_key_fnk:
-                push   hl
-                push   bc
-                push   de
-                rlca
-                rlca
-                rlca
-                rlca
-                ld     hl,FNKSTR
-                ld     d,$00
-                ld     e,a
-                add    hl,de
-                ex     de,hl
+                add     a,a
+                add     a,a
+                add     a,a
+                add     a,a
+                add     a,FNKSTR & $FF
+                ld      l,a
+                adc     a,FNKSTR >> 8
+                sub     l
+                ld      h,a             ; HL = the key's text in FNKSTR
 put_key_fnk_lp:
-                ld     a,(de)
-                and    a
-                jr     z,put_key_fnk_nul
-                push   de
-                call   key_put_into_buf
-                pop    de
-                inc    de
-                jr     put_key_fnk_lp
-put_key_fnk_nul:
-                pop    de
-                pop    bc
-                pop    hl
-                jr     key_store_end2
+                ld      a,(hl)
+                and     a
+                jr      z,key_ascii_done
+                push    hl
+                call    key_put_into_buf
+                pop     hl
+                inc     hl
+                jr      put_key_fnk_lp
 
 ; Check scan table
 key_ascii:
@@ -3247,6 +3217,7 @@ key_ascii_put:
 
                 push    hl
                 call    key_put_into_buf
+key_ascii_done:
                 pop     hl
 key_store_end2:
                 pop     af

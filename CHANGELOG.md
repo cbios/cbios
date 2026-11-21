@@ -14,6 +14,7 @@ date.
 - GICINI did not reset the PLAY queues, MUSICF, PLYCNT or the voice buffers
 - BEEP, and so CHPUT's BEL (CTRL+G), made no sound; BEEP now sounds a short tone and then resets the sound system as GICINI does
 - The function keys typed nothing: FNKSTR was empty after power-on, and INIFNK did not write the default key texts
+- SHIFT+F1 to F5 typed the texts of F1 to F5 instead of F6 to F10
 - STRTMS did nothing; it now starts the queued PLAY music in MUSICF, PLYCNT and the voice buffers (C-BIOS has no background music player yet, so it stays silent)
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
