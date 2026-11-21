@@ -29,15 +29,10 @@ rdslt:
 ; Output:  expanded slot: B = PSL, C = PP000000 (set by restore_subslot)
 slt_end:
                 ex      (sp),hl         ; H = slot ID, L = saved SSL
-                push    af
-                bit     7,h             ; expanded slot?
-                jr      z,slt_end_prim
                 push    de
                 ex      de,hl
                 call    restore_subslot
                 pop     de
-slt_end_prim:
-                pop     af
                 pop     hl              ; HL = address
                 ret
 
@@ -173,13 +168,16 @@ calslt_restore:
                 ex      af,af'
                 exx
 
-; Restore secondary slot:
-                di
+; Restore secondary slot, with interrupts off while page 3 is switched;
+; afterwards the interrupt state is the target's.
                 pop     de              ; D = slot ID, E = saved SSL
-                bit     7,d             ; expanded slot?
-                call    nz,restore_subslot
-
-; Done:
+                ld      a,i             ; P/V: the target's interrupt state
+                jp      pe,calslt_iff
+                ld      a,i             ; again: an NMOS Z80 reads P/V 0 when
+calslt_iff:                             ; an interrupt comes during LD A,I
+                di
+                call    restore_subslot
+                call    pe,ei_ret
                 ex      af,af'
                 exx
                 ret
@@ -375,9 +373,13 @@ select_subslot_next:
 ;          E  = original value of secondary slot select register
 ; Output:  SLTTBL[slot] = original value of secondary slot select register
 ;          B  = PSL, C = PP000000
-; Changes: AF, HL, BC
+;          Does nothing for a slot that is not expanded.
+; Changes: HL, BC
 ; Note:    Interrupts must be disabled before calling this routine.
 restore_subslot:
+                push    af
+                bit     7,d             ; expanded slot?
+                jr      z,restore_subslot_end
                 ; Select primary slot of target in page 3.
                 ; Note: Stack is unavailable until primary slot is restored.
                 ld      a,d
@@ -403,6 +405,8 @@ restore_subslot:
                 add     a,l
                 ld      l,a
                 ld      (hl),e
+restore_subslot_end:
+                pop     af
                 ret
 
 ;--------------------------------

@@ -149,6 +149,7 @@ setrd:
                 ld      a,h
                 and     $3F
                 out     (VDP_ADDR),a
+ei_ret:                                 ; also CALSLT's conditional EI
                 ei
                 ret
 
