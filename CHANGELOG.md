@@ -29,6 +29,7 @@ date.
 - CALSLT, CALLF and CALBAS always returned with interrupts off; they now leave them as the called routine left them
 - CHRGTR returned the character at HL instead of the next one, skipped no LF, and returned other flags
 - SYNCHR was a stub: it returned without checking the character and ran its inline byte as code; it now checks it and goes on as CHRGTR, and a mismatch is a Syntax error
+- GICINI, and so INITIO, set up the PLAY queues at their default place even when QUEUES pointed elsewhere
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round
