@@ -46,6 +46,7 @@ date.
 - CHPUT: ESC Y put the cursor off the screen for a row or column out of range
 - CHPUT: rows blanked by ESC K, l, J, L, M or a scroll got other values in LINTTB
 - Clearing SCREEN 2 cleared the patterns from GRPCGP rounded down to a multiple of 256
+- SETC in SCREEN 2 used only the low 4 bits of ATRBYT to recognise the background colour and to make it the background colour
 - CLRSPR did nothing in SCREEN 0
 - CLRSPR did not write RG1SAV to VDP register 1
 - CLRSPR cleared the sprite patterns after the attributes, wiping attributes that overlap the pattern table

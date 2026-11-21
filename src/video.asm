@@ -2772,32 +2772,33 @@ setc_cell:
                 ld      a,(ATRBYT)
                 ld      e,a
                 jr      c,setc_sc3
-                and     $0F
-                ld      e,a
                 ld      a,b
                 or      d
                 ld      b,a             ; B = the pattern byte with the bit set
                 xor     d
                 ld      d,a             ; D = the pattern byte with the bit cleared
+                ld      a,c
+                and     $0F
+                xor     e
+                jr      z,setc_clear    ; ATRBYT, the whole byte, is the background
                 ld      a,e
                 rlca
                 rlca
                 rlca
                 rlca
-                or      e               ; ATRBYT in both nibbles
-                xor     c               ; a nibble is 0 where the colour byte has ATRBYT
-                ld      e,a
-                and     $0F
-                jr      z,setc_clear    ; ATRBYT is the background
-                xor     e               ; A = the foreground nibble
-                jr      z,setc_set      ; ATRBYT is the foreground
+                xor     c
+                and     $F0             ; A = the change for foreground := ATRBYT
+                jr      z,setc_set      ; ATRBYT's low nibble is the foreground
                 inc     b
                 jr      z,setc_full     ; all 8 bits would be set
                 dec     b
                 or      a               ; NZ: the colour byte changes
                 jr      setc_set
 setc_full:
-                xor     e               ; A = the background nibble
+                ld      a,c
+                and     $F0
+                or      e               ; the new colour byte: ATRBYT ORed in whole
+                xor     c               ; A = the change to it
 setc_clear:
                 ld      b,d             ; the bit cleared instead
 setc_set:
