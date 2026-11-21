@@ -2949,17 +2949,32 @@ gtaspc:
 
 ;--------------------------------
 ; $0129 PNTINI
-; Function : Initalises the PAINT instruction
-; NOTE     : This implementation is still a stub!
+; Function : Sets the colour PAINT stops at, BRDATR
+; Input    : A - the colour; not used in SCREEN 2 (and 4), where PAINT
+;                stops at the paint colour itself, ATRBYT
+; Output   : SCREEN 2, 4: A = ATRBYT, F as AND A
+;            otherwise:   A kept, C set for a colour of 16 or more
+; Registers: AF
 pntini:
-                push    hl
                 push    af
-                ld      hl,pntini_text
-                call    print_debug
+                ld      a,(SCRMOD)
+                cp      2
+                jr      z,pntini_atrbyt
+        IF VDP != TMS99X8
+                cp      4
+                jr      z,pntini_atrbyt
+        ENDIF
                 pop     af
-                pop     hl
+                ld      (BRDATR),a
+                cp      $10
+                ccf
                 ret
-pntini_text:    db      "PNTINI",0
+pntini_atrbyt:
+                pop     af
+                ld      a,(ATRBYT)
+                ld      (BRDATR),a
+                and     a
+                ret
 
 ;--------------------------------
 ; $012C SCANR
