@@ -2066,23 +2066,6 @@ iscntc:
                 ret
 
 ;--------------------------------
-; $00C0 BEEP
-; Function : play a short beep, and reset sound system via GICINI
-; Registers: All
-; NOTE: this implementation is still a stub!
-beep:
-; Note: Called by CHPUT; if you need to change more regs than AF, HL, DE, BC
-;       then update CHPUT.
-                push    hl
-                push    af
-                ld      hl,beep_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-beep_text:      db      "BEEP",0
-
-;--------------------------------
 ; $00C6 POSIT
 ; Sets cursor position.
 ; Input:   H = column
@@ -2309,6 +2292,33 @@ stmotr_inv:     xor     16
 stmotr_set:     out     (GIO_REGS),a
                 pop     bc
                 ret
+
+;--------------------------------
+; $00C0 BEEP
+; Function : Sounds a short beep on PSG channel A, then resets the sound
+;            system with GICINI
+; Registers: AF, BC, E
+; Remark   : Interrupts are on during the beep and afterwards.
+beep:
+                xor     a
+                ld      e,$55           ; channel A's tone period: $055
+                call    wrtpsg
+                ld      e,a             ; 0
+                inc     a
+                call    wrtpsg
+                ld      a,7
+                ld      e,$BE           ; tone A only
+                call    wrtpsg
+                ld      e,a             ; volume 7
+                inc     a
+                call    wrtpsg
+                ld      bc,4900         ; about 42 ms
+beep_wait:
+                dec     bc
+                ld      a,b
+                or      c
+                jr      nz,beep_wait
+                                        ; on into GICINI
 
 ;--------------------------------
 ; $0090 GICINI  Initialize Sound IC
