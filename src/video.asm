@@ -2030,7 +2030,7 @@ cls_screen3:
                 rlca
                 rlca
                 or      b
-                ld      bc,$800
+                ld      bc,$600         ; 64 x 48 blocks, two per byte
                 ld      hl,(MLTCGP)
                 jp      filvrm
 

@@ -43,6 +43,7 @@ date.
 - CHPUT: ESC l moved the cursor to the start of the line
 - CHPUT: ESC Y put the cursor off the screen for a row or column out of range
 - CHPUT: rows blanked by ESC K, l, J, L, M or a scroll got other values in LINTTB
+- Clearing SCREEN 3 also cleared the 512 bytes of VRAM after its pattern table
 - Clearing SCREEN 0 also cleared the VRAM after the 40-column screen: on MSX1 at any width above 39, on MSX2 at width 40
 
 ## [0.31a] - 2026-11-12
