@@ -41,6 +41,7 @@ date.
 - PUTQ stored the byte one place early, and could overfill a queue at the end of its buffer
 - CHPUT: DEL blanked the character under the cursor instead of the one to its left, did nothing at the start of a row, and scrolled the screen in the bottom-right corner
 - CHPUT: ESC l moved the cursor to the start of the line
+- CHPUT: ESC Y put the cursor off the screen for a row or column out of range
 
 ## [0.31a] - 2026-11-12
 

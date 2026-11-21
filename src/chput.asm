@@ -242,6 +242,7 @@ chput_escape:
 
 chput_escape_1: ; ----------------------------
                 pop     af
+                ld      hl,(CSRY)               ; for ESC Y: L = row, H = column
                 djnz    chput_escape_2
                 
                 ; -- ESCCNT == 1: 'ESC x <n>'
@@ -272,19 +273,19 @@ chput_esc_xy_5:
 chput_escape_3: ; ----------------------------
                 djnz    chput_escape_4
 
-                ; -- ESCCNT == 3: 'ESC Y <n> <m>'
-                ld      b,$1F
-                sub     b
-                ld      (CSRX),a
+                ; -- ESCCNT == 3: 'ESC Y <n> <m>', the column
+                sub     $1F
+                ld      h,a
+                call    posit                   ; out of range: clamped as by POSIT
                 jr      chput_escape_reset
 
 chput_escape_4: ; ----------------------------
                 djnz    chput_escape_reset
 
-                ; -- ESCCNT == 4: 'ESC Y <n>'
-                ld      b,$1F
-                sub     b
-                ld      (CSRY),a
+                ; -- ESCCNT == 4: 'ESC Y <n>', the row
+                sub     $1F
+                ld      l,a
+                call    posit                   ; out of range: clamped as by POSIT
                 ld      a,3
                 jr      chput_escape_set
 
