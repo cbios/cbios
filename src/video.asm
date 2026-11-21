@@ -512,23 +512,27 @@ clrspr:
                 ld      a,(RG1SAV)      ; R#1 as RG1SAV says
                 call    wrtvdp_r1
 
+; Clear sprite pattern generator table first: where it overlaps the
+; attribute table, the attributes stay.
+                ld      hl,(PATBAS)
+                ld      bc,256 * 8
+                xor     a
+        IF VDP = TMS99X8
+                call    filvrm
+        ELSE
+                call    bigfil
+        ENDIF
+
 ; Clear sprite attribute table, also in SCREEN 0.
                 call    clrspr_attr
 
 ; Clear sprite colour table.
                 ld      a,(SCRMOD)
                 cp      4               ; sprite mode 2?
-                call    nc,clrspr_col
-
-; Clear sprite pattern generator table.
-                ld      hl,(PATBAS)
-                ld      bc,256 * 8
-                xor     a
-        IF VDP = TMS99X8
-                jp      filvrm
-        ELSE
-                jp      bigfil
+                ret     c
+        IF VDP != TMS99X8
         IF CALL_SUB = NO
+                jr      clrspr_col
 
 ;--------------------------------
 ; Set up the sprites of SCREEN 4-8: attributes, then colours.
