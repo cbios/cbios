@@ -2466,12 +2466,16 @@ format:
 ; Function : Tests if I/O to device is taking place
 ; Output   : A  - #00 if not taking place
 ;             not #00 if taking place
+;            F  - Z set if not taking place
 ; Registers: AF
 ; TODO: call H_ISFL
 isflio:
 ;                call    H_ISFL
-                ld      a,(PTRFIL)
-                and     a               ; adjust flags
+                push    hl
+                ld      hl,(PTRFIL)
+                ld      a,h
+                or      l               ; both bytes of the pointer
+                pop     hl
                 ret
 
 ;--------------------------------
