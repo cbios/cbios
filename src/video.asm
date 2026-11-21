@@ -512,12 +512,7 @@ chgclr_r7:
 ; Input    : SCRMOD
 ; Registers: All
 clrspr:
-; Check screen mode.
-                ld      a,(SCRMOD)
-                or      a
-                ret     z               ; no sprites in SCREEN0
-
-; Clear sprite attribute table.
+; Clear sprite attribute table, also in SCREEN 0.
                 call    clrspr_attr
 
 ; Clear sprite colour table.
@@ -594,11 +589,9 @@ clrspr_attr_lp:
         ENDIF
                 in      a,(VDP_DATA)    ; skip the X coordinate: it is kept
                 ld      a,c
-        IF VDP = TMS99X8
-                nop                     ; wait (at least) 29 t-states between VRAM accesses
-                nop
-                nop
-        ENDIF
+                nop                     ; wait (at least) 29 t-states between VRAM
+                nop                     ; accesses; on MSX2 the read needs it too
+                nop                     ; (SCREEN 0 has the fewest access slots)
                 out     (VDP_DATA),a    ; pattern number
                 inc     c
                 call    gspsiz
