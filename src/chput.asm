@@ -336,7 +336,9 @@ chput_esc_k:
                 ld      d,0
                 add     hl,de
                 ld      (hl),$AF                ; a blanked row: not linked
-                
+; Blanks the cursor's row from the cursor to the end of the line; HL = the
+; cursor's VRAM address. Also the function key line's span (fnk_span).
+chput_esc_k_fill:
                 ld      a,(LINLEN)
                 inc     a                       ; because CSRX is 1-based
                 ld      hl,CSRX

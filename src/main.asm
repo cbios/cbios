@@ -2143,54 +2143,127 @@ posit_y:        ld      (CSRY),hl       ; CSRX follows CSRY
 
 ;--------------------------------
 ; $00C9 FNKSB
-; Tests whether the function key display is active (FNKFLG),
-; if so, displays them, otherwise erases them.
-; Input:   FNKFLG (#FBCE)
-; Changes: all
-; NOTE: This implementation is still a stub!
+; Function : Draws the function key line when it is on (CNSDFG not 0), as
+;            DSPFNK; when it is off, does nothing
+; Registers: All
 fnksb:
-                push    hl
-                push    af
-                ld      hl,fnksb_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-fnksb_text:     db      "FNKSB",0
-
-;--------------------------------
-; $00CC ERAFNK
-; Erase function key display.
-; Changes: all
-; NOTE: This implementation is still a stub!
-; TODO: call H_ERAF
-erafnk:
-;               call    H_ERAF
-                push    hl
-                push    af
-                ld      hl,erafnk_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-erafnk_text:    db      "ERAFNK",0
+                ld      a,(CNSDFG)
+                or      a
+                ret     z
+                                        ; on into DSPFNK
 
 ;--------------------------------
 ; $00CF DSPFNK
-; Display function keys.
-; Changes: all
-; NOTE: This implementation is still a stub!
-; TODO: call H_DSPF
+; Function : Turns the function key line on (CNSDFG := $FF) and draws it on
+;            row CRTCNT, in the text width's span: the labels of keys 1-5,
+;            or 6-10 while SHIFT is down (FNKSWI := 1 or 0), each in a slot
+;            of (LINLEN + 1) / 5 cells and cut to one cell less
+; Registers: All
+; Remark   : A label's $01 makes the next character of $40-$5F a graphic
+;            one; control codes show as spaces. SCREEN 2 and up: only
+;            CNSDFG is set.
 dspfnk:
-;               call    H_DSPF
-                push    hl
-                push    af
-                ld      hl,dspfnk_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,$FF
+                call    fnk_span        ; HL = the span's first cell
+                call    setwrt
+                ld      a,(LINLEN)
+                inc     a
+                ld      b,-1
+dspfnk_slot:
+                inc     b
+                sub     5
+                jr      nc,dspfnk_slot  ; B = the slot
+                inc     b
+                dec     b
+                ret     z               ; LINLEN 1-3: no room for labels
+                ld      de,FNKSTR
+                ld      a,(NEWKEY+6)
+                and     1               ; 0: SHIFT is down
+                ld      (FNKSWI),a
+                jr      nz,dspfnk_keys
+                ld      de,FNKSTR+5*16
+dspfnk_keys:
+                ld      c,5
+dspfnk_key:
+                push    bc
+                push    de
+                jr      dspfnk_first    ; a label shows in slot - 1 cells
+dspfnk_char:
+                ld      a,(de)
+                or      a
+                jr      z,dspfnk_pad    ; the label's end: spaces after it
+                inc     de
+                cp      $20
+                jr      nc,dspfnk_put
+                dec     a
+                jr      nz,dspfnk_pad   ; a control code shows as a space
+                ld      a,(de)          ; $01: a graphic character
+                or      a
+                jr      z,dspfnk_pad
+                inc     de
+                sub     $40
+                cp      $20
+                jr      c,dspfnk_put    ; $40-$5F: $00-$1F
+                add     a,$40           ; any other: itself
+                db      $21             ; LD HL,nn: skips the LD A,' '
+dspfnk_pad:
+                ld      a,' '
+dspfnk_put:
+                out     (VDP_DATA),a
+dspfnk_first:
+                djnz    dspfnk_char
+                pop     de
+                pop     bc
+                inc     de
+                ld      a,e
+                or      $0F
+                ld      e,a             ; the next label: FNKSTR's start
+                                        ; addresses all end in $F
+                dec     c
+                ret     z
+                ld      a,' '           ; the slot's last cell
+                out     (VDP_DATA),a
+                jr      dspfnk_key
+
+;--------------------------------
+; $00CC ERAFNK
+; Function : Turns the function key line off (CNSDFG := 0), blanks its span
+;            on row CRTCNT and marks the row in LINTTB
+; Output   : A - LINLEN (SCREEN 0 and 1)
+; Registers: All
+; Remark   : SCREEN 2 and up: only CNSDFG is cleared.
+erafnk:
+                xor     a
+                call    fnk_span
+                ld      a,(CRTCNT)
+                call    inlin_linttb
+                ld      (hl),$AF        ; a blanked row: not linked
+                ld      a,(LINLEN)
                 ret
-dspfnk_text:    db      "DSPFNK",0
+
+; Sets CNSDFG to A. In SCREEN 2 and up it then returns from its caller;
+; else it blanks the key line's span: LINLEN cells of row CRTCNT from the
+; left margin.
+; Output   : HL = the VRAM address of the span's first cell
+; Registers: AF, BC, DE, HL
+fnk_span:
+                ld      (CNSDFG),a
+                ld      a,(SCRMOD)
+                cp      2
+                jr      c,fnk_span_text
+                pop     hl              ; SCREEN 2 and up: done
+                ret
+fnk_span_text:
+                ld      hl,(CSRY)
+                push    hl
+                ld      a,(CRTCNT)
+                ld      l,a
+                ld      h,1
+                ld      (CSRY),hl       ; column 1 of row CRTCNT
+                call    chput_esc_k_fill
+                pop     de
+                ld      (CSRY),de
+                ret
 
 ;--------------------------------
 ; $00D2 TOTEXT
