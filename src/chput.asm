@@ -407,7 +407,8 @@ chput_esc_m:
                 ; Move LINTTB up as well. One entry more than needed is
                 ; moved, into the bottom line's entry, which chput_esc_k
                 ; rewrites when it clears that line.
-                ld      c,a
+chput_esc_m_rows:                               ; A rows from row L; the
+                ld      c,a                     ; cursor to restore stacked
                 ld      b,0
                 ld      h,b
                 ld      de,LINTTB-1             ; DE := LINTTB + (CSRY) - 1
@@ -434,6 +435,18 @@ chput_esc_m_loop_end:
                 pop     hl                      ; restore cursor position
                 ld      (CSRY),hl
                 ret
+
+; DSPFNK with the cursor on the key line's row (A = CRTCNT, DE = the cursor):
+; the rows above the key line scroll up as ESC M on row 1 does, and the
+; cursor goes up with its row.
+dspfnk_scroll:
+                dec     e
+                push    de                      ; chput_esc_m restores it
+                dec     a                       ; rows 1 to CRTCNT - 1
+                ld      hl,FSTPOS
+                dec     (hl)                    ; INLIN's start row moves up too
+                call    chput_ctrl_home         ; HL = $0101; A kept
+                jr      chput_esc_m_rows
 
 ; -- Copy line: from HL to DE
 chput_copy_line:

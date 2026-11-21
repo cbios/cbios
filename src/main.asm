@@ -2160,11 +2160,15 @@ fnksb:
 ;            of (LINLEN + 1) / 5 cells and cut to one cell less
 ; Registers: All
 ; Remark   : A label's $01 makes the next character of $40-$5F a graphic
-;            one; control codes show as spaces. SCREEN 2 and up: only
-;            CNSDFG is set.
+;            one; control codes show as spaces. With the cursor on the key
+;            line's row, the rows above it first scroll up one, and the
+;            cursor with them. SCREEN 2 and up: only CNSDFG is set.
 dspfnk:
                 ld      a,$FF
                 call    fnk_span        ; HL = the span's first cell
+                push    hl
+                call    z,dspfnk_scroll ; the cursor is on the key line's row
+                pop     hl
                 call    setwrt
                 ld      a,(LINLEN)
                 inc     a
@@ -2234,8 +2238,7 @@ dspfnk_first:
 ; Remark   : SCREEN 2 and up: only CNSDFG is cleared.
 erafnk:
                 xor     a
-                call    fnk_span
-                ld      a,(CRTCNT)
+                call    fnk_span        ; A = CRTCNT
                 call    inlin_linttb
                 ld      (hl),$AF        ; a blanked row: not linked
                 ld      a,(LINLEN)
@@ -2244,7 +2247,8 @@ erafnk:
 ; Sets CNSDFG to A. In SCREEN 2 and up it then returns from its caller;
 ; else it blanks the key line's span: LINLEN cells of row CRTCNT from the
 ; left margin.
-; Output   : HL = the VRAM address of the span's first cell
+; Output   : HL = the VRAM address of the span's first cell; A = CRTCNT,
+;            Z if the cursor is on its row; DE = the cursor (E row, D column)
 ; Registers: AF, BC, DE, HL
 fnk_span:
                 ld      (CNSDFG),a
@@ -2255,13 +2259,16 @@ fnk_span:
                 ret
 fnk_span_text:
                 ld      hl,(CSRY)
-                push    hl
                 ld      a,(CRTCNT)
+                cp      l               ; Z: the cursor is on the key row
+                push    hl
+                push    af
                 ld      l,a
                 ld      h,1
                 ld      (CSRY),hl       ; column 1 of row CRTCNT
                 call    chput_esc_k_fill
-                pop     de
+                pop     af              ; A = CRTCNT, Z kept
+                pop     de              ; E = CSRY, D = CSRX
                 ld      (CSRY),de
                 ret
 
