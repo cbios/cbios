@@ -2858,9 +2858,107 @@ pntini_atrbyt:
 
 ;--------------------------------
 ; $012C SCANR
-; Function : Scans screenpixels to the right
-; NOTE     : This implementation is still a stub!
+; Function : PAINT's scan to the right along the graphics cursor's pixel row
+;            (SCREEN 3: block row): skips border pixels (BRDATR), then
+;            counts the run of other pixels up to the next border pixel or
+;            the row's end, and paints it in ATRBYT
+; Input    : B  - SCREEN 2 and 4: paint the run when not 0
+;            DE - the most border pixels to skip
+; Output   : HL - the run's length; 0 when DE ran out in the skip, or the
+;                 skip reached the row's end (DE is then 0)
+;            DE - counted down once for each border pixel skipped
+;            CLOC, CMASK - the pixel it stopped on: the border pixel after
+;                 the run, or the row's last pixel
+;            CSAVEA, CSAVEM - the run's first pixel
+;            FILNAM+1 - SCREEN 2 and 4: the run's length, for SCANL
+; Registers: AF, BC, DE, HL
+; Remark   : The run is painted as NSETCX sets pixels; in SCREEN 3 always.
+;            Nothing is painted or saved when the skip ends the call.
+;            Interrupts are on afterwards. SCREEN 5-8: not implemented.
 scanr:
+        IF VDP != TMS99X8
+                call    chknew
+                jr      nc,scanr_stub
+        ENDIF
+                ld      hl,0
+scanr_skip:
+                call    scan_border
+                jr      nz,scanr_run
+                dec     de
+                ld      a,d
+                or      e
+                jr      z,scanr_end     ; DE ran out
+                call    scan_last
+                call    nc,rightc       ; RIGHTC returns NC
+                jr      nc,scanr_skip
+                ld      d,h
+                ld      e,l             ; the row's end: DE = 0
+                jr      scanr_end
+scanr_run:
+                push    hl              ; 0
+                call    fetchc
+                ld      (CSAVEA),hl
+                ld      (CSAVEM),a
+                pop     hl
+scanr_count:
+                inc     hl
+                call    scan_last
+                jr      c,scanr_paint   ; counted the row's last pixel
+                call    rightc
+                call    scan_border
+                jr      nz,scanr_count
+scanr_paint:
+                ld      a,(SCRMOD)
+                cp      3
+                jr      z,scanr_fill    ; SCREEN 3: always
+                ld      (FILNAM+1),hl
+                inc     b
+                dec     b
+                jr      z,scanr_end
+scanr_fill:
+                ex      de,hl           ; DE = the run's length
+                push    hl
+                push    de
+                call    fetchc
+                push    hl
+                push    af              ; the pixel it stopped on
+                ld      hl,(CSAVEA)
+                ld      a,(CSAVEM)
+                call    storec          ; from the run's first pixel
+                ex      de,hl
+                call    nsetcx
+                pop     af
+                pop     hl
+                call    storec
+                pop     hl
+                pop     de
+scanr_end:
+                ei
+                ret
+
+; Output   : Z if the pixel at the graphics cursor has the border colour
+; Registers: AF, C
+scan_border:
+                call    readc
+                ld      c,a
+                ld      a,(BRDATR)
+                cp      c
+                ret
+
+; Output   : C if the graphics cursor is on its row's last pixel (X 255,
+;            SCREEN 3: block 63), as the pattern table starts at a multiple
+;            of 256
+; Registers: AF
+scan_last:
+                ld      a,(CLOC)
+                add     a,8             ; the last column: $F8 and up
+                ret     nc
+                ld      a,(CMASK)
+                rra                     ; SCREEN 2: $01, SCREEN 3: $0F
+                ret
+
+        IF VDP != TMS99X8
+scanr_stub:
                 push    hl
                 push    af
                 ld      hl,scanr_text
@@ -2869,6 +2967,7 @@ scanr:
                 pop     hl
                 ret
 scanr_text:     db      "SCANR",0
+        ENDIF
 
 ;--------------------------------
 ; $012F SCANL
