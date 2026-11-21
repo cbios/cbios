@@ -1,7 +1,7 @@
 ; Copyright (c) 2026 Joost Yervante Damad
 ; SPDX-License-Identifier: 0BSD
 ;
-; The cassette routines: TAPION, TAPIN, TAPIOF, TAPOON, TAPOUT, TAPOOF.
+; The cassette routines: TAPION, TAPIN, TAPIOF, TAPOON, TAPOUT, TAPOOF, STMOTR.
 ;
 ; Taken over from zerobas (tape/tape.asm), where they were written as a
 ; clean-room implementation against a Philips VG-8020 as a black box, with
@@ -78,15 +78,30 @@ CAS_LEADCOMP:   equ     23              ; the leader's end: a byte boundary's ta
                                         ; (24), held below CAS_HHALF24
 CAS_FLUSHLEN:   equ     32              ; carrier cycles TAPOOF adds at the end
 
-; Motor on / off through the PPI's bit set/reset mode. Changes: A
-tape_motor_on:
+;--------------------------------
+; $00F3 STMOTR
+; Function : Switches the cassette motor (PPI port C bit 4, 0 = on) through
+;            the PPI's bit set/reset mode
+; Input    : A - 0: stop; bit 7 set: toggle; otherwise: start
+; Output   : A - the PPI command left behind: $08 running, $09 stopped
+;            F - $54 when it ends stopped, $10 when a toggle starts it, else
+;                the flags AND A gives on the input
+; Registers: AF (BC, DE, HL kept)
+stmotr:
+                and     a               ; Z for 0; the flags of a start
+                jr      z,stmotr_off
+                jp      p,stmotr_on     ; bit 7 clear: start
+                in      a,(GIO_REGS)    ; bit 7 set: toggle
+                and     $10             ; Z: running, stop ($54); else start ($10)
+                jr      z,stmotr_off
+stmotr_on:                              ; the toggle falls through to here
                 ld      a,MOTOR_ON
-                jr      tape_motor_out
-tape_motor_off:
-                ld      a,MOTOR_OFF
-tape_motor_out:
+stmotr_out:
                 out     (PPI_REGS),a
                 ret
+stmotr_off:
+                ld      a,MOTOR_OFF
+                jr      stmotr_out
 
 ;--------------------------------
 ; Selects PSG register 14, so that IN (PSG_STAT) gives the CAS-in byte, and
@@ -193,7 +208,7 @@ cas_readbit_0:
 ;            to (4) starts over at (1). The loops are lean, so that their
 ;            overhead per half matches TAPIN's.
 tapion:
-                call    tape_motor_on
+                call    stmotr_on
                 di
                 call    cas_level
 tapion_wait:
@@ -314,7 +329,7 @@ tapin_bit:
 ; Registers: none (A, F, BC, DE and HL kept, as on the VG-8020)
 tapiof:
                 push    af
-                call    tape_motor_off
+                call    stmotr_off
                 pop     af
                 ei
                 ret

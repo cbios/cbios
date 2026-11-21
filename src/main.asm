@@ -2304,31 +2304,6 @@ totext:
 
 
 
-;--------------------------------
-; $00F3 STMOTR
-; Changes the cassette motor state.
-; Input:   A = action: #00 stops motor, #01 starts motor,
-;                      #FF inverts current state
-; Changes: AF
-stmotr:
-                push    bc
-                ld      b,a
-                in      a,(GIO_REGS)
-                inc     b
-                jr      z,stmotr_inv
-                set     4,a
-                dec     b
-                jr      z,stmotr_set
-                res     4,a
-                dec     b
-                jr      z,stmotr_set
-                pop     bc
-                ret
-
-stmotr_inv:     xor     16
-stmotr_set:     out     (GIO_REGS),a
-                pop     bc
-                ret
 
 ;--------------------------------
 ; $00C0 BEEP
