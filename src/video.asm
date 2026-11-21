@@ -1175,23 +1175,49 @@ grpprt_end:
                 pop     af
                 ret
 
+; CR ($0D) is a line feed to X 0, on the low bytes of GRPACX and GRPACY
+; only: Y goes on by the step, to 0 past 191 (not in SCREEN 5-8). The other
+; control codes do nothing. Registers and interrupts are kept.
 grpprt_control:
-                ; Ignore everything except carriage return ($0D).
                 cp      $0D
                 jr      nz,grpprt_end
-
-                pop     af
-                ; Handle carriage return.
                 push    hl
-                push    bc
-                ld      hl,(GRPACY)
-                ld      bc,$0008
-                add     hl,bc
-                ld      (GRPACY),hl
-                ld      hl,$0000
-                ld      (GRPACX),hl
-                pop     bc
+                ld      hl,GRPACX
+                ld      (hl),0
+                inc     hl
+                inc     hl              ; HL = GRPACY
+                call    grpprt_step
+                add     a,(hl)
+                ld      (hl),a
+                cp      192
+                jr      c,grpprt_cr_end
+        IF VDP != TMS99X8
+                ld      a,(SCRMOD)
+                cp      5
+                jr      nc,grpprt_cr_end
+        ENDIF
+                ld      (hl),0
+grpprt_cr_end:
                 pop     hl
+                jr      grpprt_end
+
+; Output   : A - the step of GRPPRT: 8 in SCREEN 2 and 4-8, 32 in SCREEN 0, 1
+;                and 3, where a glyph pixel is a 4x4 block
+; Registers: AF
+grpprt_step:
+                ld      a,(SCRMOD)
+        IF VDP != TMS99X8
+                xor     2
+                dec     a               ; SCREEN 0, 1, 3: 1, 2, 0
+                cp      3
+                ld      a,8
+                ret     nc
+        ELSE
+                cp      2               ; MSX1: SCREEN 0-3 only
+                ld      a,8
+                ret     z
+        ENDIF
+                ld      a,32
                 ret
 
 grpprt_sc5:
