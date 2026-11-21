@@ -2022,13 +2022,12 @@ cls_screen2:
                 jp      filvrm
 
 cls_screen3:
-                ld      a,(BAKCLR)
-                and     $0F
+                ld      a,(BAKCLR)      ; BAKCLR * 16 OR BAKCLR, all 8 bits
                 ld      b,a
-                rlca
-                rlca
-                rlca
-                rlca
+                add     a,a
+                add     a,a
+                add     a,a
+                add     a,a
                 or      b
                 ld      bc,$600         ; 64 x 48 blocks, two per byte
                 ld      hl,(MLTCGP)
