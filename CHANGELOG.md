@@ -12,6 +12,7 @@ date.
 - INITIO set PSG registers 11 and 15 to other values
 - The tape timing tables (CS120, CS240 and the current speed at $F406) were 0 after power-on
 - TAPION, TAPIN and TAPIOF were stubs: reading from tape always failed; they now read tapes at any rate (1200 and 2400 baud, and .cas files in openMSX)
+- TAPOON, TAPOUT and TAPOOF were stubs: writing to tape always failed; they now write at the rate of the current speed, 1200 or 2400 baud
 - GICINI changed registers A, E and F
 - GICINI did not reset the PLAY queues, MUSICF, PLYCNT or the voice buffers
 - BEEP, and so CHPUT's BEL (CTRL+G), made no sound; BEEP now sounds a short tone and then resets the sound system as GICINI does

@@ -2301,57 +2301,8 @@ totext:
 
 
 
-;--------------------------------
-; $00EA TAPOON
-; Turns on the cassette motor and writes the header.
-; Input:   A  = zero for short header, non-zero for long header
-; Output:  CF = set if failed
-; Changes: all
-; NOTE: This implementation is still a stub!
-tapoon:
-                push    hl
-                push    af
-                ld      hl,tapoon_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ; TODO: not implemented -> always fail
-                scf
-                ret
-tapoon_text:    db      "TAPOON",0
 
-;--------------------------------
-; $00ED TAPOUT
-; Writes data to the tape.
-; Input:   A  = data to write
-; Output:  CF = set if failed
-; Changes: all
-; NOTE: This implementation is still a stub!
-tapout:
-                push    hl
-                push    af
-                ld      hl,tapout_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ; TODO: not implemented -> always fail
-                scf
-                ret
-tapout_text:    db      "TAPOUT",0
 
-;--------------------------------
-; $00F0 TAPOOF
-; Stops writing on the tape.
-; NOTE: This implementation is still a stub!
-tapoof:
-                push    hl
-                push    af
-                ld      hl,tapoof_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-tapoof_text:    db      "TAPOOF",0
 
 ;--------------------------------
 ; $00F3 STMOTR

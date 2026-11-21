@@ -1,7 +1,7 @@
 ; Copyright (c) 2026 Joost Yervante Damad
 ; SPDX-License-Identifier: 0BSD
 ;
-; The cassette routines: TAPION, TAPIN, TAPIOF.
+; The cassette routines: TAPION, TAPIN, TAPIOF, TAPOON, TAPOUT, TAPOOF.
 ;
 ; Taken over from zerobas (tape/tape.asm), where they were written as a
 ; clean-room implementation against a Philips VG-8020 as a black box, with
@@ -12,6 +12,10 @@
 ; bit two cycles of the high tone (1200 / 2400 Hz at 1200 baud; at 2400 baud
 ; both an octave higher). A byte is a start bit (0), 8 data bits LSB first and
 ; stop bits (1). A block starts with a leader: a long run of the high tone.
+;
+; Writing: CAS-out is PPI port C bit 5, toggled through the PPI's bit set/reset
+; mode in timed loops. The rate is the one in the current speed (LOW_), which
+; the boot sets to 1200 baud from CS120; 2400 baud when it holds CS240's.
 ;
 ; Reading: CAS-in is PSG register 14 bit 7. The reader is not told the baud:
 ; TAPION measures the leader's half-period and derives the threshold (LOWLIM)
@@ -32,6 +36,47 @@ MOTOR_OFF:      equ     $09             ; PPI bit set/reset: port C bit 4 := 1
 CAS_SKIP:       equ     256
 CAS_RUNLEN:     equ     16
 CAS_VERIFY:     equ     128
+
+CASW_1:         equ     $0B             ; PPI bit set/reset: port C bit 5 := 1
+CASW_0:         equ     $0A             ; PPI bit set/reset: port C bit 5 := 0
+BREAKX_ENTRY:   equ     $00B7           ; TAPOUT calls BREAKX through its entry:
+                                        ; the JP there is part of CAS_BYTECOMP
+CASBAUD:        equ     WINWID          ; the write rate for this session, set by
+                                        ; TAPOON: 0 = 1200, $FF = 2400 (WINWID is
+                                        ; a read cell, idle while writing)
+
+; The half-period counts of the written tones, in djnz iterations. They are
+; solved from the VG-8020's own waveform: a watchpoint on the PPI control
+; register logged both edges of every cycle of a CSAVE, in T-states, on the
+; VG-8020 and on this code. A djnz iteration costs 14 T (with the M1 wait), a
+; high half has 20 T of overhead and a plain low half 92 T:
+;                 short tone high / low     long tone high / low
+;   VG-8020         740 / 756                1492 / 1476
+;   this code       748 / 750                1504 / 1498
+; The low half of every cycle also holds the ret and the caller's call
+; (CAS_DUTY); the last cycle of a bit holds the bit's tail too (CAS_BITCOMP,
+; CAS_BITCOMP0), that of a byte the byte's tail (CAS_BYTECOMP), the start bit
+; TAPOUT's way to the first data bit (CAS_STARTCOMP), and the leader's last
+; cycle the way to the first start bit (CAS_LEADCOMP). Each must
+; stay below the smallest count in use (CAS_HHALF24). 2400 baud was not traced:
+; its long tone is 1200 baud's short tone, by construction.
+; The leader length and this duty are coupled: with this waveform and a 4000
+; cycle leader the VG-8020 did not read the header; the reference's leader
+; length (below) reads.
+CAS_HHALF:      equ     52              ; 1200 baud, high tone (2400 Hz)
+CAS_LHALF:      equ     106             ; 1200 baud, low tone (1200 Hz)
+CAS_HHALF24:    equ     24              ; 2400 baud, high tone (4800 Hz)
+CAS_LHALF24:    equ     CAS_HHALF       ; 2400 baud, low tone: 1200's high tone
+CAS_DUTY:       equ     5               ; every low half: ret + the caller's call
+CAS_BITCOMP:    equ     13              ; a 1 bit, and the stop bits
+CAS_BITCOMP0:   equ     14              ; a 0 bit
+CAS_BYTECOMP:   equ     CAS_BITCOMP + 8 ; the byte boundary, with TAPOUT's BREAKX
+                                        ; test (113 T: eight iterations)
+CAS_STARTCOMP:  equ     12              ; the start bit: TAPOUT's way to bit 0
+CAS_LEADCOMP:   equ     23              ; the leader's end: a byte boundary's tail
+                                        ; plus TAPOON's own exit and its caller
+                                        ; (24), held below CAS_HHALF24
+CAS_FLUSHLEN:   equ     32              ; carrier cycles TAPOOF adds at the end
 
 ; Motor on / off through the PPI's bit set/reset mode. Changes: A
 tape_motor_on:
@@ -273,5 +318,215 @@ tapiof:
                 pop     af
                 ei
                 ret
+
+;--------------------------------
+; C = the half-period count of the high (cas_short) or low (cas_long) tone at
+; the session's rate. A single load, so that the gap between cycles stays small
+; enough for 2400 baud to read back.
+; Changes  : AF, C
+cas_short:
+                ld      a,(CASBAUD)
+                or      a
+                ld      c,CAS_HHALF
+                ret     z
+                ld      c,CAS_HHALF24
+                ret
+cas_long:
+                ld      a,(CASBAUD)
+                or      a
+                ld      c,CAS_LHALF
+                ret     z
+                ld      c,CAS_LHALF24
+                ret
+
+;--------------------------------
+; Writes one square-wave cycle on CAS-out.
+; Input    : C = the half-period count
+; Changes  : AF, B
+cas_cycle:
+                ld      a,CASW_1
+                out     (PPI_REGS),a
+                ld      b,c
+cas_cycle_h:    djnz    cas_cycle_h
+                ld      a,CASW_0
+                out     (PPI_REGS),a
+                ld      a,c
+                sub     CAS_DUTY        ; the ret / call land in every low half
+                ld      b,a
+cas_cycle_l:    djnz    cas_cycle_l
+                ret
+
+;--------------------------------
+; Writes the last cycle of a bit: its low half is shorter by E, the tail that
+; runs after the line goes low and before the next cycle raises it.
+; Input    : C = the half-period count, E = the tail
+; Changes  : AF, B
+cas_cycle_last:
+                ld      a,CASW_1
+                out     (PPI_REGS),a
+                ld      b,c
+cas_cyl_h:      djnz    cas_cyl_h
+                ld      a,CASW_0
+                out     (PPI_REGS),a
+                ld      a,c
+                sub     e
+                ld      b,a
+cas_cyl_l:      djnz    cas_cyl_l
+                ret
+
+;--------------------------------
+; $00EA TAPOON
+; Function : Turns the motor on and writes a block's leader
+; Input    : A - 0 for a short leader, otherwise a long one
+; Output   : C clear
+; Registers: AF, BC, HL (DE kept, as on the VG-8020)
+; Remark   : The motor first runs silent for 0.567 s, as on the VG-8020. The
+;            leader is HEADER x 256 cycles of the high tone (short) or HEADER
+;            x 1024 (long): HEADER is 15 at 1200 baud, 31 at 2400.
+tapoon:
+                push    de
+                push    af              ; long / short
+                ; The rate, before the motor (its time is free): 2400 baud
+                ; when the current speed holds CS240's values, else 1200.
+                ld      hl,(LOW_)
+                ld      de,(CS240)
+                or      a
+                sbc     hl,de           ; 0: 2400
+                ld      a,h
+                or      l
+                sub     1               ; C if it was 0
+                sbc     a,a             ; $FF: 2400, 0: 1200
+                ld      (CASBAUD),a
+                di                      ; no jitter in the waveform
+                ; One write to port C, as the VG-8020 leaves it: bits 6-7
+                ; kept, motor on (bit 4 := 0), CAS-out low (bit 5 := 0), and
+                ; keyboard row 7 in the low nibble. Interrupts are off first, so
+                ; the key scan cannot rewrite the row under it.
+                in      a,(GIO_REGS)
+                and     $C0
+                or      7
+                out     (GIO_REGS),a
+                ; 0.567 s of silence: 2 x 33827 x 30 T at 3.58 MHz (30 T: the
+                ; MSX adds a wait state to every M1).
+                ld      e,2
+tapoon_dly1:
+                ld      bc,33827
+tapoon_dly2:
+                dec     bc
+                ld      a,b
+                or      c
+                jr      nz,tapoon_dly2
+                dec     e
+                jr      nz,tapoon_dly1
+                call    cas_short       ; C = the leader's half-period; Z: 1200
+                ld      d,15            ; HEADER at 1200 baud
+                jr      z,tapoon_hdr
+                ld      d,31            ; HEADER at 2400 baud
+tapoon_hdr:
+                ld      e,0             ; DE = HEADER x 256: short
+                pop     af
+                or      a
+                jr      z,tapoon_last
+                sla     d
+                sla     d               ; DE = HEADER x 1024: long
+tapoon_last:
+                dec     de              ; the last cycle comes after the loop
+tapoon_emit:
+                call    cas_cycle
+                dec     de
+                ld      a,d
+                or      e
+                jr      nz,tapoon_emit
+                ; The last leader cycle carries the gap to the first start bit:
+                ; this routine's end, the caller, and TAPOUT's start up to its
+                ; first cycle.
+                ld      e,CAS_LEADCOMP
+                call    cas_cycle_last
+                or      a               ; C clear
+                pop     de
+                ret
+
+;--------------------------------
+; $00ED TAPOUT
+; Function : Writes one byte to the tape (after TAPOON)
+; Input    : A - the byte
+; Output   : C set if CTRL+STOP is down: then the byte is not written
+; Registers: All
+; Remark   : A start bit (0), 8 data bits LSB first and 2 stop bits (1); a 0
+;            is one cycle of the low tone, a 1 two cycles of the high tone.
+;            CTRL+STOP is tested before each byte, as on the VG-8020; STOP
+;            alone does not break.
+tapout:
+                di
+                push    af
+                call    BREAKX_ENTRY    ; C: CTRL+STOP
+                jr      c,tapout_brk
+                call    cas_long        ; the start bit: a 0
+                ld      e,CAS_STARTCOMP
+                call    cas_cycle_last
+                pop     af
+                ld      b,8
+tapout_bit:
+                rra                     ; the next bit -> C
+                push    af
+                push    bc
+                jr      c,tapout_one
+                call    cas_long        ; a 0: one cycle of the low tone
+                ld      e,CAS_BITCOMP0
+                call    cas_cycle_last
+                jr      tapout_next
+tapout_one:
+                call    cas_short       ; a 1: two cycles of the high tone
+                call    cas_cycle
+                ld      e,CAS_BITCOMP
+                call    cas_cycle_last
+tapout_next:
+                pop     bc
+                pop     af
+                djnz    tapout_bit
+                call    cas_short       ; 2 stop bits: four high cycles
+                call    cas_cycle
+                call    cas_cycle
+                call    cas_cycle
+                ; The last cycle carries the byte boundary: this routine's
+                ; end and the next TAPOUT's start up to its first cycle.
+                ld      e,CAS_BYTECOMP
+                call    cas_cycle_last
+                or      a               ; C clear
+                ret
+tapout_brk:
+                pop     de              ; the byte, not written (C kept)
+                ret
+
+;--------------------------------
+; $00F0 TAPOOF
+; Function : Ends writing to the tape: a short carrier, motor off,
+;            interrupts on
+; Registers: none (A, F, BC, DE, HL kept, as on the VG-8020); CAS-out is left
+;            as it was on entry
+tapoof:
+                push    af
+                push    bc
+                push    de
+                in      a,(GIO_REGS)
+                push    af              ; CAS-out as it was
+                call    cas_short
+                ld      de,CAS_FLUSHLEN
+tapoof_lp:
+                call    cas_cycle
+                dec     de
+                ld      a,d
+                or      e
+                jr      nz,tapoof_lp    ; it ends with CAS-out low
+                pop     af
+                and     $20
+                jr      z,tapoof_lo
+                ld      a,CASW_1
+                out     (PPI_REGS),a    ; high again, as it was
+tapoof_lo:
+                pop     de
+                pop     bc
+                pop     af
+                jp      tapiof          ; motor off, interrupts on
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
