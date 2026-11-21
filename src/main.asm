@@ -2298,55 +2298,8 @@ totext:
                 call    H_TOTE
                 jp      chgmod          ; back to the mode in OLDSCR
 
-;--------------------------------
-; $00E1 TAPION
-; Reads the header block after turning the cassette motor on.
-; Output:  CF = set if failed
-; Changes: all
-; NOTE: This implementation is still a stub!
-tapion:
-                push    hl
-                push    af
-                ld      hl,tapion_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ; TODO: not implemented -> always fail
-                scf
-                ret
-tapion_text:    db      "TAPION",0
 
-;--------------------------------
-; $00E4 TAPIN
-; Read data from the tape.
-; Output:  A = data read
-; Changes: all
-; NOTE: This implementation is still a stub!
-tapin:
-                push    hl
-                push    af
-                ld      hl,tapin_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ; TODO: not implemented -> always fail
-                scf
-                ret
-tapin_text:     db      "TAPIN",0
 
-;--------------------------------
-; $00E7 TAPIOF
-; Stops reading from the tape.
-; NOTE: This implementation is still a stub!
-tapiof:
-                push    hl
-                push    af
-                ld      hl,tapiof_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ret
-tapiof_text:    db      "TAPIOF",0
 
 ;--------------------------------
 ; $00EA TAPOON
@@ -3572,6 +3525,7 @@ vram_clear_lp:  xor     a
 
                 include "slot.asm"
                 include "inlin.asm"      ; behind the font: room for the line editor
+                include "tape.asm"       ; behind the font: the cassette routines
 
 ;---------------------------------
 ; system messages
