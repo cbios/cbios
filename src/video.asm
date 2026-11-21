@@ -524,13 +524,15 @@ clrspr:
         ENDIF
 
 ; Clear sprite attribute table, also in SCREEN 0.
+        IF VDP = TMS99X8
+                jp      clrspr_attr_spritemode1 ; MSX1: mode 1 for any SCRMOD
+        ELSE
                 call    clrspr_attr
 
 ; Clear sprite colour table.
                 ld      a,(SCRMOD)
                 cp      4               ; sprite mode 2?
                 ret     c
-        IF VDP != TMS99X8
         IF CALL_SUB = NO
                 jr      clrspr_col
 
@@ -538,7 +540,6 @@ clrspr:
 ; Set up the sprites of SCREEN 4-8: attributes, then colours.
 clrspr_spritemode2:
                 call    clrspr_attr_spritemode2
-        ENDIF
         ENDIF
 
 ; Fill the sprite colour table, $200 bytes before ATRBAS, with FORCLR.
@@ -549,14 +550,12 @@ clrspr_col:
                 ld      bc,32 * 16
                 ld      a,(FORCLR)
                 and     $0F
-        IF VDP = TMS99X8
-                jp      filvrm
-        ELSE
                 jp      bigfil
         ENDIF
 
 ;--------------------------------
 ; Clear sprite attribute table.
+        IF VDP != TMS99X8
 clrspr_attr:
                 ld      a,(SCRMOD)
                 cp      4
@@ -566,6 +565,7 @@ clrspr_attr:
 clrspr_attr_spritemode2:
                 ld      e,217           ; Y coordinate
                 jr      clrspr_attr_spritemode_start
+        ENDIF
 
 ; Note: This label is called directly by external routines.
 clrspr_attr_spritemode1:

@@ -49,6 +49,7 @@ date.
 - CLRSPR did nothing in SCREEN 0
 - CLRSPR did not write RG1SAV to VDP register 1
 - CLRSPR cleared the sprite patterns after the attributes, wiping attributes that overlap the pattern table
+- On MSX1, CLRSPR set up sprite mode 2 when SCRMOD held 4 or more
 - SCREEN 4 to 8 left the sprite colour table as it was, and SCREEN 4 set up its sprites as in SCREEN 1 to 3 with ATRBAS at $1B00 instead of $1E00
 - INIGRP, INIMLT, CLS and (on MSX1) INIT32 wrote their VRAM tables in another order, which shows when the tables overlap
 - Clearing SCREEN 3 also cleared the 512 bytes of VRAM after its pattern table
