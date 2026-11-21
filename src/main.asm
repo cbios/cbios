@@ -3285,20 +3285,15 @@ stack_error:
 
 ;------------------------------------
 ; $0159 CALBAS
-; Function : Executes inter-slot call to the routine in BASIC interpreter
-; Input    : IX - for the calling address
+; Function : Calls the routine at IX in the main ROM's slot (the BASIC
+;            interpreter's), from any slot: CALSLT with IYH = EXPTBL's first
+;            byte
+; Input    : IX - the address to call
 ; Output   : Depends on the called routine
-; Registers: Depends on the called routine
+; Registers: Depends on the called routine, and IY
 calbas:
-                push    hl
-                push    af
-                ld      hl,calbas_text
-                call    print_debug
-                pop     af
-                pop     hl
-                ld      de,str_no_basic_intr
-                jp      print_error
-calbas_text:    db      "CALBAS",0
+                ld      iy,(EXPTBL-1)   ; IYH: the main ROM's slot
+                jp      calslt
 
         IF MODEL_MSX != MODEL_MSX1
 ;--------------------------------
@@ -3454,9 +3449,6 @@ str_error_prompt:
 
 str_memory_err:
                 db      "MEMORY NOT FOUND.",$00
-
-str_no_basic_intr:
-                db      "CALLED NON EXISTING BASIC.",$00
 
 str_stack_error:
                 db      "STACK ERROR.",$00
