@@ -242,7 +242,7 @@ GETPNT:         equ     $F3FA
 ; F400: length of synchronization block (ini:15)
 CS120:          equ     $F3FC
 
-; F401-F405: memory area for tape system parameters for 1200 baud
+; F401-F405: memory area for tape system parameters for 2400 baud
 ; F401: length of  low signal for 0     (ini:37)
 ; F402: length of high signal for 0     (ini:45)
 ; F403: length of  low signal for 1     (ini:14)

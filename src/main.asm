@@ -1351,6 +1351,13 @@ init_ram:
                 ld      (RG8SAV + 1),a
         ENDIF
 
+; The tape timing: CS120 (1200 baud), CS240 (2400 baud) and the current
+; speed, LOW_, HIGH_ and HEADER: 1200 baud.
+                ld      hl,init_tape
+                ld      de,CS120
+                ld      bc,init_tape_end - init_tape
+                ldir
+
 ; Set address pointer
                 ld      hl,KEYBUF
                 ld      (PUTPNT),hl
@@ -1457,6 +1464,11 @@ init_ram:
                 ld      (CGPNT+1),hl
 
                 ret
+
+init_tape:      db      83,92,38,45,15  ; CS120
+                db      37,45,14,22,31  ; CS240
+                db      83,92,38,45,15  ; the current speed: CS120's
+init_tape_end:
 
 ;----------------------
 ; Check which slots are expanded.
