@@ -356,13 +356,19 @@ chgmod:
                 jp      subrom
         ELSE
 
-                ; Guard against non-existing screen mode.
         IF VDP = TMS99X8
+                ; 4..$80 is SCREEN 3, $81..$FF SCREEN 0.
                 cp      4
+                jr      c,chgmod_mode
+                sub     $81
+                sbc     a,a
+                and     3
+chgmod_mode:
         ELSE
+                ; Ignore a non-existing screen mode.
                 cp      9
-        ENDIF
                 ret     nc
+        ENDIF
                 ; Redirect to initialisation routine.
                 ld      hl,chgmod_tbl
                 jp      jump_table
