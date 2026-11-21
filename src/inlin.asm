@@ -68,18 +68,6 @@ inlin_start:
                 ld      hl,(CSRY)       ; L = the row
                 ld      h,a             ; H = the column the line starts at
                 ld      (FSTPOS),hl
-inlin_loop:
-                call    chget
-                push    af
-                call    chput_remove_cursor ; the screen as it is, for BS/DEL/Enter
-                pop     af
-                cp      13
-                jr      z,inlin_enter
-                cp      8
-                jr      z,inlin_bs
-                cp      $7F
-                jr      z,inlin_del
-                call    chput
                 jr      inlin_loop
 
 ; BS: one cell left within the logical line, then as DEL. At column 1 the
@@ -123,7 +111,71 @@ inlin_del_done:
                 call    wrtvrm
                 pop     hl
                 ld      (CSRY),hl
+; ESC does nothing in the editor. BS, DEL and INS also end here.
+inlin_esc:
                 call    chput_restore_cursor
+inlin_loop:
+                call    chget
+                push    af
+                call    chput_remove_cursor ; the screen as it is, for BS/DEL/Enter
+                pop     af
+                ld      hl,INSFLG
+                cp      13
+                jr      z,inlin_enter
+                cp      8
+                jr      z,inlin_bs
+                cp      $7F
+                jr      z,inlin_del
+                cp      $12
+                jr      z,inlin_ins
+                cp      9
+                jr      z,inlin_tab
+                cp      $1B
+                jr      z,inlin_esc
+                cp      ' '
+                jr      nc,inlin_char
+                ld      (hl),0          ; another control code ends insert mode
+                inc     l
+                inc     l
+                ld      (hl),0          ; CSTYLE, two bytes after INSFLG
+inlin_put:
+                call    chput
+                jr      inlin_loop
+inlin_char:
+                inc     (hl)
+                dec     (hl)
+                jr      z,inlin_put     ; overwrite mode
+                call    inlin_insert
+                jr      inlin_loop
+
+; INS: insert mode on or off; the insert cursor shows while it is on.
+inlin_ins:
+                ld      a,(hl)
+                cpl
+                ld      (hl),a
+                and     $AF
+                inc     l
+                inc     l
+                ld      (hl),a          ; CSTYLE
+                jr      inlin_esc
+
+; TAB: in insert mode spaces are inserted up to the next tab stop.
+inlin_tab:
+                inc     (hl)
+                dec     (hl)
+                jr      z,inlin_put     ; overwrite mode: CHPUT's TAB
+                ld      a,(SCRMOD)
+                cp      2
+                ld      a,9
+                jr      nc,inlin_put    ; no text screen: CHPUT ignores it
+inlin_tab_lp:
+                call    chput_remove_cursor ; CHPUT put it back
+                ld      a,' '
+                call    inlin_insert
+                ld      a,(CSRX)
+                dec     a
+                and     7
+                jr      nz,inlin_tab_lp
                 jr      inlin_loop
 
 ; Enter: the logical line under the cursor, rows D to E, goes into BUF.
@@ -170,6 +222,7 @@ inlin_trim:                             ; drop the trailing spaces
                 xor     a
                 ld      (bc),a
                 ld      (INSFLG),a
+                ld      (CSTYLE),a
                 ld      a,e
                 call    inlin_linttb
                 ld      (hl),$AF        ; the line ends on its last row
@@ -181,6 +234,64 @@ inlin_trim:                             ; drop the trailing spaces
                 ld      hl,BUF-1
                 or      a               ; NC: ended with Enter
                 ret
+
+; Insert A at the cursor: the rest of the logical line moves one cell
+; right. When the line's last cell is not free, the line first gets a new
+; row: inserted below it, or on row 24 the screen scrolls up.
+inlin_insert:
+                push    af
+                ld      hl,(CSRY)
+                push    hl              ; the cursor
+                ld      a,l
+                call    inlin_lastrow   ; E := the line's last row
+                ld      a,(LINLEN)
+                ld      h,a
+                ld      l,e
+                ld      (CSRY),hl
+                call    curs2hl
+                call    rdvrm           ; the line's last cell
+                cp      ' '
+                jr      z,inlin_insert_shift
+                ld      a,(CRTCNT)
+                cp      e
+                jr      z,inlin_insert_scroll
+                inc     e               ; the line's new last row
+                push    de
+                ld      hl,CSRY
+                inc     (hl)
+                call    chput_esc_ll    ; a new row below the line
+                jr      inlin_insert_link
+inlin_insert_scroll:
+                pop     hl              ; on the bottom row the screen
+                dec     l               ; scrolls up, the cursor with it
+                push    hl
+                push    de
+                call    chput_ctrl_home
+                call    chput_esc_m
+inlin_insert_link:
+                pop     de
+                ld      a,e
+                dec     a
+                call    inlin_linttb
+                ld      (hl),0          ; the line continues on its new row
+inlin_insert_shift:
+                pop     hl
+                ld      (CSRY),hl
+                push    hl
+                ld      d,' '           ; the cell at the cursor becomes free
+inlin_insert_lp:
+                call    curs2hl
+                call    rdvrm
+                ld      c,a
+                ld      a,d
+                call    wrtvrm
+                ld      d,c
+                call    inlin_next
+                jr      nz,inlin_insert_lp
+                pop     hl
+                ld      (CSRY),hl
+                pop     af
+                jp      chput           ; the character, as typed
 
 ; The cursor to the next cell of the logical line that ends on row E.
 ; Output : Z if it was on the line's last cell (and stays there)

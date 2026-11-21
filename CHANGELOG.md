@@ -33,7 +33,7 @@ date.
 - On MSX1, INIGRP and INIMLT overwrote NAMBAS and CGPBAS, the text modes' table addresses
 - INITXT overwrote PATBAS and ATRBAS, the sprite table addresses
 - KILBUF emptied the key buffer at the wrong end
-- PINLIN, INLIN and QINLIN never returned; Enter now returns the line from the screen in BUF, and BS and DEL edit it
+- PINLIN, INLIN and QINLIN never returned; Enter now returns the line from the screen in BUF, and BS, DEL and INS edit it
 - PNTINI did nothing; it now sets the colour PAINT stops at, BRDATR
 - ISFLIO tested only the low byte of PTRFIL, and returned the H flag set
 - OUTDO printed to the screen whatever PRTFLG said, and the H_OUTD hook held a jump to CHPUT instead of a RET
