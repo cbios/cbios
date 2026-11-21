@@ -36,10 +36,7 @@
 disscr:
                 ld      a,(RG1SAV)
                 and     $BF
-                ld      b,a
-                ld      c,1
-                call    wrtvdp
-                ret
+                jr      wrtvdp_r1
 
 ;--------------------------------
 ; $0044 ENASCR
@@ -48,10 +45,10 @@ disscr:
 enascr:
                 ld      a,(RG1SAV)
                 or      $40
+wrtvdp_r1:                              ; VDP R#1 := A
                 ld      b,a
                 ld      c,1
-                call    wrtvdp
-                ret
+                jp      wrtvdp
 
 ;--------------------------------
 ; 0047$ WRTVDP
@@ -512,6 +509,9 @@ chgclr_r7:
 ; Input    : SCRMOD
 ; Registers: All
 clrspr:
+                ld      a,(RG1SAV)      ; R#1 as RG1SAV says
+                call    wrtvdp_r1
+
 ; Clear sprite attribute table, also in SCREEN 0.
                 call    clrspr_attr
 
