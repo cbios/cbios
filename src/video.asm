@@ -346,9 +346,11 @@ ldir_tail:      ld      c,b             ; BC := 0
 ; Registers: All
 chgmod:
         IF CALL_SUB = YES
+                cp      9
+                ret     nc              ; no such screen mode: nothing
                 push    ix
                 ld      ix,$00d1
-                jp      subrom
+                jp      init_text_sub
         ELSE
 
         IF VDP = TMS99X8
@@ -620,7 +622,7 @@ initxt:
         IF CALL_SUB = YES
                 push    ix
                 ld      ix,$00d5 ; INIT
-                jp      subrom
+                jr      init_text_sub
         ELSE
                 ; Disable video output.
                 call    disscr
@@ -666,7 +668,15 @@ initxt_width40:
                 call    init_font
         ENDIF
                 call    cls_screen0
+        IF MODEL_MSX = MODEL_SUBROM
                 jp      chgmod_finish
+        ELSE
+; INITXT and INIT32 on MSX1: after the mode is set up, the function key line
+; is drawn when it is on.
+init_text_finish:
+                call    chgmod_finish
+                jp      fnksb
+        ENDIF
         ENDIF
 
 ;--------------------------------
@@ -679,7 +689,15 @@ init32:
         IF CALL_SUB = YES
                 push    ix
                 ld      ix,$00d9
-                jp      subrom
+; INITXT, INIT32 and CHGMOD on MSX2: the sub-ROM sets the mode up; then, in
+; SCREEN 0 and 1, the function key line is drawn when it is on.
+init_text_sub:
+                call    extrom
+                pop     ix
+                ld      a,(SCRMOD)
+                cp      2
+                ret     nc
+                jp      fnksb
         ELSE
                 ; Disable video output.
                 call    disscr
@@ -723,7 +741,11 @@ init32:
                 call    clrspr_attr_spritemode1 ; MSX2: the other way round
                 call    cls_screen1
         ENDIF
+        IF MODEL_MSX = MODEL_SUBROM
                 jp      chgmod_finish
+        ELSE
+                jp      init_text_finish
+        ENDIF
         ENDIF
 
 ;--------------------------------
