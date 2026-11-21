@@ -30,6 +30,7 @@ date.
 - CHRGTR returned the character at HL instead of the next one, skipped no LF, and returned other flags
 - SYNCHR was a stub: it returned without checking the character and ran its inline byte as code; it now checks it and goes on as CHRGTR, and a mismatch is a Syntax error
 - GICINI, and so INITIO, set up the PLAY queues at their default place even when QUEUES pointed elsewhere
+- GTTRIG read the space bar for 5 and up; now 5 to $80 read a joystick trigger (button B, port 1 for odd values, port 2 for even ones) and $81 to $FF the space bar
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round

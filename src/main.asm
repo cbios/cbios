@@ -2607,25 +2607,8 @@ joypos_kbd_tbl:
 
 
 ;--------------------------------
-; $00D8 GTTRIG
-; Function : Returns current trigger status
-; Input    : A  - trigger button to test
-;            0 = spacebar(included A-1 = minus)
-;            1 = port 1, button A
-;            2 = port 2, button A
-;            3 = port 1, button B
-;            4 = port 2, button B
-; Output   : A  - #00 trigger button not pressed
-;                 #FF trigger button pressed
-; Note     : Some programs rely on ZF to be set according to the value in A.
-; Registers: All
-gttrig:
-                cp      5
-                jr      nc,gttrig_space ; if value of A is above 5,go space routine
-                or      a
-                jr      nz,joy_trig
+; Keyboard (spacebar): GTTRIG 0 and $81-$FF, and TRGFLG's scan
 gttrig_space:
-; Keyboard (spacebar)
                 push    bc
                 ld      a,$08
                 call    snsmat          ; bit0 = 0 -> space pressed
@@ -2635,10 +2618,27 @@ gttrig_space:
                 sbc     a,a             ; pressed: A = $FF, else 0
                 ret
 
+
+;--------------------------------
+; $00D8 GTTRIG
+; Function : Returns current trigger status
+; Input    : A  - trigger button to test
+;            0 = spacebar
+;            1 = port 1, button A
+;            2 = port 2, button A
+;            3 = port 1, button B
+;            4 = port 2, button B
+;            5-$80: an odd one port 1, an even one port 2, button B;
+;            $81-$FF: the spacebar
+; Output   : A  - #00 trigger button not pressed
+;                 #FF trigger button pressed
+; Note     : Some programs rely on ZF to be set according to the value in A.
+; Registers: All
+gttrig:
+                dec     a               ; A - 1: bit 0 the port
+                jp      m,gttrig_space  ; 0 and $81-$FF
 ; Joystick triggers
-joy_trig:
                 di
-                dec     a
                 push    de
                 ld      e,$03   ; enable trig A+B of stick 1
                 ld      b,a
@@ -2655,10 +2655,10 @@ sel_trig1:
                 call    wrtpsg
 
                 ld      a,b
-                ld      b,$10
-                and     $02
-                jr      z,istrg_a
-                ld      b,$20
+                ld      b,$10           ; button A for 1 and 2
+                cp      $02
+                jr      c,istrg_a
+                ld      b,$20           ; button B for 3 and up
 istrg_a:
                 ld      a,$0E
                 di
