@@ -46,6 +46,7 @@ date.
 - CHPUT: ESC Y put the cursor off the screen for a row or column out of range
 - CHPUT: rows blanked by ESC K, l, J, L, M or a scroll got other values in LINTTB
 - Clearing SCREEN 2 cleared the patterns from GRPCGP rounded down to a multiple of 256
+- INIGRP, INIMLT, CLS and (on MSX1) INIT32 wrote their VRAM tables in another order, which shows when the tables overlap
 - Clearing SCREEN 3 also cleared the 512 bytes of VRAM after its pattern table
 - Clearing SCREEN 3 used only the low 4 bits of BAKCLR for its fill byte
 - SCREEN 0 was 39 columns wide by default instead of 37

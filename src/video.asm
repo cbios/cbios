@@ -711,8 +711,13 @@ init32:
                 ld      (ACPAGE),a
         ENDIF
                 call    sett32
+        IF VDP = TMS99X8
+                call    cls_screen1     ; MSX1: the names, then the sprites
                 call    clrspr_attr_spritemode1
+        ELSE
+                call    clrspr_attr_spritemode1 ; MSX2: the other way round
                 call    cls_screen1
+        ENDIF
                 jp      chgmod_finish
         ENDIF
 
@@ -768,8 +773,8 @@ inigrp_lp:
                 ld      (ACPAGE),a
         ENDIF
                 call    setgrp
+                call    cls_screen2     ; the tables, then the sprites
                 call    clrspr_attr_spritemode1
-                call    cls_screen2
                 jp      chgmod_finish
         ENDIF
 
@@ -836,8 +841,8 @@ inimlt_loop3:
         ENDIF
 
                 call    setmlt
+                call    cls_screen3     ; the patterns, then the sprites
                 call    clrspr_attr_spritemode1
-                call    cls_screen3
                 jp      chgmod_finish
         ENDIF
 
@@ -2017,15 +2022,15 @@ cls_linttb:     ld      (hl),b
         ENDIF
 
 cls_screen2:
-                xor     a
+                ld      a,(BAKCLR)      ; the colours, then the patterns
                 ld      bc,$1800
-                ld      hl,(GRPCGP)
+                ld      hl,(GRPCOL)
                 push    bc
                 call    filvrm
                 pop     bc
 
-                ld      a,(BAKCLR)
-                ld      hl,(GRPCOL)
+                xor     a
+                ld      hl,(GRPCGP)
                 jp      filvrm
 
 cls_screen3:
