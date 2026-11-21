@@ -45,6 +45,7 @@ date.
 - CHPUT: rows blanked by ESC K, l, J, L, M or a scroll got other values in LINTTB
 - Clearing SCREEN 3 also cleared the 512 bytes of VRAM after its pattern table
 - Clearing SCREEN 3 used only the low 4 bits of BAKCLR for its fill byte
+- SCREEN 0 was 39 columns wide by default instead of 37
 - TOTEXT switched to SCREEN 1 whenever OLDSCR was not 0, instead of to the screen mode in OLDSCR
 - On MSX1, CHGMOD ignored a screen mode above 3 instead of switching to SCREEN 3 (4 to 128) or SCREEN 0 (129 to 255)
 - Clearing SCREEN 0 also cleared the VRAM after the 40-column screen: on MSX1 at any width above 39, on MSX2 at width 40

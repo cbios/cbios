@@ -1440,7 +1440,7 @@ init_ram:
                 ld      (QUETAB+2*6+3),a
 
 ; other settings
-                ld      a,39
+                ld      a,37
                 ld      (LINL40),a
                 ld      a,32            ; Set to 29 after splash screen.
                 ld      (LINL32),a
