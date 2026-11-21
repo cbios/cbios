@@ -1465,12 +1465,6 @@ init_ram:
                 ld      hl,(4)
                 ld      (CGPNT+1),hl
 
-; set up hook
-                ld      a,$c3
-                ld      hl,chput
-                ld      (H_OUTD+1),hl
-                ld      (H_OUTD),a
-
                 ret
 
 ;----------------------
@@ -1770,17 +1764,6 @@ chrgtr_no_digit:
                 jr      z,chrgtr_lp
                 ; Otherwise it's a normal program character.
                 or      a               ; Clear CF and ZF.
-                ret
-
-;-------------------------------------
-; $0018 OUTDO
-; Function : Output to current outputchannel (printer, diskfile, etc.)
-; Input    : A  - PRTFIL, PRTFLG
-; Remark   : Used in basic, in ML it's pretty difficult.
-outdo:
-                push    af
-                call    H_OUTD      ; H_OUTD does the real outputting
-                pop     af
                 ret
 
 ;--------------------------------
@@ -2734,6 +2717,24 @@ chgcap:
                 inc     a               ; $0D: set bit 6, lamp off
 chgcap_out:     out     (PPI_REGS),a
                 ret
+
+;--------------------------------
+; $0018 OUTDO
+; Function : Output to the current output channel
+; Input    : A - the character; PRTFLG - 0: the screen, else the printer
+; Remark   : H_OUTD comes first (disk BASIC's file output hooks in there)
+; Registers: none; F too when it goes to the screen
+outdo:
+                push    af
+                call    H_OUTD
+                ld      a,(PRTFLG)
+                or      a
+                jr      nz,outdo_lpt
+                pop     af
+                jp      chput
+outdo_lpt:
+                pop     af
+                ; on to OUTDLP
 
 ;--------------------------------
 ; $014D OUTDLP

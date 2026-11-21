@@ -33,6 +33,7 @@ date.
 - On MSX1, INIGRP and INIMLT overwrote NAMBAS and CGPBAS, the text modes' table addresses
 - INITXT overwrote PATBAS and ATRBAS, the sprite table addresses
 - KILBUF emptied the key buffer at the wrong end
+- OUTDO printed to the screen whatever PRTFLG said, and the H_OUTD hook held a jump to CHPUT instead of a RET
 - OUTDLP printed nothing; it now sends to the printer, with TAB as spaces and the column in LPTPOS
 - ISCNTC and CKCNTC returned other values in A and F, and left interrupts off
 - BREAKX did not empty the key buffer or mark STOP in OLDKEY when it found CTRL+STOP
