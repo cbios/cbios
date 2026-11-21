@@ -2811,6 +2811,7 @@ setc_set:
                 ld      a,e
 setc_colour:
                 xor     c
+setc_write:
                 call    wrtvrm          ; the colour byte
 setc_done:
                 or      a
@@ -2820,15 +2821,20 @@ setc_pop:
                 pop     hl
                 ret
 setc_sc3:
-                rlca                    ; SCREEN 3: ATRBYT into the nibble
-                rlca
-                rlca
-                rlca
-                or      e
-                xor     c
-                and     d
+                bit     7,d             ; SCREEN 3: CMASK's bit 7 picks the upper
+                jr      z,setc_sc3_lo   ; nibble for ATRBYT, shifted
+                add     a,a
+                add     a,a
+                add     a,a
+                add     a,a
+setc_sc3_lo:
+                ld      b,a
+                ld      a,d
+                cpl
+                and     c
+                or      b               ; the byte AND NOT CMASK, OR ATRBYT whole
                 pop     hl              ; the pattern byte's address, as HL
-                jr      setc_colour
+                jr      setc_write
 
 ; Input  : HL = the address of a pattern byte
 ; Output : B = the pattern byte, C = the colour byte for it, HL = its

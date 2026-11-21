@@ -47,6 +47,7 @@ date.
 - CHPUT: rows blanked by ESC K, l, J, L, M or a scroll got other values in LINTTB
 - Clearing SCREEN 2 cleared the patterns from GRPCGP rounded down to a multiple of 256
 - SETC in SCREEN 2 used only the low 4 bits of ATRBYT to recognise the background colour and to make it the background colour
+- SETC and NSETCX in SCREEN 3 masked ATRBYT with CMASK instead of ORing it in whole
 - CLRSPR did nothing in SCREEN 0
 - CLRSPR did not write RG1SAV to VDP register 1
 - CLRSPR cleared the sprite patterns after the attributes, wiping attributes that overlap the pattern table
