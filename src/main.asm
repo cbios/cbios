@@ -1845,19 +1845,32 @@ inifnk_text:    db      "INIFNK",0
 
 ;--------------------------------
 ; $0099 STRTMS
-; Function : Tests whether the PLAY statement is being executed as a background
-;            task. If not, begins to execute the PLAY statement
-; Registers: All
-;NOTE: this implementation is still a stub!
+; Function : Starts the music PLAY has queued, unless music is playing:
+;            when MUSICF is 0 and PLYCNT is not, PLYCNT goes down by one,
+;            MUSICF becomes 7 (all three voices) and each voice's first
+;            word becomes 1, so that it starts on the next interrupt
+; Output   : started: A = 7, F as DEC leaves it on PLYCNT, HL = 1
+;            nothing to play: A = 0, F = Z and P/V, HL = PLYCNT
+;            playing: A = MUSICF, F as OR A
+; Registers: AF, HL
+; Remark   : C-BIOS has no background music player yet: started music
+;            stays silent.
 strtms:
-                push    hl
-                push    af
-                ld      hl,strtms_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,(MUSICF)
+                or      a
+                ret     nz              ; playing
+                ld      hl,PLYCNT
+                or      (hl)
+                ret     z               ; nothing to play
+                dec     (hl)
+                ld      a,7
+                dec     hl              ; MUSICF, right before PLYCNT; F kept
+                ld      (hl),a
+                ld      hl,1
+                ld      (VCBA),hl
+                ld      (VCBB),hl
+                ld      (VCBC),hl
                 ret
-strtms_text:    db      "STRTMS",0
 
 
 ;--------------------------------

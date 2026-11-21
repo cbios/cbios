@@ -13,6 +13,7 @@ date.
 - GICINI changed registers A, E and F
 - GICINI did not reset the PLAY queues, MUSICF, PLYCNT or the voice buffers
 - BEEP, and so CHPUT's BEL (CTRL+G), made no sound; BEEP now sounds a short tone and then resets the sound system as GICINI does
+- STRTMS did nothing; it now starts the queued PLAY music in MUSICF, PLYCNT and the voice buffers (C-BIOS has no background music player yet, so it stays silent)
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round
