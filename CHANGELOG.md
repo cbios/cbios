@@ -23,7 +23,8 @@ date.
 - INITXT, INIT32 and CHGMOD did not draw the function key line when it was on
 - With the function key line on, CHPUT and INLIN ran onto its row: LF, wraps, cursor down and ESC B, J, L and M now stop on the row above it
 - CLS, and so CHPUT's CLS, ESC E and ESC j, left the function key line off the screen when it was on
-- STRTMS did nothing; it now starts the queued PLAY music in MUSICF, PLYCNT and the voice buffers (C-BIOS has no background music player yet, so it stays silent)
+- STRTMS did nothing; it now starts the queued PLAY music in MUSICF, PLYCNT and the voice buffers
+- Queued PLAY music (PUTQ, then STRTMS) never sounded: there was no background music player; the timer interrupt now plays the three voices' queues
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round

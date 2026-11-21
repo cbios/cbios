@@ -1884,36 +1884,6 @@ inifnk_texts:
                 db      $0C,"run",$0D+$80
 
 ;--------------------------------
-; $0099 STRTMS
-; Function : Starts the music PLAY has queued, unless music is playing:
-;            when MUSICF is 0 and PLYCNT is not, PLYCNT goes down by one,
-;            MUSICF becomes 7 (all three voices) and each voice's first
-;            word becomes 1, so that it starts on the next interrupt
-; Output   : started: A = 7, F as DEC leaves it on PLYCNT, HL = 1
-;            nothing to play: A = 0, F = Z and P/V, HL = PLYCNT
-;            playing: A = MUSICF, F as OR A
-; Registers: AF, HL
-; Remark   : C-BIOS has no background music player yet: started music
-;            stays silent.
-strtms:
-                ld      a,(MUSICF)
-                or      a
-                ret     nz              ; playing
-                ld      hl,PLYCNT
-                or      (hl)
-                ret     z               ; nothing to play
-                dec     (hl)
-                ld      a,7
-                dec     hl              ; MUSICF, right before PLYCNT; F kept
-                ld      (hl),a
-                ld      hl,1
-                ld      (VCBA),hl
-                ld      (VCBB),hl
-                ld      (VCBC),hl
-                ret
-
-
-;--------------------------------
 ; $009C CHSNS
 ; Function : Tests the status of the keyboard buffer
 ; Output   : A = PUTPNT - GETPNT (low bytes), with the flags of that
@@ -2949,7 +2919,9 @@ keyint:
                 inc     hl
                 ld      (JIFFY),hl
 
-                ; TODO: MUSICF
+                ld      a,(MUSICF)
+                or      a
+                call    nz,music        ; the background music (PLAY's queues)
 
                 ; TODO: It seems unsafe to me to already allow interrupts
                 ;       while this one is still busy: possible interference
@@ -3452,6 +3424,7 @@ vram_clear_lp:  xor     a
                 include "slot.asm"
                 include "inlin.asm"      ; behind the font: room for the line editor
                 include "tape.asm"       ; behind the font: the cassette routines
+                include "player.asm"     ; behind the font: the music player
 
 ;---------------------------------
 ; system messages
