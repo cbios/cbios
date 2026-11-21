@@ -2164,14 +2164,19 @@ leftc_bit:
 ;          CMASK counts, also in SCREEN 5-8, where CMASK holds Y.
 gc_nibble:
                 ld      a,(SCRMOD)
-                cp      3
         IF VDP != TMS99X8
+                cp      3
                 jr      z,gc_nibble_mask
                 cp      5
 gc_nibble_mask:
-        ENDIF
                 ld      a,(CMASK)
                 ret     c
+        ELSE
+                cp      2               ; MSX1: blocks in every mode but
+                ld      a,(CMASK)       ; SCREEN 2, as MAPXYC
+                scf
+                ret     z
+        ENDIF
                 rla
                 sbc     a,a             ; $FF for the left half
                 xor     $E1
@@ -2287,12 +2292,21 @@ gc_row:
                 push    hl
                 push    de
                 ld      a,(SCRMOD)
+        IF VDP != TMS99X8
                 xor     3               ; also clears C for the sbc
                 ld      hl,(GRPCGP)
                 ld      a,$16           ; the last cell row - 1
                 jr      nz,gc_row_base
                 ld      hl,(MLTCGP)
                 ld      a,4
+        ELSE
+                xor     2               ; MSX1: blocks in every mode but
+                ld      hl,(MLTCGP)     ; SCREEN 2; also clears C for the sbc
+                ld      a,4
+                jr      nz,gc_row_base
+                ld      hl,(GRPCGP)
+                ld      a,$16           ; the last cell row - 1
+        ENDIF
 gc_row_base:
                 ex      de,hl
                 ld      hl,(CLOC)
@@ -2756,9 +2770,15 @@ gc_cell:
                 ld      c,a
                 ld      b,$80
                 ld      a,(SCRMOD)
+        IF VDP != TMS99X8
                 cp      3
                 scf
                 ret     z
+        ELSE
+                cp      2               ; MSX1: blocks in every mode but
+                scf                     ; SCREEN 2
+                ret     nz
+        ENDIF
                 ld      b,c
                 ld      a,h
                 xor     $20             ; the colour byte is $2000 away
@@ -2786,11 +2806,14 @@ gc_cell:
 ;            there moves the cursor as in SCREEN 3.
 nsetcx:
                 ld      a,(SCRMOD)
+        IF VDP != TMS99X8
                 cp      3
                 jr      z,nsetcx_px
-        IF VDP != TMS99X8
                 cp      5
                 jr      nc,nsetcx_px
+        ELSE
+                cp      2               ; MSX1: blocks in every mode but
+                jr      nz,nsetcx_px    ; SCREEN 2
         ENDIF
                 ; Per byte: C = its pixels from the row's start rightward, B =
                 ; the same shifted right once per pixel counted off DE; then

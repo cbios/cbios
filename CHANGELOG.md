@@ -81,6 +81,7 @@ date.
 - Clearing SCREEN 0 also cleared the VRAM after the 40-column screen: on MSX1 at any width above 39, on MSX2 at width 40
 - SCANR did nothing; it now skips the PAINT border and counts and paints the run after it, in SCREEN 2, 3 and 4
 - SCANL did nothing; it now counts the pixels left of the cursor up to the PAINT border and paints them together with SCANR's run, in SCREEN 2, 3 and 4
+- On MSX1, SETC, READC, NSETCX and the graphics cursor moves handled SCREEN 0 and 1 partly as SCREEN 2; they now use 4x4 blocks there, as MAPXYC does
 - GRPPRT drew nothing in SCREEN 3, where each glyph pixel is a 4x4 block, and did not move GRPACX in SCREEN 0, 1 and 3
 - GRPPRT in SCREEN 2 (and SCREEN 4 on MSX2) drew lines and colours that differ from SETC's, wrote colours for empty glyph lines, drew past the right edge into the next row, drew nothing in SCREEN 4, and did not wrap to the next line at the right edge or ignore a start outside the screen
 - GRPPRT: CR moved down 8 pixels in every screen mode instead of 32 in SCREEN 0, 1 and 3, did not wrap to the top below the screen, cleared the high byte of GRPACX, and changed F
