@@ -70,6 +70,7 @@ date.
 - TOTEXT switched to SCREEN 1 whenever OLDSCR was not 0, instead of to the screen mode in OLDSCR
 - On MSX1, CHGMOD ignored a screen mode above 3 instead of switching to SCREEN 3 (4 to 128) or SCREEN 0 (129 to 255)
 - Clearing SCREEN 0 also cleared the VRAM after the 40-column screen: on MSX1 at any width above 39, on MSX2 at width 40
+- GRPPRT in SCREEN 2 (and SCREEN 4 on MSX2) drew lines and colours that differ from SETC's, wrote colours for empty glyph lines, drew past the right edge into the next row, drew nothing in SCREEN 4, and did not wrap to the next line at the right edge or ignore a start outside the screen
 - GRPPRT: CR moved down 8 pixels in every screen mode instead of 32 in SCREEN 0, 1 and 3, did not wrap to the top below the screen, cleared the high byte of GRPACX, and changed F
 
 ## [0.31a] - 2026-11-12

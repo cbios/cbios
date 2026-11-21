@@ -1149,40 +1149,32 @@ gspsiz:
 
 ;------------------------------
 ; $008D GRPPRT
-; Function:  Places a character on graphic screen
-; Input:     A  - Character
-;            GRPACX , GRPACY : X, Y coordinate
-;            FORCLR
-; Input (SCREEN 5 and above) :
-;            LOGOPR for logical operator
-; NOTE : the function doesn't support without SCREEN 2
-;        and also slower yet.
-; Register : AF ???
+; Function : Draws a character on a graphics screen at GRPACX, GRPACY in
+;            FORCLR, and moves GRPACX on; CR moves to the next text line
+; Input    : A - the character
+; Registers: none
+; Remark   : SCREEN 2 and 4: a glyph pixel is a pixel; drawn as SETC sets
+;            one, moving with RIGHTC, and down with TDOWNC after each line.
+;            Pixels past the right edge are not drawn, and drawing stops
+;            where TDOWNC stops. A start outside the screen draws nothing.
+;            CLOC and CMASK end at the glyph's left column, where the last
+;            TDOWNC left it. ATRBYT becomes FORCLR; interrupts are on.
+;            A control code leaves interrupts as they are. SCREEN 5-8: the
+;            sub-ROM's GRPPRT.
 grpprt:
                 push    af
-
-                ; Printable character or control character?
-                cp      $20
-                jr      c,grpprt_control
-
-                ; Different implementation depending on screen mode.
-                ld      a,(SCRMOD)
-                cp      2
-                jr      z,grpprt_sc2
-                cp      5
-                jr      nc,grpprt_sc5 ; SCRMOD >= 5
-grpprt_end:
-                pop     af
-                ret
-
-; CR ($0D) is a line feed to X 0, on the low bytes of GRPACX and GRPACY
-; only: Y goes on by the step, to 0 past 191 (not in SCREEN 5-8). The other
-; control codes do nothing. Registers and interrupts are kept.
-grpprt_control:
-                cp      $0D
-                jr      nz,grpprt_end
                 push    hl
+                push    de
+                push    bc
+                cp      $20
+                jr      nc,grpprt_char
+                cp      $0D
+                jr      nz,grpprt_end   ; other control codes do nothing
                 ld      hl,GRPACX
+; CR, and a character past the right edge: a line feed to X 0, on the low
+; bytes of GRPACX and GRPACY only: Y goes on by the step, to 0 past 191 (not
+; in SCREEN 5-8).
+grpprt_cr:
                 ld      (hl),0
                 inc     hl
                 inc     hl              ; HL = GRPACY
@@ -1190,16 +1182,87 @@ grpprt_control:
                 add     a,(hl)
                 ld      (hl),a
                 cp      192
-                jr      c,grpprt_cr_end
+                jr      c,grpprt_end
         IF VDP != TMS99X8
-                ld      a,(SCRMOD)
-                cp      5
-                jr      nc,grpprt_cr_end
+                call    chknew
+                jr      nc,grpprt_end
         ENDIF
                 ld      (hl),0
-grpprt_cr_end:
+grpprt_end:
+                pop     bc
+                pop     de
                 pop     hl
+                pop     af
+                ret
+
+grpprt_char:
+        IF VDP != TMS99X8
+                ld      c,a
+                call    chknew
+                jr      nc,grpprt_sc5
+                ld      a,c
+        ENDIF
+                call    getpat          ; PATWRK = the glyph; RDSLT leaves
+                ei                      ; interrupts off
+                call    grpprt_step
+                cp      32
+                jr      z,grpprt_end    ; SCREEN 0, 1 and 3: not yet
+                ld      a,(FORCLR)
+                ld      (ATRBYT),a
+                ld      bc,(GRPACX)
+                ld      de,(GRPACY)
+                call    scalxy
+                jr      nc,grpprt_end   ; outside the screen
+                call    mapxy           ; CLOC, CMASK = the glyph's top left
+                ld      de,PATWRK
+                ld      c,8             ; lines
+grpprt_line:
+                call    fetchc
+                push    af              ; HL, CMASK = the line's left end
+                ld      a,(de)
+                ld      b,a
+grpprt_pixel:
+                sla     b
+                call    c,setc
+                inc     b
+                dec     b
+                jr      z,grpprt_line_end ; no more pixels to set
+                call    rightc
+                rla
+                jr      nc,grpprt_pixel ; still in the same byte
+                ld      a,l
+                cp      $F8
+                jr      c,grpprt_pixel  ; the line did not start in the
+grpprt_line_end:                        ; last column: not past the edge
+                pop     af
+                call    storec
+                call    tdownc
+                jr      c,grpprt_move   ; the bottom
+                inc     de
+                dec     c
+                jr      nz,grpprt_line
+grpprt_move:
+                call    grpprt_step
+                ld      hl,GRPACX
+                add     a,(hl)
+                ld      (hl),a
+                jr      c,grpprt_cr     ; past X 255
                 jr      grpprt_end
+
+        IF VDP != TMS99X8
+grpprt_sc5:
+                pop     bc
+                pop     de
+                pop     hl
+                pop     af
+          IF CALL_SUB = YES
+                push    ix
+                ld      ix,$0089
+                jp      subrom
+          ELSE
+                ret
+          ENDIF
+        ENDIF
 
 ; Output   : A - the step of GRPPRT: 8 in SCREEN 2 and 4-8, 32 in SCREEN 0, 1
 ;                and 3, where a glyph pixel is a 4x4 block
@@ -1219,212 +1282,6 @@ grpprt_step:
         ENDIF
                 ld      a,32
                 ret
-
-grpprt_sc5:
-                pop     af
-
-        ; TODO: should these routines be merged?
-
-        IF CALL_SUB = YES
-                push    ix
-                ld      ix,$0089
-                jp      subrom
-        ENDIF
-                ret
-
-grpprt_sc2:
-                pop     af
-                push    hl
-                push    de
-                push    bc
-                push    af
-
-                call    getpat
-
-                ld      de,(GRPACY)
-                ld      bc,(GRPACX)
-                call    mapxy           ; HL = CLOC
-                ld      a,(CMASK)
-                add     a,a
-                dec     a
-                ld      (CMASK),a       ; the pixel's bit and all bits right of it
-
-                ld      a,(FORCLR)
-                ld      (ATRBYT),a
-
-                ld      de,PATWRK
-                ld      a,(GRPACY)
-                and     $07
-                ld      c,a
-                call    grpprt_chr_x
-
-                ld      bc,$00F0
-                add     hl,bc
-                ld      a,(GRPACY)
-                cpl
-                and     $07
-                ld      c,a
-
-                call    grpprt_chr_x
-
-                ld      hl,(GRPACX)
-                ld      bc,$0008
-                add     hl,bc
-                ld      (GRPACX),hl
-
-                pop     af
-                pop     bc
-                pop     de
-                pop     hl
-
-                ret
-
-grpprt_chr_x:
-                ld      a,(GRPACX)
-                and     $07
-                push    af
-                push    bc
-                push    de
-                push    hl
-                call    grpprt_chr ; half left
-                ld      a,(GRPACX)
-                and     $07
-                jr      z,grpprt_skip_hr
-                ld      a,(CMASK)
-                cpl
-                ld      (CMASK),a
-                pop     hl
-                ld      bc,$0008
-                add     hl,bc
-                pop     de
-                pop     bc
-                pop     af
-
-                call    grpprt_chr ; half right
-                ld      a,(CMASK)
-                cpl
-                ld      (CMASK),a
-                ret
-grpprt_skip_hr:
-                pop     bc ; HL = the result of last grpprt_chr
-                ld      bc,$0008
-                add     hl,bc
-                pop     bc ; DE = the result of last grpprt_chr
-                pop     bc
-                pop     af
-                ret
-
-
-
-; A = Pattern , B = Pattern in VRAM
-grpprt_attr:
-                push    af
-                push    hl
-                push    bc
-                push    de
-
-                ld      d,a   ; D = Pattern of charactor
-                ld      e,b   ; E = Pattern in VRAM
-
-                ld      bc,(GRPCOL)
-                add     hl,bc
-                ld      c,a
-                ld      a,(ATRBYT)
-                and     $0f
-                ld      b,a
-                call    rdvrm
-
-                push    af    ; A = an attribute in VRAM
-                and     $0f
-                cp      b
-                jr      z,grpprt_attr_black
-                pop     af
-                push    af
-                rrca
-                rrca
-                rrca
-                rrca
-                and     $0f
-                cp      b
-                jr      nz,grpprt_attr_nomatch
-                pop     af
-grpprt_attr_end:
-                pop     de
-                pop     bc
-                pop     hl
-                pop     af
-                ret
-grpprt_attr_black:
-                pop     af
-grpprt_attr_blk_end:
-                pop     de
-                pop     bc
-                pop     hl
-                pop     af
-                cpl
-                ret
-grpprt_attr_nomatch:
-                ld      a,d
-                or      e
-                cp      $ff
-                jr      z,grpprt_attr_make_black
-                pop     af
-                rlc     b
-                rlc     b
-                rlc     b
-                rlc     b
-                and     $0f
-                or      b
-                call    wrtvrm
-                jr      grpprt_attr_end
-grpprt_attr_make_black:
-                pop     af
-                and     $f0
-                or      b
-                call    wrtvrm
-                jr      grpprt_attr_blk_end
-
-
-; A = X MOD 8,C = Y MOD 8, HL = CLOC
-grpprt_chr:
-                ld      b,c
-                inc     a
-                ld      c,a
-
-                ld      a,$07
-                xor     b
-                inc     a
-                ld      b,a
-
-grpprt_lp:
-                push    bc
-                call    rdvrm
-                ld      b,a
-                ld      a,(de)
-                call    grpprt_attr
-grpprt_sft_lp:
-                dec     c
-                jr      z,grpprt_sft_ed
-                rrca
-                jr      grpprt_sft_lp
-grpprt_sft_ed:
-                ld      c,a
-                ld      a,(CMASK)
-                and     c
-                ld      c,a       ; charactor with mask
-
-                ld      a,b       ; B = pattern in VRAM
-                or      c
-
-                call    wrtvrm
-                inc     hl
-                inc     de
-                pop     bc
-                djnz    grpprt_lp
-                ret
-
-
-grpprt_text:    db      "GRPPRT",0
 
 ;--------------------------------
 ; 0165h CHKNEW
