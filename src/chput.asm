@@ -394,6 +394,8 @@ chput_esc_ll_loop_end:
 
 ; -- Delete line (and scroll rest up)
 chput_esc_m:
+                ld      hl,FSTPOS
+                dec     (hl)                    ; INLIN's start row moves up too
                 call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)
                 push    hl                      ; save cursor pos

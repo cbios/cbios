@@ -24,26 +24,19 @@
 ;
 ;--------------------------------
 ; $00AE PINLIN
-; Function : Stores in the specified buffer the character codes input
-;           until the return key or STOP key is pressed
-; Output   : HL - for the starting address of the buffer -1
+; Function : Reads a line typed with the screen editor, from column 1
+; Output   : BUF - the line, ended by a 0; HL - BUF - 1
 ;            C-flag set when it ends with the STOP key
 ; Registers: All
-; TODO: call H_PINL
 pinlin:
                 call    H_PINL
-                ld      a,(AUTFLG)              ; If AUTO is active
-                and     a
-                jp      z,inlin                 ; then start line input
-                ld      a,1                     ; else set cursor
-                ld      (CSRX),a                ;    to left border first
-                jp      inlin                   ;    and then start line input
+                ld      a,1             ; the whole line, from column 1
+                jr      inlin_start
 
 ;--------------------------------
 ; $00B4 QINLIN
-; Function : Prints a questionmark and one space and continues with INLIN
-; Output   : HL - for the starting address of the buffer -1
-;            C-flag set when it ends with the STOP key
+; Function : Prints "? " and reads a line, as INLIN
+; Output   : See PINLIN
 ; Registers: All
 qinlin_prompt:
                 db      "? ",0
@@ -55,173 +48,129 @@ qinlin:
 
 ;--------------------------------
 ; $00B1 INLIN
-; Function : Main line input routine
-; Output   : HL - for the starting address of the buffer -1
-;            C-flag set when it ends with the STOP key
+; Function : Reads a line typed with the screen editor, from the column
+;            the cursor is at (column 1 when AUTFLG is set)
+; Output   : See PINLIN
 ; Registers: All
-
 inlin:
-                ld      hl,(CSRX)               ; loads CSRX and CSRY
-                ld      (FSTPOS),hl             ; save in FSTPOS
-
-                ld      de,LINTTB-2             ; break logical line
-                ld      h,0                     ; above cursor pos
-                ld      a,l
-                add     hl,de
-                ld      (hl),a
+                ld      a,(CSRY)
+                dec     a
+                jr      z,inlin_top
+                call    inlin_linttb    ; the row above: a new line starts here
+                ld      (hl),$AF
+inlin_top:
+                ld      a,(AUTFLG)
+                or      a
+                ld      a,1
+                jr      nz,inlin_start
+                ld      a,(CSRX)
+inlin_start:
+                ld      hl,(CSRY)       ; L = the row
+                ld      h,a             ; H = the column the line starts at
+                ld      (FSTPOS),hl
 inlin_loop:
-                call    chget                   ; get a character from the kbd
-
-                cp      $7F
-                jp      z,inlin_del
-                cp      $20
-                jr      nc,inlin_printable
-
-                ld      b,20
-                ld      hl,inlin_table
-                call    jump_table
-                
-                xor     a                       ; we just put out a ctrl char
-                ld      (INSFLG),a              ; switch insert mode off
-                ld      (CSTYLE),a
+                call    chget
+                cp      13
+                jr      z,inlin_enter
+                call    chput
                 jr      inlin_loop
 
-inlin_printable:                                ; else...
-                push    af
-                ld      a,(INSFLG)
-                and     a
-                call    nz,inlin_insert
-                pop     af
-                rst     $18
-                jr      inlin
-; ----------------------------------------------
-inlin_insert:
+; Enter: the logical line under the cursor, rows D to E, goes into BUF.
+inlin_enter:
                 call    chput_remove_cursor
-                ld      hl,(CSRY)               ; save cursorpos
-                ld      (TEMP2),hl
-
-                ld      a,' '                   ; oldchar = space
-                ld      (TEMP),a
-
-inlin_insert_loop:                              ; REPEAT
-                call    curs2hl                 ;   get char under curpos
-                call    rdvrm
-
-                cp      ' '                     ;   IF is space
-                jr      nz,inlin_insert_cont
-
-                ld      hl,(CSRY)               ;   AND at end of line
+                ld      a,','
+                ld      (BUF-1),a       ; stops the trim below
+                ld      a,(CSRY)
+inlin_first:                            ; D := the line's first row
+                ld      d,a
+                dec     a
+                jr      z,inlin_last
+                ld      e,a
+                call    inlin_linttb
+                ld      a,e
+                jr      z,inlin_first   ; the row above continues on this one
+inlin_last:                             ; E := the line's last row
+                ld      a,(CSRY)
+inlin_last_lp:
+                ld      e,a
+                ld      hl,CRTCNT
+                cp      (hl)
+                jr      nc,inlin_read   ; the bottom row
+                call    inlin_linttb
+                ld      a,e
+                jr      nz,inlin_read   ; the line ends on this row
+                inc     a
+                jr      inlin_last_lp
+inlin_read:
+                ld      hl,(FSTPOS)     ; the start column, if the line starts
+                ld      a,l             ; on the row input started on
+                cp      d
+                ld      a,h
+                jr      z,inlin_col
+                ld      a,1
+inlin_col:
+                ld      (CSRX),a
+                ld      a,d
+                ld      (CSRY),a
+                push    de
+                ld      de,BUF
+                ld      c,255           ; at most 255 characters
+inlin_row:
                 ld      a,(LINLEN)
-                cp      h
-                jr      nz,inlin_insert_cont1
+                ld      hl,CSRX
+                sub     (hl)
+                inc     a
+                ld      b,a             ; the cells from CSRX to the row's end
+                call    curs2hl
+inlin_cell:
+                call    rdvrm
+                ld      (de),a
+                inc     de
+                inc     hl
+                dec     c
+                jr      z,inlin_full
+                djnz    inlin_cell
+                ld      a,1
+                ld      (CSRX),a
+                pop     hl              ; L = the last row
+                push    hl
+                ld      a,(CSRY)
+                cp      l
+                jr      z,inlin_full
+                inc     a
+                ld      (CSRY),a
+                jr      inlin_row
+inlin_full:
+inlin_trim:                             ; drop the trailing spaces
+                dec     de
+                ld      a,(de)
+                cp      ' '
+                jr      z,inlin_trim
+                inc     de
+                xor     a
+                ld      (de),a
+                ld      (INSFLG),a
+                pop     de
+                ld      a,e
+                ld      (CSRY),a
+                call    inlin_linttb
+                ld      (hl),$AF        ; the line ends on its last row
+                ld      a,1
+                ld      (CSRX),a
+                call    chput_ctrl_lf   ; to the next row; on row 24 it scrolls
+                call    chput_restore_cursor
+                ld      hl,BUF-1
+                or      a               ; NC: ended with Enter
+                ret
 
-                ld      h,0                     ;   AND logical line does
-                ld      de,LINTTB-1             ;     not continue
-                add     hl,de
+; A = a row (1-24) -> HL = its LINTTB entry, A = the entry, Z if 0
+; (the row continues on the next). Changes: AF
+inlin_linttb:
+                add     a,(LINTTB-1) & $FF
+                ld      l,a
+                ld      h,LINTTB >> 8   ; LINTTB does not cross a page
                 ld      a,(hl)
                 or      a
-                jr      z,inlin_insert_cont1
-
-                ld      a,(TEMP)                ;   THEN
-                call    curs2hl
-                call    wrtvrm                  ;     put old char
-                ld      hl,(TEMP2)              ;     restore cursor pos
-                ld      (CSRY),hl
                 ret
-                jp      chput_restore_cursor    ;     and exit
-
-inlin_insert_cont1:
-                ld      a,' '
-inlin_insert_cont:
-                push    af                      ;   ELSE
-                ld      a,(TEMP)                ;     put old char
-                rst     $18
-                pop     af
-                ld      (TEMP),a                ;   oldchar = character read
-                jr      inlin_insert_loop       ; ENDREP
-
-; ----------------------------------------------
-inlin_wback:
-                ret
-
-; ----------------------------------------------
-inlin_break:
-                scf                             ; C
-                pop     hl                      ; do not return to INLIN
-                ret                             ; but to caller of INLIN
-
-; ----------------------------------------------
-inlin_clear:
-                ret
-
-; ----------------------------------------------
-inlin_wfwd:
-                ret
-
-; ----------------------------------------------
-inlin_bs:
-                ret
-
-; ----------------------------------------------
-inlin_cr:
-                ret
-
-; ----------------------------------------------
-inlin_end:
-                xor     a                       ; NZ, NC
-                pop     hl                      ; do not return to INLIN
-                ret                             ; but to caller of INLIN
-
-; ----------------------------------------------
-inlin_ins:
-                ret
-
-; ----------------------------------------------
-inlin_clrlin:
-                ret
-
-; -- ESCAPE
-inlin_esc:
-                ret                             ; Do nothing
-
-; -- DELETE
-inlin_del:
-                ret
-
-; -- Jump table. Control chars not handled in one of the routines above
-;    are simply forwarded to OUTDO
-inlin_table:
-                dw      $0018                   ; @
-                dw      $0018                   ; A - 
-                dw      inlin_wback             ; B word back
-                dw      inlin_break             ; C stop, abort, quit
-                dw      $0018                   ; D
-                dw      inlin_clear             ; E: clear to end of line
-                dw      inlin_wfwd              ; F: word fwd
-                dw      $0018                   ; G
-                dw      inlin_bs                ; H BACKSP: erase char left
-                dw      $0018                   ; I
-                dw      $0018                   ; J
-                dw      $0018                   ; K
-                dw      $0018                   ; L
-                dw      inlin_cr                ; M ENTER : confirm, yes, ok
-                dw      inlin_end               ; N to end of line
-                dw      $0018                   ; O
-                dw      $0018                   ; P
-                dw      $0018                   ; Q
-                dw      inlin_ins               ; R INSERT: toggle insert mode
-                dw      $0018                   ; S
-                dw      $0018                   ; T
-                dw      inlin_clrlin            ; U clear line
-                dw      $0018                   ; V
-                dw      $0018                   ; W
-                dw      $0018                   ; X
-                dw      $0018                   ; Y
-                dw      $0018                   ; Z
-                dw      inlin_esc               ; ESCAPE: ignore
-                dw      $0018                   ; (28)
-                dw      $0018                   ; (29)
-                dw      $0018                   ; (30)
-                dw      $0018                   ; (31)
 
 ; vim:ts=8:expandtab:filetype=z8a:syntax=z8a:
