@@ -1737,36 +1737,34 @@ synchr_text:    db      "SYNCHR",0
 
 ;-------------------------------------
 ; $0010 CHRGTR
-; Read the next program character.
-; In:      HL = pointer to the program text
-; Out:     A  = the next program character
-;          HL = pointer to the next program character
-;          ZF = set if it's the end of statement
-;          CF = set if it's a number
-; Changes: AF, HL
+; Function : Steps to the next character of a program text and returns it,
+;            skipping spaces, TABs and LFs
+; Input    : HL - the current character
+; Output   : HL - the next character (spaces, TABs and LFs skipped)
+;            A  - that character
+;            F  - Z at the end of a statement (00 or ':'), C on a digit;
+;                 from ':' up a compare's flags with ':', 00 an OR's, else
+;                 a decrement's flags
+; Registers: AF, HL
+; Remark   : The numeric-constant tokens ($0B-$1F) of BASIC's text are
+;            returned as plain characters: C-BIOS has no BASIC.
 chrgtr:
                 call    H_CHRG
 chrgtr_lp:
-                ld      a,(hl)
                 inc     hl
-                ; Check for the end of statement.
-                cp      $00             ; end of line
-                ret     z
-                cp      $3A             ; statement separator
-                ret     z
-                ; Check for digits.
-                cp      '0'
-                jr      c,chrgtr_no_digit
-                cp      '9'+1
-                ret     c
-chrgtr_no_digit:
-                ; Skip whitespace.
-                cp      $20             ; space
+                ld      a,(hl)
+                cp      ':'
+                ret     nc              ; ':' and up
+                or      a
+                ret     z               ; 00: the end of the line
+                cp      ' '
                 jr      z,chrgtr_lp
-                cp      $09             ; tab
-                jr      z,chrgtr_lp
-                ; Otherwise it's a normal program character.
-                or      a               ; Clear CF and ZF.
+                sub     9
+                cp      2
+                jr      c,chrgtr_lp     ; TAB and LF
+                sub     '0'-9           ; A = the character - '0'
+                sub     $CF             ; A = the character + 1, C: a digit
+                dec     a
                 ret
 
 ;--------------------------------

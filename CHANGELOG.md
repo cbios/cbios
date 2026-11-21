@@ -27,6 +27,7 @@ date.
 - Queued PLAY music (PUTQ, then STRTMS) never sounded: there was no background music player; the timer interrupt now plays the three voices' queues
 - CALBAS printed an error and never returned; it now calls the routine at IX in the main ROM's slot
 - CALSLT, CALLF and CALBAS always returned with interrupts off; they now leave them as the called routine left them
+- CHRGTR returned the character at HL instead of the next one, skipped no LF, and returned other flags
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
 - CNVCHR returned the Z flag the wrong way round
