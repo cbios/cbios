@@ -233,9 +233,10 @@ inlin_eol_lp:
                 cp      h
                 jr      nz,inlin_eol_col
                 ld      h,0             ; column 1 of the next row, but no
-                ld      a,(CRTCNT)      ; further than the bottom row
+                call    text_bottom     ; further than the bottom row
+                dec     a
                 cp      l
-                jr      z,inlin_eol_col
+                jr      c,inlin_eol_col
                 inc     l
 inlin_eol_col:
                 inc     h
@@ -250,7 +251,7 @@ inlin_eol_next:
 ; CTRL+F: to the start of the next word, over the whole screen. Words are
 ; runs of letters and digits.
 inlin_wordr:
-                ld      a,(CRTCNT)
+                call    text_bottom
                 ld      e,a             ; the screen's last row
 inlin_wordr_in:
                 call    inlin_wordc
@@ -266,7 +267,7 @@ inlin_wordr_out:
 
 ; CTRL+B: to the start of the previous word, over the whole screen.
 inlin_wordl:
-                ld      a,(CRTCNT)
+                call    text_bottom
                 ld      e,a
 inlin_wordl_out:
                 call    inlin_prev
@@ -347,9 +348,10 @@ inlin_insert:
                 call    rdvrm           ; the line's last cell
                 cp      ' '
                 jr      z,inlin_insert_shift
-                ld      a,(CRTCNT)
+                call    text_bottom
+                dec     a
                 cp      e
-                jr      z,inlin_insert_scroll
+                jr      c,inlin_insert_scroll
                 inc     e               ; the line's new last row
                 push    de
                 ld      hl,CSRY
@@ -473,9 +475,11 @@ inlin_lastrow_cur:
                 ld      a,(CSRY)        ; the cursor's row
 inlin_lastrow:
                 ld      e,a
-                ld      hl,CRTCNT
-                cp      (hl)
-                ret     nc              ; the bottom row
+                call    text_bottom
+                dec     a
+                cp      e
+                ld      a,e
+                ret     c               ; the bottom row
                 call    inlin_linttb
                 ld      a,e
                 ret     nz              ; the line ends on this row

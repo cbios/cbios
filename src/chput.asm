@@ -111,21 +111,13 @@ chput_ctrl_tab:
 
 ; -- Line Feed.
 chput_ctrl_lf:
-                ld      hl,(CSRY)
-                ld      a,(CRTCNT)
-                inc     l
-                cp      l
-                jr      nc,chput_ctrl_lf_done
-
+                call    chput_esc_b
+                ret     nc                      ; moved down a row
+                ld      hl,(CSRY)               ; on the bottom row: scroll
                 push    hl
-                call    chput_ctrl_home         ; home cursor
-                call    chput_esc_m             ; delete top line (scroll!)
-                pop     hl
-                dec     l
-
-chput_ctrl_lf_done:
-                ld      (CSRY),hl
-                ret
+                call    chput_ctrl_home
+                call    chput_esc_m             ; delete the top row
+                jr      chput_esc_jj_done       ; the cursor stays
 
 ; -- Home cursor
 chput_ctrl_home:
@@ -146,11 +138,8 @@ chput_esc_jj:
                 push    hl
                 call    chput_ctrl_cr           ; move to line start
 chput_esc_jj_loop:
-                ld      a,(CSRY)                ; while no at end of screen
-                ld      hl,CRTCNT
-                cp      (hl)
-                jr      nc,chput_esc_jj_done
-                call    chput_ctrl_lf           ;   move to next line
+                call    chput_esc_b             ; the next row, down to the
+                jr      c,chput_esc_jj_done     ; bottom row
                 call    chput_esc_k             ;   clear till end of line
                 jr      chput_esc_jj_loop       ; loop
 
@@ -186,12 +175,8 @@ chput_ctrl_right:
                 inc     a
                 jr      chput_right_left_ok
 chput_ctrl_right_next:
-                ld      a,(CSRY)
-                ld      hl,CRTCNT
-                cp      (hl)
-                ret     nc
-                inc     a
-                ld      (CSRY),a
+                call    chput_esc_b
+                ret     c                       ; on the bottom row
                 jr      chput_ctrl_cr
 
 ; -- Cursor left
@@ -221,12 +206,18 @@ chput_esc_a:
 ; -- Cursor down
 chput_ctrl_down:
 chput_esc_b:
-                ld      a,(CSRY)
-                ld      hl,CRTCNT
+                ; Output: C on the bottom row, or below it (the cursor put
+                ; on the function key line's row): then onto the bottom row
+                call    text_bottom
+                ld      hl,CSRY
+                dec     a
                 cp      (hl)
-                ret     nc
                 inc     a
-                ld      (CSRY),a
+                jr      c,chput_esc_b_bottom
+                inc     (hl)                    ; NC
+                ret
+chput_esc_b_bottom:
+                ld      (hl),a
                 ret
 
 ; -- Handle ESC mode (ESCCNT in A and != 0)
@@ -354,7 +345,9 @@ chput_esc_ll:
                 call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)               ; save current cursor pos
                 push    hl
-                ld      a,(CRTCNT)
+                call    text_bottom
+                cp      l
+                jr      c,chput_esc_m_none      ; below the bottom row
                 ld      (CSRY),a
                 ld      e,a
                 sub     l                       ; A := lines from CSRY to bottom
@@ -366,7 +359,7 @@ chput_esc_ll:
                 ld      c,a
                 ld      b,0
                 ld      d,b
-                ld      hl,LINTTB-1             ; HL := LINTTB + (CRTCNT) - 1
+                ld      hl,LINTTB-1             ; HL := the bottom row's entry
                 add     hl,de
                 push    hl
                 ld      d,h
@@ -401,8 +394,9 @@ chput_esc_m:
                 call    chput_ctrl_cr           ; move to start of line
                 ld      hl,(CSRY)
                 push    hl                      ; save cursor pos
-                ld      a,(CRTCNT)              ; A := lines from CSRY to bottom
+                call    text_bottom             ; A := lines from CSRY to bottom
                 sub     l
+                jr      c,chput_esc_m_none      ; below the bottom row
                 inc     a
                 ; Move LINTTB up as well. One entry more than needed is
                 ; moved, into the bottom line's entry, which chput_esc_k
@@ -432,8 +426,19 @@ chput_esc_m_loop_end:
                 djnz    chput_esc_m_loop        ; endloop
 
                 call    chput_esc_k             ; clear till end of line
+chput_esc_m_none:
                 pop     hl                      ; restore cursor position
                 ld      (CSRY),hl
+                ret
+
+; Output   : A = the bottom text row: CRTCNT, or one less while the function
+;            key line is on (CNSDFG $FF)
+; Changes  : AF
+text_bottom:
+                ld      a,(CNSDFG)
+                rla                             ; C: the key line is on
+                ld      a,(CRTCNT)
+                sbc     a,0
                 ret
 
 ; DSPFNK with the cursor on the key line's row (A = CRTCNT, DE = the cursor):

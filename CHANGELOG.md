@@ -17,6 +17,7 @@ date.
 - SHIFT+F1 to F5 typed the texts of F1 to F5 instead of F6 to F10
 - DSPFNK, ERAFNK and FNKSB did nothing; they now draw and erase the function key line, scrolling the text up first when the cursor is on its row
 - INITXT, INIT32 and CHGMOD did not draw the function key line when it was on
+- With the function key line on, CHPUT and INLIN ran onto its row: LF, wraps, cursor down and ESC B, J, L and M now stop on the row above it
 - STRTMS did nothing; it now starts the queued PLAY music in MUSICF, PLYCNT and the voice buffers (C-BIOS has no background music player yet, so it stays silent)
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
