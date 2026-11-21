@@ -33,6 +33,7 @@ date.
 - On MSX1, INIGRP and INIMLT overwrote NAMBAS and CGPBAS, the text modes' table addresses
 - INITXT overwrote PATBAS and ATRBAS, the sprite table addresses
 - KILBUF emptied the key buffer at the wrong end
+- BREAKX did not empty the key buffer or mark STOP in OLDKEY when it found CTRL+STOP
 - SNSMAT returned other values in C and F
 - GTTRIG returned other flags
 - CHGCAP returned other values in A and F

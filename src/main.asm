@@ -2048,7 +2048,8 @@ cnvchr_normal_exit:
 ; Tests status of CTRL-STOP.
 ; This routine reads the keyboard status from the hardware, so its result
 ; will be accurate even if interrupts have been disabled for a while.
-; Output:  CF set if CTRL-STOP is pressed
+; Output:  CF set if CTRL-STOP is pressed; then the key buffer is also
+;          emptied and STOP is marked as down in OLDKEY
 ; Changes: AF
 breakx:
                 in      a,(GIO_REGS)
@@ -2067,6 +2068,11 @@ breakx:
                 and     $02             ; check CTRL, also resets CF
                 ret     nz
 
+                push    hl
+                call    kilbuf
+                ld      hl,OLDKEY+7
+                res     4,(hl)          ; STOP is down
+                pop     hl
                 scf
                 ret
 
