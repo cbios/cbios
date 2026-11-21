@@ -994,6 +994,7 @@ chkram_done:
                 ei
 
                 call    initio
+                call    inifnk
 
                 ld      b,15
                 ld      de,logo_ident
@@ -1830,18 +1831,45 @@ initio:
 
 ;--------------------------------
 ; $003E INIFNK
-; Function : Initialises the contents of the function keys
-; Registers: All
-;NOTE: this implementation is still a stub!
+; Function : Writes the ten default function key texts into FNKSTR, each
+;            padded with 0 to its 16 bytes; the key line is not redrawn
+; Registers: AF, BC, DE, HL
 inifnk:
-                push    hl
-                push    af
-                ld      hl,inifnk_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      hl,inifnk_texts
+                ld      de,FNKSTR
+                ld      b,10
+inifnk_key:
+                ld      c,16
+inifnk_char:
+                ld      a,(hl)
+                and     $7F
+                ld      (de),a
+                inc     de
+                dec     c
+                cp      (hl)            ; NZ: bit 7 set, the text's last byte
+                inc     hl
+                jr      z,inifnk_char
+                xor     a
+inifnk_pad:
+                ld      (de),a          ; 0 up to 16 bytes
+                inc     de
+                dec     c
+                jr      nz,inifnk_pad
+                djnz    inifnk_key
                 ret
-inifnk_text:    db      "INIFNK",0
+
+; The ten texts; the last byte of each has bit 7 set.
+inifnk_texts:
+                db      "color",' '+$80
+                db      "auto",' '+$80
+                db      "goto",' '+$80
+                db      "list",' '+$80
+                db      "run",$0D+$80
+                db      "color 15,4,4",$0D+$80
+                db      "cload",'"'+$80
+                db      "cont",$0D+$80
+                db      "list.",$0D,$1E,$1E+$80
+                db      $0C,"run",$0D+$80
 
 ;--------------------------------
 ; $0099 STRTMS
