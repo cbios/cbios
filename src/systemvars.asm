@@ -296,8 +296,8 @@ PRTFLG:         equ     $F416
 
 ; F417: switch indicating if hooked up printer is an MSX printer or not
 ; values: 0: MSX-Printer, 1: no MSX-Printer
-; if the printer is no MSX-Printer, non-ASCII (>=128) characters are replaced
-; by spaces before sending them to the printer (ini: 0)
+; if the printer is no MSX-Printer, OUTDLP holds back the graphic header ($01)
+; and sends a space for the graphic character after it (ini: 0)
 NTMSXP:         equ     $F417
 
 ; F418: switch indicating of printing routines should use raw-mode or

@@ -1949,6 +1949,65 @@ chget_nowrap:
                 include "chput.asm"
 
 ;--------------------------------
+; $0018 OUTDO
+; Function : Output to the current output channel
+; Input    : A - the character; PRTFLG - 0: the screen, else the printer
+; Remark   : H_OUTD comes first (disk BASIC's file output hooks in there)
+; Registers: F; A too for a graphic character to a printer that is not
+;            an MSX printer (see OUTDLP)
+outdo:
+                push    af
+                call    H_OUTD
+                ld      a,(PRTFLG)
+                or      a
+                jr      nz,outdo_lpt
+                pop     af
+                jp      chput
+outdo_lpt:
+                pop     af
+                ; on to OUTDLP
+
+;--------------------------------
+; $014D OUTDLP
+; Function : Printer output
+; Input    : A  - code to print
+; Output   : F  - as LPTOUT; a TAB keeps F
+; Registers: F; A too when not an MSX printer (NTMSXP not 0): a graphic
+;            character goes out as a space and A = ' '
+; Remark   : Differences with LPTOUT: a TAB goes out as spaces up to the
+;            next multiple of 8, and LPTPOS counts the column: 0 after a CR,
+;            one more after a character from $20 up, the same after another
+;            control code. When NTMSXP is not 0, the graphic header ($01) is
+;            held back (A = 1, Z) and the graphic character after it goes
+;            out as a space. Not done: BASIC's device I/O error.
+outdlp:
+                push    af
+                cp      9
+                jr      z,outdlp_tab
+                pop     af
+                push    hl
+                ld      hl,LPTPOS
+                cp      13
+                jr      nz,outdlp_nocr
+                ld      (hl),0
+outdlp_nocr:
+                cp      ' '
+                jr      c,outdlp_ctrl
+                inc     (hl)
+outdlp_ctrl:
+                inc     hl
+                inc     hl              ; NTMSXP
+                inc     (hl)
+                dec     (hl)
+                pop     hl
+                jr      z,lptout        ; an MSX printer: as it is
+                call    cnvchr
+                ret     nc              ; the graphic header: held back
+                jr      z,lptout
+                ld      a,' '           ; a graphic character: a space
+                ; on to LPTOUT
+
+;--------------------------------
 ; $00A5 LPTOUT
 ; Function : Sends one character to printer
 ; Input    : A  - ASCII-code of character to send
@@ -1984,6 +2043,15 @@ lptout_write:
                 out     (PRN_STAT),a
                 pop     af
                 and     a
+                ret
+
+outdlp_tab:
+                ld      a,' '
+                call    outdlp
+                ld      a,(LPTPOS)
+                and     7
+                jr      nz,outdlp_tab
+                pop     af
                 ret
 
 ;--------------------------------
@@ -2759,59 +2827,6 @@ chgcap:
                 jr      z,chgcap_out
                 inc     a               ; $0D: set bit 6, lamp off
 chgcap_out:     out     (PPI_REGS),a
-                ret
-
-;--------------------------------
-; $0018 OUTDO
-; Function : Output to the current output channel
-; Input    : A - the character; PRTFLG - 0: the screen, else the printer
-; Remark   : H_OUTD comes first (disk BASIC's file output hooks in there)
-; Registers: none; F too when it goes to the screen
-outdo:
-                push    af
-                call    H_OUTD
-                ld      a,(PRTFLG)
-                or      a
-                jr      nz,outdo_lpt
-                pop     af
-                jp      chput
-outdo_lpt:
-                pop     af
-                ; on to OUTDLP
-
-;--------------------------------
-; $014D OUTDLP
-; Function : Printer output
-; Input    : A  - code to print
-; Registers: F
-; Remark   : Differences with LPTOUT: a TAB goes out as spaces up to the
-;            next multiple of 8, and LPTPOS counts the column: 0 after a CR,
-;            one more after a character from $20 up, the same after another
-;            control code. Not done: the non-MSX printer conversions
-;            (NTMSXP) and BASIC's device I/O error.
-outdlp:
-                cp      9
-                jr      z,outdlp_tab
-                call    lptout
-                push    hl
-                ld      hl,LPTPOS
-                cp      13
-                jr      nz,outdlp_nocr
-                ld      (hl),0
-outdlp_nocr:
-                cp      ' '
-                jr      c,outdlp_done
-                inc     (hl)
-outdlp_done:
-                pop     hl
-                ret
-outdlp_tab:
-                ld      a,' '
-                call    outdlp
-                ld      a,(LPTPOS)
-                and     7
-                jr      nz,outdlp_tab
-                ld      a,9
                 ret
 
 ;--------------------------------
