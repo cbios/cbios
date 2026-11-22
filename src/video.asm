@@ -566,38 +566,41 @@ clrspr_attr:
 
 ; Note: This label is called directly by external routines.
 clrspr_attr_spritemode2:
-                ld      e,217           ; Y coordinate
+                ld      l,217           ; Y coordinate
                 jr      clrspr_attr_spritemode_start
         ENDIF
 
 ; Note: This label is called directly by external routines.
+; Out: E = FORCLR, D kept, HL = ATRBAS + $80, BC = $0020 or $0080.
 clrspr_attr_spritemode1:
-                ld      e,209           ; Y coordinate
+                ld      l,209           ; Y coordinate
 
 clrspr_attr_spritemode_start:
+                ld      a,(FORCLR)
+                ld      e,a
+                push    de
+                ld      d,l             ; D = Y coordinate
                 ld      hl,(ATRBAS)
         IF VDP = TMS99X8
                 call    setwrt
         ELSE
                 call    nsetwr
         ENDIF
-                ld      a,(FORCLR)
-                ld      d,a
                 ld      bc,$2000        ; B = 32 = counter, C = pattern index
                 di
 clrspr_attr_lp:
-                ld      a,e
+                ld      a,d
                 out     (VDP_DATA),a    ; Y coordinate
-                nop                     ; wait between VRAM accesses: at least
-                nop                     ; 29 t-states on MSX1, less on MSX2
+                inc     hl              ; wait between VRAM accesses: at least
+                inc     hl              ; 29 t-states on MSX1, less on MSX2
         IF VDP = TMS99X8
                 nop
                 nop
         ENDIF
                 in      a,(VDP_DATA)    ; skip the X coordinate: it is kept
                 ld      a,c
-                nop                     ; wait (at least) 29 t-states between VRAM
-                nop                     ; accesses; on MSX2 the read needs it too
+                inc     hl              ; wait (at least) 29 t-states between VRAM
+                inc     hl              ; accesses; on MSX2 the read needs it too
                 nop                     ; (SCREEN 0 has the fewest access slots)
                 out     (VDP_DATA),a    ; pattern number
                 inc     c
@@ -607,9 +610,10 @@ clrspr_attr_lp:
                 inc     c
                 inc     c
 clrspr_attr_8:
-                ld      a,d
+                ld      a,e
                 out     (VDP_DATA),a    ; color
                 djnz    clrspr_attr_lp
+                pop     de
                 ei
                 ret
 
