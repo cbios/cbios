@@ -8,6 +8,9 @@ date.
 
 ## [Unreleased]
 
+### Fixed
+- The tape and music source files carried another licence (0BSD) than the rest of C-BIOS
+
 ## [0.32] - 2026-11-22
 
 ### Fixed
