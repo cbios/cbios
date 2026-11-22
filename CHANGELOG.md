@@ -8,6 +8,8 @@ date.
 
 ## [Unreleased]
 
+## [0.32] - 2026-11-22
+
 ### Fixed
 - INITIO set PSG registers 11 and 15 to other values
 - The tape timing tables (CS120, CS240 and the current speed at $F406) were 0 after power-on
@@ -173,7 +175,8 @@ date.
 
 Older releases are described in `doc/cbios.txt` and `doc/changelog-old.txt`.
 
-[Unreleased]: https://github.com/cbios/cbios/compare/v0.31a...master
+[Unreleased]: https://github.com/cbios/cbios/compare/v0.32...master
+[0.32]: https://github.com/cbios/cbios/compare/v0.31a...v0.32
 [0.31a]: https://github.com/cbios/cbios/compare/v0.31...v0.31a
 [0.31]: https://github.com/cbios/cbios/compare/v0.30...v0.31
 [0.30]: https://github.com/cbios/cbios/compare/v0.29a...v0.30
