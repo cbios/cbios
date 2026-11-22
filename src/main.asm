@@ -3130,6 +3130,39 @@ key_store:
                 jr      nz,put_key_fnk
                 add     a,5             ; SHIFT: F6-F10
 put_key_fnk:
+                ; A program runs (CURLIN not $FFFF) and FNKFLG of the key is
+                ; set: the key is trapped instead of typed.
+                ld      hl,(CURLIN)
+                inc     l
+                jr      nz,put_key_fnk_run
+                inc     h
+                jr      z,put_key_fnk_type
+put_key_fnk_run:
+                ld      h,FNKFLG >> 8
+                add     a,FNKFLG & $FF
+                ld      l,a
+                sub     FNKFLG & $FF    ; (keeps HL)
+                inc     (hl)
+                dec     (hl)
+                jr      z,put_key_fnk_type
+                ; HL := its TRPTBL entry, FNKFLG + n + (TRPTBL - FNKFLG) + 2n
+                add     a,a
+                add     a,l
+                add     a,(TRPTBL - FNKFLG) & $FF
+                ld      l,a
+                inc     h               ; (always a carry)
+                ; Trap on: the event happened. Its handler not running yet:
+                ; ONGSBF := 1.
+                ld      a,(hl)
+                rrca
+                jr      nc,key_ascii_done
+                set     2,(hl)
+                rrca
+                jr      c,key_ascii_done
+                ld      a,1
+                ld      (ONGSBF),a
+                jr      key_ascii_done
+put_key_fnk_type:
                 add     a,a
                 add     a,a
                 add     a,a

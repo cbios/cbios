@@ -14,6 +14,7 @@ date.
 - PUTQ on a full queue returned other values in B and HL
 - TUPC stopped with the graphics cursor far below the screen, as if it were at the top; on MSX1, TUPC and TDOWNC in SCREEN 3 found the edges from a moved pattern table
 - A key typed during the boot logo reached the cartridge or BASIC as typed input
+- A function key with KEY(n) ON was typed while a BASIC program ran, instead of being trapped through FNKFLG and TRPTBL
 
 ## [0.32] - 2026-11-22
 
