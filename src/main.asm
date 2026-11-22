@@ -1793,17 +1793,20 @@ dcompr:
 ;       high    high    low     string  3
 ;       high    low     high    integer 2
 ;       high    low     low     float   4
+; Output   : A  - VALTYP - 3; F as OR A on it, with C when VALTYP < 8
 ; Registers: AF
-;NOTE: this implementation is still a stub!
 getypr:
-                push    hl
-                push    af
-                ld      hl,getypr_text
-                call    print_debug
-                pop     af
-                pop     hl
+                ld      a,(VALTYP)
+                cp      8
+                jr      nc,getypr_dbl
+                sub     3
+                or      a
+                scf
                 ret
-getypr_text:    db      "GETYPR",0
+getypr_dbl:
+                sub     3
+                or      a
+                ret
 
 ;--------------------------------
 ; $0030 CALLF
