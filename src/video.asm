@@ -2226,7 +2226,7 @@ tupc:
                 and     7
                 jr      nz,upc          ; not the cell's top row
                 call    gc_row
-                jp      m,gc_edge       ; the top cell row
+                jp      z,gc_edge       ; the top cell row
                                         ; else on into UPC
 
 ;--------------------------------
@@ -2286,13 +2286,10 @@ gc_edge:                                ; TUPC and TDOWNC at the screen's edge
                 ret
 
 ; Output : C set if the graphics cursor is on or beyond the last cell row of
-;          the pattern table (GRPCGP, SCREEN 3: MLTCGP), S set if it is on the
-;          first one or above the table
+;          the pattern table (GRPCGP, SCREEN 3: MLTCGP), Z set if it is on the
+;          first one or above the table; both unsigned, so $FF00 is neither
 ; Changes: AF
-; Remark : The rows count from the table's base, also in SCREEN 3, as
-;          measured on an NMS 8250. Measured on a VG-8020 (MSX1), TUPC and
-;          TDOWNC in SCREEN 3 find the edges as if MLTCGP were 0; that only
-;          shows when the SCREEN 3 pattern table is moved.
+; Remark : MSX2 counts the SCREEN 3 rows from MLTCGP, MSX1 from 0.
 gc_row:
                 push    hl
                 push    de
@@ -2306,7 +2303,7 @@ gc_row:
                 ld      a,4
         ELSE
                 xor     2               ; MSX1: blocks in every mode but
-                ld      hl,(MLTCGP)     ; SCREEN 2; also clears C for the sbc
+                ld      hl,0            ; SCREEN 2; also clears C for the sbc
                 ld      a,4
                 jr      nz,gc_row_base
                 ld      hl,(GRPCGP)
@@ -2316,11 +2313,13 @@ gc_row_base:
                 ex      de,hl
                 ld      hl,(CLOC)
                 sbc     hl,de           ; H = the cursor's cell row
-                ccf
-                jr      nc,gc_row_done  ; above the table: never the bottom
+                jr      c,gc_row_above
                 cp      h               ; C if H > the last cell row - 1
-gc_row_done:
-                dec     h               ; S if H was 0, or above the table
+                inc     h
+                dec     h               ; Z if H is 0
+                db      $3E             ; ld a,n: skips the xor
+gc_row_above:
+                xor     a               ; above the table: Z, never the bottom
                 pop     de
                 pop     hl
                 ret
