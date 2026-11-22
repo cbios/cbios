@@ -34,6 +34,7 @@ date.
 - GTSTCK read joystick port 2 for every value from 3 up; now 3 to $80 read port 1 and $81 to $FF the cursor keys
 - OUTDLP and OUTDO sent the graphic header and graphic characters as they are to a printer that is not an MSX printer; they now hold back the header and send a space for the graphic character, and return LPTOUT's flags
 - GETYPR was a stub: it now returns the type of the value in DAC
+- GICINI, and so INITIO, turned the tones on before silencing the three voices
 - CHPUT's cursor right from the last column of the function key line's row went to the last column of the bottom text row instead of its first column
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags

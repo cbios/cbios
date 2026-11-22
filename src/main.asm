@@ -2375,8 +2375,8 @@ beep_wait:
 
 ;--------------------------------
 ; $0090 GICINI  Initialize Sound IC
-; Function : Initialises the PSG and the PLAY state: R7 := $B8 (tones on,
-;            noise off, port A in, port B out), the volumes R8-R10 := 0;
+; Function : Initialises the PSG and the PLAY state: the volumes R8-R10 := 0,
+;            then R7 := $B8 (tones on, noise off, port A in, port B out);
 ;            queues 0-2 emptied, at QUEUES (size $7F, VOICAQ, VOICBQ,
 ;            VOICCQ); MUSICF and PLYCNT := 0; the three voice buffers from
 ;            VCBA cleared, but for PLAY's defaults in bytes 15-19 (octave 4,
@@ -2388,19 +2388,20 @@ gicini:
                 push    de
                 push    bc
                 push    af
-                ld      e,$B8           ; mixer: tone on, noise off, port A in, B out
-                ld      a,$07
-                call    wrtpsg
-                ld      e,$00           ; amplitudes 8, 9 and 10: silent
-gicini_amp:     inc     a
-                call    wrtpsg
-                cp      $0A
-                jr      nz,gicini_amp
+                ld      e,$00
                 ld      hl,MUSICF       ; MUSICF, PLYCNT and the voice buffers
                 ld      b,2+3*37
 gicini_clr:     ld      (hl),e          ; 0
                 inc     hl
                 djnz    gicini_clr
+                ld      a,$07           ; amplitudes 8, 9 and 10: silent
+gicini_amp:     inc     a
+                call    wrtpsg
+                cp      $0A
+                jr      nz,gicini_amp
+                ld      e,$B8           ; then the mixer: tone on, noise off,
+                sub     3               ; port A in, B out
+                call    wrtpsg
                 ld      hl,VCBA+15
                 ld      de,37-4
                 ld      bc,$0304
