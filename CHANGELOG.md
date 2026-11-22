@@ -13,6 +13,7 @@ date.
 - CLRSPR changed D, and returned HL at the start of the sprite table instead of just past it
 - PUTQ on a full queue returned other values in B and HL
 - TUPC stopped with the graphics cursor far below the screen, as if it were at the top; on MSX1, TUPC and TDOWNC in SCREEN 3 found the edges from a moved pattern table
+- A key typed during the boot logo reached the cartridge or BASIC as typed input
 
 ## [0.32] - 2026-11-22
 

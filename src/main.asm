@@ -1062,6 +1062,7 @@ vramsize_done:
                 ei
                 ld      b,120
                 call    wait_b
+                call    kilbuf          ; keys typed during the logo are dropped
 
         IF VDP != TMS99X8
                 call    vram_clear
