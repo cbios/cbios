@@ -11,6 +11,7 @@ date.
 ### Fixed
 - The tape and music source files carried another licence (0BSD) than the rest of C-BIOS
 - CLRSPR changed D, and returned HL at the start of the sprite table instead of just past it
+- PUTQ on a full queue returned other values in B and HL
 
 ## [0.32] - 2026-11-22
 

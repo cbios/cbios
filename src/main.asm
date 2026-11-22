@@ -2775,11 +2775,13 @@ lftq:
 ; Put a byte in a queue.
 ; In:      A  = queue number
 ;          E  = data
-; Out:     ZF = set if the queue is full
+; Out:     ZF = set if the queue is full; then B = the put position,
+;          C = the get position, HL = the queue's entry + 3
 ; Changes: AF, BC, HL
 putq:
                 call    calc_queue_address
-                ld      a,(hl)          ; put position
+                ld      b,(hl)          ; put position
+                ld      a,b
                 inc     a
                 push    hl
                 inc     hl
@@ -2802,7 +2804,8 @@ putq:
                 ld      (hl),c          ; ZF is still clear from the cp
                 ret
 putq_full:
-                pop     hl
+                inc     sp              ; drop the entry: HL stays at its size
+                inc     sp
                 ret
 
                 ; Calculate the address to the start of queue control block.
