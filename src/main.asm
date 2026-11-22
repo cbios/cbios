@@ -1102,7 +1102,6 @@ vramsize_done:
 ; We couldn't boot anything, instead show disk contents.
 ; TODO: This breaks boot of MG2, so disabled for now.
 ;                jp      disk_intr
-;                ret                     ; goto stack_error
 
                 ld      hl,str_nocart
                 call    prn_text
@@ -3297,13 +3296,6 @@ hang_up_mode:
                 jr      $
 
 ;------------------------------------
-; Called if the stack underflows.
-stack_error:
-                call    H_STKE
-                ld      de,str_stack_error
-                jp      print_error
-
-;------------------------------------
 ; $0159 CALBAS
 ; Function : Calls the routine at IX in the main ROM's slot (the BASIC
 ;            interpreter's), from any slot: CALSLT with IYH = EXPTBL's first
@@ -3472,9 +3464,6 @@ str_memory_err:
 
 str_syntax_error:
                 db      "SYNTAX.",$00
-
-str_stack_error:
-                db      "STACK ERROR.",$00
 
 str_nocart:
                 ;       [01234567890123456789012345678]
