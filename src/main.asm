@@ -1648,10 +1648,12 @@ text_bytes_per_line:
                 or      a
                 ret     nz
                 ld      c,40            ; text40
+        IF MODEL_MSX != MODEL_MSX1      ; MSX1 has no 80 columns
                 ld      a,(LINLEN)
                 cp      41
                 ret     c
                 ld      c,80            ; text80
+        ENDIF
                 ret
 
 ;--------------------------------

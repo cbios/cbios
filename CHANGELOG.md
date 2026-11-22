@@ -35,6 +35,7 @@ date.
 - OUTDLP and OUTDO sent the graphic header and graphic characters as they are to a printer that is not an MSX printer; they now hold back the header and send a space for the graphic character, and return LPTOUT's flags
 - GETYPR was a stub: it now returns the type of the value in DAC
 - GICINI, and so INITIO, turned the tones on before silencing the three voices
+- On MSX1, SCREEN 0 at a width over 40 placed text as if the screen had 80 columns, so the function key line could land past the screen's name table
 - CHPUT's cursor right from the last column of the function key line's row went to the last column of the bottom text row instead of its first column
 - INITIO returned other values in A, E and F
 - LPTSTT returned other flags
