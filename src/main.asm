@@ -1231,6 +1231,7 @@ search_roms_init_waitv:
                 in      a,($99)
                 or      a
                 jp      m,search_roms_init_waitv
+                ld      a,c             ; A = the ROM's slot, too
                 push    hl
                 call    calslt
                 di
