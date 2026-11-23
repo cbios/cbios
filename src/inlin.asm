@@ -309,6 +309,7 @@ inlin_trim:                             ; drop the trailing spaces
                 inc     bc
                 xor     a               ; NC: ended with Enter
                 ld      (bc),a
+                ld      a,13            ; A = the Enter, flags kept
 inlin_end:
                 push    af
                 ld      a,e

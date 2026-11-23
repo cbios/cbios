@@ -17,6 +17,7 @@ date.
 - A function key with KEY(n) ON was typed while a BASIC program ran, instead of being trapped through FNKFLG and TRPTBL
 - A ROM's INIT got the VDP status in A instead of its own slot, so a disk ROM that installs its hooks from A failed every BDOS call
 - DSPFNK in SCREEN 0 and 1 kept GRPHED, so a pending graphic header survived the key line
+- INLIN, PINLIN and QINLIN returned A = 0 after Enter instead of the Enter ($0D)
 
 ## [0.32] - 2026-11-22
 
