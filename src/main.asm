@@ -2313,7 +2313,8 @@ fnk_span:
                 ld      a,(SCRMOD)
                 cp      2
                 jr      c,fnk_span_text
-                pop     hl              ; SCREEN 2 and up: done
+                inc     sp              ; SCREEN 2 and up: done, HL kept
+                inc     sp
                 ret
 fnk_span_text:
                 ld      hl,(CSRY)

@@ -18,6 +18,7 @@ date.
 - A ROM's INIT got the VDP status in A instead of its own slot, so a disk ROM that installs its hooks from A failed every BDOS call
 - DSPFNK in SCREEN 0 and 1 kept GRPHED, so a pending graphic header survived the key line
 - INLIN, PINLIN and QINLIN returned A = 0 after Enter instead of the Enter ($0D)
+- DSPFNK and ERAFNK in SCREEN 2 and up returned HL changed
 
 ## [0.32] - 2026-11-22
 
