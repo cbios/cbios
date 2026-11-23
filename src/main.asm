@@ -2226,6 +2226,8 @@ dspfnk:
                 call    z,dspfnk_scroll ; the cursor is on the key line's row
                 pop     hl
                 call    setwrt
+                xor     a
+                ld      (GRPHED),a      ; the key line ends a graphic header
                 ld      a,(LINLEN)
                 inc     a
                 ld      b,-1
