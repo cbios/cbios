@@ -1379,7 +1379,26 @@ init_ram:
                 ; reserve all of it.
                 ld      hl,$F380        ; was $F168, but needs to be changed by disk ROM
                 ld      (HIMEM),hl      ; limit of usable memory
+                ; MS-BASIC's layout under HIMEM, which a disk ROM reads to
+                ; rebuild it lower: MEMSIZ $218 below HIMEM (FILTAB's table
+                ; and two file blocks in between), STKTOP 200 below MEMSIZ.
+                ld      hl,$F0A0
                 ld      (STKTOP),hl     ; position of BASIC stack
+                dec     hl
+                dec     hl
+                ld      (SAVSTK),hl
+                ld      hl,$F168
+                ld      (MEMSIZ),hl
+                ld      (FRETOP),hl
+                inc     hl
+                inc     hl
+                ld      (FILTAB),hl
+                ld      hl,$F16E        ; the first file block
+                ld      ($F16A),hl
+                ld      hl,$F16E + 265  ; the second
+                ld      ($F16C),hl
+                ld      hl,$F16E + 9
+                ld      (NULBUF),hl
 
 ;Transmit RDPRIM to RAM.
 
