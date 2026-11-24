@@ -1382,6 +1382,8 @@ init_ram:
                 ; MS-BASIC's layout under HIMEM, which a disk ROM reads to
                 ; rebuild it lower: MEMSIZ $218 below HIMEM (FILTAB's table
                 ; and two file blocks in between), STKTOP 200 below MEMSIZ.
+                ld      hl,MAXFIL       ; 0 from the work-area fill
+                inc     (hl)            ; MAXFILES=1: files 0 and 1
                 ld      hl,$F0A0
                 ld      (STKTOP),hl     ; position of BASIC stack
                 dec     hl
@@ -1395,8 +1397,10 @@ init_ram:
                 ld      (FILTAB),hl
                 ld      hl,$F16E        ; the first file block
                 ld      ($F16A),hl
+                ld      (hl),0          ; a file block starts closed
                 ld      hl,$F16E + 265  ; the second
                 ld      ($F16C),hl
+                ld      (hl),0
                 ld      hl,$F16E + 9
                 ld      (NULBUF),hl
 

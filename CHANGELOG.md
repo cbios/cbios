@@ -22,6 +22,7 @@ date.
 - A cartridge's INIT ran on a stack inside the RAM a disk ROM claims above STKTOP; the boot stack now starts at $F0A0
 - On MSX1, a disk interface cartridge (Sony HBD-F1, Philips NMS 1200) restarted C-BIOS in a loop: the start-up-screen word at $7D2F called the MSX2 sub-ROM; it now names INITXT (INIT32 in the JP build), and the HBD-F1 boots MSX-DOS
 - MEMSIZ, STKTOP, SAVSTK, FRETOP, FILTAB and NULBUF were 0 (STKTOP $F380) at a cartridge's INIT, so a disk ROM rebuilt MS-BASIC's memory layout from them wrongly
+- MAXFIL was 0 after the boot and the two file blocks did not start closed; now MAXFIL is 1, as the layout under HIMEM assumes
 
 ## [0.32] - 2026-11-22
 
