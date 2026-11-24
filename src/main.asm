@@ -979,8 +979,10 @@ chkram_done:
 ; User interface
 ;----------------------
 
-                ld      hl,$F300
-                ld      sp,hl           ; set $F300 to stack pointer
+                ; The stack starts at STKTOP for HIMEM $F380: a disk ROM's
+                ; INIT claims and clears the RAM above it.
+                ld      hl,$F0A0
+                ld      sp,hl
 
                 call    init_ram
 

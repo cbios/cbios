@@ -19,6 +19,7 @@ date.
 - DSPFNK in SCREEN 0 and 1 kept GRPHED, so a pending graphic header survived the key line
 - INLIN, PINLIN and QINLIN returned A = 0 after Enter instead of the Enter ($0D)
 - DSPFNK and ERAFNK in SCREEN 2 and up returned HL changed
+- A cartridge's INIT ran on a stack inside the RAM a disk ROM claims above STKTOP; the boot stack now starts at $F0A0
 
 ## [0.32] - 2026-11-22
 
