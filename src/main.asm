@@ -3581,9 +3581,18 @@ vdp_bios:
                 ret
 unk7D17_text:   db      "unknown@7D17",0
 
-; NMS8250 disk ROM retrieves a pointer from this address.
+; A disk ROM calls the routine at the address in this word: it sets up
+; the start-up screen before MSX-DOS starts.
                 ds      $7D2F - $
+        IF VDP != TMS99X8
                 dw      call_sdfscr
+        ELSE
+          IF LOCALE_BASIC = LOCAL_BASIC_JP
+                dw      init32
+          ELSE
+                dw      initxt
+          ENDIF
+        ENDIF
 
 ; NMS8250 disk ROM can call to this address.
                 ds      $7D31 - $

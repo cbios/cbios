@@ -20,6 +20,7 @@ date.
 - INLIN, PINLIN and QINLIN returned A = 0 after Enter instead of the Enter ($0D)
 - DSPFNK and ERAFNK in SCREEN 2 and up returned HL changed
 - A cartridge's INIT ran on a stack inside the RAM a disk ROM claims above STKTOP; the boot stack now starts at $F0A0
+- On MSX1, a disk interface cartridge (Sony HBD-F1, Philips NMS 1200) restarted C-BIOS in a loop: the start-up-screen word at $7D2F called the MSX2 sub-ROM; it now names INITXT (INIT32 in the JP build), and the HBD-F1 boots MSX-DOS
 
 ## [0.32] - 2026-11-22
 
