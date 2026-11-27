@@ -1,0 +1,114 @@
+<?xml version="1.0" ?>
+<!DOCTYPE msxconfig SYSTEM 'msxconfig2.dtd'>
+<msxconfig>
+
+  <info>
+    <manufacturer>C-BIOS</manufacturer>
+    <code>MSX2 Disk</code>
+    <release_year>2003</release_year>
+    <description>An MSX2 machine with a disk drive, using C-BIOS, with an international keyboard layout and 60Hz interrupt frequency.</description>
+    <type>MSX2</type>
+    <region>int</region>
+  </info>
+
+  <MapperReadBackBits>largest</MapperReadBackBits>
+
+  <CassettePort/>
+
+  <devices>
+
+    <primary slot="0">
+      <ROM id="C-BIOS Main ROM">
+        <mem base="0x0000" size="0x8000"/>
+        <rom>
+          <!--sha1:cbios_main_msx2.rom-->
+          <filename>cbios_main_msx2.rom</filename>
+        </rom>
+      </ROM>
+
+      <ROM id="C-BIOS Logo ROM">
+        <mem base="0x8000" size="0x4000"/>
+        <rom>
+          <!--sha1:cbios_logo_msx2.rom-->
+          <filename>cbios_logo_msx2.rom</filename>
+        </rom>
+      </ROM>
+    </primary>
+
+    <primary external="true" slot="1"/>
+
+    <primary external="true" slot="2"/>
+
+    <primary slot="3">
+
+      <secondary slot="0">
+        <ROM id="C-BIOS Sub ROM">
+          <mem base="0x0000" size="0x4000"/>
+          <rom>
+            <!--sha1:cbios_sub.rom-->
+            <filename>cbios_sub.rom</filename>
+          </rom>
+        </ROM>
+      </secondary>
+
+      <secondary slot="1">
+        <WD2793 id="C-BIOS Disk">
+          <mem base="0x4000" size="0x8000"/>
+          <connectionstyle>National</connectionstyle>
+          <drives>1</drives>
+          <rom>
+            <!--sha1:cbios_disk.rom-->
+            <filename>cbios_disk.rom</filename>
+          </rom>
+        </WD2793>
+      </secondary>
+
+      <secondary slot="2">
+        <MemoryMapper id="Main RAM">
+          <mem base="0x0000" size="0x10000"/>
+          <size>512</size>
+        </MemoryMapper>
+      </secondary>
+
+    </primary>
+
+    <PPI id="ppi">
+      <io base="0xA8" num="4"/>
+      <sound>
+        <volume>16000</volume>
+      </sound>
+      <key_ghosting>false</key_ghosting>
+      <keyboard_type>int</keyboard_type>
+      <has_keypad>true</has_keypad>
+      <code_kana_locks>false</code_kana_locks>
+      <graph_locks>false</graph_locks>
+    </PPI>
+
+    <VDP id="VDP">
+      <io base="0x98" num="4" type="O"/>
+      <io base="0x98" num="2" type="I"/>
+      <version>V9938</version>
+      <vram>128</vram>
+    </VDP>
+
+    <PSG id="PSG">
+      <type>YM2149</type>
+      <io base="0xA0" num="4" type="IO"/>
+      <sound>
+        <volume>21000</volume>
+      </sound>
+    </PSG>
+
+    <RTC id="Real time clock">
+      <io base="0xB4" num="2" type="O"/>
+      <io base="0xB5" num="1" type="I"/>
+      <sramname>cbios-msx2.cmos</sramname>
+    </RTC>
+
+    <PrinterPort id="Printer Port">
+      <io base="0x90" num="2"/>
+    </PrinterPort>
+
+  </devices>
+
+</msxconfig>

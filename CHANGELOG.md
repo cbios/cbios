@@ -8,8 +8,11 @@ date.
 
 ## [Unreleased]
 
+### Added
+- openMSX configurations with a disk drive: a C-BIOS_*_DISK machine beside each of the 12 others
+
 ### Changed
-- cbios_disk.rom is now zerobas's disk ROM, which boots MSX-DOS 1 on a WD2793 disk interface, instead of a stub; it builds with pasmo only, and no configuration uses it yet
+- cbios_disk.rom is now zerobas's disk ROM, which boots MSX-DOS 1 on a WD2793 disk interface, instead of a stub; it builds with pasmo only
 
 ### Fixed
 - The tape and music source files carried another licence (0BSD) than the rest of C-BIOS
