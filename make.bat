@@ -18,10 +18,11 @@ echo usage make.bat [pasmo or tniasm]
 GOTO QUIT
 :ASM
 FOR %%i IN (main_msx1;main_msx2;main_msx2+) DO call ..\build %%i %1
-FOR %%i IN (basic;sub;music;disk;logo_msx1;logo_msx2;logo_msx2+) DO call ..\build %%i %1
+FOR %%i IN (basic;sub;music;logo_msx1;logo_msx2;logo_msx2+) DO call ..\build %%i %1
 FOR %%i IN (main_msx1_eu;main_msx2_eu;main_msx2+_eu) DO call ..\build %%i %1
 FOR %%i IN (main_msx1_jp;main_msx2_jp;main_msx2+_jp) DO call ..\build %%i %1
 FOR %%i IN (main_msx1_br;main_msx2_br;main_msx2+_br) DO call ..\build %%i %1
+IF %1.==pasmo. pasmo -I disk disk\disk.asm ..\derived\bin\cbios_disk.rom
 :END
 cd ..
 :QUIT

@@ -14,7 +14,7 @@ VERSION_FILE:=derived/asm/version.asm
 ROMS:=main_msx1 main_msx1_eu main_msx1_jp main_msx1_br \
 	main_msx2 main_msx2_eu main_msx2_jp main_msx2_br main_msx2+ \
 	main_msx2+_eu main_msx2+_jp main_msx2+_br sub logo_msx1 logo_msx2 \
-	logo_msx2+ music disk basic
+	logo_msx2+ music basic
 ROMS_FULLPATH:=$(ROMS:%=derived/bin/cbios_%.rom)
 
 # If needed override location of pasmo.
@@ -70,6 +70,14 @@ ifeq ($(Z80_ASSEMBLER),z80-as)
 		grep "^;;;-Ttext" $(<:vdep/%=$(ASMDIR)/%) | \
 		sed -e "s/;//g" -e 's/\\$$/0x/g'` -o $@
 endif
+
+# zerobas's disk ROM, pasmo only: see src/disk/README.txt.
+ROMS_FULLPATH+=derived/bin/cbios_disk.rom
+all: derived/bin/cbios_disk.rom
+derived/bin/cbios_disk.rom: $(wildcard src/disk/* src/disk/basic/*)
+	@echo "Assembling: src/disk/disk.asm"
+	@mkdir -p $(@D) derived/lst
+	@$(PASMO) -I src/disk src/disk/disk.asm $@ derived/lst/cbios_disk.lst
 
 ifeq ($(filter clean,$(MAKECMDGOALS)),)
 
