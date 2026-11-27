@@ -2997,6 +2997,12 @@ root_pos:
 ; from the DTA (BDOS_DTA). Out: HL / DE past the source / the destination, BC = 0.
 ; 💰 D-DSKFMT carve 22 (2026-11-10): it stood inline in bsw_m34_buffer, wrrnd_body and
 ; wrblk's chunk copy.
+; 🔴 D-P1WRITE (2026-11-27): THE COPY GOES THROUGH P1_BLIT (page 1 = RAM), as the read side's
+; does (bsr_have, dta_put). A plain LDIR read a DTA in $4000-$7FFF with THIS ROM in page 1, so
+; an MSX-DOS program writing from page 1 wrote the disk ROM's bytes: COPY of a 32 KB file put
+; 16 KB of our ROM image into the copy and said "1 file copied" (scratchpad/AE_bigcopy32_new.out:
+; 16320 of the 16384 bytes = build/disk.rom). Same size: `jp P1_BLIT` for `ldir` + `ret`.
+; CLEAN-ROOM: our own code and the typed COPY's disk image against the CF-3300's.
 dta_rec:
                 ld      bc, RECSIZE
 dta_chunk:
@@ -3004,8 +3010,7 @@ dta_chunk:
                 add     hl, de
                 ex      de, hl              ; DE = SECTOR_BUF + HL
                 ld      hl, (BDOS_DTA)      ; HL = the caller's bytes
-                ldir
-                ret
+                jp      P1_BLIT             ; LDIR with page 1 = RAM; HL / DE past, BC = 0
 
 
 
